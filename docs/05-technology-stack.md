@@ -330,23 +330,33 @@ graph TD
 - Spring Boot DevTools for rapid iteration
 - LiveReload for frontend changes
 
-### Infrastructure as Code
+### Infrastructure as Code & Deployment
 
-**Current Phase: Manual + Docker Compose**
+**Phase 1: Manual + Docker Compose (Current)**
 - Manual VPS provisioning (DigitalOcean, AWS)
 - Docker Compose for container orchestration
 - Simple bash scripts for common tasks
 - Focus on product stability, not automation
+- Target: Own company, 1-3 early customers
 
-**Future Phase: Pulumi (SaaS Automation)**
+**Phase 2: Control Plane + Docker Compose**
+- Build control plane application for client management
+- Automated application deployment (Docker Compose API)
+- Subdomain and Nginx configuration automation
+- Client lifecycle management (onboarding, billing, monitoring)
+- Infrastructure still manual (upgrade VPS as needed)
+- Target: 5-50 clients on shared nodes
+
+**Phase 3: Control Plane + Pulumi (Full Automation)**
 - Programmatic VPS creation (DigitalOcean, AWS API)
 - Infrastructure in TypeScript/Python/Java
 - Type-safe, testable infrastructure code
 - State management built-in
 - Called from control plane app via Automation API
-- Automated client provisioning and deployment
+- Mix of dedicated and shared nodes
+- Target: 50+ clients, premium tiers, geographic distribution
 
-**Why Pulumi (future) over Ansible:**
+**Why Pulumi (Phase 3) over Ansible:**
 - Better for creating cloud resources (VPS, DNS, storage)
 - Real programming language (not YAML)
 - Automation API for programmatic control

@@ -399,52 +399,176 @@ def generate_journal_entries(transaction, template):
     return entries
 ```
 
-## Current Phase: Manual Deployment
+## Deployment Progression
 
-### Initial Setup (Own Company)
+### Phase 1: Single Company (Manual - Current)
+
+**Target:** Own company only, product validation
+
+**Infrastructure:**
+- One VPS (2GB RAM, 1 vCPU, ~$12/mo)
+- Single application instance
+- Single database
+- Docker Compose orchestration
+
+**Deployment Process:**
 1. Provision VPS manually (DigitalOcean, AWS, etc.)
 2. Install Docker and Docker Compose
 3. Configure environment variables
-4. Run docker-compose up
-5. Access application via domain/IP
+4. Deploy: `docker-compose up -d`
+5. Access via domain/IP
 
-### Adding New Clients (Early Customers)
-1. Create new database on existing PostgreSQL
-2. Add new service to docker-compose.yml
-3. Configure subdomain and Nginx
-4. Deploy with docker-compose up -d
+**Characteristics:**
+- No provisioning automation
+- No control plane needed
+- Manual configuration
+- Focus: Get core features rock solid
 
-### Focus: Product Validation
-- Get the core accounting features rock solid
-- Validate with real users (own company + early customers)
-- Iterate on UX and functionality
-- No infrastructure automation yet
+**When to move to Phase 2:** Product is stable, have 3-5 paying customers
 
-## Future Phase: SaaS Automation
+---
 
-**Note:** This phase begins after core product is stable and proven.
+### Phase 2: Multi-Instance Single Node (Semi-Automated)
 
-### Control Plane Application
+**Target:** 5-50 clients, cost-optimized SaaS
 
-**Purpose:** Automate client provisioning and management
+**Infrastructure:**
+- Shared VPS (8-16GB RAM, 4-8 vCPU, ~$48-96/mo)
+- Multiple application instances (one per client)
+- Shared PostgreSQL service (separate databases per client)
+- Shared MinIO (separate buckets per client)
+- Nginx reverse proxy (subdomain per client)
 
-**Features:**
+**Architecture:**
+```
+VPS ($48-96/mo, 8-16GB RAM)
+├── PostgreSQL Service
+│   ├── db_company_a
+│   ├── db_company_b
+│   ├── db_company_c
+│   └── ...
+├── MinIO
+│   ├── bucket-company-a/
+│   ├── bucket-company-b/
+│   └── ...
+├── Application Instances
+│   ├── app-company-a (Port 8081)
+│   ├── app-company-b (Port 8082)
+│   ├── app-company-c (Port 8083)
+│   └── ...
+└── Nginx Reverse Proxy
+    ├── company-a.akuntingapp.com → 8081
+    ├── company-b.akuntingapp.com → 8082
+    └── company-c.akuntingapp.com → 8083
+```
+
+**Control Plane Application:**
+
+*Purpose:* Automate client lifecycle, no infrastructure provisioning yet
+
+*Features:*
 - Client onboarding wizard
 - Subscription and billing management
-- Automated VPS provisioning (via Pulumi)
-- Deployment orchestration
+- Automated application deployment (Docker Compose)
+- Subdomain and Nginx configuration
 - Monitoring dashboard
 - Support ticketing
+- Usage analytics
 
-### Infrastructure as Code: Pulumi
+*Deployment Flow:*
+```mermaid
+sequenceDiagram
+    participant Admin as Control Plane
+    participant Docker as Docker Compose
+    participant Nginx as Nginx
+    participant PG as PostgreSQL
+    participant MinIO as MinIO
 
-**Why Pulumi over Ansible:**
-- Programmatic VPS creation (DigitalOcean, AWS API)
+    Admin->>PG: Create database
+    Admin->>MinIO: Create bucket
+    Admin->>Docker: Add service to compose file
+    Admin->>Docker: Deploy new instance
+    Docker-->>Admin: Instance running
+    Admin->>Nginx: Configure subdomain
+    Admin->>Admin: Save client metadata
+```
+
+**Control Plane Database:**
+```sql
+clients
+- id, company_name, slug, status
+- database_name, bucket_name
+- subdomain, port
+- created_at, trial_end_date
+
+subscriptions
+- id, client_id, plan_id, status
+- billing_cycle, amount, next_billing_date
+
+deployments
+- id, client_id, version, status
+- deployed_at, deployed_by
+```
+
+**Characteristics:**
+- Infrastructure still manual (single VPS)
+- Application deployment automated
+- Control plane manages client lifecycle
+- Cost-effective (clients share VPS)
+- Limited scaling (VPS capacity bound)
+
+**Limitations:**
+- All clients on one node (single point of failure)
+- Limited to VPS capacity (~10-20 clients per node)
+- Resource contention risk
+- Manual VPS scaling (upgrade or add nodes)
+
+**When to move to Phase 3:**
+- Approaching VPS capacity
+- Premium clients need isolation
+- Geographic distribution needed
+
+---
+
+### Phase 3: Node Per Client (Fully Automated)
+
+**Target:** 50+ clients, premium tier, geographic distribution
+
+**Infrastructure:**
+- Dedicated VPS per client (or multiple clients on premium nodes)
+- Automated VPS provisioning via Pulumi
+- Geographic distribution (Singapore, Jakarta, etc.)
+- Client-specific resource sizing
+
+**Architecture:**
+```
+Control Plane (admin.akuntingapp.com)
+├── Manages all client nodes
+├── Pulumi automation for VPS creation
+└── Monitoring and billing
+
+Client Nodes (provisioned on-demand)
+├── Node 1 (Singapore)
+│   ├── Client A (dedicated)
+│   └── Client B (dedicated)
+├── Node 2 (Jakarta)
+│   ├── Client C (dedicated)
+│   └── Client D (dedicated)
+└── Node 3 (Shared - economy tier)
+    ├── Client E
+    ├── Client F
+    └── Client G
+```
+
+**Infrastructure as Code: Pulumi**
+
+*Why Pulumi:*
+- Programmatic VPS creation (DigitalOcean, AWS, GCP APIs)
 - Real programming language (TypeScript, Python, Java)
 - Type-safe infrastructure code
 - Built-in state management
-- Can be called from Java admin app via Automation API
-- Better for creating resources (Ansible better for configuring existing)
+- Can be called from Java control plane via Automation API
+- Better for creating resources than Ansible
 
 **Provisioning Flow:**
 ```mermaid
@@ -489,43 +613,75 @@ const deploy = new command.remote.Command("deploy", {
 });
 ```
 
-**Control Plane Database:**
+**Control Plane Database (Extended):**
 ```sql
 -- Metadata for all clients
 clients
 - id, company_name, slug, status
-- vps_id, database_name, subdomain
+- deployment_type (shared/dedicated)
+- node_id (references vps_servers)
+- database_name, subdomain
 - created_at, trial_end_date
 
 vps_servers
-- id, provider, ip_address, spec
-- max_clients, monthly_cost
+- id, provider, ip_address, region
+- spec (cpu, ram, disk)
+- deployment_type (shared/dedicated)
+- current_clients, max_clients
+- monthly_cost, status
 
 subscriptions
 - id, client_id, plan_id, status
-- billing_cycle, amount
+- billing_cycle, amount, next_billing_date
 
 deployments
 - id, client_id, version, status
-- pulumi_stack_name, started_at
+- pulumi_stack_name, node_id
+- deployed_at, deployed_by
 ```
 
-### Scaling Strategy
+**Characteristics:**
+- Full infrastructure automation (VPS creation to app deployment)
+- Control plane uses Pulumi Automation API
+- Mix of dedicated and shared nodes
+- Geographic distribution support
+- Client-specific resource sizing
+- On-demand provisioning
 
-**Phase 1 (1-10 clients):**
-- Manual provisioning
-- Co-located on single VPS
-- Learn what customers need
+**Pricing Tiers:**
+- **Economy:** Shared node (co-located with others)
+- **Business:** Dedicated node (2-4GB RAM)
+- **Premium:** Dedicated node (8GB+ RAM, enhanced support)
+- **Enterprise:** Dedicated cluster (multi-region)
 
-**Phase 2 (10-50 clients):**
-- Build control plane app
-- Automate with Pulumi
-- Multiple shared VPS
+**Benefits:**
+- True isolation for premium clients
+- No resource contention
+- Independent scaling per client
+- Geographic optimization (latency)
+- Custom resource allocation
+- Better SLA guarantees
 
-**Phase 3 (50+ clients):**
-- Auto-scaling based on load
-- Dedicated VPS for premium tier
-- Geographic distribution (Singapore, Jakarta)
+**Limitations:**
+- Higher operational complexity
+- More expensive per client
+- Pulumi state management needed
+- Control plane becomes mission-critical
+
+---
+
+## Deployment Progression Summary
+
+| Aspect | Phase 1 | Phase 2 | Phase 3 |
+|--------|---------|---------|---------|
+| **Target** | Own company | 5-50 clients | 50+ clients |
+| **Infrastructure** | 1 VPS | 1-2 shared VPS | Multiple nodes |
+| **Automation** | None | App deployment | Full (infra + app) |
+| **Control Plane** | Not needed | Client management | + Pulumi automation |
+| **Cost/Client** | N/A | $2-5/mo | $12-50/mo |
+| **Isolation** | N/A | Process only | Full (dedicated VPS) |
+| **Complexity** | Low | Medium | High |
+| **When to Use** | MVP/Testing | Early SaaS | Growth/Premium |
 
 ## Current Scalability Considerations
 

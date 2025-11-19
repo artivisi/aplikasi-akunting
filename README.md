@@ -87,8 +87,11 @@ flowchart TD
 ### Single-Tenant Architecture
 - Instance-per-client deployment (one app per company)
 - Complete data and process isolation
-- Flexible deployment: co-located or dedicated VPS
 - No multi-tenancy code complexity
+- **Deployment Progression:**
+  - Phase 1: Single company (manual deployment)
+  - Phase 2: Multi-instance single node (control plane for client management)
+  - Phase 3: Node per client (Pulumi automation for dedicated VPS)
 
 ## Documentation
 
