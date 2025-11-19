@@ -121,6 +121,60 @@
 - Not suitable for manufacturers
 - Limited to simple buy/sell model
 
+### 9. Technology Stack: Spring Boot Monolith ✓
+**Decision:** Java 25 + Spring Boot 4.0 + Thymeleaf + HTMX + Alpine.js + PostgreSQL 17
+
+**Date:** 2025-11-19
+
+**Alternatives Considered:**
+1. Spring Boot + React/Vue (Split BE/FE)
+2. ExpressJS + Handlebars (Node.js)
+3. Spring Boot + Thymeleaf + HTMX (Selected)
+
+**Rationale:**
+- **Monolith over Split BE/FE:**
+  - Single codebase reduces maintenance overhead
+  - No data model or validation duplication
+  - Simple session-based authentication
+  - Faster development and debugging
+  - Sufficient UX for form-heavy accounting workflows
+
+- **Java 25 + Spring Boot over Node.js:**
+  - BigDecimal for precise financial calculations
+  - Type safety for complex business logic
+  - Mature transaction management (ACID)
+  - Virtual threads for efficient multi-tenant handling
+  - Large Java talent pool in Indonesia
+  - Battle-tested security for financial applications
+
+- **HTMX Enhancement:**
+  - Modern UX without SPA complexity
+  - Partial page updates
+  - Progressive enhancement
+  - No build process required
+
+- **Document Storage Strategy:**
+  - Phase 1: MinIO (self-hosted, cost-optimized)
+  - Phase 2+: Indonesian cloud or AWS/GCP
+  - S3-compatible API for easy migration
+
+- **DevSecOps Tools:**
+  - Docker Compose (local development)
+  - Ansible (IaC, deployment)
+  - Playwright (functional testing)
+  - K6 (performance testing)
+  - SonarQube, OWASP tools, Trivy (security)
+
+**Implementation:** See [Technology Stack Documentation](05-technology-stack.md) for details
+
+**Trade-offs:**
+- Less flashy UI than SPA (acceptable for target users)
+- Server-rendered pages (suitable for form-heavy workflows)
+- MinIO requires ops overhead (offset by cost savings)
+- Can refactor to API architecture later if mobile app needed
+
+**Review Date:** After MVP launch
+
 ## Open Questions
 
 ### Template System Design
@@ -565,17 +619,45 @@ C. Budget workflows (approval, alerts, variance analysis)
 ### Document Storage & Management Research
 
 1. **Cloud storage providers** for Indonesian market:
-   - AWS S3 (Singapore/Jakarta region)
+
+   **Self-Hosted Solutions:**
+   - MinIO (S3-compatible object storage)
+     - Free and open source
+     - Deploy on own infrastructure
+     - S3 API compatibility (easy migration)
+     - Cost: Only infrastructure (VPS/server)
+     - Ops overhead: Requires maintenance
+   - Ceph
+   - SeaweedFS
+
+   **Indonesian Cloud Providers:**
+   - Biznet Gio (NEO Object Storage)
+     - Jakarta data center
+     - Lower latency for Indonesian users
+     - Competitive pricing
+     - Local support
+   - IDCloudHost (Object Storage)
+   - Telkom Sigma (Cloud Storage)
+   - Qwords (Cloud Object Storage)
+
+   **Global Cloud Providers:**
+   - AWS S3 (ap-southeast-3 Jakarta region)
    - Google Cloud Storage (Jakarta region)
    - Alibaba Cloud OSS
-   - Local providers (BiznetGio, etc.)
-   - Cost comparison:
-     - Storage cost per GB/month
-     - Bandwidth/transfer costs
-     - Request costs (PUT/GET)
-     - Data retrieval costs
+
+   **Cost Comparison Needed:**
+   - Storage cost per GB/month
+   - Bandwidth/transfer costs (ingress/egress)
+   - Request costs (PUT/GET)
+   - Data retrieval costs
+   - Minimum commitment
    - Data residency compliance
    - SLA and reliability
+
+   **Migration Path:**
+   - Phase 1: MinIO (MVP, lowest cost)
+   - Phase 2: Indonesian cloud (growth, managed service)
+   - Phase 3: AWS/GCP (scale, global expansion)
 
 2. **Storage optimization strategies:**
    - Image compression (quality vs size trade-off)

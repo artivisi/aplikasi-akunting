@@ -97,6 +97,7 @@ Comprehensive documentation is available in the `/docs` directory:
 - **[Architecture](docs/02-architecture.md)** - System architecture and design principles
 - **[Data Model](docs/03-data-model.md)** - Complete database schema and entity relationships
 - **[Tax Compliance](docs/04-tax-compliance.md)** - Indonesian tax handling and regulations
+- **[Technology Stack](docs/05-technology-stack.md)** - Technology selection and justification
 - **[Decisions & Questions](docs/99-decisions-and-questions.md)** - Design decisions, open questions, and research items
 
 ## Competitive Differentiators
@@ -111,14 +112,60 @@ Comprehensive documentation is available in the `/docs` directory:
 
 ## Technology Stack
 
-_(To be determined)_
+### Core Stack
 
-Considerations:
-- Backend: Node.js, Python (Django/FastAPI), or Go
-- Frontend: React, Vue, or Svelte
-- Database: PostgreSQL
-- Cloud Storage: AWS S3 or Google Cloud Storage (Jakarta region)
-- Deployment: Docker, Kubernetes
+**Runtime:**
+- Java 25 (LTS with virtual threads)
+
+**Backend:**
+- Spring Boot 4.0
+- Spring Data JPA
+- Spring Security
+- Thymeleaf (template engine)
+
+**Frontend Enhancement:**
+- HTMX (partial page updates)
+- Alpine.js (lightweight interactivity)
+- Tailwind CSS or Bootstrap
+
+**Database:**
+- PostgreSQL 17
+
+**Document Storage:**
+- Phase 1: MinIO (self-hosted, S3-compatible)
+- Phase 2+: Indonesian cloud (Biznet Gio, IDCloudHost) or AWS S3/GCS
+
+### Development & Testing
+
+**Local Development:**
+- Docker Compose (multi-container orchestration)
+
+**Infrastructure:**
+- Ansible (IaC and deployment automation)
+
+**Testing:**
+- JUnit 5 + Mockito (unit tests)
+- Testcontainers (integration tests)
+- Playwright (functional/E2E tests)
+- K6 (performance testing)
+
+**DevSecOps:**
+- SonarQube (SAST)
+- OWASP Dependency-Check (dependency vulnerabilities)
+- OWASP ZAP (DAST)
+- Trivy (container security)
+- GitLeaks (secret scanning)
+
+### Architecture: Modern Monolith
+
+**Why not split Backend/Frontend?**
+- Single codebase reduces complexity
+- No data model or validation duplication
+- Simple session-based authentication
+- Faster development for accounting workflows
+- HTMX provides modern UX without SPA overhead
+
+See [Technology Stack Documentation](docs/05-technology-stack.md) for detailed justification and DevSecOps pipeline.
 
 ## Project Status
 
@@ -129,13 +176,14 @@ Considerations:
 - ✅ Architecture design
 - ✅ Database schema design
 - ✅ Tax compliance research outline
+- ✅ Technology stack selection
 
 ### Next Steps:
 1. Finalize open design questions
-2. Select technology stack
-3. Set up development environment
-4. Build proof of concept for journal template system
-5. Design UI/UX mockups
+2. Set up development environment
+3. Build proof of concept for journal template system
+4. Design UI/UX mockups
+5. Implement authentication and multi-tenancy
 
 ## Contributing
 
