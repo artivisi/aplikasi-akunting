@@ -41,10 +41,15 @@
 - Can co-locate multiple instances for cost efficiency
 - Can isolate high-value clients on dedicated VPS
 
+**Deployment Progression:**
+1. **Phase 1 (MVP):** Single company, manual deployment, Docker Compose
+2. **Phase 2 (Early SaaS):** Multi-instance single node, control plane for client management, 5-50 clients
+3. **Phase 3 (Growth):** Node per client, Pulumi automation, 50+ clients with premium tiers
+
 **Trade-offs:**
-- Need control plane app for SaaS automation (future phase)
+- Need control plane app for SaaS automation (Phase 2+)
 - More containers/processes to manage
-- Acceptable: Focus on product stability first, automate later with Pulumi
+- Acceptable: Focus on product stability first (Phase 1), automate incrementally
 - More testing scenarios
 
 ### 4. Indonesian Tax Focus ✓
