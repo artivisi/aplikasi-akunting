@@ -1,0 +1,13 @@
+{
+  "name": "accounting-finance-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./src/app.css -o ../resources/static/css/app.css --minify",
+    "watch": "tailwindcss -i ./src/app.css -o ../resources/static/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "tailwindcss": "^4.0.0"
+  }
+}

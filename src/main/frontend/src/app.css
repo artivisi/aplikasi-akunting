@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@source "../../resources/templates/**/*.html";
+
+@theme {
+    /* Primary colors - Artivisi Blue (#2e3192) */
+    --color-primary-50: #eef0fb;
+    --color-primary-100: #dde1f7;
+    --color-primary-200: #bcc3ef;
+    --color-primary-300: #9aa5e7;
+    --color-primary-400: #7987df;
+    --color-primary-500: #5769d7;
+    --color-primary-600: #4654ac;
+    --color-primary-700: #2e3192;
+    --color-primary-800: #252878;
+    --color-primary-900: #1c1e5d;
+    --color-primary-950: #131443;
+
+    /* Accent colors - Artivisi Green (#58c034) */
+    --color-accent-50: #f0fbe9;
+    --color-accent-100: #dff6d1;
+    --color-accent-200: #bfeda4;
+    --color-accent-300: #9fe476;
+    --color-accent-400: #7edb48;
+    --color-accent-500: #58c034;
+    --color-accent-600: #47992a;
+    --color-accent-700: #357320;
+    --color-accent-800: #244c15;
+    --color-accent-900: #12260b;
+    --color-accent-950: #091305;
+}
+
+/* Alpine.js cloak */
+[x-cloak] {
+    display: none !important;
+}
