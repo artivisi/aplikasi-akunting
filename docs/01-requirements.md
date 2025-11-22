@@ -78,18 +78,19 @@
 - Tax calendar with reminders (monthly, quarterly, annual deadlines)
 - Automated tax calculations from transactions
 
-### 3. Multi-Client Dashboard
-- Easy switching between client companies
-- Consolidated view across multiple clients
-- Task management per client
-- Permission levels: Owner, Operator, Power Operator, Viewer, Auditor
+### 3. Single-Tenant Architecture (Per-Client Instance)
+- Each company has own application instance and database
+- Bookkeepers have separate credentials per client (no shared dashboard)
+- Complete data isolation per instance
+- Permission levels per instance: Owner, Bookkeeper, Accountant, Viewer, Auditor
 
 ### 4. Reports & Analysis
 
-#### Financial Reports (Indonesian Format)
-- Laporan Laba Rugi (Income Statement)
-- Neraca (Balance Sheet)
-- Arus Kas (Cash Flow Statement)
+#### Financial Reports (SAK EMKM Compliance + Cash Flow)
+- Laporan Posisi Keuangan / Neraca (Balance Sheet) - Required by SAK EMKM
+- Laporan Laba Rugi (Income Statement) - Required by SAK EMKM
+- Catatan atas Laporan Keuangan / CALK (Notes) - Required by SAK EMKM
+- Laporan Arus Kas (Cash Flow Statement) - Beyond SAK EMKM requirement, added for business insight
 - Buku Besar (General Ledger)
 - All reports in Indonesian terminology
 
@@ -211,13 +212,48 @@
   - Digital signature support for finalized reports
   - E-meterai integration for official documents
 
+## Phase 1 Features (Confirmed)
+
+### Bank Reconciliation
+- Manual CSV upload from bank apps (BCA, BNI, BSI, CIMB)
+- Configurable parser (column name matching with index fallback)
+- Matching: exact, fuzzy (±1 day), manual
+- Parser configs stored in database, admin can add via UI
+
+### Marketplace Reconciliation
+- CSV upload from Tokopedia, Shopee, Bukalapak, Lazada
+- Track marketplace fees, shipping costs, net settlements
+- Reuse configurable parser pattern from bank reconciliation
+
+### Full Payroll
+- Auto-calculate PPh 21 with progressive rates + PTKP
+- Auto-calculate BPJS Kesehatan and BPJS Ketenagakerjaan
+- Salary component templates (preloaded per industry)
+- Payslip generation
+- Pregenerate salary configs for common job positions
+
+### Fixed Asset Management
+- Basic asset register (name, category, cost, useful life)
+- Auto-depreciation via journal templates + scheduled batch job
+- Straight-line and declining balance methods
+
+### Budget Management
+- Simple budget vs actual reports
+- Budget per account per period
+- Variance reporting with over-budget highlighting
+
+### Document Management
+- Receipt photo capture (mobile)
+- Scanned documents legally valid (UU ITE, UU 8/1997)
+- Auto-generate berita acara (legalization record)
+- 10-year retention per Indonesian law
+
 ## Non-Features (Not Planned Near-Term)
-- Bank integration / automatic bank feeds
-- Payroll processing (may record as expenses only)
+- Bank integration / automatic bank feeds (use manual CSV upload)
 - Complex manufacturing inventory (BOM, WIP, assembly)
 - Production costing
 - Mobile app (Phase 3 consideration)
-- Multi-currency support
+- Multi-currency support (Phase 2 if needed)
 
 ## Competitive Differentiators
 
@@ -244,7 +280,8 @@
 - Easy switching between client contexts
 
 ### For Business (SaaS)
-- Scalable multi-tenant architecture
+- Single-tenant architecture (one instance per company)
+- Monthly subscription pricing (Rp 200k-500k/month)
 - Low support burden (self-service capable)
 - High user retention
-- Clear upgrade path from personal use to team/multi-client
+- Hosting on local Indonesian providers or DigitalOcean

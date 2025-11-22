@@ -91,14 +91,43 @@ journal_templates
 - name                  VARCHAR(255) NOT NULL
 - description           TEXT
 - category              VARCHAR(50)            -- 'expense', 'income', 'payment', 'transfer', etc.
+- cash_flow_category    VARCHAR(20)            -- 'OPERATING', 'INVESTING', 'FINANCING', 'NON_CASH' (Decision #24)
 - is_system             BOOLEAN DEFAULT false  -- System (preloaded) vs user-created
 - is_active             BOOLEAN DEFAULT true
+- version               INTEGER DEFAULT 1      -- Template versioning (Decision #10)
+- parent_id             UUID REFERENCES journal_templates(id)  -- Previous version reference
 - created_by            UUID REFERENCES users(id)
 - created_at            TIMESTAMP
 - updated_at            TIMESTAMP
 
 INDEX(category, is_active)
 INDEX(is_system, is_active)
+INDEX(parent_id)
+
+-- Template tags for flexible organization (Decision #12)
+journal_template_tags
+- id                    UUID PRIMARY KEY
+- template_id           UUID NOT NULL REFERENCES journal_templates(id) ON DELETE CASCADE
+- tag                   VARCHAR(100) NOT NULL
+- created_at            TIMESTAMP
+
+INDEX(template_id)
+INDEX(tag)
+
+-- User favorites and usage tracking (Decision #12)
+user_template_preferences
+- id                    UUID PRIMARY KEY
+- user_id               UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
+- template_id           UUID NOT NULL REFERENCES journal_templates(id) ON DELETE CASCADE
+- is_favorite           BOOLEAN DEFAULT false
+- usage_count           INTEGER DEFAULT 0
+- last_used_at          TIMESTAMP
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+UNIQUE(user_id, template_id)
+INDEX(user_id, is_favorite)
+INDEX(user_id, usage_count DESC)
 ```
 
 **Categories:**
@@ -136,8 +165,16 @@ INDEX(template_id, line_number)
 - `transaction_amount` - Use transaction amount * percentage
 - `fixed` - Fixed amount (stored in amount_value)
 - `percentage` - Percentage of transaction (e.g., 11% for PPN)
-- `formula` - Custom formula (e.g., "transaction_amount * 0.11 + 1000")
+- `formula` - SpEL expression (Decision #13), e.g.:
+  - `amount * 0.11` (simple percentage)
+  - `amount > 2000000 ? amount * 0.02 : 0` (conditional)
+  - `transaction.amount * rate.ppn` (field references)
 - `user_defined` - User enters amount manually
+
+**SpEL Evaluation (Decision #13):**
+- Use `SimpleEvaluationContext.forReadOnlyDataBinding()` for security
+- Blocks: type references, constructors, bean references, arbitrary method calls
+- Create `FormulaContext` root object with transaction data
 
 **Example Template Lines:**
 
@@ -154,7 +191,9 @@ Line 3: Credit | account_id: NULL           | mapping_key: "payment_account"  | 
 transactions
 - id                    UUID PRIMARY KEY
 - template_id           UUID REFERENCES journal_templates(id)
-- transaction_number    VARCHAR(50) UNIQUE NOT NULL   -- Auto-generated: TRX-2025-00001
+- template_version_id   UUID REFERENCES journal_templates(id)  -- Specific version used (Decision #10)
+- transaction_type      VARCHAR(3) NOT NULL    -- 'SAL', 'PUR', 'EXP', 'RCV', 'PAY', 'JNL', 'ADJ' (Decision #17)
+- transaction_number    VARCHAR(50) UNIQUE NOT NULL   -- Format: {TYPE}-{YYYY}-{seq} (Decision #17)
 - transaction_date      DATE NOT NULL
 - description           TEXT NOT NULL
 - reference_no          VARCHAR(100)           -- External reference (invoice no, etc.)
@@ -173,6 +212,17 @@ transactions
 INDEX(transaction_date, status)
 INDEX(status)
 INDEX(template_id)
+INDEX(transaction_type, transaction_date)
+
+-- Transaction number sequences (Decision #17)
+transaction_sequences
+- id                    UUID PRIMARY KEY
+- transaction_type      VARCHAR(3) NOT NULL    -- 'SAL', 'PUR', etc.
+- fiscal_year           INTEGER NOT NULL
+- last_number           INTEGER DEFAULT 0
+- updated_at            TIMESTAMP
+
+UNIQUE(transaction_type, fiscal_year)
 ```
 
 **Status Values:**
@@ -394,6 +444,224 @@ INDEX(accessed_at DESC)
 ```
 
 **Purpose:** Audit trail for document access (who viewed/downloaded what, when)
+
+### 14. Fiscal Periods (Decision #16)
+
+```sql
+fiscal_periods
+- id                    UUID PRIMARY KEY
+- fiscal_year           INTEGER NOT NULL
+- period_month          INTEGER NOT NULL       -- 1-12
+- status                VARCHAR(20) DEFAULT 'open'  -- 'open', 'month_closed', 'tax_filed'
+- closed_at             TIMESTAMP
+- closed_by             UUID REFERENCES users(id)
+- tax_filed_at          TIMESTAMP
+- tax_filed_by          UUID REFERENCES users(id)
+- notes                 TEXT
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+UNIQUE(fiscal_year, period_month)
+INDEX(status)
+```
+
+### 15. Bank Statement Parser Configs (Decision #22)
+
+```sql
+bank_parser_configs
+- id                    UUID PRIMARY KEY
+- bank_code             VARCHAR(20) UNIQUE NOT NULL  -- 'bca', 'bni', 'bsi', 'cimb'
+- bank_name             VARCHAR(255) NOT NULL
+- date_columns          JSONB NOT NULL         -- ["Tanggal", "Date", "Tgl"]
+- date_format           VARCHAR(50) NOT NULL   -- "dd/MM/yyyy"
+- description_columns   JSONB NOT NULL         -- ["Keterangan", "Description"]
+- debit_columns         JSONB                  -- ["Debit", "Mutasi Debit"]
+- credit_columns        JSONB                  -- ["Credit", "Mutasi Kredit"]
+- amount_column         JSONB                  -- For single amount column with +/-
+- balance_columns       JSONB                  -- ["Saldo", "Balance"]
+- decimal_separator     CHAR(1) DEFAULT ','
+- thousand_separator    CHAR(1) DEFAULT '.'
+- skip_header_rows      INTEGER DEFAULT 1
+- fallback_indices      JSONB                  -- {date: 0, desc: 1, debit: 2, credit: 3, balance: 4}
+- is_active             BOOLEAN DEFAULT true
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+```
+
+### 16. Bank Reconciliation (Decision #22)
+
+```sql
+bank_reconciliations
+- id                    UUID PRIMARY KEY
+- bank_account_id       UUID NOT NULL REFERENCES chart_of_accounts(id)
+- statement_date        DATE NOT NULL
+- opening_balance       DECIMAL(15,2) NOT NULL
+- closing_balance       DECIMAL(15,2) NOT NULL
+- status                VARCHAR(20) DEFAULT 'in_progress'  -- 'in_progress', 'completed'
+- completed_at          TIMESTAMP
+- completed_by          UUID REFERENCES users(id)
+- created_by            UUID REFERENCES users(id)
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+INDEX(bank_account_id, statement_date)
+
+bank_statement_items
+- id                    UUID PRIMARY KEY
+- reconciliation_id     UUID NOT NULL REFERENCES bank_reconciliations(id) ON DELETE CASCADE
+- transaction_date      DATE NOT NULL
+- description           TEXT
+- debit                 DECIMAL(15,2) DEFAULT 0
+- credit                DECIMAL(15,2) DEFAULT 0
+- balance               DECIMAL(15,2)
+- matched_transaction_id UUID REFERENCES transactions(id)
+- match_status          VARCHAR(20) DEFAULT 'unmatched'  -- 'unmatched', 'matched', 'created'
+- created_at            TIMESTAMP
+
+INDEX(reconciliation_id)
+INDEX(match_status)
+```
+
+### 17. Marketplace Parser Configs (Decision #25)
+
+```sql
+marketplace_parser_configs
+- id                    UUID PRIMARY KEY
+- marketplace_code      VARCHAR(20) UNIQUE NOT NULL  -- 'tokopedia', 'shopee', 'bukalapak', 'lazada'
+- marketplace_name      VARCHAR(255) NOT NULL
+- order_id_columns      JSONB NOT NULL
+- order_date_columns    JSONB NOT NULL
+- order_date_format     VARCHAR(50) NOT NULL
+- settlement_date_columns JSONB
+- gross_amount_columns  JSONB NOT NULL
+- marketplace_fee_columns JSONB
+- shipping_fee_columns  JSONB
+- promo_columns         JSONB
+- net_amount_columns    JSONB NOT NULL
+- decimal_separator     CHAR(1) DEFAULT ','
+- thousand_separator    CHAR(1) DEFAULT '.'
+- skip_header_rows      INTEGER DEFAULT 1
+- is_active             BOOLEAN DEFAULT true
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+```
+
+### 18. Fixed Assets (Decision #20)
+
+```sql
+fixed_assets
+- id                    UUID PRIMARY KEY
+- asset_code            VARCHAR(50) UNIQUE NOT NULL
+- name                  VARCHAR(255) NOT NULL
+- category              VARCHAR(100)           -- 'equipment', 'vehicle', 'furniture', 'building'
+- purchase_date         DATE NOT NULL
+- purchase_cost         DECIMAL(15,2) NOT NULL
+- residual_value        DECIMAL(15,2) DEFAULT 0
+- useful_life_months    INTEGER NOT NULL
+- depreciation_method   VARCHAR(20) NOT NULL   -- 'straight_line', 'declining_balance'
+- depreciation_rate     DECIMAL(5,2)           -- For declining balance
+- asset_account_id      UUID REFERENCES chart_of_accounts(id)
+- depreciation_account_id UUID REFERENCES chart_of_accounts(id)
+- accumulated_depreciation DECIMAL(15,2) DEFAULT 0
+- book_value            DECIMAL(15,2)          -- Calculated: cost - accumulated
+- status                VARCHAR(20) DEFAULT 'active'  -- 'active', 'disposed', 'fully_depreciated'
+- disposal_date         DATE
+- disposal_amount       DECIMAL(15,2)
+- notes                 TEXT
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+INDEX(status)
+INDEX(category)
+```
+
+### 19. Budget (Decision #21)
+
+```sql
+budgets
+- id                    UUID PRIMARY KEY
+- account_id            UUID NOT NULL REFERENCES chart_of_accounts(id)
+- fiscal_year           INTEGER NOT NULL
+- period_month          INTEGER NOT NULL       -- 1-12, or 0 for annual
+- budget_amount         DECIMAL(15,2) NOT NULL
+- notes                 TEXT
+- created_by            UUID REFERENCES users(id)
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+UNIQUE(account_id, fiscal_year, period_month)
+INDEX(fiscal_year, period_month)
+```
+
+### 20. Employee & Payroll (Decision #15)
+
+```sql
+employees
+- id                    UUID PRIMARY KEY
+- employee_code         VARCHAR(50) UNIQUE NOT NULL
+- full_name             VARCHAR(255) NOT NULL
+- npwp                  VARCHAR(20)
+- ptkp_status           VARCHAR(10) NOT NULL   -- 'TK/0', 'K/0', 'K/1', 'K/2', 'K/3'
+- position              VARCHAR(100)
+- department            VARCHAR(100)
+- join_date             DATE NOT NULL
+- end_date              DATE
+- bank_account          VARCHAR(50)
+- bank_name             VARCHAR(100)
+- is_active             BOOLEAN DEFAULT true
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+salary_components
+- id                    UUID PRIMARY KEY
+- employee_id           UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE
+- component_type        VARCHAR(50) NOT NULL   -- 'gaji_pokok', 'tunjangan_transport', 'bpjs_kes', etc.
+- component_name        VARCHAR(255) NOT NULL
+- amount                DECIMAL(15,2) NOT NULL
+- is_taxable            BOOLEAN DEFAULT true
+- is_deduction          BOOLEAN DEFAULT false  -- true for employee portion of BPJS, PPh 21
+- effective_date        DATE NOT NULL
+- end_date              DATE
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+INDEX(employee_id)
+INDEX(component_type)
+
+payroll_runs
+- id                    UUID PRIMARY KEY
+- period_year           INTEGER NOT NULL
+- period_month          INTEGER NOT NULL
+- status                VARCHAR(20) DEFAULT 'draft'  -- 'draft', 'calculated', 'posted'
+- total_gross           DECIMAL(15,2)
+- total_deductions      DECIMAL(15,2)
+- total_net             DECIMAL(15,2)
+- calculated_at         TIMESTAMP
+- posted_at             TIMESTAMP
+- posted_by             UUID REFERENCES users(id)
+- created_at            TIMESTAMP
+- updated_at            TIMESTAMP
+
+UNIQUE(period_year, period_month)
+
+payroll_details
+- id                    UUID PRIMARY KEY
+- payroll_run_id        UUID NOT NULL REFERENCES payroll_runs(id) ON DELETE CASCADE
+- employee_id           UUID NOT NULL REFERENCES employees(id)
+- gross_salary          DECIMAL(15,2) NOT NULL
+- bpjs_kes_company      DECIMAL(15,2) DEFAULT 0
+- bpjs_kes_employee     DECIMAL(15,2) DEFAULT 0
+- bpjs_tk_company       DECIMAL(15,2) DEFAULT 0  -- JKK + JKM + JHT + JP company
+- bpjs_tk_employee      DECIMAL(15,2) DEFAULT 0  -- JHT + JP employee
+- pph21                 DECIMAL(15,2) DEFAULT 0
+- other_deductions      DECIMAL(15,2) DEFAULT 0
+- net_salary            DECIMAL(15,2) NOT NULL
+- transaction_id        UUID REFERENCES transactions(id)
+- created_at            TIMESTAMP
+
+INDEX(payroll_run_id)
+INDEX(employee_id)
+```
 
 ## Data Validation Rules
 

@@ -129,6 +129,733 @@
 - Not suitable for manufacturers
 - Limited to simple buy/sell model
 
+### 30. Cloud Hosting ✓
+**Decision:** Local Indonesian providers or cheap global (DigitalOcean), avoid big cloud unless requested
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Cost control for mid-range pricing strategy
+- Data residency compliance (Indonesia)
+- Big cloud (AWS, GCP) overkill for target market
+
+**Preferred Providers:**
+- Indonesian: IDCloudHost, Biznet Gio, Dewaweb
+- Global (budget): DigitalOcean
+- Avoid: AWS, GCP (unless client specifically requests)
+
+**Implementation Notes:**
+- Single VPS per instance (MVP)
+- Docker Compose deployment
+- Can co-locate multiple instances on same VPS for cost efficiency
+
+---
+
+### 29. Market & Business Model ✓
+**Decision:** Monthly subscription, mid-range pricing, business owner focus
+
+**Date:** 2025-11-22
+
+**Target Market:**
+- IT Services / Consulting
+- Photography / Videography Services
+- Online Seller / Marketplace
+- General Services (Freelancer)
+
+**Pain Points Addressed:**
+- Too complex (competitor apps are accountant-focused)
+- Poor mobile experience
+- Not designed for business owners
+
+**Pricing:**
+- Model: Monthly subscription
+- Range: Mid-range (Rp 200k - 500k/month)
+- Goal: Cover hosting expenses per instance
+
+**Bookkeeper Support:**
+- Separate credentials per client
+- No shared dashboard across clients
+- Complete data isolation per instance
+
+---
+
+### 28. Tax Integration (e-Faktur, e-Bupot, e-Filing) ✓
+**Decision:** Export format default, PJAP integration as custom project
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- PJAP (Penyedia Jasa Aplikasi Perpajakan) authorization required for direct integration
+- Custom integration adds significant complexity and cost
+- Export format sufficient for most users
+- Keep core product simple
+
+**What's in Core Product:**
+- e-Faktur: Export CSV format for upload to DJP e-Faktur app
+- e-Bupot: Export format for upload to DJP e-Bupot
+- e-Filing: Export format for SPT data
+- Tax reports (PPN, PPh 21, PPh 23, etc.) in standard format
+
+**Custom Project (upon request):**
+- Direct PJAP integration (OnlinePajak, Klikpajak, etc.)
+- Automated e-Faktur submission
+- Automated e-Bupot submission
+- Separate development and invoicing per client
+
+**Implementation Notes:**
+- Export templates follow DJP required format
+- Validate data before export (NPWP format, required fields)
+- Track which transactions have been exported/reported
+
+---
+
+### 27. Document Storage Details ✓
+**Decision:** Compression enabled, 10MB limit, ClamAV scanning
+
+**Date:** 2025-11-22
+
+**Storage Optimization:**
+- Image compression: Yes (80% quality on upload)
+- Thumbnail generation: Yes (for preview in UI)
+- PDF optimization: Yes (compress on upload)
+- Reduces storage cost, faster loading
+
+**File Size Limits:**
+- Max per upload: 10 MB
+- Max total per company: Based on pricing tier or bill by usage
+- Supported formats: JPG, PNG, PDF, Excel (XLS/XLSX), CSV
+
+**Security - Virus Scanning:**
+- ClamAV (open source, self-hosted)
+- Scan on upload before storing
+- Reject infected files with error message
+
+**Implementation Notes:**
+- Use ImageMagick or similar for image compression/thumbnails
+- Use Apache PDFBox for PDF optimization
+- ClamAV daemon running alongside app
+- Storage quota tracked per instance
+- Alert when approaching storage limit
+
+---
+
+### 26. Digital Signature & E-Meterai ✓
+**Decision:** Custom project upon request (not in core product)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Similar to PJAP integration approach
+- Not all users need certified e-signature
+- E-meterai only required for documents > Rp 5 juta threshold
+- Integration adds complexity and per-transaction cost
+- Target market can use manual process initially
+
+**What's NOT in Core Product:**
+- PSrE integration (PrivyID, VIDA, Digisign, Peruri Sign)
+- E-Meterai API integration (Peruri)
+- Certified digital signatures on invoices/contracts
+
+**What IS in Core Product:**
+- Basic signature image on documents (uploaded scan)
+- Document generation (invoices, contracts) ready for manual e-meterai
+
+**Custom Project Scope (upon request):**
+- PSrE provider integration
+- E-Meterai bulk application
+- Automated signing workflow
+- Separate development and invoicing
+
+**Cost Reference (for client quotation):**
+- E-Meterai: ~Rp 10,000 per stamp
+- Digital signature certificate: Rp 200k-500k/year
+- Per-signature fee varies by provider
+
+---
+
+### 25. Marketplace Reconciliation ✓
+**Decision:** Phase 1 feature with configurable parser (same approach as bank reconciliation)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Online sellers are a target market segment
+- Need to reconcile marketplace settlements with books
+- Same configurable parser approach as bank CSV - reuse architecture
+- Track marketplace fees, shipping costs, net settlements
+
+**Implementation Notes:**
+- Single `ConfigurableMarketplaceParser` class (reuse pattern from bank parser)
+- Marketplace configurations stored in database
+- Column name matching with index fallback
+
+- **Marketplace Parsers (Phase 1):**
+  - Tokopedia (settlement report)
+  - Shopee (income report)
+  - Bukalapak
+  - Lazada
+  - Generic CSV (user maps columns)
+
+- **Fields to Extract:**
+  - Order ID / Transaction ID
+  - Order date
+  - Settlement date
+  - Gross sales amount
+  - Marketplace fee
+  - Shipping fee
+  - Promo/discount
+  - Net settlement amount
+
+- **Reconciliation Workflow:**
+  1. User downloads settlement report from marketplace seller center
+  2. Upload to app, select marketplace (or auto-detect)
+  3. Parser extracts transactions
+  4. Match with recorded sales (by order ID or amount + date)
+  5. Auto-create fee expense entries
+  6. Show matched/unmatched for review
+
+- **Integration with Payment Gateway/E-wallet:**
+  - Custom project upon request (not Phase 1)
+
+**Trade-offs:**
+- Must maintain parser configs as marketplaces change formats
+- Multiple marketplaces = multiple configs to manage
+- Worth it: Core value for online seller segment
+
+---
+
+### 24. Accounting Standards Compliance ✓
+**Decision:** SAK EMKM compliance with cash flow statement addition (beyond SAK EMKM requirement)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Target market is UMKM - SAK EMKM is the applicable standard
+- PSAK Syariah not needed (for sharia financial service providers, not customers)
+- Cash flow statement not required by SAK EMKM but easy to implement with template-based design
+- Cash flow provides valuable business insight, differentiator from competitors
+
+**SAK EMKM Requirements:**
+- Laporan Posisi Keuangan (Balance Sheet)
+- Laporan Laba Rugi (Income Statement)
+- Catatan atas Laporan Keuangan / CALK (Notes)
+- Historical cost basis
+- Accrual accounting
+- Entity concept (separate business from personal)
+
+**Additional (Beyond SAK EMKM):**
+- Laporan Arus Kas (Cash Flow Statement)
+  - Operating, Investing, Financing sections
+  - Direct method (easier with template-based design)
+  - Add `cash_flow_category` field to journal templates
+  - Auto-classify based on template used
+
+**Implementation Notes:**
+- Pre-configured chart of accounts per SAK EMKM
+- Journal templates tagged with cash flow category:
+  - OPERATING: Sales, purchases, expenses, payroll
+  - INVESTING: Asset purchase/sale
+  - FINANCING: Loans, owner capital, withdrawals
+  - NON_CASH: Depreciation, accruals (excluded from cash flow)
+- Standard financial reports: Balance Sheet, Income Statement, Cash Flow, Notes
+- PSAK Syariah: Not supported (not applicable to target market)
+
+---
+
+### 23. Data Retention & Document Digitization ✓
+**Decision:** 10-year retention, scanned/photo receipts legally valid, physical can be destroyed after proper digitization
+
+**Date:** 2025-11-22
+
+**Research Findings:**
+
+- **Retention Period: 10 Years**
+  - Legal basis: UU KUP Pasal 28 ayat 11, PMK 54/2021, UU No. 8/1997
+  - Applies to: bookkeeping records, tax documents, supporting documents
+  - Must be stored in Indonesia
+  - Criminal sanctions for non-compliance (UU KUP Pasal 39)
+
+- **Digital Documents Legally Valid**
+  - Legal basis: UU ITE Pasal 5, 6 and PMK 81/2024
+  - Both physical and digital formats accepted
+  - Effective January 2025 (Coretax system)
+
+- **Scanned/Photo Receipts Acceptable**
+  - Legal basis: UU ITE Pasal 5-6, UU No. 8/1997 Pasal 12, 15
+  - Requirements for validity:
+    - Accessible and displayable
+    - Integrity maintained
+    - Accountable/verifiable
+    - Descriptive of transaction
+
+- **Physical Documents Can Be Destroyed After Scanning**
+  - Legal basis: UU No. 8/1997 Pasal 12 ayat 3-4, PP 88/1999
+  - Requires legalization (berita acara):
+    - Date of digitization
+    - Document type
+    - Confirmation scan matches original
+    - Signature of responsible person
+  - Exception: documents with national/company importance
+
+**Implementation Notes:**
+- Mobile receipt photo capture feature
+- Auto-generate berita acara (legalization record) on upload confirmation
+- Store metadata: capture date, hash for integrity verification, uploader info
+- Audit trail for document access
+- 10-year retention policy in database backup strategy
+- Host in Indonesia (local providers or Indonesian cloud regions)
+
+---
+
+### 22. Bank Reconciliation ✓
+**Decision:** Yes - Manual upload with bank-specific CSV parsers
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Valuable for catching missing/duplicate entries
+- No automatic bank feed needed - users download CSV from bank app
+- Most target users have accounts at major Indonesian banks
+- Critical for maintaining accurate cash records
+
+**Implementation Notes:**
+- **Bank Statement Parsers (Phase 1):**
+  - **CSV/Excel only** - no PDF support (PDF extraction unreliable, ~68% accuracy)
+  - Preload configs for: BCA, BNI, BSI, CIMB Niaga
+  - Generic CSV (user maps columns via UI)
+  - Add more banks based on user demand
+  - Credit card statements: use CSV export from internet banking
+
+- **Parser Design:**
+  - Single `ConfigurableBankStatementParser` class (not per-bank classes)
+  - Bank configurations stored in database (not YAML)
+  - Column name matching with index fallback:
+    ```
+    BankParserConfig:
+      - bank_code: "bca"
+      - bank_name: "Bank Central Asia"
+      - date_columns: ["Tanggal", "Date", "Tgl"]
+      - date_format: "dd/MM/yyyy"
+      - description_columns: ["Keterangan", "Description"]
+      - debit_columns: ["Debit", "Mutasi Debit"]
+      - credit_columns: ["Credit", "Mutasi Kredit"]
+      - balance_columns: ["Saldo", "Balance"]
+      - decimal_separator: ","
+      - thousand_separator: "."
+      - skip_header_rows: 1
+      - fallback_indices: {date: 0, desc: 1, debit: 2, credit: 3, balance: 4}
+    ```
+  - Parsing logic: match column name first → fallback to index → error if not found
+  - Preload common bank configs (BCA, BNI, BSI, CIMB) during setup
+  - Admin can add/edit bank configs via UI without code changes
+
+- **Reconciliation Workflow:**
+  1. User downloads CSV/Excel from bank app/website
+  2. Upload to app, select bank (or auto-detect)
+  3. Parser extracts: date, description, amount, balance
+  4. System matches against recorded transactions (by date + amount)
+  5. Show matched, unmatched (in bank only), unmatched (in books only)
+  6. User reviews and creates missing entries or marks as reconciled
+
+- **Matching Logic:**
+  - Exact match: same date + same amount
+  - Fuzzy match: ±1 day + same amount (for timing differences)
+  - Manual match: user links transactions manually
+
+- **Reconciliation Report:**
+  - Opening balance
+  - Matched transactions
+  - Unreconciled items (both sides)
+  - Closing balance
+  - Reconciliation status per period
+
+**Trade-offs:**
+- Must update bank config if CSV format changes (database update, no code change)
+- No real-time sync (manual upload required)
+- Acceptable: Users already download statements for their records
+
+---
+
+### 21. Budget Management ✓
+**Decision:** Simple budget vs actual reports (Option B)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Target market benefits from basic budget tracking
+- No need for complex approval workflows
+- Aligns with analysis/insight focus of the app
+- Helps users control spending and track project profitability
+
+**Implementation Notes:**
+- **Budget Setup:**
+  - Set budget amount per account per period (monthly/quarterly/yearly)
+  - Optional: per project budget
+  - Copy previous period budget as starting point
+
+- **Budget vs Actual Report:**
+  - Show budgeted vs actual amounts side by side
+  - Calculate variance (amount and percentage)
+  - Highlight over-budget items
+  - Filter by period, account category, project
+
+- **No complex features (keep simple):**
+  - No approval workflows
+  - No real-time alerts (can add later if needed)
+  - No multi-version budget scenarios
+
+**Trade-offs:**
+- No budget enforcement (soft tracking only)
+- Users must manually review reports
+- Sufficient for target market needs
+
+---
+
+### 20. Fixed Asset Management ✓
+**Decision:** Basic asset register with auto-journaling via templates + scheduled batch (Option B enhanced)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Photographers have significant equipment (cameras, lenses, lighting)
+- Basic tracking needed for proper accounting
+- Auto-depreciation achievable without complex asset module
+- Reuse existing journal template infrastructure
+
+**Implementation Notes:**
+- **Asset Register:**
+  - Asset master data: name, category, purchase date, cost, useful life, depreciation method
+  - Track status: Active, Disposed, Fully Depreciated
+  - Calculate monthly depreciation amount
+
+- **Auto-Journaling via Templates + Scheduler:**
+  - Create depreciation journal templates per asset category
+  - Scheduled batch job (monthly) generates depreciation entries:
+    1. Query active assets not fully depreciated
+    2. Calculate depreciation for period
+    3. Generate journal entry using template
+    4. Post automatically or queue for review
+  - Reuses existing template system - no separate depreciation engine
+
+- **Depreciation Methods:**
+  - Straight-line (Garis Lurus): `(Cost - Residual) / Useful Life`
+  - Declining balance (Saldo Menurun): `Book Value × Rate`
+
+- **Asset Disposal:**
+  - Record sale/write-off via transaction
+  - Calculate gain/loss on disposal
+
+**Trade-offs:**
+- Not full-featured asset management (no revaluation, complex scenarios)
+- Sufficient for target market needs
+
+---
+
+### 19. Document Storage ✓
+**Decision:** Dual implementation selectable by config/profile
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- MVP needs simplest possible setup (local filesystem)
+- Production/SaaS needs scalable storage (S3-compatible)
+- Single interface, swap implementation via configuration
+- No code changes needed when scaling up
+
+**Implementation Notes:**
+- Abstract storage interface: `DocumentStorageService`
+- Two implementations selectable by Spring profile/config:
+
+  **1. Local Filesystem (MVP/development):**
+  - Profile: `storage.type=local`
+  - Store files in configurable directory
+  - Simple, zero external dependencies
+  - Suitable for single-instance MVP
+
+  **2. S3-Compatible Storage (Production/SaaS):**
+  - Profile: `storage.type=s3`
+  - Works with:
+    - MinIO (locally installed, same server)
+    - MinIO (separate VPS)
+    - AWS S3
+    - GCP Cloud Storage (S3-compatible mode)
+    - Indonesian cloud providers with S3 API
+  - Configure via: endpoint, bucket, access key, secret key
+
+- Common operations: upload, download, delete, generate signed URL
+- File metadata stored in database (filename, path/key, size, mime type, upload date)
+- Actual file content stored in selected backend
+
+**Trade-offs:**
+- Two implementations to maintain
+- Worth it: Flexibility from MVP to production without code changes
+
+---
+
+### 18. Multi-Currency Support ✓
+**Decision:** Rupiah only for Phase 1 (Option A)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Target market (photographers, online sellers, most IT consultants) primarily use IDR accounts
+- Foreign expenses paid via IDR card/bank = bank handles conversion, no FX exposure
+- Multi-currency only needed when holding foreign currency accounts or invoicing in foreign currency with time gap
+- Simplifies Phase 1 implementation significantly
+
+**When Multi-Currency is NOT Needed:**
+- Pay foreign services (AWS, etc.) via IDR credit card/bank
+- Receive foreign payments via PayPal with auto-convert to IDR
+- All bank accounts are in IDR
+
+**When Multi-Currency IS Needed (Phase 2):**
+- Own USD/foreign currency bank account
+- Invoice in USD with payment received later to USD account
+- Foreign supplier with credit terms paid in foreign currency
+
+**Implementation Notes:**
+- Phase 1: All transactions in IDR, no currency field needed
+- Phase 2: Add multi-currency with Option C (auto-fetch Kurs Pajak from Kemenkeu)
+- BI API available for market rates, Kemenkeu scraper for Kurs Pajak
+
+**Trade-offs:**
+- IT consultants with foreign clients/USD accounts not supported in Phase 1
+- Acceptable: Small subset of target market, can be added later
+
+---
+
+### 17. Transaction Numbering ✓
+**Decision:** Per transaction type with yearly reset - `{TYPE}-{YYYY}-{seq}`
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Easier on user's eye - can identify transaction type from number
+- Organized categorization for audit and reporting
+- Yearly reset keeps numbers manageable
+
+**Implementation Notes:**
+- Format: `{TYPE}-{YYYY}-{seq}` (e.g., SAL-2025-00001, EXP-2025-00001)
+- Separate sequence per transaction type:
+  - SAL: Sales / Penjualan
+  - PUR: Purchase / Pembelian
+  - EXP: Expense / Biaya
+  - RCV: Receipt / Penerimaan
+  - PAY: Payment / Pembayaran
+  - JNL: General Journal / Jurnal Umum
+  - ADJ: Adjustment / Penyesuaian
+- Sequence resets to 00001 each fiscal year
+- Sequence width configurable (default 5 digits)
+- Faktur Pajak numbering follows DJP rules (separate system)
+
+**Trade-offs:**
+- Multiple sequences to manage
+- Must handle backdating within same year correctly
+- Worth it: Better UX and organization
+
+---
+
+### 16. Fiscal Period Locking ✓
+**Decision:** Lock after tax filing, soft lock after month close (Option D)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Implement from the start to avoid migration headaches later
+- Balances data integrity with practical correction needs
+- Aligns with tax compliance requirements
+- Prevents accidental modification of filed tax periods
+
+**Implementation Notes:**
+- **Month close (soft lock):**
+  - Warning displayed when editing closed period
+  - Requires elevated permission (admin/owner role)
+  - Audit trail logged for any modifications
+  - Recommended: use reversal entries instead of direct edits
+- **Tax filing (hard lock):**
+  - No edits allowed to periods with filed SPT
+  - Must use reversal/adjustment entries in current period
+  - SPT filing date recorded per tax type (PPN, PPh 21, PPh 23, etc.)
+  - If correction needed: file SPT Pembetulan first, then unlock
+- Period status: Open → Month Closed → Tax Filed
+- UI should clearly indicate period lock status
+
+**Trade-offs:**
+- More complex period management
+- Users must understand reversal entry workflow
+- Worth it: Prevents tax compliance issues down the line
+
+---
+
+### 15. Payroll Integration ✓
+**Decision:** Full payroll with salary component templates (Option C)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- High value-add for target users without accounting/finance/tax background
+- PPh 21 and BPJS calculations are too complex for IT consultants, photographers, online sellers
+- Differentiator from generic accounting apps
+- Reduces errors in tax withholding calculations
+
+**Implementation Notes:**
+- Salary component templates:
+  - Gaji Pokok
+  - Tunjangan (transport, makan, komunikasi, etc.)
+  - BPJS Kesehatan (auto-calculate 4% company + 1% employee)
+  - BPJS Ketenagakerjaan (JKK, JKM, JHT, JP with configurable rates)
+  - PPh 21 (auto-calculate with progressive rates + PTKP)
+- Employee master data: PTKP status (TK/0, K/0, K/1, K/2, K/3), NPWP
+- Generate payslips
+- Auto-generate journal entries for:
+  - Salary expense
+  - BPJS payable (company + employee portions)
+  - PPh 21 payable
+  - Net salary payable
+- Configurable salary structures per employee or employee group
+- **Onboarding simplification:**
+  - Preload salary component templates during instance setup
+  - Pregenerate salary configs for common job positions per industry:
+    - IT Services: Developer, Designer, Project Manager, Admin
+    - Photography: Photographer, Videographer, Editor, Assistant
+    - Online Seller: Warehouse staff, Packer, Customer service
+  - Users can use defaults immediately, customize later if needed
+  - No salary configuration required during onboarding
+
+**Trade-offs:**
+- Significant implementation effort
+- Must keep up with tax regulation changes (PPh 21 rates, PTKP, UMR)
+- Employee data management adds complexity
+- Worth it: Core value proposition for target market
+
+---
+
+### 14. Conditional Template Logic ✓
+**Decision:** No conditional logic - keep templates simple (Option A)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Simpler implementation, predictable behavior
+- Easier to debug when journal entries are incorrect
+- Users explicitly choose the correct template for their scenario
+- Avoids "magic" behavior that may confuse users
+
+**Implementation Notes:**
+- Create separate templates for different scenarios (e.g., "Penjualan Jasa", "Penjualan Jasa + PPh 23")
+- Provide **preview/simulation functionality** so users can:
+  - See what inputs a template requires
+  - Preview generated journal entries before committing
+  - Verify debit/credit balance before saving
+- Template selector should guide users to correct template based on transaction characteristics
+
+**Trade-offs:**
+- More templates to manage
+- User must select correct template (mitigated by preview feature)
+- May revisit Option B in future if template proliferation becomes unmanageable
+
+---
+
+### 13. Formula Complexity ✓
+**Decision:** Full expression language using SpEL with SimpleEvaluationContext (Option D)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- SpEL is built-in to Spring - no additional dependencies
+- SimpleEvaluationContext provides secure sandbox for untrusted input
+- Blocks dangerous operations: type references, constructors, bean references, arbitrary method calls
+- Supports all required operations: arithmetic, comparison, logical, ternary conditionals, property access
+- Long-term support guaranteed by Spring team
+- Familiar syntax for Java developers
+
+**Implementation Notes:**
+- Use `SimpleEvaluationContext.forReadOnlyDataBinding()` for formula evaluation
+- Create `FormulaContext` root object with transaction data (amount, rate, etc.)
+- Register custom functions via `setVariable()` if needed for complex scenarios
+- Example formulas:
+  - `amount * 0.11` (simple percentage)
+  - `amount > 2000000 ? amount * 0.02 : 0` (conditional - PPh 23 threshold)
+  - `transaction.amount * rate.ppn` (field references)
+
+**Trade-offs:**
+- Slightly more complex than simple percentage parsing
+- Need to validate formula syntax before saving templates
+- Formula errors surface at runtime (mitigate with validation on template save)
+
+---
+
+### 12. Template Categories/Tags ✓
+**Decision:** Category + tags with favorites, frequently used, and search (Option D extended)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Category provides primary structure for navigation
+- Tags enable flexible cross-categorization
+- Favorites for quick access to preferred templates
+- Frequently used for automatic surfacing of common templates
+- Search for direct lookup when user knows what they want
+
+**Implementation Notes:**
+- Each template has one category (required) and multiple tags (optional)
+- User-specific favorites list (stored per user)
+- Track usage count per template per user for "frequently used" ranking
+- Full-text search on template name, description, and tags
+- UI: Show favorites first → frequently used → then by category
+
+**Trade-offs:**
+- More complex UI (multiple access patterns)
+- Additional tracking for usage statistics
+- User preferences storage needed
+
+---
+
+### 11. Template Validation Rules ✓
+**Decision:** No runtime validation - show all templates (Option C)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Single-tenant architecture: each database instance is company-specific
+- Templates will be pre-generated during SaaS onboarding based on company setup (PKP status, business type, etc.)
+- No need for runtime validation since templates are already tailored per instance
+- Simpler implementation, no conditional logic needed
+
+**Implementation Notes:**
+- SaaS control plane handles template seeding during instance provisioning
+- Template set determined by company configuration at setup time
+- Users can add/customize templates post-setup as needed
+
+**Trade-offs:**
+- Relies on correct setup during onboarding
+- Manual template management if company status changes (e.g., becomes PKP)
+
+---
+
+### 10. Template Versioning ✓
+**Decision:** Version templates - each edit creates new version, old transactions link to old version (Option A)
+
+**Date:** 2025-11-22
+
+**Rationale:**
+- Required for audit traceability
+- Historical accuracy of what template was used at transaction time
+- Compliance requirement for accounting records
+
+**Implementation Notes:**
+- Each template edit creates a new version record
+- Journal entries store reference to specific template version used
+- Include traceability key in journal posting for backtracking to the originating template
+- Template version history viewable for audit purposes
+
+**Trade-offs:**
+- Additional database complexity (version table, foreign keys)
+- UI needed to show version history
+- Migration strategy for template updates
+
+---
+
 ### 9. Technology Stack: Spring Boot Monolith ✓
 **Decision:** Java 25 + Spring Boot 4.0 + Thymeleaf + HTMX + Alpine.js + PostgreSQL 17
 
@@ -187,100 +914,38 @@
 
 ### Template System Design
 
-#### Q1: Template Versioning?
-**Question:** If a user edits a journal template, should old transactions remain linked to the old version, or should they reference the current version?
+#### Q1: Template Versioning? ✓ ANSWERED
+**Decision:** Option A - Version templates with traceability key in journal postings
 
-**Options:**
-A. Version templates - each edit creates new version, old transactions link to old version
-B. No versioning - template changes affect how old transactions display
-C. Immutable templates - cannot edit, must create new template
-
-**Considerations:**
-- Audit trail requirements
-- Historical accuracy
-- User confusion
-- Database complexity
-
-**Recommendation needed:** Lean toward Option A (versioning) for audit compliance, but adds complexity.
+See Decision #10 above.
 
 ---
 
-#### Q2: Template Validation Rules?
-**Question:** Should templates have conditional availability based on company configuration?
+#### Q2: Template Validation Rules? ✓ ANSWERED
+**Decision:** Option C - No runtime validation, templates pre-generated per instance
 
-**Examples:**
-- "Penjualan + PPN" template only available for PKP companies?
-- "PPh 21" template only for companies with employees?
-- Industry-specific templates based on business_type?
-
-**Options:**
-A. Strict validation - hide/disable incompatible templates
-B. Soft validation - show warnings but allow usage
-C. No validation - show all templates always
-
-**Recommendation needed:** Option A for tax templates (PKP/non-PKP), Option B for others
+See Decision #11 above.
 
 ---
 
-#### Q3: Template Categories/Tags?
-**Question:** How to organize templates when there are dozens?
+#### Q3: Template Categories/Tags? ✓ ANSWERED
+**Decision:** Option D extended - Category + tags + favorites + frequently used + search
 
-**Options:**
-A. Flat list with category field (current design)
-B. Hierarchical categories (Category > Subcategory)
-C. Tag system (multiple tags per template)
-D. Both categories and tags
-
-**Considerations:**
-- User experience (finding the right template quickly)
-- Scalability (50+ templates)
-- Multi-client bookkeeper workflow (favorites, recents)
-
-**Recommendation needed:** Option D - Category for structure, tags for flexibility
+See Decision #12 above.
 
 ---
 
-#### Q4: Formula Complexity?
-**Question:** How complex should amount calculation formulas be in templates?
+#### Q4: Formula Complexity? ✓ ANSWERED
+**Decision:** Option D - Full expression language using SpEL with SimpleEvaluationContext
 
-**Current design:** Supports percentages (11%, 100%)
-
-**Enhancement options:**
-A. Simple arithmetic: `amount * 0.11 + 1000`
-B. Field references: `transaction.amount * rate.ppn + fixed_fee`
-C. Conditional logic: `if amount > 2000000 then amount * 0.02 else 0`
-D. Full expression language (like Excel formulas)
-
-**Considerations:**
-- Power user needs vs complexity
-- Security (formula injection)
-- Validation and testing
-- Performance
-
-**Recommendation needed:** Start with Option A (simple arithmetic), evaluate need for Option C later
+See Decision #13 above.
 
 ---
 
-#### Q5: Conditional Template Logic?
-**Question:** Should templates support automatic line inclusion based on conditions?
+#### Q5: Conditional Template Logic? ✓ ANSWERED
+**Decision:** Option A - No conditional logic, with preview/simulation functionality
 
-**Examples:**
-- If transaction amount > Rp 2,000,000, auto-add PPh 23 line
-- If customer is non-PKP, skip PPN line
-- If payment date differs from invoice date, add interest line
-
-**Options:**
-A. No conditional logic - keep templates simple
-B. Pre-configured conditions in template definition
-C. Rule engine for complex scenarios
-
-**Considerations:**
-- User experience (magic vs explicit)
-- Debugging when things go wrong
-- Audit trail clarity
-- Implementation complexity
-
-**Recommendation needed:** Option A for MVP, consider Option B for Phase 2
+See Decision #14 above.
 
 ---
 
@@ -308,20 +973,10 @@ See Decision #8 above.
 
 ---
 
-#### Q8: Payroll Integration?
-**Question:** Should the app handle payroll processing, or just record payroll expenses?
+#### Q8: Payroll Integration? ✓ ANSWERED
+**Decision:** Option C - Full payroll with salary component templates
 
-**Context:**
-- PPh 21 calculation is complex (progressive rates, PTKP)
-- Payroll often outsourced by small businesses
-- Employee master data required
-
-**Options:**
-A. No payroll - users record net salary expenses only
-B. Basic payroll - record gross salary, PPh 21 as separate entries
-C. Full payroll - calculate PPh 21, generate pay slips
-
-**Recommendation needed:** Option B for Phase 1 (manual PPh 21 entry), Option C for Phase 2
+See Decision #15 above.
 
 ---
 
@@ -341,368 +996,87 @@ See Decision #7 above.
 
 ### Data & Technical Questions
 
-#### Q10: Fiscal Period Locking?
-**Question:** Should the app prevent editing transactions after month/year closing?
+#### Q10: Fiscal Period Locking? ✓ ANSWERED
+**Decision:** Option D - Lock after tax filing, soft lock after month close (from Phase 1)
 
-**Options:**
-A. Hard lock - no edits after closing
-B. Soft lock - warning but allow with permission
-C. No lock - always allow edits
-D. Lock after tax filing only
-
-**Considerations:**
-- Audit compliance
-- User flexibility (mistakes happen)
-- Tax implications
-- Reversal entry workflow
-
-**Recommendation needed:** Option D - lock after tax filing, soft lock after month close
+See Decision #16 above.
 
 ---
 
-#### Q11: Transaction Numbering?
-**Question:** How should transaction numbers be generated?
+#### Q11: Transaction Numbering? ✓ ANSWERED
+**Decision:** Per transaction type with yearly reset - `{TYPE}-{YYYY}-{seq}`
 
-**Format options:**
-- `TRX-{YYYY}-{seq}` (e.g., TRX-2025-00001)
-- `{TYPE}-{YYYY}{MM}-{seq}` (e.g., EXP-202501-00001)
-- `{COMPANY_CODE}-{YYYY}-{seq}` (e.g., ABC-2025-00001)
-- User-definable format
-
-**Sequence scope:**
-- Global per instance (simple)
-- Per transaction type
-- Per fiscal year
-
-**Recommendation needed:** `TRX-{YYYY}-{seq}` with yearly reset for simplicity
+See Decision #17 above.
 
 ---
 
-#### Q12: Multi-Currency Support?
-**Question:** Should the app support multiple currencies?
+#### Q12: Multi-Currency Support? ✓ ANSWERED
+**Decision:** Option A - Rupiah only for Phase 1, add later if required
 
-**Context:**
-- Target is 100% Indonesian users
-- Some may have foreign transactions (import/export)
-- Adds significant complexity (exchange rates, gain/loss)
-
-**Options:**
-A. Rupiah only
-B. Multi-currency with manual exchange rate entry
-C. Multi-currency with automated exchange rate feeds
-
-**Recommendation needed:** Option A for Phase 1, Option B for Phase 2 if demand exists
+See Decision #18 above.
 
 ---
 
-#### Q13: Document Storage?
-**Question:** Where and how to store uploaded receipts, invoices, etc.?
+#### Q13: Document Storage? ✓ ANSWERED
+**Decision:** Dual implementation - Local FS (MVP) + S3-compatible (Production), selectable by config
 
-**Options:**
-A. Database (BLOB storage)
-B. File system (server local storage)
-C. Cloud storage (S3, GCS, etc.)
-D. No document storage (Phase 2 feature)
-
-**Considerations:**
-- Cost
-- Scalability
-- Backup/redundancy
-- Performance
-
-**Recommendation needed:** Option C for SaaS scalability
+See Decision #19 above.
 
 ---
 
 ### Feature Scope Questions
 
-#### Q14: Fixed Asset Management?
-**Question:** Should the app handle fixed asset tracking and depreciation?
+#### Q14: Fixed Asset Management? ✓ ANSWERED
+**Decision:** Option B enhanced - Basic register + auto-journaling via templates + scheduled batch
 
-**Context:**
-- Important for businesses with equipment, vehicles, buildings
-- Depreciation calculation (straight-line, declining balance)
-- Asset register for audit
-
-**Options:**
-A. Not in Phase 1 - record as expense
-B. Basic asset register - no auto depreciation
-C. Full asset management - auto depreciation posting
-
-**Recommendation needed:** Option B for Phase 1 if targeting businesses with assets
+See Decision #20 above.
 
 ---
 
-#### Q15: Budget Management?
-**Question:** Should users be able to create budgets and track actual vs budget?
+#### Q15: Budget Management? ✓ ANSWERED
+**Decision:** Option B - Simple budget vs actual reports
 
-**Use cases:**
-- Monthly expense budgets
-- Project budgets
-- Annual revenue targets
-
-**Implementation:**
-A. No budgeting features
-B. Simple budget vs actual reports
-C. Budget workflows (approval, alerts, variance analysis)
-
-**Recommendation needed:** Option B for Phase 2 (valuable for analysis focus)
+See Decision #21 above.
 
 ---
 
-#### Q16: Bank Reconciliation (without integration)?
-**Question:** Even without bank feeds, should we have bank reconciliation features?
+#### Q16: Bank Reconciliation (without integration)? ✓ ANSWERED
+**Decision:** Yes - Manual CSV upload with bank-specific parsers (BCA, BNI, BSI, CIMB)
 
-**Context:**
-- Users manually enter bank transactions
-- Need to match with bank statement
-- Identify missing/duplicate entries
-
-**Features:**
-- Upload bank statement (CSV/PDF)
-- Match with recorded transactions
-- Identify discrepancies
-
-**Recommendation needed:** Yes for Phase 1 - valuable even without auto-feed
+See Decision #22 above.
 
 ---
 
 ## Research Needed
 
-### Market Research
-1. **Primary business types** among target users (prioritize templates)
-2. **Pain points** with existing solutions (Accurate, Jurnal, Zahir, etc.)
-3. **Willingness to pay** (pricing strategy)
-4. **Bookkeeper workflows** (multi-client management features)
+### Market Research ✓ COMPLETED
+See Decision #29 - Market & Business Model
 
-### Technical Research
-1. **e-Faktur API** capabilities and requirements
-2. **e-Bupot integration** documentation
-3. **DJP e-Filing** API availability
-4. **Indonesian cloud hosting** options (data residency)
+### Technical Research ✓ COMPLETED
+- e-Faktur, e-Bupot, e-Filing: See Decision #28 - Export format, PJAP as custom project
+- Cloud hosting: See Decision #30 - Local providers or DigitalOcean
 
-### Competitive Analysis
-1. Feature comparison with local competitors
-2. Pricing models
-3. User reviews (what do they love/hate)
-4. Integration ecosystem
+### Competitive Analysis ✓ COMPLETED
+Not needed - self-driven feature set based on own company needs
 
-### Regulatory Research
-1. **Data retention** requirements for accounting records:
-   - Minimum retention period (10 years?)
-   - What documents must be retained:
-     - Transaction receipts/invoices
-     - Bank statements
-     - Tax documents (SPT, bukti potong, faktur pajak)
-     - Contracts and agreements
-     - Payroll records
-   - Format requirements (original, scan, digital-native all acceptable?)
-   - Storage location requirements (Indonesia data residency?)
-   - Destruction policies after retention period
+### Regulatory Research ✓ COMPLETED
+1. **Data retention**: See Decision #23 - 10-year retention, digital valid
+2. **Tax audit**: See Decision #23 - digital documents accepted
+3. **Electronic signature**: See Decision #26 - custom project upon request
+4. **Upcoming regulation**: PMK 81/2024 Coretax effective Jan 2025
+5. **Accounting standards**: See Decision #24 - SAK EMKM with cash flow
 
-2. **Tax audit** requirements (what reports needed):
-   - Required reports for tax audit
-   - Supporting document requirements
-   - Access requirements for auditors
-   - Audit trail requirements
-   - Digital vs physical document acceptance
+### Payment Integration Research ✓ COMPLETED
+- Payment gateway (Midtrans, Xendit): Custom project upon request
+- E-wallet integration: Custom project upon request
+- Marketplace reconciliation: See Decision #25 - Phase 1 with configurable parser
 
-3. **Electronic signature** requirements for tax documents
-4. **Upcoming tax regulation** changes (2025+)
+### Digital Signature & E-Meterai Research ✓ COMPLETED
+See Decision #26 - Custom project upon request
 
-### Payment Integration Research
-1. **Administrative complexity** for target market segments:
-   - What paperwork/documentation required for payment gateway integration?
-   - Registration process complexity for:
-     - Freelance photographers/videographers
-     - Home-based online sellers
-     - Small IT consultants
-   - Business entity requirements (PT, CV, individual/NPWP?)
-   - Verification process timeline
-   - Ongoing compliance/reporting requirements
-
-2. **Cost structure** for payment integrations:
-   - **Initial fees:**
-     - Registration/setup fees
-     - Integration development costs
-     - Certification/testing fees
-   - **Transaction fees:**
-     - Percentage per transaction
-     - Fixed fee per transaction
-     - Different rates by payment method (CC, e-wallet, VA, QRIS)
-   - **Other recurring fees:**
-     - Monthly/annual maintenance fees
-     - Settlement fees
-     - Chargeback fees
-     - Minimum transaction volume requirements
-
-3. **Payment gateway options** for Indonesian market:
-   - Midtrans
-   - Xendit
-   - iPaymu
-   - Faspay
-   - Nicepay
-   - Comparison of features, costs, ease of integration
-
-4. **E-wallet direct integration:**
-   - GoPay, OVO, DANA, ShopeePay direct APIs
-   - vs aggregator (payment gateway) approach
-   - Cost comparison
-
-5. **Marketplace payment handling:**
-   - How Tokopedia, Shopee, Bukalapak handle settlements
-   - Reporting/reconciliation capabilities
-   - Integration APIs availability
-
-### Digital Signature & E-Meterai Research
-
-1. **E-Meterai (Electronic Stamp Duty) requirements:**
-   - Which documents require e-meterai for target businesses?
-     - Invoices above certain amount threshold
-     - Contracts/agreements
-     - Receipt of payments
-     - Other business documents
-   - Current threshold amounts (Rp 5 juta+?)
-   - Legal validity and requirements
-   - Integration methods:
-     - API providers (Peruri, third-party)
-     - Manual application process
-     - Bulk application capabilities
-
-2. **E-Meterai cost structure:**
-   - Per-stamp cost (currently Rp 10,000?)
-   - API integration fees
-   - Volume discounts
-   - Reseller/distributor options
-
-3. **Digital signature (Tanda Tangan Elektronik) requirements:**
-   - **PSrE (Penyelenggara Sertifikat Elektronik) providers:**
-     - PrivyID
-     - VIDA
-     - Digisign
-     - Tilaka
-     - Peruri Sign
-   - Legal requirements for tax documents:
-     - e-Faktur signing
-     - e-Bupot signing
-     - SPT signing
-   - Contract/agreement signing for service businesses
-
-4. **Digital signature cost structure:**
-   - Certificate fees (personal vs corporate)
-   - Annual renewal costs
-   - Per-signature fees (if any)
-   - API integration costs
-   - Volume-based pricing
-
-5. **Integration complexity:**
-   - **E-Meterai:**
-     - API documentation availability
-     - Integration development effort
-     - Verification/validation process
-   - **Digital signature:**
-     - Certificate management
-     - Integration with document generation
-     - User experience (signing workflow)
-     - Mobile support
-
-6. **Use cases for target market:**
-   - **Photographers/videographers:**
-     - Contract signing with clients
-     - Invoice e-meterai (above threshold)
-   - **Online sellers:**
-     - Product supply agreements
-     - High-value invoices
-   - **IT consultants:**
-     - Service agreements/contracts
-     - Project invoices
-     - NDA, SLA signing
-
-7. **Compliance timeline:**
-   - When is e-meterai mandatory vs optional?
-   - Penalties for non-compliance
-   - Transition period considerations
-   - Future regulatory changes
-
-### Document Storage & Management Research
-
-1. **Cloud storage providers** for Indonesian market:
-
-   **Self-Hosted Solutions:**
-   - MinIO (S3-compatible object storage)
-     - Free and open source
-     - Deploy on own infrastructure
-     - S3 API compatibility (easy migration)
-     - Cost: Only infrastructure (VPS/server)
-     - Ops overhead: Requires maintenance
-   - Ceph
-   - SeaweedFS
-
-   **Indonesian Cloud Providers:**
-   - Biznet Gio (NEO Object Storage)
-     - Jakarta data center
-     - Lower latency for Indonesian users
-     - Competitive pricing
-     - Local support
-   - IDCloudHost (Object Storage)
-   - Telkom Sigma (Cloud Storage)
-   - Qwords (Cloud Object Storage)
-
-   **Global Cloud Providers:**
-   - AWS S3 (ap-southeast-3 Jakarta region)
-   - Google Cloud Storage (Jakarta region)
-   - Alibaba Cloud OSS
-
-   **Cost Comparison Needed:**
-   - Storage cost per GB/month
-   - Bandwidth/transfer costs (ingress/egress)
-   - Request costs (PUT/GET)
-   - Data retrieval costs
-   - Minimum commitment
-   - Data residency compliance
-   - SLA and reliability
-
-   **Migration Path:**
-   - Phase 1: MinIO (MVP, lowest cost)
-   - Phase 2: Indonesian cloud (growth, managed service)
-   - Phase 3: AWS/GCP (scale, global expansion)
-
-2. **Storage optimization strategies:**
-   - Image compression (quality vs size trade-off)
-   - PDF optimization
-   - Thumbnail generation
-   - CDN for document delivery
-   - Tiered storage (hot vs cold storage)
-   - Archive strategies for old documents
-
-3. **Document security:**
-   - Encryption at rest
-   - Encryption in transit
-   - Access control (signed URLs, time-limited access)
-   - Virus/malware scanning for uploads
-   - Backup and redundancy
-   - Disaster recovery
-
-4. **File size and format limits:**
-   - Maximum file size per upload
-   - Maximum total storage per company instance
-   - Supported file formats
-   - File format validation
-   - OCR capabilities for scanned documents
-
-5. **Audit and compliance:**
-   - Document access logging
-   - Retention policy enforcement
-   - Secure deletion/destruction
-   - Export capabilities for audit
-   - Chain of custody tracking
-
-6. **User experience considerations:**
-   - Upload speed and reliability
-   - Progress indicators
-   - Bulk upload capabilities
-   - Mobile photo capture
-   - In-app document viewer requirements
+### Document Storage & Management Research ✓ COMPLETED
+- Storage approach: See Decision #19 - Local FS (MVP) + S3-compatible (Production)
+- Storage details: See Decision #27 - Compression, 10MB limit, ClamAV scanning
 
 ---
 
@@ -726,10 +1100,15 @@ When decisions are made, document them here:
 
 ## Next Steps
 
-1. **Prioritize open questions** based on Phase 1 requirements
-2. **Make MVP decisions** (defer others to later phases)
-3. **Validate assumptions** with potential users
-4. **Create implementation plan** based on decided scope
-5. **Set up tech stack** and development environment
-6. **Build proof of concept** for template system
-7. **Design UI/UX mockups** for transaction entry flow
+~~1. **Prioritize open questions** based on Phase 1 requirements~~ ✓ DONE
+~~2. **Make MVP decisions** (defer others to later phases)~~ ✓ DONE
+~~3. **Validate assumptions** with potential users~~ ✓ DONE (self as primary user)
+
+**Ready for Implementation:**
+1. **Set up tech stack** and development environment
+2. **Create database schema** based on data model
+3. **Build proof of concept** for template system
+4. **Implement core features** per decisions above
+5. **Design UI/UX** for transaction entry flow (business owner focused)
+
+**Total Decisions Made: 30**

@@ -129,6 +129,38 @@ flowchart TD
 
 ## Journal Template System
 
+### Template Versioning (Decision #10)
+- Each template edit creates new version
+- Old transactions link to old template version
+- Include traceability key in journal posting for backtracking
+- Template version history viewable for audit purposes
+
+### Template Organization (Decision #12)
+- Category (required) + tags (optional) for organization
+- User-specific favorites list
+- Frequently used tracking (usage count per user)
+- Full-text search on name, description, tags
+- UI priority: Favorites → Frequently used → By category
+
+### Formula Expressions (Decision #13)
+- Full expression language using SpEL with SimpleEvaluationContext
+- Supports: arithmetic, comparison, logical, ternary conditionals, property access
+- Example formulas:
+  - `amount * 0.11` (simple percentage)
+  - `amount > 2000000 ? amount * 0.02 : 0` (conditional - PPh 23 threshold)
+  - `transaction.amount * rate.ppn` (field references)
+
+### Template Preview (Decision #14)
+- Preview/simulation before committing transaction
+- Shows what inputs template requires
+- Shows generated journal entries
+- Verifies debit/credit balance before saving
+
+### Cash Flow Category (Decision #24)
+- Each template tagged with cash_flow_category
+- Categories: OPERATING, INVESTING, FINANCING, NON_CASH
+- Enables automatic cash flow statement generation
+
 ### How Templates Work
 
 **Template Definition:**
@@ -702,6 +734,48 @@ deployments
 - Application logs
 - Database performance monitoring
 - Disk space alerts
+
+## Fiscal Period Management (Decision #16)
+
+### Period Locking
+- **Month close (soft lock):**
+  - Warning displayed when editing closed period
+  - Requires elevated permission (admin/owner role)
+  - Audit trail logged for any modifications
+  - Recommended: use reversal entries instead of direct edits
+
+- **Tax filing (hard lock):**
+  - No edits allowed to periods with filed SPT
+  - Must use reversal/adjustment entries in current period
+  - SPT filing date recorded per tax type (PPN, PPh 21, PPh 23)
+  - If correction needed: file SPT Pembetulan first, then unlock
+
+### Period Status Flow
+```
+Open → Month Closed → Tax Filed
+```
+
+## Transaction Numbering (Decision #17)
+
+### Format
+- Per transaction type: `{TYPE}-{YYYY}-{seq}`
+- Examples: SAL-2025-00001, EXP-2025-00001
+
+### Transaction Types
+| Code | Type |
+|------|------|
+| SAL | Sales / Penjualan |
+| PUR | Purchase / Pembelian |
+| EXP | Expense / Biaya |
+| RCV | Receipt / Penerimaan |
+| PAY | Payment / Pembayaran |
+| JNL | General Journal / Jurnal Umum |
+| ADJ | Adjustment / Penyesuaian |
+
+### Sequence Rules
+- Separate sequence per transaction type
+- Reset to 00001 each fiscal year
+- Faktur Pajak follows DJP rules (separate system)
 
 ## Security Principles
 

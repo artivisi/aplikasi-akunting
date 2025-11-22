@@ -121,23 +121,27 @@ graph TD
 **Database:**
 - PostgreSQL 17
 
-**Document Storage Options:**
+**Document Storage (Decision #19 & #27):**
 
-*Option 1: Self-Hosted (Cost-Optimized)*
-- MinIO (S3-compatible object storage)
-- Deployed on own infrastructure
-- Lower cost for high volume
+*Dual implementation selectable by Spring profile/config:*
 
-*Option 2: Indonesian Cloud Providers*
-- Biznet Gio (NEO Object Storage)
-- IDCloudHost (Object Storage)
-- Telkom Sigma (Cloud Storage)
-- Lower latency, data residency compliance
+**1. Local Filesystem (MVP/development):**
+- Profile: `storage.type=local`
+- Store files in configurable directory
+- Simple, zero external dependencies
 
-*Option 3: Global Cloud (Premium)*
-- AWS S3 (ap-southeast-3 Jakarta)
-- Google Cloud Storage (Jakarta region)
-- Higher cost, better ecosystem integration
+**2. S3-Compatible Storage (Production/SaaS):**
+- Profile: `storage.type=s3`
+- Works with: MinIO (local), MinIO (VPS), AWS S3, GCP, Indonesian cloud
+- Configure via: endpoint, bucket, access key, secret key
+
+*Storage Features:*
+- Image compression (80% quality on upload)
+- Thumbnail generation for preview
+- PDF optimization on upload
+- ClamAV virus scanning on upload
+- Max 10MB per upload
+- Storage quota per instance (tier-based)
 
 **Additional Tools:**
 - Flyway (database migrations)
@@ -287,34 +291,35 @@ graph TD
 - Enhanced auto-configuration
 - Improved testing support
 
-### Document Storage Strategy
+### Document Storage Strategy (Decision #19 & #27)
 
-**Evaluation Criteria:**
-- Cost per GB (storage + bandwidth)
-- Indonesian data residency compliance
-- S3 API compatibility (portability)
-- Backup and redundancy
-- Vendor lock-in risk
+**Implemented Approach:**
 
-**Recommended Approach:**
+*Dual Storage Backend (Selectable by Config):*
 
-*Phase 1 (MVP):* MinIO self-hosted
-- Lowest cost for early stage
-- S3-compatible API (easy migration later)
-- Full control over data
-- Deploy alongside application
+**Development/MVP:** Local Filesystem
+- Zero dependencies
+- Simple setup
+- Profile: `storage.type=local`
 
-*Phase 2 (Growth):* Indonesian cloud provider
-- Biznet Gio NEO or IDCloudHost
-- Better latency for Indonesian users
-- Compliance with data residency
-- Managed service reduces ops overhead
+**Production/SaaS:** S3-Compatible
+- Profile: `storage.type=s3`
+- Supports: MinIO, AWS S3, GCP, Indonesian cloud
+- Single `DocumentStorageService` interface, swap implementation via config
 
-*Phase 3 (Scale):* Global cloud (AWS/GCP)
-- If expanding beyond Indonesia
-- Better global CDN integration
-- More mature ecosystem
-- Higher cost but better reliability SLA
+*File Processing Pipeline:*
+1. Upload received
+2. ClamAV virus scan (reject if infected)
+3. Image compression (80% quality)
+4. Thumbnail generation
+5. PDF optimization
+6. Store to configured backend
+7. Metadata saved to database (filename, path, size, mime type, upload date)
+
+*Retention:*
+- 10-year retention per Indonesian law (UU KUP, PMK 54/2021)
+- Auto-generate berita acara (legalization record) for document digitization
+- Digital documents legally valid per UU ITE and PMK 81/2024
 
 ## Development & Testing Tools
 
@@ -506,9 +511,14 @@ graph LR
 *Core Application:*
 - Java 25 + Spring Boot 4.0 + Thymeleaf + HTMX + Alpine.js + PostgreSQL 17
 
-*Document Storage:*
-- Phase 1: MinIO (self-hosted)
-- Phase 2+: Indonesian cloud or AWS/GCP
+*Document Storage (Decision #19 & #27):*
+- Dual backend: Local FS (MVP) + S3-compatible (Production)
+- Features: Compression, thumbnails, ClamAV scanning, 10MB limit
+
+*Cloud Hosting (Decision #30):*
+- Indonesian providers: IDCloudHost, Biznet Gio, Dewaweb
+- Budget global: DigitalOcean
+- Avoid AWS/GCP unless client requests
 
 *Development & Testing:*
 - Docker Compose (local development)
@@ -517,6 +527,10 @@ graph LR
 - K6 (performance testing)
 - SonarQube, OWASP Dependency-Check, ZAP, Trivy (DevSecOps)
 
+*Formula Engine (Decision #13):*
+- SpEL with SimpleEvaluationContext for journal template formulas
+- Secure sandbox, no external dependencies
+
 **Primary Reasons:**
 1. Single codebase reduces complexity
 2. Precise financial calculations with BigDecimal (Java 25)
@@ -524,7 +538,7 @@ graph LR
 4. Simple authentication and deployment (Spring Boot 4.0)
 5. Sufficient UX for accounting workflows (HTMX)
 6. Large talent pool in Indonesia
-7. Cost-optimized storage strategy (MinIO → Indonesian cloud)
+7. Cost-optimized hosting (Indonesian providers or DigitalOcean)
 8. Complete DevSecOps pipeline with open-source tools
 9. Single-tenant architecture (no multi-tenancy complexity)
 10. Virtual threads for efficient resource utilization (Java 25 + Spring Boot 4.0)
@@ -534,8 +548,8 @@ graph LR
 - Less flashy UI than SPA (acceptable for target users)
 - Server-rendered pages (acceptable for form-heavy workflows)
 - HTMX learning curve (small, worthwhile)
-- Self-hosted MinIO requires ops overhead (offset by cost savings)
+- Two storage implementations to maintain (offset by flexibility)
 
-**Decision Date:** 2025-11-19
+**Decision Date:** 2025-11-19 (Updated: 2025-11-22)
 
 **Review Date:** After MVP launch (evaluate if mobile app or third-party API needed)
