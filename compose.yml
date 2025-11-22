@@ -1,0 +1,11 @@
+services:
+  db-belajar:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_DB=accountingdb
+      - POSTGRES_USER=accounting
+      - POSTGRES_PASSWORD=Smartly-Jacket-Sandlot9
+    ports:
+      - 12345:5432
+    volumes:
+      - ./db-accounting:/var/lib/postgresql/data
