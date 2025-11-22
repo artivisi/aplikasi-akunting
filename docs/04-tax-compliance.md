@@ -373,23 +373,28 @@ tenants table:
   → Shows/hides PPN accounts
 ```
 
-## Integration Points (Future Phases)
+## Integration Points (Decision #28)
 
-### e-Faktur Integration
-- Generate e-Faktur XML from sales transactions
-- Import e-Faktur from purchases
-- Upload to DJP portal
-- Status tracking (approved, rejected)
+### Core Product: Export Format
+- **e-Faktur:** Generate CSV export matching DJP e-Faktur import format
+- **e-Bupot:** Generate export format for manual upload
+- **e-Filing:** Export SPT data for manual entry or import
+- Validate data before export (NPWP format, required fields)
+- Track which transactions have been exported/reported
 
-### e-Bupot Integration
-- Generate Bukti Potong electronically
-- Submit to DJP system
-- Track certificate status
+### Custom Project: PJAP Integration
+Direct integration with authorized PJAP (Penyedia Jasa Aplikasi Perpajakan) providers is available as a custom project:
+- OnlinePajak
+- Klikpajak
+- Other authorized PJAPs
 
-### e-Filing Integration
-- Auto-fill SPT forms
-- Submit directly to DJP
-- Retrieve filing confirmation
+**Scope:** Separate development, pricing, and invoicing per client request.
+
+**Why Custom Project:**
+- PJAP authorization required (not available to regular developers)
+- Each client may prefer different PJAP provider
+- Ongoing API maintenance as providers change
+- Cost varies by PJAP provider
 
 ## Tax Account Structure
 
@@ -461,20 +466,32 @@ Upcoming Deadlines:
 
 ## Phase Planning
 
-### Phase 1 (MVP)
+### Phase 1 (MVP) - Updated per Decisions
 - PPN basic tracking (Masukan/Keluaran)
 - PPh 23 withholding
-- Basic tax reports
-- Manual form filling
-
-### Phase 2
-- PPh 21 calculation
+- **Full PPh 21 calculation** (Decision #15)
+  - Progressive rates (5%-35%)
+  - PTKP status handling
+  - BPJS Kesehatan & Ketenagakerjaan
+  - Payslip generation
 - PPh 4(2) handling
-- Automated SPT generation
+- Basic tax reports
+- **Export format for manual upload** (Decision #28):
+  - e-Faktur CSV export
+  - e-Bupot export format
+  - SPT data export
 - Tax calendar & reminders
 
-### Phase 3
-- e-Faktur integration
-- e-Bupot integration
-- e-Filing support
+### Phase 2+
+- Automated SPT generation
 - Advanced tax analysis
+
+### Custom Project (upon request) - Decision #28
+- Direct PJAP integration (OnlinePajak, Klikpajak)
+- Automated e-Faktur submission
+- Automated e-Bupot submission
+- Separate development and invoicing per client
+
+### NOT in Scope
+- Direct DJP API integration (requires PJAP authorization)
+- Real-time tax filing
