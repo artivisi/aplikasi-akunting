@@ -11,6 +11,7 @@
     <title layout:title-pattern="$CONTENT_TITLE - Akunting">Akunting</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.14.8/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -45,7 +46,9 @@
                         </svg>
                         Laporan
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-primary-600 transition-colors">
+                    <a th:href="@{/accounts}"
+                       th:classappend="${#strings.equals(currentPage, 'accounts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                       class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -110,7 +113,9 @@
                         </svg>
                         Laporan
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-primary-600 transition-colors">
+                    <a th:href="@{/accounts}"
+                       th:classappend="${#strings.equals(currentPage, 'accounts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                       class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
