@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</h1>
+
+    <div layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
+        <div class="max-w-4xl">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/templates}" class="hover:text-primary-600 transition-colors">Template Jurnal</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span class="text-gray-900" th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</span>
+            </nav>
+
+            <!-- Duplicate Notice -->
+            <div th:if="${isDuplicate}" class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-semibold text-blue-800">Menduplikat dari: Pendapatan Jasa Konsultasi</h3>
+                        <p class="text-xs text-blue-600 mt-0.5">Silakan ubah nama dan konfigurasi sesuai kebutuhan</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <form action="#" method="post"
+                  x-data="{
+                      templateName: '',
+                      category: '',
+                      cashFlow: 'operating',
+                      templateType: 'simple',
+                      journalLines: [
+                          { id: 1, account: '1.1.02', accountName: 'Bank BCA', position: 'debit', formula: 'amount' },
+                          { id: 2, account: '4.1.01', accountName: 'Pendapatan Jasa', position: 'credit', formula: 'amount' }
+                      ],
+                      nextLineId: 3,
+                      addLine() {
+                          this.journalLines.push({
+                              id: this.nextLineId++,
+                              account: '',
+                              accountName: '',
+                              position: 'debit',
+                              formula: 'amount'
+                          });
+                      },
+                      removeLine(id) {
+                          if (this.journalLines.length > 2) {
+                              this.journalLines = this.journalLines.filter(l => l.id !== id);
+                          }
+                      },
+                      getCategoryColor(cat) {
+                          const colors = {
+                              income: 'bg-green-100 text-green-800',
+                              expense: 'bg-red-100 text-red-800',
+                              payment: 'bg-blue-100 text-blue-800',
+                              receipt: 'bg-cyan-100 text-cyan-800',
+                              transfer: 'bg-purple-100 text-purple-800'
+                          };
+                          return colors[cat] || 'bg-gray-100 text-gray-800';
+                      },
+                      getCashFlowLabel(cf) {
+                          const labels = { operating: 'Operasional', investing: 'Investasi', financing: 'Pendanaan' };
+                          return labels[cf] || cf;
+                      }
+                  }">
+
+                <!-- Template Info Section -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Informasi Template</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Template Name -->
+                            <div class="md:col-span-2">
+                                <label for="templateName" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nama Template <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="templateName" name="templateName"
+                                       x-model="templateName"
+                                       th:value="${isEdit || isDuplicate} ? 'Pendapatan Jasa Konsultasi' : ''"
+                                       placeholder="Contoh: Pendapatan Jasa Konsultasi, Bayar Tagihan Listrik"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                       required>
+                            </div>
+
+                            <!-- Category -->
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Kategori <span class="text-red-500">*</span>
+                                </label>
+                                <select id="category" name="category" x-model="category"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                        required>
+                                    <option value="">Pilih kategori</option>
+                                    <option value="income">Pendapatan</option>
+                                    <option value="expense">Pengeluaran</option>
+                                    <option value="payment">Pembayaran</option>
+                                    <option value="receipt">Penerimaan</option>
+                                    <option value="transfer">Transfer</option>
+                                </select>
+                            </div>
+
+                            <!-- Cash Flow Type -->
+                            <div>
+                                <div class="flex items-center mb-1">
+                                    <label for="cashFlow" class="block text-sm font-medium text-gray-700">
+                                        Klasifikasi Arus Kas <span class="text-red-500">*</span>
+                                    </label>
+                                    <div x-data="{ show: false }" class="relative ml-1">
+                                        <button type="button" @click="show = !show" @click.outside="show = false" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </button>
+                                        <div x-show="show" x-transition class="absolute left-0 bottom-full mb-2 w-72 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-10">
+                                            <p class="font-medium mb-2">Untuk Laporan Arus Kas:</p>
+                                            <p><span class="text-green-300">Operasional:</span> Aktivitas bisnis utama (pendapatan, beban)</p>
+                                            <p class="mt-1"><span class="text-blue-300">Investasi:</span> Pembelian/penjualan aset tetap</p>
+                                            <p class="mt-1"><span class="text-purple-300">Pendanaan:</span> Modal, pinjaman, dividen</p>
+                                            <div class="absolute left-3 bottom-0 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <select id="cashFlow" name="cashFlow" x-model="cashFlow"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                        required>
+                                    <option value="operating">Aktivitas Operasional</option>
+                                    <option value="investing">Aktivitas Investasi</option>
+                                    <option value="financing">Aktivitas Pendanaan</option>
+                                </select>
+                            </div>
+
+                            <!-- Template Type -->
+                            <div>
+                                <div class="flex items-center mb-1">
+                                    <label for="templateType" class="block text-sm font-medium text-gray-700">
+                                        Tipe Template
+                                    </label>
+                                    <div x-data="{ show: false }" class="relative ml-1">
+                                        <button type="button" @click="show = !show" @click.outside="show = false" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </button>
+                                        <div x-show="show" x-transition class="absolute left-0 bottom-full mb-2 w-72 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-10">
+                                            <p><span class="text-green-300">Sederhana:</span> Satu input jumlah, semua baris menggunakan nilai yang sama atau formula sederhana</p>
+                                            <p class="mt-2"><span class="text-blue-300">Terperinci:</span> Input per baris jurnal, untuk transaksi dengan jumlah berbeda per akun</p>
+                                            <div class="absolute left-3 bottom-0 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <select id="templateType" name="templateType" x-model="templateType"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="simple">Sederhana (satu jumlah)</option>
+                                    <option value="detailed">Terperinci (jumlah per baris)</option>
+                                </select>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="md:col-span-2">
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Deskripsi
+                                </label>
+                                <textarea id="description" name="description" rows="2"
+                                          placeholder="Penjelasan tentang penggunaan template ini..."
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm resize-none"
+                                ><th:block th:if="${isEdit || isDuplicate}">Template untuk mencatat pendapatan dari jasa konsultasi IT</th:block></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Badge -->
+                    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                        <div class="flex items-center space-x-3 text-sm">
+                            <span class="text-gray-600">Preview:</span>
+                            <span x-show="category" :class="getCategoryColor(category)" class="px-2 py-0.5 rounded-full text-xs font-medium">
+                                <span x-show="category === 'income'">Pendapatan</span>
+                                <span x-show="category === 'expense'">Pengeluaran</span>
+                                <span x-show="category === 'payment'">Pembayaran</span>
+                                <span x-show="category === 'receipt'">Penerimaan</span>
+                                <span x-show="category === 'transfer'">Transfer</span>
+                            </span>
+                            <span x-show="cashFlow" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700" x-text="getCashFlowLabel(cashFlow)"></span>
+                            <span x-show="templateType === 'detailed'" class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Terperinci</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Journal Lines Configuration -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Konfigurasi Jurnal</h2>
+                            <button type="button" @click="addLine()"
+                                    class="px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Tambah Baris
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Help for formulas -->
+                        <div x-data="{ open: false }" class="mb-4">
+                            <button type="button" @click="open = !open"
+                                    class="flex items-center text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Panduan Formula
+                            </button>
+                            <div x-show="open" x-collapse class="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                    <div>
+                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount</code>
+                                        <p class="text-blue-700 mt-0.5">Jumlah input</p>
+                                    </div>
+                                    <div>
+                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount * 0.11</code>
+                                        <p class="text-blue-700 mt-0.5">PPN 11%</p>
+                                    </div>
+                                    <div>
+                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount / 1.11</code>
+                                        <p class="text-blue-700 mt-0.5">DPP dari harga inklusif</p>
+                                    </div>
+                                    <div>
+                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount - ppn</code>
+                                        <p class="text-blue-700 mt-0.5">Reference variabel lain</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Journal Lines Table -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <!-- Table Header -->
+                            <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="col-span-4">Akun</div>
+                                <div class="col-span-2 text-center">Posisi</div>
+                                <div class="col-span-4">Formula / Jumlah</div>
+                                <div class="col-span-2 text-center">Aksi</div>
+                            </div>
+
+                            <!-- Journal Lines -->
+                            <template x-for="(line, index) in journalLines" :key="line.id">
+                                <div class="grid grid-cols-12 gap-2 px-4 py-3 border-t border-gray-100 items-center">
+                                    <!-- Account Selection -->
+                                    <div class="col-span-4">
+                                        <select x-model="line.account"
+                                                @change="line.accountName = $event.target.options[$event.target.selectedIndex].text.split(' - ')[1] || ''"
+                                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="">Pilih akun</option>
+                                            <optgroup label="Kas &amp; Bank">
+                                                <option value="1.1.01">1.1.01 - Kas</option>
+                                                <option value="1.1.02">1.1.02 - Bank BCA</option>
+                                                <option value="1.1.03">1.1.03 - Bank BNI</option>
+                                            </optgroup>
+                                            <optgroup label="Piutang">
+                                                <option value="1.2.01">1.2.01 - Piutang Usaha</option>
+                                            </optgroup>
+                                            <optgroup label="Hutang">
+                                                <option value="2.1.01">2.1.01 - Hutang Usaha</option>
+                                                <option value="2.1.02">2.1.02 - Hutang PPN</option>
+                                            </optgroup>
+                                            <optgroup label="Pendapatan">
+                                                <option value="4.1.01">4.1.01 - Pendapatan Jasa</option>
+                                                <option value="4.1.02">4.1.02 - Pendapatan Konsultasi</option>
+                                            </optgroup>
+                                            <optgroup label="Beban">
+                                                <option value="5.1.01">5.1.01 - Beban Gaji</option>
+                                                <option value="5.1.02">5.1.02 - Beban Listrik</option>
+                                                <option value="5.1.03">5.1.03 - Beban Server</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+
+                                    <!-- Position (Debit/Credit) -->
+                                    <div class="col-span-2 flex justify-center">
+                                        <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+                                            <button type="button"
+                                                    @click="line.position = 'debit'"
+                                                    :class="line.position === 'debit' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                                    class="px-3 py-1 text-xs font-medium transition-colors">
+                                                Debit
+                                            </button>
+                                            <button type="button"
+                                                    @click="line.position = 'credit'"
+                                                    :class="line.position === 'credit' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                                    class="px-3 py-1 text-xs font-medium border-l border-gray-300 transition-colors">
+                                                Kredit
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Formula Input -->
+                                    <div class="col-span-4">
+                                        <input type="text" x-model="line.formula"
+                                               placeholder="amount"
+                                               class="w-full px-2 py-1.5 text-sm font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="col-span-2 flex justify-center space-x-2">
+                                        <button type="button"
+                                                @click="if (index > 0) { const temp = journalLines[index]; journalLines[index] = journalLines[index-1]; journalLines[index-1] = temp; }"
+                                                :disabled="index === 0"
+                                                :class="index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-700'"
+                                                class="p-1 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button"
+                                                @click="if (index < journalLines.length - 1) { const temp = journalLines[index]; journalLines[index] = journalLines[index+1]; journalLines[index+1] = temp; }"
+                                                :disabled="index === journalLines.length - 1"
+                                                :class="index === journalLines.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-700'"
+                                                class="p-1 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" @click="removeLine(line.id)"
+                                                :disabled="journalLines.length <= 2"
+                                                :class="journalLines.length <= 2 ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:text-red-700'"
+                                                class="p-1 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Summary -->
+                            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                                <div class="flex items-center justify-between text-sm">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-gray-600">Total baris: <span class="font-medium text-gray-900" x-text="journalLines.length"></span></span>
+                                        <span class="text-gray-400">|</span>
+                                        <span class="text-gray-600">Debit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'debit').length"></span></span>
+                                        <span class="text-gray-600">Kredit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'credit').length"></span></span>
+                                    </div>
+                                    <div class="flex items-center text-xs">
+                                        <template x-if="journalLines.filter(l => l.position === 'debit').length > 0 && journalLines.filter(l => l.position === 'credit').length > 0">
+                                            <span class="flex items-center text-accent-700">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                                Struktur valid
+                                            </span>
+                                        </template>
+                                        <template x-if="journalLines.filter(l => l.position === 'debit').length === 0 || journalLines.filter(l => l.position === 'credit').length === 0">
+                                            <span class="flex items-center text-amber-600">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                </svg>
+                                                Perlu minimal 1 debit dan 1 kredit
+                                            </span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Settings -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <div class="p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Pengaturan Tambahan</h2>
+
+                        <div class="space-y-4">
+                            <!-- Favorite Toggle -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Tampilkan di Favorit</p>
+                                    <p class="text-xs text-gray-500">Template akan muncul di bagian "Terakhir Digunakan"</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="isFavorite" class="sr-only peer" th:checked="${isEdit}">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Active Status (only for edit) -->
+                            <div th:if="${isEdit}" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Status Template</p>
+                                    <p class="text-xs text-gray-500">Template non-aktif tidak akan muncul di pilihan transaksi</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="isActive" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                                    <span class="ms-3 text-sm font-medium text-gray-700">Aktif</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                    <div class="flex items-center justify-between">
+                        <a th:href="@{/templates}"
+                           class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                            Batal
+                        </a>
+                        <div class="flex items-center space-x-3">
+                            <!-- Preview Button -->
+                            <button type="button"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    Preview
+                                </span>
+                            </button>
+
+                            <!-- Save Button -->
+                            <button type="submit"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <th:block th:if="${isEdit}">Simpan Perubahan</th:block>
+                                    <th:block th:unless="${isEdit}">Simpan Template</th:block>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
