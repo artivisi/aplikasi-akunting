@@ -1,11 +1,12 @@
 name: Publish User Manual
 
 on:
-  # Run on push to main branch
+  # Run on push to main branch or feature branches
   push:
     branches:
       - main
       - master
+      - 'claude/**'
     paths:
       - 'docs/user-manual/**'
       - 'src/main/resources/templates/**'
@@ -79,6 +80,7 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/akunting
           SPRING_DATASOURCE_USERNAME: akunting
           SPRING_DATASOURCE_PASSWORD: akunting
+          SERVER_PORT: 8080
 
       - name: Capture screenshots
         if: ${{ github.event.inputs.skip_screenshots != 'true' }}
@@ -95,6 +97,8 @@ jobs:
           path: target/user-manual
 
   deploy:
+    # Only deploy from main/master branch
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
