@@ -35,6 +35,7 @@ public class JournalTemplateController {
     public String create(Model model) {
         model.addAttribute("currentPage", "templates");
         model.addAttribute("isEdit", false);
+        model.addAttribute("isDuplicate", false);
         return "templates/form";
     }
 
@@ -42,6 +43,7 @@ public class JournalTemplateController {
     public String edit(@PathVariable String id, Model model) {
         model.addAttribute("currentPage", "templates");
         model.addAttribute("isEdit", true);
+        model.addAttribute("isDuplicate", false);
         model.addAttribute("templateId", id);
         return "templates/form";
     }
