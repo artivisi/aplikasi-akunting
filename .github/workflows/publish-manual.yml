@@ -1,11 +1,12 @@
 name: Publish User Manual
 
 on:
-  # Run on push to main branch
+  # Run on push to main branch or feature branches
   push:
     branches:
       - main
       - master
+      - 'claude/**'
     paths:
       - 'docs/user-manual/**'
       - 'src/main/resources/templates/**'
