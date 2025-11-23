@@ -63,9 +63,9 @@ audit_logs
 - [x] Account types (asset, liability, equity, revenue, expense)
 - [x] Hierarchical structure (parent/child)
 - [x] Pre-seeded COA template: **IT Services only**
+- [x] Soft delete (base entity with deleted_at, @SQLRestriction filter)
 - [ ] Account CRUD UI
 - [ ] Account activation/deactivation
-- [ ] Soft delete (base entity with deleted_at, JPA filter)
 
 **Note:** Other industry templates (Photography, Online Seller, General Freelancer) deferred to Phase 1+
 

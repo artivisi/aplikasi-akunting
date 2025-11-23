@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@SQLRestriction("deleted_at IS NULL")
 public class ChartOfAccount extends BaseEntity {
 
     @NotBlank(message = "Kode akun harus diisi")

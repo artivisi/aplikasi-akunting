@@ -11,7 +11,8 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
-    updated_by VARCHAR(100)
+    updated_by VARCHAR(100),
+    deleted_at TIMESTAMP
 );
 
 CREATE INDEX idx_users_username ON users(username);
@@ -30,7 +31,8 @@ CREATE TABLE company_config (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
-    updated_by VARCHAR(100)
+    updated_by VARCHAR(100),
+    deleted_at TIMESTAMP
 );
 
 -- Audit logs table

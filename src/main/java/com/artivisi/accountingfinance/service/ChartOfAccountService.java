@@ -117,6 +117,7 @@ public class ChartOfAccountService {
         if (!account.getChildren().isEmpty()) {
             throw new IllegalStateException("Cannot delete account with child accounts");
         }
-        chartOfAccountRepository.delete(account);
+        account.softDelete();
+        chartOfAccountRepository.save(account);
     }
 }

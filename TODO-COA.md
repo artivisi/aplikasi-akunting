@@ -87,11 +87,11 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [ ] IT Services specific accounts exist
 
 ### 8. Soft Delete
-- [ ] Base entity with `deleted_at` timestamp field
-- [ ] JPA filter to auto-exclude deleted records
-- [ ] Migration to add `deleted_at` column to `chart_of_accounts`
-- [ ] Delete action sets `deleted_at` instead of removing row
-- [ ] Deleted accounts not visible in list
+- [x] Base entity with `deleted_at` timestamp field
+- [x] JPA filter to auto-exclude deleted records (@SQLRestriction)
+- [x] Migration to add `deleted_at` column to `chart_of_accounts`
+- [x] Delete action sets `deleted_at` instead of removing row
+- [x] Deleted accounts not visible in list (via @SQLRestriction)
 - [ ] Deleted accounts not available in dropdowns
 - [ ] Admin can view deleted accounts (future)
 
