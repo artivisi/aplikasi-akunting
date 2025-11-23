@@ -69,7 +69,19 @@ public class ScreenshotCapture {
             new PageDefinition("journals-list", "Buku Besar", "/journals", true,
                     "Tampilan buku besar dengan saldo berjalan", "buku-besar"),
             new PageDefinition("journals-detail", "Detail Jurnal", "/journals/JE-2025-0001", true,
-                    "Detail entri jurnal dengan dampak akun", "buku-besar")
+                    "Detail entri jurnal dengan dampak akun", "buku-besar"),
+
+            // Reports
+            new PageDefinition("reports-index", "Halaman Laporan", "/reports", true,
+                    "Indeks laporan keuangan yang tersedia", "laporan"),
+            new PageDefinition("reports-trial-balance", "Neraca Saldo", "/reports/trial-balance", true,
+                    "Laporan neraca saldo untuk verifikasi keseimbangan", "laporan"),
+            new PageDefinition("reports-income-statement", "Laporan Laba Rugi", "/reports/income-statement", true,
+                    "Laporan laba rugi dengan pendapatan dan beban", "laporan"),
+            new PageDefinition("reports-balance-sheet", "Neraca", "/reports/balance-sheet", true,
+                    "Laporan posisi keuangan (aset, liabilitas, ekuitas)", "laporan"),
+            new PageDefinition("reports-cash-flow", "Laporan Arus Kas", "/reports/cash-flow", true,
+                    "Laporan arus kas operasional, investasi, pendanaan", "laporan")
         );
     }
 
