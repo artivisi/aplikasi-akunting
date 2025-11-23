@@ -41,6 +41,7 @@ CREATE TABLE transactions (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
     updated_by VARCHAR(100),
+    deleted_at TIMESTAMP,
 
     CONSTRAINT chk_transaction_status CHECK (status IN ('DRAFT', 'POSTED', 'VOID')),
     CONSTRAINT chk_void_reason CHECK (void_reason IS NULL OR void_reason IN ('INPUT_ERROR', 'DUPLICATE', 'CANCELLED', 'OTHER'))

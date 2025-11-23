@@ -16,6 +16,7 @@ CREATE TABLE journal_entries (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
     updated_by VARCHAR(100),
+    deleted_at TIMESTAMP,
 
     CONSTRAINT chk_debit_or_credit CHECK (
         (debit_amount > 0 AND credit_amount = 0) OR

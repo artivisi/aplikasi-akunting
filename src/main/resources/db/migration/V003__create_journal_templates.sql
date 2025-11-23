@@ -17,6 +17,7 @@ CREATE TABLE journal_templates (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
     updated_by VARCHAR(100),
+    deleted_at TIMESTAMP,
 
     CONSTRAINT chk_category CHECK (category IN ('INCOME', 'EXPENSE', 'PAYMENT', 'RECEIPT', 'TRANSFER')),
     CONSTRAINT chk_cash_flow_category CHECK (cash_flow_category IN ('OPERATING', 'INVESTING', 'FINANCING')),
@@ -37,6 +38,7 @@ CREATE TABLE journal_template_lines (
     description TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP,
 
     CONSTRAINT chk_position CHECK (position IN ('DEBIT', 'CREDIT'))
 );
