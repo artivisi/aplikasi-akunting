@@ -72,6 +72,9 @@ public class ChartOfAccount extends BaseEntity {
     @Column(name = "active", nullable = false)
     private Boolean active = true;
 
+    @Column(name = "is_permanent", nullable = false)
+    private Boolean permanent = true;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 }
