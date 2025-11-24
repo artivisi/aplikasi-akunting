@@ -1,7 +1,10 @@
 package com.artivisi.accountingfinance.entity;
 
+import com.artivisi.accountingfinance.enums.JournalEntryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,6 +20,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "journal_entries")
@@ -33,6 +37,21 @@ public class JournalEntry extends BaseEntity {
     @NotNull(message = "Journal date is required")
     @Column(name = "journal_date", nullable = false)
     private LocalDate journalDate;
+
+    @NotNull(message = "Status is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private JournalEntryStatus status = JournalEntryStatus.DRAFT;
+
+    @Column(name = "posted_at")
+    private LocalDateTime postedAt;
+
+    @Column(name = "voided_at")
+    private LocalDateTime voidedAt;
+
+    @Size(max = 500, message = "Void reason must not exceed 500 characters")
+    @Column(name = "void_reason", length = 500)
+    private String voidReason;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -82,5 +101,17 @@ public class JournalEntry extends BaseEntity {
 
     public BigDecimal getAmount() {
         return isDebitEntry() ? debitAmount : creditAmount;
+    }
+
+    public boolean isDraft() {
+        return status == JournalEntryStatus.DRAFT;
+    }
+
+    public boolean isPosted() {
+        return status == JournalEntryStatus.POSTED;
+    }
+
+    public boolean isVoid() {
+        return status == JournalEntryStatus.VOID;
     }
 }

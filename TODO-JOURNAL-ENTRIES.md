@@ -31,15 +31,15 @@ Recommend: Keep current design but add manual entry support for adjustments.
 
 ## TODO List
 
-### 1. Entity & Database
+### 1. Entity & Database ✅
 
 - [x] Journal entry entity exists
 - [x] Migration V005 exists
 - [x] Repository with read queries
-- [ ] Add status field to journal_entries (DRAFT, POSTED, VOID)
-- [ ] Add posted_at, voided_at, void_reason fields
-- [ ] Make id_transaction nullable (for manual entries)
-- [ ] Migration V007 for schema changes
+- [x] Add status field to journal_entries (DRAFT, POSTED, VOID)
+- [x] Add posted_at, voided_at, void_reason fields
+- [x] id_transaction already nullable (for manual entries)
+- [x] JournalEntryStatus enum created
 
 ### 2. Service Layer
 

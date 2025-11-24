@@ -4,6 +4,10 @@ CREATE TABLE journal_entries (
     id UUID PRIMARY KEY,
     journal_number VARCHAR(50) NOT NULL UNIQUE,
     journal_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    posted_at TIMESTAMP,
+    voided_at TIMESTAMP,
+    void_reason VARCHAR(500),
     id_transaction UUID REFERENCES transactions(id),
     id_account UUID NOT NULL REFERENCES chart_of_accounts(id),
     description VARCHAR(500) NOT NULL,
@@ -21,11 +25,13 @@ CREATE TABLE journal_entries (
     CONSTRAINT chk_debit_or_credit CHECK (
         (debit_amount > 0 AND credit_amount = 0) OR
         (debit_amount = 0 AND credit_amount > 0)
-    )
+    ),
+    CONSTRAINT chk_status CHECK (status IN ('DRAFT', 'POSTED', 'VOID'))
 );
 
 CREATE INDEX idx_je_number ON journal_entries(journal_number);
 CREATE INDEX idx_je_date ON journal_entries(journal_date);
+CREATE INDEX idx_je_status ON journal_entries(status);
 CREATE INDEX idx_je_transaction ON journal_entries(id_transaction);
 CREATE INDEX idx_je_account ON journal_entries(id_account);
 CREATE INDEX idx_je_account_date ON journal_entries(id_account, journal_date);
