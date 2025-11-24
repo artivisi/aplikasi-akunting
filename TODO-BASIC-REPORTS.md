@@ -17,6 +17,43 @@ Validate journal entries and provide financial output. Item is only checked when
 
 ## TODO List
 
+### 0. Test Data Preparation
+
+Test data via Flyway test-only migration (`src/test/resources/db/testmigration/V901__report_test_data.sql`).
+
+**Setup:**
+- [ ] Configure Flyway to include test migration location in test profile
+- [ ] Create `V901__report_test_data.sql` with comprehensive test data
+
+**Test Data Requirements:**
+- [ ] Journal entries across multiple months (Jan-Dec 2024)
+- [ ] Entries for all account types (Asset, Liability, Equity, Revenue, Expense)
+- [ ] Mix of POSTED and VOID entries (verify VOID excluded from calculations)
+- [ ] Multiple entries per account (for running balance verification)
+- [ ] Balanced entries (debit = credit per journal)
+
+**Sample Transactions:**
+```
+Jan 2024:
+- Initial capital injection: Cash (D) 100,000,000 / Equity (C) 100,000,000
+- Equipment purchase: Equipment (D) 20,000,000 / Cash (C) 20,000,000
+
+Feb-Nov 2024:
+- Monthly consulting revenue: Cash (D) / Revenue (C) varying amounts
+- Monthly expenses: Expense accounts (D) / Cash (C)
+- One VOID entry (to verify exclusion)
+
+Dec 2024:
+- Year-end entries for closing verification
+```
+
+**Expected Totals (for test assertions):**
+- [ ] Document expected Trial Balance totals
+- [ ] Document expected Balance Sheet totals (A = L + E)
+- [ ] Document expected Income Statement totals (Revenue - Expense)
+
+---
+
 ### 1. Trial Balance Report
 
 - [ ] TrialBalanceService.calculateTrialBalance(asOfDate)
