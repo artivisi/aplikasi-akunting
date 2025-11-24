@@ -67,14 +67,17 @@
                                 Tipe Akun <span class="text-red-500">*</span>
                             </label>
                             <select id="accountType" th:field="*{accountType}"
+                                    th:disabled="${hasChildren or hasParent}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                                    th:classappend="${#fields.hasErrors('accountType')} ? 'border-red-500' : ''">
+                                    th:classappend="${#fields.hasErrors('accountType')} ? 'border-red-500' : (${hasChildren or hasParent} ? 'bg-gray-100 cursor-not-allowed' : '')">
                                 <option value="">Pilih tipe akun</option>
                                 <option th:each="type : ${accountTypes}"
                                         th:value="${type}"
                                         th:text="${type.indonesianName}"
                                         th:selected="${account.accountType == type}">Type</option>
                             </select>
+                            <p th:if="${hasChildren}" class="mt-1 text-sm text-gray-500">Tipe akun tidak dapat diubah karena memiliki akun anak</p>
+                            <p th:if="${hasParent and not hasChildren}" class="mt-1 text-sm text-gray-500">Tipe akun mengikuti akun induk</p>
                             <p th:if="${#fields.hasErrors('accountType')}" class="mt-1 text-sm text-red-600" th:errors="*{accountType}">Error</p>
                         </div>
 
@@ -101,15 +104,18 @@
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" th:field="*{normalBalance}" value="DEBIT"
+                                           th:disabled="${hasParent}"
                                            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
-                                    <span class="ml-2 text-sm text-gray-700">Debit</span>
+                                    <span class="ml-2 text-sm text-gray-700" th:classappend="${hasParent} ? 'text-gray-400' : ''">Debit</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" th:field="*{normalBalance}" value="CREDIT"
+                                           th:disabled="${hasParent}"
                                            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
-                                    <span class="ml-2 text-sm text-gray-700">Kredit</span>
+                                    <span class="ml-2 text-sm text-gray-700" th:classappend="${hasParent} ? 'text-gray-400' : ''">Kredit</span>
                                 </label>
                             </div>
+                            <p th:if="${hasParent}" class="mt-1 text-sm text-gray-500">Saldo normal mengikuti akun induk</p>
                             <p th:if="${#fields.hasErrors('normalBalance')}" class="mt-1 text-sm text-red-600" th:errors="*{normalBalance}">Error</p>
                         </div>
 

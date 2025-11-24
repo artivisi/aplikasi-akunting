@@ -41,4 +41,6 @@ public interface ChartOfAccountRepository extends JpaRepository<ChartOfAccount, 
     @Query("SELECT c FROM ChartOfAccount c WHERE c.active = true AND c.isHeader = false AND " +
            "c.accountType IN :types ORDER BY c.accountCode")
     List<ChartOfAccount> findByAccountTypeIn(@Param("types") List<AccountType> types);
+
+    long countByParentId(UUID parentId);
 }

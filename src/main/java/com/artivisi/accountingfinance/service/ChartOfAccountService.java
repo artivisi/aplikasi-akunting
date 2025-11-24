@@ -56,6 +56,16 @@ public class ChartOfAccountService {
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + id));
     }
 
+    public boolean hasChildren(UUID id) {
+        return chartOfAccountRepository.countByParentId(id) > 0;
+    }
+
+    public boolean hasParent(UUID id) {
+        return chartOfAccountRepository.findById(id)
+                .map(account -> account.getParent() != null)
+                .orElse(false);
+    }
+
     public ChartOfAccount findByAccountCode(String accountCode) {
         return chartOfAccountRepository.findByAccountCode(accountCode)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with code: " + accountCode));

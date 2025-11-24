@@ -172,4 +172,56 @@ public class AccountFormPage {
     public void selectParentAccount(String parentLabel) {
         page.selectOption(PARENT_SELECT, new com.microsoft.playwright.options.SelectOption().setLabel(parentLabel));
     }
+
+    // Edit-specific assertions
+    public void assertSaveButtonText(String expectedText) {
+        assertThat(page.locator(SAVE_BUTTON)).containsText(expectedText);
+    }
+
+    public void assertAccountCodeValue(String expectedValue) {
+        assertThat(page.locator(ACCOUNT_CODE_INPUT)).hasValue(expectedValue);
+    }
+
+    public void assertAccountNameValue(String expectedValue) {
+        assertThat(page.locator(ACCOUNT_NAME_INPUT)).hasValue(expectedValue);
+    }
+
+    public void assertAccountTypeSelected(String expectedType) {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT)).hasValue(expectedType);
+    }
+
+    public void assertNormalBalanceDebitSelected() {
+        assertThat(page.locator(NORMAL_BALANCE_DEBIT)).isChecked();
+    }
+
+    public void assertNormalBalanceCreditSelected() {
+        assertThat(page.locator(NORMAL_BALANCE_CREDIT)).isChecked();
+    }
+
+    public void assertAccountTypeSelectDisabled() {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT)).isDisabled();
+    }
+
+    public void assertAccountTypeSelectEnabled() {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT)).isEnabled();
+    }
+
+    // Clear and fill actions for edit scenarios
+    public void clearAndFillAccountCode(String code) {
+        page.locator(ACCOUNT_CODE_INPUT).clear();
+        page.fill(ACCOUNT_CODE_INPUT, code);
+    }
+
+    public void clearAndFillAccountName(String name) {
+        page.locator(ACCOUNT_NAME_INPUT).clear();
+        page.fill(ACCOUNT_NAME_INPUT, name);
+    }
+
+    public void clearAccountName() {
+        page.locator(ACCOUNT_NAME_INPUT).clear();
+    }
+
+    public void clearAccountCode() {
+        page.locator(ACCOUNT_CODE_INPUT).clear();
+    }
 }

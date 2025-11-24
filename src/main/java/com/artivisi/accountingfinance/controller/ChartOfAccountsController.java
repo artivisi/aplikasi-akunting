@@ -38,6 +38,8 @@ public class ChartOfAccountsController {
         model.addAttribute("account", new ChartOfAccount());
         model.addAttribute("accountTypes", AccountType.values());
         model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+        model.addAttribute("hasChildren", false);
+        model.addAttribute("hasParent", false);
         return "accounts/form";
     }
 
@@ -51,6 +53,8 @@ public class ChartOfAccountsController {
             model.addAttribute("currentPage", "accounts");
             model.addAttribute("accountTypes", AccountType.values());
             model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            model.addAttribute("hasChildren", false);
+            model.addAttribute("hasParent", parentId != null);
             return "accounts/form";
         }
 
@@ -66,6 +70,8 @@ public class ChartOfAccountsController {
             model.addAttribute("currentPage", "accounts");
             model.addAttribute("accountTypes", AccountType.values());
             model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            model.addAttribute("hasChildren", false);
+            model.addAttribute("hasParent", parentId != null);
             return "accounts/form";
         }
 
@@ -75,10 +81,13 @@ public class ChartOfAccountsController {
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable UUID id, Model model) {
+        ChartOfAccount account = chartOfAccountService.findById(id);
         model.addAttribute("currentPage", "accounts");
-        model.addAttribute("account", chartOfAccountService.findById(id));
+        model.addAttribute("account", account);
         model.addAttribute("accountTypes", AccountType.values());
         model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+        model.addAttribute("hasChildren", !account.getChildren().isEmpty());
+        model.addAttribute("hasParent", account.getParent() != null);
         return "accounts/form";
     }
 
@@ -88,14 +97,30 @@ public class ChartOfAccountsController {
                          BindingResult bindingResult,
                          Model model,
                          RedirectAttributes redirectAttributes) {
+        boolean hasChildren = chartOfAccountService.hasChildren(id);
+        boolean hasParent = chartOfAccountService.hasParent(id);
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("currentPage", "accounts");
             model.addAttribute("accountTypes", AccountType.values());
             model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            model.addAttribute("hasChildren", hasChildren);
+            model.addAttribute("hasParent", hasParent);
             return "accounts/form";
         }
 
-        chartOfAccountService.update(id, account);
+        try {
+            chartOfAccountService.update(id, account);
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("accountCode", "duplicate", e.getMessage());
+            model.addAttribute("currentPage", "accounts");
+            model.addAttribute("accountTypes", AccountType.values());
+            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            model.addAttribute("hasChildren", hasChildren);
+            model.addAttribute("hasParent", hasParent);
+            return "accounts/form";
+        }
+
         redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil diperbarui");
         return "redirect:/accounts";
     }

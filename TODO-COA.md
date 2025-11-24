@@ -44,13 +44,13 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Child account inherits parent's account type
 
 ### 3. Edit Account
-- [ ] Navigate to edit form via edit button
-- [ ] Form displays existing account data
-- [ ] Submit form updates account in database
-- [ ] Updated data appears in list after save
-- [ ] Success message displayed after update
-- [ ] Validation errors displayed on invalid input
-- [ ] Cannot change account type if account has children
+- [x] Navigate to edit form via edit button
+- [x] Form displays existing account data
+- [x] Submit form updates account in database
+- [x] Updated data appears in list after save
+- [x] Success message displayed after update
+- [x] Validation errors displayed on invalid input
+- [x] Cannot change account type if account has children
 - [ ] Cannot change account type if account has transactions (future)
 
 ### 4. Delete Account
@@ -100,7 +100,7 @@ Complete COA features with functional tests. Item is only checked when verified 
 ## Test Files to Create
 
 1. ~~`ChartOfAccountCreateTest.java` - Create account scenarios~~ ✅ Done
-2. `ChartOfAccountEditTest.java` - Edit account scenarios
+2. ~~`ChartOfAccountEditTest.java` - Edit account scenarios~~ ✅ Done
 3. `ChartOfAccountDeleteTest.java` - Delete/soft delete scenarios
 4. `ChartOfAccountStatusTest.java` - Activate/deactivate scenarios
 5. `ChartOfAccountValidationTest.java` - Validation error scenarios
