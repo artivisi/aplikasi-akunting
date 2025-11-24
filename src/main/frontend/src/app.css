@@ -34,3 +34,162 @@
 [x-cloak] {
     display: none !important;
 }
+
+/* Print-friendly styles for reports */
+@media print {
+    /* Hide navigation and non-essential elements */
+    aside,
+    header,
+    nav,
+    #sidebar-nav,
+    #mobile-sidebar-nav,
+    .no-print,
+    form:has(input[type="date"]),
+    button:not(.print-visible),
+    [x-data] > div:first-child {
+        display: none !important;
+    }
+
+    /* Reset page layout */
+    body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Make main content full width */
+    main,
+    .flex-1,
+    [layout\:fragment="content"],
+    .max-w-4xl,
+    .max-w-5xl,
+    .max-w-6xl {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Remove shadows and borders for cleaner print */
+    .shadow-sm,
+    .shadow-lg,
+    .shadow-xl {
+        box-shadow: none !important;
+    }
+
+    .border,
+    .border-gray-200,
+    .border-gray-300 {
+        border-color: #e5e5e5 !important;
+    }
+
+    /* Ensure text is black for better printing */
+    .text-gray-500,
+    .text-gray-600,
+    .text-gray-700 {
+        color: #333 !important;
+    }
+
+    .text-gray-900 {
+        color: #000 !important;
+    }
+
+    /* Background colors for print - use lighter versions */
+    .bg-gray-50,
+    .bg-gray-100 {
+        background-color: #f9f9f9 !important;
+    }
+
+    .bg-green-50,
+    .bg-accent-50 {
+        background-color: #f0fff0 !important;
+    }
+
+    .bg-red-50 {
+        background-color: #fff0f0 !important;
+    }
+
+    .bg-amber-50 {
+        background-color: #fffbf0 !important;
+    }
+
+    .bg-blue-50 {
+        background-color: #f0f8ff !important;
+    }
+
+    /* Hide filter section on reports */
+    form[method="get"]:has(#startDate),
+    form[method="get"]:has(#endDate),
+    form[method="get"]:has(#asOfDate) {
+        display: none !important;
+    }
+
+    /* Hide breadcrumb */
+    nav.flex.items-center.space-x-2 {
+        display: none !important;
+    }
+
+    /* Report container adjustments */
+    .bg-white.rounded-lg.shadow-sm {
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+    }
+
+    /* Page break controls */
+    .page-break-before {
+        page-break-before: always;
+    }
+
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    /* Table improvements for print */
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    /* Ensure report header is visible */
+    #report-title,
+    #report-period,
+    .report-header {
+        display: block !important;
+    }
+
+    /* Print button should be hidden */
+    #btn-print,
+    #btn-generate,
+    #btn-export-pdf,
+    #btn-export-excel {
+        display: none !important;
+    }
+
+    /* Page settings */
+    @page {
+        size: A4;
+        margin: 1.5cm;
+    }
+
+    /* Company/report header styling for print */
+    .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+}
