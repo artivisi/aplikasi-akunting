@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${isEdit} ? 'Edit Jurnal' : 'Tambah Jurnal'">Jurnal</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" id="page-title" th:text="${isEdit} ? 'Edit Jurnal' : 'Tambah Jurnal'">Jurnal</h1>
+
+    <div layout:fragment="content" id="journal-form-content" class="h-full flex flex-col overflow-y-auto">
+        <div class="max-w-4xl">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/journals}" class="hover:text-primary-600 transition-colors">Buku Besar</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span class="text-gray-900" th:text="${isEdit} ? 'Edit Jurnal' : 'Tambah Jurnal'">Jurnal</span>
+            </nav>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200"
+                 x-data="journalEntryForm()"
+                 x-init="init()">
+
+                <div class="p-6">
+                    <!-- Error Messages -->
+                    <div id="error-message" x-show="errorMessage" x-cloak
+                         class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-sm text-red-600" x-text="errorMessage"></p>
+                    </div>
+
+                    <form @submit.prevent="submitForm" class="space-y-6">
+
+                        <!-- Header Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Journal Date -->
+                            <div>
+                                <label for="journalDate" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Tanggal <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="journalDate" x-model="formData.journalDate"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                       required>
+                            </div>
+
+                            <!-- Reference Number -->
+                            <div>
+                                <label for="referenceNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nomor Referensi
+                                </label>
+                                <input type="text" id="referenceNumber" x-model="formData.referenceNumber"
+                                       placeholder="Contoh: INV-001, OR-2024-001"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                Keterangan <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="description" x-model="formData.description"
+                                   placeholder="Contoh: Penyesuaian persediaan bulan Desember"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                   required>
+                        </div>
+
+                        <!-- Journal Lines -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Baris Jurnal <span class="text-red-500">*</span>
+                                </label>
+                                <button type="button" id="btn-add-line" @click="addLine()"
+                                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Tambah Baris
+                                </button>
+                            </div>
+
+                            <!-- Lines Table -->
+                            <div id="journal-lines-table" class="border border-gray-200 rounded-lg overflow-hidden">
+                                <!-- Table Header -->
+                                <div class="grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <div class="col-span-5">Akun</div>
+                                    <div class="col-span-2 text-right">Debit</div>
+                                    <div class="col-span-2 text-right">Kredit</div>
+                                    <div class="col-span-2">Keterangan</div>
+                                    <div class="col-span-1"></div>
+                                </div>
+
+                                <!-- Lines -->
+                                <template x-for="(line, index) in formData.lines" :key="index">
+                                    <div class="grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 items-center">
+                                        <!-- Account -->
+                                        <div class="col-span-5">
+                                            <select x-model="line.accountId"
+                                                    :id="'line-account-' + index"
+                                                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                    required>
+                                                <option value="">Pilih Akun</option>
+                                                <template x-for="account in accounts" :key="account.id">
+                                                    <option :value="account.id" x-text="account.accountCode + ' - ' + account.accountName"></option>
+                                                </template>
+                                            </select>
+                                        </div>
+
+                                        <!-- Debit -->
+                                        <div class="col-span-2">
+                                            <input type="number" step="0.01" min="0"
+                                                   :id="'line-debit-' + index"
+                                                   x-model.number="line.debit"
+                                                   @input="if(line.debit > 0) line.credit = 0"
+                                                   class="w-full px-2 py-1.5 text-sm text-right border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                   placeholder="0">
+                                        </div>
+
+                                        <!-- Credit -->
+                                        <div class="col-span-2">
+                                            <input type="number" step="0.01" min="0"
+                                                   :id="'line-credit-' + index"
+                                                   x-model.number="line.credit"
+                                                   @input="if(line.credit > 0) line.debit = 0"
+                                                   class="w-full px-2 py-1.5 text-sm text-right border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                   placeholder="0">
+                                        </div>
+
+                                        <!-- Line Description -->
+                                        <div class="col-span-2">
+                                            <input type="text"
+                                                   :id="'line-desc-' + index"
+                                                   x-model="line.lineDescription"
+                                                   class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                   placeholder="Opsional">
+                                        </div>
+
+                                        <!-- Remove Button -->
+                                        <div class="col-span-1 text-center">
+                                            <button type="button" @click="removeLine(index)"
+                                                    :id="'btn-remove-line-' + index"
+                                                    :disabled="formData.lines.length <= 2"
+                                                    class="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Totals Row -->
+                                <div id="totals-row" class="grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 border-t-2 border-gray-300">
+                                    <div class="col-span-5 text-sm font-semibold text-gray-700">Total</div>
+                                    <div class="col-span-2 text-right">
+                                        <span id="total-debit" class="text-sm font-bold text-green-600" x-text="formatNumber(totalDebit)">0</span>
+                                    </div>
+                                    <div class="col-span-2 text-right">
+                                        <span id="total-credit" class="text-sm font-bold text-red-600" x-text="formatNumber(totalCredit)">0</span>
+                                    </div>
+                                    <div class="col-span-3"></div>
+                                </div>
+
+                                <!-- Balance Indicator -->
+                                <div id="balance-indicator" class="px-4 py-3"
+                                     :class="isBalanced ? 'bg-green-50' : 'bg-red-50'">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <template x-if="isBalanced">
+                                                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </template>
+                                            <template x-if="!isBalanced">
+                                                <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                </svg>
+                                            </template>
+                                            <span id="balance-status" class="text-sm font-medium"
+                                                  :class="isBalanced ? 'text-green-700' : 'text-red-700'"
+                                                  x-text="isBalanced ? 'Jurnal Balance' : 'Jurnal Tidak Balance'">Status</span>
+                                        </div>
+                                        <span x-show="!isBalanced" id="balance-difference"
+                                              class="text-sm text-red-600"
+                                              x-text="'Selisih: ' + formatNumber(Math.abs(totalDebit - totalCredit))">Selisih</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                            <a th:href="@{/journals}" id="btn-cancel"
+                               class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                                Batal
+                            </a>
+                            <div class="flex items-center space-x-3">
+                                <button type="submit" id="btn-save-draft"
+                                        @click="formData.postImmediately = false"
+                                        :disabled="isSubmitting"
+                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
+                                    <span x-show="!isSubmitting">Simpan Draft</span>
+                                    <span x-show="isSubmitting">Menyimpan...</span>
+                                </button>
+                                <button type="submit" id="btn-save-post"
+                                        @click="formData.postImmediately = true"
+                                        :disabled="isSubmitting || !isBalanced"
+                                        class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span x-show="!isSubmitting">Simpan &amp; Posting</span>
+                                    <span x-show="isSubmitting">Menyimpan...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            const accountsData = /*[[${accounts}]]*/ [];
+            const editData = /*[[${journalEntry}]]*/ null;
+            const isEditMode = /*[[${isEdit}]]*/ false;
+
+            function journalEntryForm() {
+                return {
+                    accounts: (accountsData || []).map(a => ({
+                        id: a.id,
+                        accountCode: a.accountCode,
+                        accountName: a.accountName
+                    })),
+                    formData: {
+                        journalDate: new Date().toISOString().split('T')[0],
+                        referenceNumber: '',
+                        description: '',
+                        lines: [
+                            { accountId: '', debit: 0, credit: 0, lineDescription: '' },
+                            { accountId: '', debit: 0, credit: 0, lineDescription: '' }
+                        ],
+                        postImmediately: false
+                    },
+                    errorMessage: '',
+                    isSubmitting: false,
+
+                    init() {
+                        console.log('Alpine init called, accounts:', this.accounts.length);
+                        if (isEditMode && editData) {
+                            // Populate form with edit data
+                            this.formData.journalDate = editData.journalDate;
+                            this.formData.referenceNumber = editData.referenceNumber || '';
+                            this.formData.description = editData.description;
+                            // Lines would need to be populated from related entries
+                        }
+                    },
+
+                    get totalDebit() {
+                        return this.formData.lines.reduce((sum, line) => sum + (parseFloat(line.debit) || 0), 0);
+                    },
+
+                    get totalCredit() {
+                        return this.formData.lines.reduce((sum, line) => sum + (parseFloat(line.credit) || 0), 0);
+                    },
+
+                    get isBalanced() {
+                        return Math.abs(this.totalDebit - this.totalCredit) < 0.01 && this.totalDebit > 0;
+                    },
+
+                    formatNumber(num) {
+                        return new Intl.NumberFormat('id-ID').format(num);
+                    },
+
+                    addLine() {
+                        this.formData.lines.push({ accountId: '', debit: 0, credit: 0, lineDescription: '' });
+                    },
+
+                    removeLine(index) {
+                        if (this.formData.lines.length > 2) {
+                            this.formData.lines.splice(index, 1);
+                        }
+                    },
+
+                    async submitForm() {
+                        this.errorMessage = '';
+
+                        // Validation
+                        if (!this.formData.journalDate) {
+                            this.errorMessage = 'Tanggal jurnal harus diisi';
+                            return;
+                        }
+
+                        if (!this.formData.description.trim()) {
+                            this.errorMessage = 'Keterangan harus diisi';
+                            return;
+                        }
+
+                        const validLines = this.formData.lines.filter(l => l.accountId && (l.debit > 0 || l.credit > 0));
+                        if (validLines.length < 2) {
+                            this.errorMessage = 'Minimal harus ada 2 baris jurnal dengan akun dan nilai';
+                            return;
+                        }
+
+                        if (this.formData.postImmediately && !this.isBalanced) {
+                            this.errorMessage = 'Jurnal harus balance untuk dapat di-posting';
+                            return;
+                        }
+
+                        this.isSubmitting = true;
+
+                        try {
+                            const response = await fetch('/journals/api', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(this.formData)
+                            });
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.message || 'Gagal menyimpan jurnal');
+                            }
+
+                            const result = await response.json();
+                            window.location.href = '/journals/' + result.journalNumber;
+                        } catch (error) {
+                            this.errorMessage = error.message;
+                        } finally {
+                            this.isSubmitting = false;
+                        }
+                    }
+                };
+            }
+        </script>
+    </th:block>
+</body>
+</html>

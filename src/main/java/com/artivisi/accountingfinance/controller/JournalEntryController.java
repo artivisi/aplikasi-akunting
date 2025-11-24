@@ -1,8 +1,12 @@
 package com.artivisi.accountingfinance.controller;
 
+import com.artivisi.accountingfinance.dto.AccountOptionDto;
+import com.artivisi.accountingfinance.dto.JournalEntryDto;
+import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.JournalEntryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +16,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static java.util.Objects.requireNonNullElse;
@@ -63,11 +72,46 @@ public class JournalEntryController {
         return "journals/list";
     }
 
+    @GetMapping("/new")
+    public String create(Model model) {
+        model.addAttribute("currentPage", "journals");
+        model.addAttribute("isEdit", false);
+        model.addAttribute("accounts", toAccountOptions(chartOfAccountService.findTransactableAccounts()));
+        model.addAttribute("journalEntry", null);
+        return "journals/form";
+    }
+
+    private List<AccountOptionDto> toAccountOptions(List<ChartOfAccount> accounts) {
+        return accounts.stream()
+                .map(a -> new AccountOptionDto(a.getId(), a.getAccountCode(), a.getAccountName()))
+                .toList();
+    }
+
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Model model) {
         model.addAttribute("currentPage", "journals");
         model.addAttribute("journalEntry", journalEntryService.findById(id));
         return "journals/detail";
+    }
+
+    @GetMapping("/{journalNumber}/edit")
+    public String edit(@PathVariable String journalNumber, Model model) {
+        List<JournalEntry> entries = journalEntryService.findAllByJournalNumber(journalNumber);
+        if (entries.isEmpty()) {
+            return "redirect:/journals";
+        }
+
+        JournalEntry firstEntry = entries.get(0);
+        if (!firstEntry.isDraft()) {
+            return "redirect:/journals/" + firstEntry.getId();
+        }
+
+        model.addAttribute("currentPage", "journals");
+        model.addAttribute("isEdit", true);
+        model.addAttribute("accounts", toAccountOptions(chartOfAccountService.findTransactableAccounts()));
+        model.addAttribute("journalNumber", journalNumber);
+        model.addAttribute("journalEntries", entries);
+        return "journals/form";
     }
 
     @GetMapping("/ledger/{accountId}")
@@ -104,6 +148,47 @@ public class JournalEntryController {
     @ResponseBody
     public ResponseEntity<JournalEntry> apiGet(@PathVariable UUID id) {
         return ResponseEntity.ok(journalEntryService.findById(id));
+    }
+
+    @PostMapping("/api")
+    @ResponseBody
+    public ResponseEntity<?> apiCreate(@Valid @RequestBody JournalEntryDto dto) {
+        List<JournalEntry> entries = new ArrayList<>();
+
+        for (JournalEntryDto.JournalEntryLineDto line : dto.lines()) {
+            if (line.accountId() == null || (line.debit().compareTo(BigDecimal.ZERO) == 0 && line.credit().compareTo(BigDecimal.ZERO) == 0)) {
+                continue;
+            }
+
+            ChartOfAccount account = chartOfAccountService.findById(line.accountId());
+
+            JournalEntry entry = new JournalEntry();
+            entry.setJournalDate(dto.journalDate());
+            entry.setReferenceNumber(dto.referenceNumber());
+            entry.setDescription(line.lineDescription() != null && !line.lineDescription().isBlank()
+                    ? line.lineDescription()
+                    : dto.description());
+            entry.setAccount(account);
+            entry.setDebitAmount(line.debit() != null ? line.debit() : BigDecimal.ZERO);
+            entry.setCreditAmount(line.credit() != null ? line.credit() : BigDecimal.ZERO);
+
+            entries.add(entry);
+        }
+
+        if (entries.size() < 2) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Minimal harus ada 2 baris jurnal dengan akun dan nilai"));
+        }
+
+        List<JournalEntry> saved = journalEntryService.create(entries);
+
+        if (dto.postImmediately()) {
+            saved = journalEntryService.post(saved.get(0).getJournalNumber());
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "journalNumber", saved.get(0).getJournalNumber(),
+                "status", saved.get(0).getStatus().name()
+        ));
     }
 
     @GetMapping("/api/by-transaction/{transactionId}")
