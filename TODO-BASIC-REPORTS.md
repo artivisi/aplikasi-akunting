@@ -123,11 +123,11 @@ Already implemented at `/journals` (Buku Besar):
 - [x] Date range filter
 - [x] Playwright tests (IncomeStatementTest.java - 26 tests)
 
-### 5. Export Features
+### 5. Export Features ✅
 
-- [ ] PDF export for all reports
-- [ ] Excel export for all reports
-- [ ] Print-friendly CSS
+- [x] PDF export for all reports (Trial Balance, Balance Sheet, Income Statement)
+- [x] Excel export for all reports (Trial Balance, Balance Sheet, Income Statement)
+- [x] Print-friendly CSS (@media print rules in app.css)
 
 ---
 
