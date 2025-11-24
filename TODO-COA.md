@@ -75,16 +75,16 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Child accounts indented under parent
 - [x] Expand button shows children
 - [x] Collapse button hides children
-- [ ] Level calculation correct (parent level + 1)
-- [ ] Account code follows parent pattern
+- [x] Level calculation correct (parent level + 1)
+- [x] Account code follows parent pattern
 
 ### 7. Seed Data Verification
 - [x] 5 root accounts exist (ASET, LIABILITAS, EKUITAS, PENDAPATAN, BEBAN)
 - [x] ASET has children (Aset Lancar, Aset Tetap)
 - [x] Aset Lancar has leaf accounts (Kas, Bank BCA, Bank BNI)
-- [ ] All seed accounts have correct types
-- [ ] All seed accounts have correct normal balance
-- [ ] IT Services specific accounts exist
+- [x] All seed accounts have correct types
+- [x] All seed accounts have correct normal balance
+- [x] IT Services specific accounts exist
 
 ### 8. Soft Delete
 - [x] Base entity with `deleted_at` timestamp field
@@ -92,7 +92,7 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Migration to add `deleted_at` column to `chart_of_accounts`
 - [x] Delete action sets `deleted_at` instead of removing row
 - [x] Deleted accounts not visible in list (via @SQLRestriction)
-- [ ] Deleted accounts not available in dropdowns
+- [x] Deleted accounts not available in dropdowns
 - [ ] Admin can view deleted accounts (future)
 
 ---
