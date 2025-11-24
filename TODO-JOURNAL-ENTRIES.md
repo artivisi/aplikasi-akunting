@@ -120,16 +120,16 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] Entry becomes immutable
 - [x] Success message displayed (page reloads with Posted status)
 
-### 8. Void Journal Entry
+### 8. Void Journal Entry ✅
 
-- [ ] Void button on posted entry
-- [ ] Void reason input required
-- [ ] Confirmation dialog with reason
-- [ ] Status changes to VOID
-- [ ] voided_at timestamp set
-- [ ] void_reason stored
-- [ ] Original entry preserved (audit trail)
-- [ ] Success message displayed
+- [x] Void button on posted entry
+- [x] Void reason input required
+- [x] Confirmation dialog with reason
+- [x] Status changes to VOID
+- [x] voided_at timestamp set
+- [x] void_reason stored
+- [x] Original entry preserved (audit trail)
+- [x] Success message displayed (page reloads with Void status)
 
 ### 9. Account Validation (from COA)
 
@@ -157,7 +157,7 @@ Recommend: Keep current design but add manual entry support for adjustments.
 6. `JournalEntryViewTest.java` - View detail scenarios ✅ (18 tests)
 7. `JournalDetailPage.java` - Page object for detail tests ✅
 8. `JournalEntryPostTest.java` - Post and validation scenarios ✅ (13 tests)
-9. `JournalEntryVoidTest.java` - Void scenarios (TODO)
+9. `JournalEntryVoidTest.java` - Void scenarios ✅ (13 tests)
 10. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
 
 ---

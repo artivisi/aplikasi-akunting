@@ -84,6 +84,10 @@ public class JournalDetailPage {
         assertThat(page.locator(STATUS_BANNER_VOID)).isVisible();
     }
 
+    public void assertVoidBannerContainsReason(String reason) {
+        assertThat(page.locator(STATUS_BANNER_VOID)).containsText(reason);
+    }
+
     public void assertDraftBannerNotVisible() {
         assertThat(page.locator(STATUS_BANNER_DRAFT)).not().isVisible();
     }
