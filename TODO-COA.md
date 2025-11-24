@@ -30,18 +30,18 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Display activate/deactivate button
 
 ### 2. Create Account
-- [ ] Navigate to create form via "Tambah Akun" button
-- [ ] Display empty form with all fields
-- [ ] Submit form creates new account in database
-- [ ] New account appears in list after creation
-- [ ] Success message displayed after creation
-- [ ] Validation: account code is required
-- [ ] Validation: account name is required
-- [ ] Validation: account type is required
-- [ ] Validation: normal balance is required
-- [ ] Validation: account code must be unique
-- [ ] Create child account under parent
-- [ ] Child account inherits parent's account type
+- [x] Navigate to create form via "Tambah Akun" button
+- [x] Display empty form with all fields
+- [x] Submit form creates new account in database
+- [x] New account appears in list after creation
+- [x] Success message displayed after creation
+- [x] Validation: account code is required
+- [x] Validation: account name is required
+- [x] Validation: account type is required
+- [x] Validation: normal balance is required
+- [x] Validation: account code must be unique
+- [x] Create child account under parent
+- [x] Child account inherits parent's account type
 
 ### 3. Edit Account
 - [ ] Navigate to edit form via edit button
@@ -99,7 +99,7 @@ Complete COA features with functional tests. Item is only checked when verified 
 
 ## Test Files to Create
 
-1. `ChartOfAccountCreateTest.java` - Create account scenarios
+1. ~~`ChartOfAccountCreateTest.java` - Create account scenarios~~ ✅ Done
 2. `ChartOfAccountEditTest.java` - Edit account scenarios
 3. `ChartOfAccountDeleteTest.java` - Delete/soft delete scenarios
 4. `ChartOfAccountStatusTest.java` - Activate/deactivate scenarios

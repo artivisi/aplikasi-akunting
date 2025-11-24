@@ -59,7 +59,16 @@ public class ChartOfAccountsController {
             account.setParent(parent);
         }
 
-        chartOfAccountService.create(account);
+        try {
+            chartOfAccountService.create(account);
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("accountCode", "duplicate", e.getMessage());
+            model.addAttribute("currentPage", "accounts");
+            model.addAttribute("accountTypes", AccountType.values());
+            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            return "accounts/form";
+        }
+
         redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil ditambahkan");
         return "redirect:/accounts";
     }

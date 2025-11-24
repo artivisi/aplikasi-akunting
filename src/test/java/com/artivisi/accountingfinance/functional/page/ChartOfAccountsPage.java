@@ -12,6 +12,7 @@ public class ChartOfAccountsPage {
     private static final String PAGE_TITLE = "#page-title";
     private static final String ADD_ACCOUNT_BUTTON = "#btn-tambah-akun";
     private static final String ACCOUNTS_TABLE = "#accounts-table";
+    private static final String SUCCESS_MESSAGE = "#success-message";
 
     public ChartOfAccountsPage(Page page, String baseUrl) {
         this.page = page;
@@ -38,6 +39,14 @@ public class ChartOfAccountsPage {
 
     public void assertAccountsTableVisible() {
         assertThat(page.locator(ACCOUNTS_TABLE)).isVisible();
+    }
+
+    public void assertSuccessMessageVisible() {
+        assertThat(page.locator(SUCCESS_MESSAGE)).isVisible();
+    }
+
+    public void assertSuccessMessageText(String expectedText) {
+        assertThat(page.locator(SUCCESS_MESSAGE)).containsText(expectedText);
     }
 
     // Account row assertions - using dynamic IDs based on account code
