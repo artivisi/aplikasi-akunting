@@ -2,6 +2,7 @@ package com.artivisi.accountingfinance.service;
 
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalEntry;
+import com.artivisi.accountingfinance.enums.JournalEntryStatus;
 import com.artivisi.accountingfinance.enums.NormalBalance;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -104,4 +107,166 @@ public class JournalEntryService {
             JournalEntry entry,
             BigDecimal runningBalance
     ) {}
+
+    // ========== Manual Journal Entry Operations ==========
+
+    /**
+     * Create manual journal entries (multiple lines with same journal number).
+     * All entries are created in DRAFT status.
+     */
+    @Transactional
+    public List<JournalEntry> create(List<JournalEntry> entries) {
+        if (entries == null || entries.size() < 2) {
+            throw new IllegalArgumentException("Journal entry must have at least 2 lines");
+        }
+
+        validateBalance(entries);
+
+        String journalNumber = generateJournalNumber();
+
+        for (JournalEntry entry : entries) {
+            entry.setJournalNumber(journalNumber);
+            entry.setStatus(JournalEntryStatus.DRAFT);
+        }
+
+        return journalEntryRepository.saveAll(entries);
+    }
+
+    /**
+     * Update a draft journal entry group.
+     * Only draft entries can be updated.
+     */
+    @Transactional
+    public List<JournalEntry> update(String journalNumber, List<JournalEntry> updatedEntries) {
+        List<JournalEntry> existingEntries = journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+
+        if (existingEntries.isEmpty()) {
+            throw new EntityNotFoundException("Journal entry not found with number: " + journalNumber);
+        }
+
+        // Check if any entry is not draft
+        for (JournalEntry entry : existingEntries) {
+            if (!entry.isDraft()) {
+                throw new IllegalStateException("Cannot update journal entry with status: " + entry.getStatus());
+            }
+        }
+
+        if (updatedEntries == null || updatedEntries.size() < 2) {
+            throw new IllegalArgumentException("Journal entry must have at least 2 lines");
+        }
+
+        validateBalance(updatedEntries);
+
+        // Delete old entries and save new ones
+        journalEntryRepository.deleteAll(existingEntries);
+
+        for (JournalEntry entry : updatedEntries) {
+            entry.setJournalNumber(journalNumber);
+            entry.setStatus(JournalEntryStatus.DRAFT);
+        }
+
+        return journalEntryRepository.saveAll(updatedEntries);
+    }
+
+    /**
+     * Post a draft journal entry group.
+     * Validates balance before posting.
+     */
+    @Transactional
+    public List<JournalEntry> post(String journalNumber) {
+        List<JournalEntry> entries = journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+
+        if (entries.isEmpty()) {
+            throw new EntityNotFoundException("Journal entry not found with number: " + journalNumber);
+        }
+
+        // Check if any entry is not draft
+        for (JournalEntry entry : entries) {
+            if (!entry.isDraft()) {
+                throw new IllegalStateException("Cannot post journal entry with status: " + entry.getStatus());
+            }
+        }
+
+        validateBalance(entries);
+
+        LocalDateTime now = LocalDateTime.now();
+        for (JournalEntry entry : entries) {
+            entry.setStatus(JournalEntryStatus.POSTED);
+            entry.setPostedAt(now);
+        }
+
+        return journalEntryRepository.saveAll(entries);
+    }
+
+    /**
+     * Void a posted journal entry group.
+     * Requires a reason for voiding.
+     */
+    @Transactional
+    public List<JournalEntry> voidEntry(String journalNumber, String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Void reason is required");
+        }
+
+        List<JournalEntry> entries = journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+
+        if (entries.isEmpty()) {
+            throw new EntityNotFoundException("Journal entry not found with number: " + journalNumber);
+        }
+
+        // Check if any entry is not posted
+        for (JournalEntry entry : entries) {
+            if (!entry.isPosted()) {
+                throw new IllegalStateException("Cannot void journal entry with status: " + entry.getStatus());
+            }
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        for (JournalEntry entry : entries) {
+            entry.setStatus(JournalEntryStatus.VOID);
+            entry.setVoidedAt(now);
+            entry.setVoidReason(reason);
+        }
+
+        return journalEntryRepository.saveAll(entries);
+    }
+
+    /**
+     * Validate that total debit equals total credit.
+     */
+    public void validateBalance(List<JournalEntry> entries) {
+        BigDecimal totalDebit = BigDecimal.ZERO;
+        BigDecimal totalCredit = BigDecimal.ZERO;
+
+        for (JournalEntry entry : entries) {
+            totalDebit = totalDebit.add(entry.getDebitAmount());
+            totalCredit = totalCredit.add(entry.getCreditAmount());
+        }
+
+        if (totalDebit.compareTo(totalCredit) != 0) {
+            throw new IllegalArgumentException(
+                    String.format("Journal entry is not balanced. Debit: %s, Credit: %s, Difference: %s",
+                            totalDebit, totalCredit, totalDebit.subtract(totalCredit).abs()));
+        }
+    }
+
+    /**
+     * Find all entries by journal number.
+     */
+    public List<JournalEntry> findByJournalNumber(String journalNumber) {
+        return journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+    }
+
+    /**
+     * Generate next journal number in format JE-YYYY-NNNN
+     */
+    private String generateJournalNumber() {
+        String year = String.valueOf(Year.now().getValue());
+        String prefix = "JE-" + year + "-%";
+
+        Integer maxSeq = journalEntryRepository.findMaxSequenceByPrefix(prefix);
+        int nextSeq = (maxSeq == null) ? 1 : maxSeq + 1;
+
+        return String.format("JE-%s-%04d", year, nextSeq);
+    }
 }
