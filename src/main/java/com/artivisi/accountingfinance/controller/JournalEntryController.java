@@ -5,6 +5,7 @@ import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.JournalEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNullElse;
+
 @Controller
 @RequestMapping("/journals")
 @RequiredArgsConstructor
@@ -27,24 +30,34 @@ public class JournalEntryController {
     private final JournalEntryService journalEntryService;
     private final ChartOfAccountService chartOfAccountService;
 
+    private static final int DEFAULT_PAGE_SIZE = 20;
+
     @GetMapping
     public String list(
             @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size,
             Model model) {
+
+        LocalDate start = requireNonNullElse(startDate, LocalDate.now().withDayOfMonth(1));
+        LocalDate end = requireNonNullElse(endDate, LocalDate.now());
+
         model.addAttribute("currentPage", "journals");
         model.addAttribute("selectedAccount", accountId);
-        model.addAttribute("startDate", startDate != null ? startDate : LocalDate.now().withDayOfMonth(1));
-        model.addAttribute("endDate", endDate != null ? endDate : LocalDate.now());
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
         model.addAttribute("searchQuery", search);
         model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute("pageNumber", page);
+        model.addAttribute("pageSize", size);
 
         if (accountId != null) {
-            LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
-            LocalDate end = endDate != null ? endDate : LocalDate.now();
-            model.addAttribute("ledgerData", journalEntryService.getGeneralLedger(accountId, start, end));
+            Pageable pageable = PageRequest.of(page, size);
+            model.addAttribute("ledgerData",
+                    journalEntryService.getGeneralLedgerPaged(accountId, start, end, search, pageable));
         }
 
         return "journals/list";
