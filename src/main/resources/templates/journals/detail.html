@@ -17,11 +17,50 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
-                <span class="text-gray-900">JE-2025-0046</span>
+                <span class="text-gray-900" th:text="${journalEntry.journalNumber}">JE-2025-0001</span>
             </nav>
 
-            <!-- Status Banner -->
-            <div class="mb-6 p-4 bg-accent-50 rounded-lg border border-accent-200">
+            <!-- Status Banner - DRAFT -->
+            <div th:if="${journalEntry.isDraft()}" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200" data-testid="status-banner-draft">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-semibold text-gray-800">Jurnal Draft</h3>
+                            <p class="text-xs text-gray-600 mt-0.5">Jurnal ini belum diposting dan masih dapat diubah.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <a th:href="@{'/journals/' + ${journalEntry.journalNumber} + '/edit'}"
+                           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                           data-testid="edit-button">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Edit
+                        </a>
+                        <button type="button"
+                                th:disabled="${!isBalanced}"
+                                onclick="postJournalEntry()"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                data-testid="post-button">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Posting
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Banner - POSTED -->
+            <div th:if="${journalEntry.isPosted()}" class="mb-6 p-4 bg-accent-50 rounded-lg border border-accent-200" data-testid="status-banner-posted">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -33,16 +72,38 @@
                         </div>
                         <div class="ml-3">
                             <h3 class="text-sm font-semibold text-accent-800">Jurnal Terposting</h3>
-                            <p class="text-xs text-accent-600 mt-0.5">Jurnal ini tidak dapat diubah. Gunakan void pada transaksi untuk membatalkan.</p>
+                            <p class="text-xs text-accent-600 mt-0.5">Jurnal ini tidak dapat diubah. Gunakan void untuk membatalkan.</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <button type="button"
+                                onclick="showVoidDialog()"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                                data-testid="void-button">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                             </svg>
-                            Cetak
+                            Void
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Banner - VOID -->
+            <div th:if="${journalEntry.isVoid()}" class="mb-6 p-4 bg-red-50 rounded-lg border border-red-200" data-testid="status-banner-void">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-semibold text-red-800">Jurnal Dibatalkan (Void)</h3>
+                        <p class="text-xs text-red-600 mt-0.5" th:if="${journalEntry.voidReason}">
+                            Alasan: <span th:text="${journalEntry.voidReason}">-</span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -52,15 +113,30 @@
                 <div class="p-6">
                     <div class="flex items-start justify-between mb-6">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-900">JE-2025-0046</h2>
-                            <p class="text-sm text-gray-500 mt-1">Jurnal Entry dari transaksi pendapatan</p>
+                            <h2 class="text-xl font-bold text-gray-900" data-testid="journal-number" th:text="${journalEntry.journalNumber}">JE-2025-0001</h2>
+                            <p class="text-sm text-gray-500 mt-1" data-testid="journal-description" th:text="${journalEntry.description}">Jurnal Entry</p>
                         </div>
                         <div class="text-right">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent-100 text-accent-800">
+                            <!-- Status Badge - DRAFT -->
+                            <span th:if="${journalEntry.isDraft()}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800" data-testid="status-badge">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Draft
+                            </span>
+                            <!-- Status Badge - POSTED -->
+                            <span th:if="${journalEntry.isPosted()}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent-100 text-accent-800" data-testid="status-badge">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
                                 Posted
+                            </span>
+                            <!-- Status Badge - VOID -->
+                            <span th:if="${journalEntry.isVoid()}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800" data-testid="status-badge">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                Void
                             </span>
                         </div>
                     </div>
@@ -68,27 +144,20 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div>
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</p>
-                            <p class="text-sm text-gray-900 mt-1">22 November 2025</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="journal-date" th:text="${#temporals.format(journalEntry.journalDate, 'd MMMM yyyy')}">22 November 2025</p>
                         </div>
                         <div>
-                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Transaksi Asal</p>
-                            <a th:href="@{/transactions/txn-001}" class="text-sm text-primary-600 hover:text-primary-800 mt-1 inline-block">
-                                TRX-2025-0023
-                            </a>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Referensi</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="reference-number" th:text="${journalEntry.referenceNumber ?: '-'}">-</p>
                         </div>
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Template</p>
-                            <p class="text-sm text-gray-900 mt-1">Pendapatan Jasa Konsultasi</p>
+                        <div th:if="${journalEntry.isPosted()}">
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diposting</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="posted-at" th:text="${journalEntry.postedAt != null ? #temporals.format(journalEntry.postedAt, 'd MMM yyyy, HH:mm') : '-'}">-</p>
                         </div>
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diposting Oleh</p>
-                            <p class="text-sm text-gray-900 mt-1">admin</p>
+                        <div th:if="${journalEntry.isVoid()}">
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Dibatalkan</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="voided-at" th:text="${journalEntry.voidedAt != null ? #temporals.format(journalEntry.voidedAt, 'd MMM yyyy, HH:mm') : '-'}">-</p>
                         </div>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Keterangan</p>
-                        <p class="text-sm text-gray-700">Pendapatan Jasa Konsultasi PT. Maju Bersama - Invoice INV-2025-0023</p>
                     </div>
                 </div>
             </div>
@@ -109,38 +178,30 @@
                     </div>
 
                     <!-- Journal Lines -->
-                    <div class="divide-y divide-gray-100">
-                        <!-- Debit Line -->
-                        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
+                    <div class="divide-y divide-gray-100" data-testid="journal-lines">
+                        <div th:each="line : ${journalEntries}"
+                             class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors"
+                             data-testid="journal-line">
                             <div class="col-span-1">
-                                <a th:href="@{/journals/ledger/1.1.02}" class="text-sm text-primary-600 hover:text-primary-800 font-mono">1.1.02</a>
+                                <a th:href="@{'/journals/ledger/' + ${line.account.id}}"
+                                   class="text-sm text-primary-600 hover:text-primary-800 font-mono"
+                                   th:text="${line.account.accountCode}">1.1.01</a>
                             </div>
                             <div class="col-span-5">
-                                <a th:href="@{/journals/ledger/1.1.02}" class="text-sm text-gray-900 hover:text-primary-600">Bank BCA</a>
-                                <p class="text-xs text-gray-500">Aset Lancar</p>
+                                <a th:href="@{'/journals/ledger/' + ${line.account.id}}"
+                                   class="text-sm text-gray-900 hover:text-primary-600"
+                                   th:text="${line.account.accountName}">Kas</a>
+                                <p class="text-xs text-gray-500" th:if="${line.description != journalEntry.description}" th:text="${line.description}"></p>
                             </div>
                             <div class="col-span-3 text-right">
-                                <span class="text-sm font-mono text-gray-900">Rp 15.000.000</span>
+                                <span class="text-sm font-mono"
+                                      th:classappend="${line.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'"
+                                      th:text="${line.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(line.debitAmount, 1, 'POINT', 0, 'COMMA')} : '-'">-</span>
                             </div>
                             <div class="col-span-3 text-right">
-                                <span class="text-sm font-mono text-gray-400">-</span>
-                            </div>
-                        </div>
-
-                        <!-- Credit Line -->
-                        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
-                            <div class="col-span-1">
-                                <a th:href="@{/journals/ledger/4.1.01}" class="text-sm text-primary-600 hover:text-primary-800 font-mono">4.1.01</a>
-                            </div>
-                            <div class="col-span-5">
-                                <a th:href="@{/journals/ledger/4.1.01}" class="text-sm text-gray-900 hover:text-primary-600">Pendapatan Jasa Konsultasi</a>
-                                <p class="text-xs text-gray-500">Pendapatan</p>
-                            </div>
-                            <div class="col-span-3 text-right">
-                                <span class="text-sm font-mono text-gray-400">-</span>
-                            </div>
-                            <div class="col-span-3 text-right">
-                                <span class="text-sm font-mono text-gray-900">Rp 15.000.000</span>
+                                <span class="text-sm font-mono"
+                                      th:classappend="${line.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'"
+                                      th:text="${line.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(line.creditAmount, 1, 'POINT', 0, 'COMMA')} : '-'">-</span>
                             </div>
                         </div>
                     </div>
@@ -148,12 +209,12 @@
                     <!-- Journal Totals -->
                     <div class="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-t-2 border-gray-200">
                         <div class="col-span-6 text-sm font-semibold text-gray-700">Total</div>
-                        <div class="col-span-3 text-right text-sm font-mono font-bold text-gray-900">Rp 15.000.000</div>
-                        <div class="col-span-3 text-right text-sm font-mono font-bold text-gray-900">Rp 15.000.000</div>
+                        <div class="col-span-3 text-right text-sm font-mono font-bold text-gray-900" data-testid="total-debit" th:text="${#numbers.formatDecimal(totalDebit, 1, 'POINT', 0, 'COMMA')}">0</div>
+                        <div class="col-span-3 text-right text-sm font-mono font-bold text-gray-900" data-testid="total-credit" th:text="${#numbers.formatDecimal(totalCredit, 1, 'POINT', 0, 'COMMA')}">0</div>
                     </div>
 
                     <!-- Balance Validation -->
-                    <div class="px-6 py-3 bg-accent-50 border-t border-accent-200">
+                    <div th:if="${isBalanced}" class="px-6 py-3 bg-accent-50 border-t border-accent-200" data-testid="balance-status">
                         <div class="flex items-center text-sm text-accent-700">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -161,63 +222,12 @@
                             Jurnal Balance: Total Debit = Total Kredit
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Account Impact Card -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-900">Dampak Terhadap Saldo Akun</h2>
-                </div>
-
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <!-- Account 1 -->
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                    <span class="text-xs font-bold text-blue-600">BCA</span>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">1.1.02 - Bank BCA</p>
-                                    <p class="text-xs text-gray-500">Saldo Normal: Debit</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm text-gray-500">Sebelum: Rp 110.400.000</p>
-                                <div class="flex items-center justify-end mt-1">
-                                    <svg class="w-4 h-4 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                                    </svg>
-                                    <span class="text-sm font-medium text-green-600">+ Rp 15.000.000</span>
-                                </div>
-                                <p class="text-sm font-semibold text-gray-900 mt-1">Sesudah: Rp 125.400.000</p>
-                            </div>
-                        </div>
-
-                        <!-- Account 2 -->
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">4.1.01 - Pendapatan Jasa Konsultasi</p>
-                                    <p class="text-xs text-gray-500">Saldo Normal: Kredit</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm text-gray-500">Sebelum: Rp 5.000.000</p>
-                                <div class="flex items-center justify-end mt-1">
-                                    <svg class="w-4 h-4 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                                    </svg>
-                                    <span class="text-sm font-medium text-green-600">+ Rp 15.000.000</span>
-                                </div>
-                                <p class="text-sm font-semibold text-gray-900 mt-1">Sesudah: Rp 20.000.000</p>
-                            </div>
+                    <div th:unless="${isBalanced}" class="px-6 py-3 bg-red-50 border-t border-red-200" data-testid="balance-status">
+                        <div class="flex items-center text-sm text-red-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Jurnal Tidak Balance: Selisih <span th:text="${#numbers.formatDecimal(totalDebit.subtract(totalCredit).abs(), 1, 'POINT', 0, 'COMMA')}">0</span>
                         </div>
                     </div>
                 </div>
@@ -230,25 +240,22 @@
                 </div>
 
                 <div class="p-6">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                         <div>
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</p>
-                            <p class="text-sm text-gray-900 mt-1">22 Nov 2025, 14:30</p>
-                            <p class="text-xs text-gray-500">admin</p>
+                            <p class="text-sm text-gray-900 mt-1" th:text="${journalEntry.createdAt != null ? #temporals.format(journalEntry.createdAt, 'd MMM yyyy, HH:mm') : '-'}">-</p>
                         </div>
-                        <div>
+                        <div th:if="${journalEntry.isPosted()}">
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diposting</p>
-                            <p class="text-sm text-gray-900 mt-1">22 Nov 2025, 14:30</p>
-                            <p class="text-xs text-gray-500">admin</p>
+                            <p class="text-sm text-gray-900 mt-1" th:text="${journalEntry.postedAt != null ? #temporals.format(journalEntry.postedAt, 'd MMM yyyy, HH:mm') : '-'}">-</p>
+                        </div>
+                        <div th:if="${journalEntry.isVoid()}">
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Dibatalkan</p>
+                            <p class="text-sm text-gray-900 mt-1" th:text="${journalEntry.voidedAt != null ? #temporals.format(journalEntry.voidedAt, 'd MMM yyyy, HH:mm') : '-'}">-</p>
                         </div>
                         <div>
-                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Periode Fiskal</p>
-                            <p class="text-sm text-gray-900 mt-1">November 2025</p>
-                            <p class="text-xs text-accent-600">Open</p>
-                        </div>
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Hash</p>
-                            <p class="text-xs text-gray-500 mt-1 font-mono truncate">a1b2c3d4...f5e6</p>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">ID</p>
+                            <p class="text-xs text-gray-500 mt-1 font-mono truncate" th:text="${journalEntry.id}">-</p>
                         </div>
                     </div>
                 </div>
@@ -262,14 +269,120 @@
                     </svg>
                     Kembali ke Buku Besar
                 </a>
-                <a th:href="@{/transactions/txn-001}" class="inline-flex items-center text-sm text-primary-600 hover:text-primary-800 transition-colors">
-                    Lihat Transaksi Asal
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                </a>
             </div>
         </div>
     </div>
+
+    <!-- Post Confirmation Dialog -->
+    <div id="postDialog" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Posting Jurnal</h3>
+                <p class="text-sm text-gray-600">Apakah Anda yakin ingin memposting jurnal ini? Jurnal yang sudah diposting tidak dapat diubah lagi.</p>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                <button type="button" onclick="closePostDialog()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmPost()" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                    Ya, Posting
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Void Dialog -->
+    <div id="voidDialog" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Void Jurnal</h3>
+                <p class="text-sm text-gray-600 mb-4">Masukkan alasan pembatalan jurnal ini:</p>
+                <textarea id="voidReason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Alasan void..."></textarea>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                <button type="button" onclick="closeVoidDialog()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmVoid()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                    Ya, Void
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            const journalNumber = /*[[${journalEntry.journalNumber}]]*/ '';
+            const journalId = /*[[${journalEntry.id}]]*/ '';
+
+            function postJournalEntry() {
+                document.getElementById('postDialog').classList.remove('hidden');
+            }
+
+            function closePostDialog() {
+                document.getElementById('postDialog').classList.add('hidden');
+            }
+
+            function confirmPost() {
+                fetch('/journals/api/' + journalNumber + '/post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        return response.json().then(data => {
+                            alert(data.message || 'Failed to post journal');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to post journal');
+                });
+            }
+
+            function showVoidDialog() {
+                document.getElementById('voidDialog').classList.remove('hidden');
+            }
+
+            function closeVoidDialog() {
+                document.getElementById('voidDialog').classList.add('hidden');
+                document.getElementById('voidReason').value = '';
+            }
+
+            function confirmVoid() {
+                const reason = document.getElementById('voidReason').value.trim();
+                if (!reason) {
+                    alert('Alasan void harus diisi');
+                    return;
+                }
+
+                fetch('/journals/api/' + journalNumber + '/void', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        return response.json().then(data => {
+                            alert(data.message || 'Failed to void journal');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to void journal');
+                });
+            }
+        </script>
+    </th:block>
 </body>
 </html>

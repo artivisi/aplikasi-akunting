@@ -358,6 +358,13 @@ public class JournalEntryService {
     }
 
     /**
+     * Find all entries by journal number with account eagerly loaded.
+     */
+    public List<JournalEntry> findAllByJournalNumberWithAccount(String journalNumber) {
+        return journalEntryRepository.findAllByJournalNumberWithAccount(journalNumber);
+    }
+
+    /**
      * Generate next journal number in format JE-YYYY-NNNN
      */
     private String generateJournalNumber() {

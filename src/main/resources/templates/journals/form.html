@@ -104,9 +104,9 @@
                                                     class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                                     required>
                                                 <option value="">Pilih Akun</option>
-                                                <template x-for="account in accounts" :key="account.id">
-                                                    <option :value="account.id" x-text="account.accountCode + ' - ' + account.accountName"></option>
-                                                </template>
+                                                <option th:each="account : ${accounts}"
+                                                        th:value="${account.id()}"
+                                                        th:text="${account.accountCode() + ' - ' + account.accountName()}"></option>
                                             </select>
                                         </div>
 
@@ -224,38 +224,48 @@
     <th:block layout:fragment="scripts">
         <script th:inline="javascript">
             const accountsData = /*[[${accounts}]]*/ [];
-            const editData = /*[[${journalEntry}]]*/ null;
+            const journalEntriesData = /*[[${journalEntries}]]*/ [];
+            const journalNumberData = /*[[${journalNumber}]]*/ null;
             const isEditMode = /*[[${isEdit}]]*/ false;
 
             function journalEntryForm() {
+                // Initialize form data based on edit mode
+                const firstEntry = (isEditMode && journalEntriesData && journalEntriesData.length > 0)
+                    ? journalEntriesData[0] : null;
+                const mainDescription = firstEntry ? (firstEntry.description || '') : '';
+
+                const initialLines = (isEditMode && journalEntriesData && journalEntriesData.length > 0)
+                    ? journalEntriesData.map(entry => ({
+                        accountId: entry.accountId || '',
+                        debit: entry.debitAmount || 0,
+                        credit: entry.creditAmount || 0,
+                        // Only set lineDescription if different from main description
+                        lineDescription: (entry.description && entry.description !== mainDescription) ? entry.description : ''
+                    }))
+                    : [
+                        { accountId: '', debit: 0, credit: 0, lineDescription: '' },
+                        { accountId: '', debit: 0, credit: 0, lineDescription: '' }
+                    ];
+
                 return {
                     accounts: (accountsData || []).map(a => ({
                         id: a.id,
                         accountCode: a.accountCode,
                         accountName: a.accountName
                     })),
+                    journalNumber: journalNumberData,
                     formData: {
-                        journalDate: new Date().toISOString().split('T')[0],
-                        referenceNumber: '',
-                        description: '',
-                        lines: [
-                            { accountId: '', debit: 0, credit: 0, lineDescription: '' },
-                            { accountId: '', debit: 0, credit: 0, lineDescription: '' }
-                        ],
+                        journalDate: firstEntry ? firstEntry.journalDate : new Date().toISOString().split('T')[0],
+                        referenceNumber: firstEntry ? (firstEntry.referenceNumber || '') : '',
+                        description: firstEntry ? (firstEntry.description || '') : '',
+                        lines: initialLines,
                         postImmediately: false
                     },
                     errorMessage: '',
                     isSubmitting: false,
 
                     init() {
-                        console.log('Alpine init called, accounts:', this.accounts.length);
-                        if (isEditMode && editData) {
-                            // Populate form with edit data
-                            this.formData.journalDate = editData.journalDate;
-                            this.formData.referenceNumber = editData.referenceNumber || '';
-                            this.formData.description = editData.description;
-                            // Lines would need to be populated from related entries
-                        }
+                        console.log('Alpine init called, accounts:', this.accounts.length, 'isEditMode:', isEditMode, 'lines:', this.formData.lines);
                     },
 
                     get totalDebit() {
@@ -312,8 +322,11 @@
                         this.isSubmitting = true;
 
                         try {
-                            const response = await fetch('/journals/api', {
-                                method: 'POST',
+                            const url = isEditMode ? '/journals/api/' + this.journalNumber : '/journals/api';
+                            const method = isEditMode ? 'PUT' : 'POST';
+
+                            const response = await fetch(url, {
+                                method: method,
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
@@ -326,7 +339,7 @@
                             }
 
                             const result = await response.json();
-                            window.location.href = '/journals/' + result.journalNumber;
+                            window.location.href = '/journals/' + result.id;
                         } catch (error) {
                             this.errorMessage = error.message;
                         } finally {

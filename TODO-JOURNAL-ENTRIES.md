@@ -87,28 +87,28 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] Validation: date is required
 - [ ] Success message after save (deferred - redirect to detail page)
 
-### 5. Edit Journal Entry
+### 5. Edit Journal Entry ✅
 
-- [ ] Navigate to edit form via edit button (draft only)
-- [ ] Form displays existing data
-- [ ] Can modify all fields
-- [ ] Save updates entry
-- [ ] Cannot edit posted entries (show read-only view)
-- [ ] Cannot edit voided entries (show read-only view)
+- [x] Navigate to edit form via edit button (draft only)
+- [x] Form displays existing data
+- [x] Can modify all fields
+- [x] Save updates entry
+- [x] Cannot edit posted entries (redirect to detail)
+- [x] Cannot edit voided entries (redirect to detail)
 
-### 6. View Journal Entry
+### 6. View Journal Entry ✅
 
 - [x] Detail template exists (journals/detail.html)
 - [x] Controller endpoint exists (/journals/{id})
-- [ ] **Replace hardcoded data with dynamic data**
-- [ ] Detail view shows header fields from DB
-- [ ] Detail view shows all lines with accounts
-- [ ] Shows debit/credit totals (calculated)
-- [ ] Shows status with timestamp
-- [ ] Post button visible on draft entries
-- [ ] Void button visible on posted entries
-- [ ] Edit button visible on draft entries only
-- [ ] Account impact section (before/after balances)
+- [x] **Replace hardcoded data with dynamic data**
+- [x] Detail view shows header fields from DB
+- [x] Detail view shows all lines with accounts
+- [x] Shows debit/credit totals (calculated)
+- [x] Shows status with timestamp
+- [x] Post button visible on draft entries
+- [x] Void button visible on posted entries
+- [x] Edit button visible on draft entries only
+- [ ] Account impact section (before/after balances) - deferred
 
 ### 7. Post Journal Entry
 
@@ -153,10 +153,12 @@ Recommend: Keep current design but add manual entry support for adjustments.
 2. `JournalListPage.java` - Page object for list tests ✅
 3. `JournalEntryCreateTest.java` - Create entry scenarios ✅ (10 tests)
 4. `JournalFormPage.java` - Page object for form tests ✅
-5. `JournalEntryEditTest.java` - Edit draft scenarios (TODO)
-6. `JournalEntryPostTest.java` - Post and validation scenarios (TODO)
-7. `JournalEntryVoidTest.java` - Void scenarios (TODO)
-8. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
+5. `JournalEntryEditTest.java` - Edit draft scenarios ✅ (12 tests)
+6. `JournalEntryViewTest.java` - View detail scenarios ✅ (18 tests)
+7. `JournalDetailPage.java` - Page object for detail tests ✅
+8. `JournalEntryPostTest.java` - Post and validation scenarios (TODO)
+9. `JournalEntryVoidTest.java` - Void scenarios (TODO)
+10. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
 
 ---
 

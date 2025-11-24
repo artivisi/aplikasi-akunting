@@ -2,6 +2,7 @@ package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.dto.AccountOptionDto;
 import com.artivisi.accountingfinance.dto.JournalEntryDto;
+import com.artivisi.accountingfinance.dto.JournalEntryEditDto;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
@@ -17,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,20 +85,35 @@ public class JournalEntryController {
 
     private List<AccountOptionDto> toAccountOptions(List<ChartOfAccount> accounts) {
         return accounts.stream()
-                .map(a -> new AccountOptionDto(a.getId(), a.getAccountCode(), a.getAccountName()))
+                .map(a -> new AccountOptionDto(a.getId().toString(), a.getAccountCode(), a.getAccountName()))
                 .toList();
     }
 
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Model model) {
+        JournalEntry entry = journalEntryService.findById(id);
+        List<JournalEntry> entries = journalEntryService.findAllByJournalNumberWithAccount(entry.getJournalNumber());
+
+        // Calculate totals
+        BigDecimal totalDebit = entries.stream()
+                .map(JournalEntry::getDebitAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = entries.stream()
+                .map(JournalEntry::getCreditAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         model.addAttribute("currentPage", "journals");
-        model.addAttribute("journalEntry", journalEntryService.findById(id));
+        model.addAttribute("journalEntry", entry);
+        model.addAttribute("journalEntries", entries);
+        model.addAttribute("totalDebit", totalDebit);
+        model.addAttribute("totalCredit", totalCredit);
+        model.addAttribute("isBalanced", totalDebit.compareTo(totalCredit) == 0);
         return "journals/detail";
     }
 
     @GetMapping("/{journalNumber}/edit")
     public String edit(@PathVariable String journalNumber, Model model) {
-        List<JournalEntry> entries = journalEntryService.findAllByJournalNumber(journalNumber);
+        List<JournalEntry> entries = journalEntryService.findAllByJournalNumberWithAccount(journalNumber);
         if (entries.isEmpty()) {
             return "redirect:/journals";
         }
@@ -106,11 +123,15 @@ public class JournalEntryController {
             return "redirect:/journals/" + firstEntry.getId();
         }
 
+        List<JournalEntryEditDto> editDtos = entries.stream()
+                .map(JournalEntryEditDto::fromEntity)
+                .toList();
+
         model.addAttribute("currentPage", "journals");
         model.addAttribute("isEdit", true);
         model.addAttribute("accounts", toAccountOptions(chartOfAccountService.findTransactableAccounts()));
         model.addAttribute("journalNumber", journalNumber);
-        model.addAttribute("journalEntries", entries);
+        model.addAttribute("journalEntries", editDtos);
         return "journals/form";
     }
 
@@ -186,6 +207,49 @@ public class JournalEntryController {
         }
 
         return ResponseEntity.ok(Map.of(
+                "id", saved.get(0).getId().toString(),
+                "journalNumber", saved.get(0).getJournalNumber(),
+                "status", saved.get(0).getStatus().name()
+        ));
+    }
+
+    @PutMapping("/api/{journalNumber}")
+    @ResponseBody
+    public ResponseEntity<?> apiUpdate(@PathVariable String journalNumber, @Valid @RequestBody JournalEntryDto dto) {
+        List<JournalEntry> entries = new ArrayList<>();
+
+        for (JournalEntryDto.JournalEntryLineDto line : dto.lines()) {
+            if (line.accountId() == null || (line.debit().compareTo(BigDecimal.ZERO) == 0 && line.credit().compareTo(BigDecimal.ZERO) == 0)) {
+                continue;
+            }
+
+            ChartOfAccount account = chartOfAccountService.findById(line.accountId());
+
+            JournalEntry entry = new JournalEntry();
+            entry.setJournalDate(dto.journalDate());
+            entry.setReferenceNumber(dto.referenceNumber());
+            entry.setDescription(line.lineDescription() != null && !line.lineDescription().isBlank()
+                    ? line.lineDescription()
+                    : dto.description());
+            entry.setAccount(account);
+            entry.setDebitAmount(line.debit() != null ? line.debit() : BigDecimal.ZERO);
+            entry.setCreditAmount(line.credit() != null ? line.credit() : BigDecimal.ZERO);
+
+            entries.add(entry);
+        }
+
+        if (entries.size() < 2) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Minimal harus ada 2 baris jurnal dengan akun dan nilai"));
+        }
+
+        List<JournalEntry> saved = journalEntryService.update(journalNumber, entries);
+
+        if (dto.postImmediately()) {
+            saved = journalEntryService.post(journalNumber);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "id", saved.get(0).getId().toString(),
                 "journalNumber", saved.get(0).getJournalNumber(),
                 "status", saved.get(0).getStatus().name()
         ));
@@ -204,5 +268,44 @@ public class JournalEntryController {
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
         return ResponseEntity.ok(journalEntryService.getGeneralLedger(accountId, startDate, endDate));
+    }
+
+    @PostMapping("/api/{journalNumber}/post")
+    @ResponseBody
+    public ResponseEntity<?> apiPost(@PathVariable String journalNumber) {
+        try {
+            List<JournalEntry> posted = journalEntryService.post(journalNumber);
+            return ResponseEntity.ok(Map.of(
+                    "id", posted.get(0).getId().toString(),
+                    "journalNumber", posted.get(0).getJournalNumber(),
+                    "status", posted.get(0).getStatus().name()
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/api/{journalNumber}/void")
+    @ResponseBody
+    public ResponseEntity<?> apiVoid(@PathVariable String journalNumber, @RequestBody Map<String, String> request) {
+        String reason = request.get("reason");
+        if (reason == null || reason.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Alasan void harus diisi"));
+        }
+
+        try {
+            List<JournalEntry> voided = journalEntryService.voidEntry(journalNumber, reason);
+            return ResponseEntity.ok(Map.of(
+                    "id", voided.get(0).getId().toString(),
+                    "journalNumber", voided.get(0).getJournalNumber(),
+                    "status", voided.get(0).getStatus().name()
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

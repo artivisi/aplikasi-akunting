@@ -100,6 +100,9 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
     // Methods for manual journal entries (using journal entry status)
     List<JournalEntry> findAllByJournalNumberOrderByIdAsc(String journalNumber);
 
+    @Query("SELECT j FROM JournalEntry j LEFT JOIN FETCH j.account WHERE j.journalNumber = :journalNumber ORDER BY j.id ASC")
+    List<JournalEntry> findAllByJournalNumberWithAccount(@Param("journalNumber") String journalNumber);
+
     @Query("SELECT j FROM JournalEntry j WHERE j.status = 'POSTED' AND j.transaction IS NULL " +
            "AND j.journalDate BETWEEN :startDate AND :endDate " +
            "ORDER BY j.journalDate, j.journalNumber")

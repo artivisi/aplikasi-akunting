@@ -37,6 +37,12 @@ public class JournalFormPage {
         return this;
     }
 
+    public JournalFormPage navigateToEdit(String journalNumber) {
+        page.navigate(baseUrl + "/journals/" + journalNumber + "/edit",
+                new Page.NavigateOptions().setTimeout(30000).setWaitUntil(com.microsoft.playwright.options.WaitUntilState.DOMCONTENTLOADED));
+        return this;
+    }
+
     public void waitForAlpineInit() {
         page.waitForSelector("[x-data]");
         page.waitForSelector("#line-account-0", new Page.WaitForSelectorOptions().setTimeout(10000));
@@ -199,5 +205,51 @@ public class JournalFormPage {
 
     public void assertRemoveLineButtonEnabled(int lineIndex) {
         assertThat(page.locator("#btn-remove-line-" + lineIndex)).isEnabled();
+    }
+
+    // Getter methods for form field values
+    public String getJournalDate() {
+        return page.inputValue(JOURNAL_DATE);
+    }
+
+    public String getReferenceNumber() {
+        return page.inputValue(REFERENCE_NUMBER);
+    }
+
+    public String getDescription() {
+        return page.inputValue(DESCRIPTION);
+    }
+
+    public String getLineAccountValue(int lineIndex) {
+        return page.locator("#line-account-" + lineIndex).inputValue();
+    }
+
+    public String getLineDebit(int lineIndex) {
+        return page.inputValue("#line-debit-" + lineIndex);
+    }
+
+    public String getLineCredit(int lineIndex) {
+        return page.inputValue("#line-credit-" + lineIndex);
+    }
+
+    public String getLineDescription(int lineIndex) {
+        return page.inputValue("#line-desc-" + lineIndex);
+    }
+
+    // Additional assertions for edit mode
+    public void assertJournalDateValue(String expectedDate) {
+        assertThat(page.locator(JOURNAL_DATE)).hasValue(expectedDate);
+    }
+
+    public void assertDescriptionValue(String expectedDescription) {
+        assertThat(page.locator(DESCRIPTION)).hasValue(expectedDescription);
+    }
+
+    public void assertLineDebitValue(int lineIndex, String expectedValue) {
+        assertThat(page.locator("#line-debit-" + lineIndex)).hasValue(expectedValue);
+    }
+
+    public void assertLineCreditValue(int lineIndex, String expectedValue) {
+        assertThat(page.locator("#line-credit-" + lineIndex)).hasValue(expectedValue);
     }
 }

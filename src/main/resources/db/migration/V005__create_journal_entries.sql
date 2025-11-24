@@ -2,7 +2,7 @@
 
 CREATE TABLE journal_entries (
     id UUID PRIMARY KEY,
-    journal_number VARCHAR(50) NOT NULL UNIQUE,
+    journal_number VARCHAR(50) NOT NULL,
     journal_date DATE NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     posted_at TIMESTAMP,
