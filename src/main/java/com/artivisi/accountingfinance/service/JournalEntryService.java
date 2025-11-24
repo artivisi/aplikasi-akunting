@@ -208,6 +208,90 @@ public class JournalEntryService {
             BigDecimal runningBalance
     ) {}
 
+    // ========== Account Impact Calculation ==========
+
+    /**
+     * Calculate the impact of a journal entry on account balances.
+     * Shows before balance, movement (debit/credit), and after balance for each account.
+     */
+    public List<AccountImpact> calculateAccountImpact(List<JournalEntry> entries) {
+        if (entries.isEmpty()) {
+            return List.of();
+        }
+
+        JournalEntry firstEntry = entries.get(0);
+        LocalDate journalDate = firstEntry.getJournalDate();
+        boolean isPosted = firstEntry.isPosted() || firstEntry.isVoid();
+
+        List<AccountImpact> impacts = new ArrayList<>();
+
+        for (JournalEntry entry : entries) {
+            ChartOfAccount account = entry.getAccount();
+            if (account == null) continue;
+
+            // Calculate balance before this journal entry
+            BigDecimal debitBefore = journalEntryRepository.sumDebitBeforeDate(account.getId(), journalDate);
+            BigDecimal creditBefore = journalEntryRepository.sumCreditBeforeDate(account.getId(), journalDate);
+
+            // If this entry is posted, we need to exclude its own amounts from "after" calculation
+            // because sumDebitBeforeDate only gets entries BEFORE the date, not on the date
+            // For entries on the same date, we need to include all posted entries except this one
+            BigDecimal debitOnDate = BigDecimal.ZERO;
+            BigDecimal creditOnDate = BigDecimal.ZERO;
+
+            if (isPosted) {
+                // Get totals for all posted entries on this date BEFORE this journal number
+                List<JournalEntry> entriesOnDate = journalEntryRepository
+                        .findPostedEntriesByAccountAndDateRange(account.getId(), journalDate, journalDate);
+
+                for (JournalEntry e : entriesOnDate) {
+                    // Exclude entries from this journal
+                    if (!e.getJournalNumber().equals(firstEntry.getJournalNumber())) {
+                        debitOnDate = debitOnDate.add(e.getDebitAmount());
+                        creditOnDate = creditOnDate.add(e.getCreditAmount());
+                    }
+                }
+            }
+
+            BigDecimal beforeBalance;
+            if (account.getNormalBalance() == NormalBalance.DEBIT) {
+                beforeBalance = debitBefore.add(debitOnDate).subtract(creditBefore).subtract(creditOnDate);
+            } else {
+                beforeBalance = creditBefore.add(creditOnDate).subtract(debitBefore).subtract(debitOnDate);
+            }
+
+            // Calculate movement
+            BigDecimal debitMovement = entry.getDebitAmount();
+            BigDecimal creditMovement = entry.getCreditAmount();
+
+            // Calculate after balance
+            BigDecimal afterBalance;
+            if (account.getNormalBalance() == NormalBalance.DEBIT) {
+                afterBalance = beforeBalance.add(debitMovement).subtract(creditMovement);
+            } else {
+                afterBalance = beforeBalance.subtract(debitMovement).add(creditMovement);
+            }
+
+            impacts.add(new AccountImpact(
+                    account,
+                    beforeBalance,
+                    debitMovement,
+                    creditMovement,
+                    afterBalance
+            ));
+        }
+
+        return impacts;
+    }
+
+    public record AccountImpact(
+            ChartOfAccount account,
+            BigDecimal beforeBalance,
+            BigDecimal debitMovement,
+            BigDecimal creditMovement,
+            BigDecimal afterBalance
+    ) {}
+
     // ========== Manual Journal Entry Operations ==========
 
     /**

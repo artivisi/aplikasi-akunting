@@ -108,7 +108,7 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] Post button visible on draft entries
 - [x] Void button visible on posted entries
 - [x] Edit button visible on draft entries only
-- [ ] Account impact section (before/after balances) - deferred
+- [x] Account impact section (before/after balances)
 
 ### 7. Post Journal Entry ✅
 

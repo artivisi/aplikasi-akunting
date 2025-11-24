@@ -102,12 +102,16 @@ public class JournalEntryController {
                 .map(JournalEntry::getCreditAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // Calculate account impact
+        List<JournalEntryService.AccountImpact> accountImpacts = journalEntryService.calculateAccountImpact(entries);
+
         model.addAttribute("currentPage", "journals");
         model.addAttribute("journalEntry", entry);
         model.addAttribute("journalEntries", entries);
         model.addAttribute("totalDebit", totalDebit);
         model.addAttribute("totalCredit", totalCredit);
         model.addAttribute("isBalanced", totalDebit.compareTo(totalCredit) == 0);
+        model.addAttribute("accountImpacts", accountImpacts);
         return "journals/detail";
     }
 

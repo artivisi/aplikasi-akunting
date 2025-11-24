@@ -29,6 +29,9 @@ public class JournalDetailPage {
     private static final String VOIDED_AT = "[data-testid='voided-at']";
     private static final String POST_DIALOG = "#postDialog";
     private static final String VOID_DIALOG = "#voidDialog";
+    private static final String ACCOUNT_IMPACT_SECTION = "[data-testid='account-impact-section']";
+    private static final String ACCOUNT_IMPACT_ROWS = "[data-testid='account-impact-rows']";
+    private static final String ACCOUNT_IMPACT_ROW = "[data-testid='account-impact-row']";
 
     public JournalDetailPage(Page page, String baseUrl) {
         this.page = page;
@@ -250,5 +253,38 @@ public class JournalDetailPage {
     // Wait for page reload after post/void
     public void waitForPageReload() {
         page.waitForLoadState();
+    }
+
+    // Account Impact section assertions
+    public void assertAccountImpactSectionVisible() {
+        assertThat(page.locator(ACCOUNT_IMPACT_SECTION)).isVisible();
+    }
+
+    public void assertAccountImpactRowCount(int expected) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW)).hasCount(expected);
+    }
+
+    public void assertAccountImpactContainsAccount(String accountCode) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW + ":has-text('" + accountCode + "')")).hasCount(1);
+    }
+
+    public void assertAccountImpactRowHasBeforeBalance(String accountCode, String expectedBalance) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW + ":has-text('" + accountCode + "') [data-testid='before-balance']"))
+                .hasText(expectedBalance);
+    }
+
+    public void assertAccountImpactRowHasAfterBalance(String accountCode, String expectedBalance) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW + ":has-text('" + accountCode + "') [data-testid='after-balance']"))
+                .hasText(expectedBalance);
+    }
+
+    public void assertAccountImpactRowHasDebitMovement(String accountCode, String expectedDebit) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW + ":has-text('" + accountCode + "') [data-testid='debit-movement']"))
+                .hasText(expectedDebit);
+    }
+
+    public void assertAccountImpactRowHasCreditMovement(String accountCode, String expectedCredit) {
+        assertThat(page.locator(ACCOUNT_IMPACT_ROW + ":has-text('" + accountCode + "') [data-testid='credit-movement']"))
+                .hasText(expectedCredit);
     }
 }

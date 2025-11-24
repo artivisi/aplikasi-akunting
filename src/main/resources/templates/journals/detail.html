@@ -233,6 +233,64 @@
                 </div>
             </div>
 
+            <!-- Account Impact Section -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6" data-testid="account-impact-section">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Dampak Saldo Akun</h2>
+                    <p class="text-sm text-gray-500 mt-1">Perubahan saldo akun akibat jurnal ini</p>
+                </div>
+
+                <div class="overflow-hidden">
+                    <!-- Account Impact Header -->
+                    <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        <div class="col-span-4">Akun</div>
+                        <div class="col-span-2 text-right">Saldo Awal</div>
+                        <div class="col-span-2 text-right">Debit</div>
+                        <div class="col-span-2 text-right">Kredit</div>
+                        <div class="col-span-2 text-right">Saldo Akhir</div>
+                    </div>
+
+                    <!-- Account Impact Rows -->
+                    <div class="divide-y divide-gray-100" data-testid="account-impact-rows">
+                        <div th:each="impact : ${accountImpacts}"
+                             class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors"
+                             data-testid="account-impact-row">
+                            <div class="col-span-4">
+                                <a th:href="@{'/journals/ledger/' + ${impact.account.id}}"
+                                   class="text-sm text-primary-600 hover:text-primary-800">
+                                    <span class="font-mono" th:text="${impact.account.accountCode}">1.1.01</span>
+                                    <span th:text="${' - ' + impact.account.accountName}">Kas</span>
+                                </a>
+                            </div>
+                            <div class="col-span-2 text-right">
+                                <span class="text-sm font-mono"
+                                      th:classappend="${impact.beforeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'text-red-600' : 'text-gray-900'"
+                                      th:text="${#numbers.formatDecimal(impact.beforeBalance, 1, 'POINT', 0, 'COMMA')}"
+                                      data-testid="before-balance">0</span>
+                            </div>
+                            <div class="col-span-2 text-right">
+                                <span class="text-sm font-mono"
+                                      th:classappend="${impact.debitMovement.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'"
+                                      th:text="${impact.debitMovement.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(impact.debitMovement, 1, 'POINT', 0, 'COMMA')} : '-'"
+                                      data-testid="debit-movement">-</span>
+                            </div>
+                            <div class="col-span-2 text-right">
+                                <span class="text-sm font-mono"
+                                      th:classappend="${impact.creditMovement.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'"
+                                      th:text="${impact.creditMovement.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(impact.creditMovement, 1, 'POINT', 0, 'COMMA')} : '-'"
+                                      data-testid="credit-movement">-</span>
+                            </div>
+                            <div class="col-span-2 text-right">
+                                <span class="text-sm font-mono font-semibold"
+                                      th:classappend="${impact.afterBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'text-red-600' : 'text-accent-700'"
+                                      th:text="${#numbers.formatDecimal(impact.afterBalance, 1, 'POINT', 0, 'COMMA')}"
+                                      data-testid="after-balance">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Audit Info -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
                 <div class="p-6 border-b border-gray-200">

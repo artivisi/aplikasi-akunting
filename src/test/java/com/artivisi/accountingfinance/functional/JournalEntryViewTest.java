@@ -307,4 +307,57 @@ class JournalEntryViewTest extends PlaywrightTestBase {
             journalDetailPage.assertPostedAtVisible();
         }
     }
+
+    @Nested
+    @DisplayName("6.5 Account Impact Section")
+    class AccountImpactTests {
+
+        @Test
+        @DisplayName("Should display account impact section")
+        void shouldDisplayAccountImpactSection() {
+            JournalEntryInfo info = createDraftJournalEntry();
+
+            journalDetailPage.navigate(info.id());
+
+            journalDetailPage.assertAccountImpactSectionVisible();
+        }
+
+        @Test
+        @DisplayName("Should display correct number of account impact rows")
+        void shouldDisplayCorrectNumberOfRows() {
+            JournalEntryInfo info = createDraftJournalEntry();
+
+            journalDetailPage.navigate(info.id());
+
+            // Should have 2 rows - one for Kas and one for Pendapatan Jasa Konsultasi
+            journalDetailPage.assertAccountImpactRowCount(2);
+        }
+
+        @Test
+        @DisplayName("Should display accounts in impact section")
+        void shouldDisplayAccountsInImpactSection() {
+            JournalEntryInfo info = createDraftJournalEntry();
+
+            journalDetailPage.navigate(info.id());
+
+            journalDetailPage.assertAccountImpactContainsAccount("1.1.01");
+            journalDetailPage.assertAccountImpactContainsAccount("4.1.01");
+        }
+
+        @Test
+        @DisplayName("Should display debit and credit movements")
+        void shouldDisplayDebitAndCreditMovements() {
+            JournalEntryInfo info = createDraftJournalEntry();
+
+            journalDetailPage.navigate(info.id());
+
+            // Kas has debit of 1,000,000
+            journalDetailPage.assertAccountImpactRowHasDebitMovement("1.1.01", "1.000.000");
+            journalDetailPage.assertAccountImpactRowHasCreditMovement("1.1.01", "-");
+
+            // Pendapatan Jasa Konsultasi has credit of 1,000,000
+            journalDetailPage.assertAccountImpactRowHasDebitMovement("4.1.01", "-");
+            journalDetailPage.assertAccountImpactRowHasCreditMovement("4.1.01", "1.000.000");
+        }
+    }
 }
