@@ -129,6 +129,35 @@
 - Not suitable for manufacturers
 - Limited to simple buy/sell model
 
+### 32. Project Tracking vs Cost Centers ✓
+**Decision:** Simple project tracking for Phase 1, defer generic tags to Phase 2. No traditional cost centers.
+
+**Date:** 2025-11-24
+
+**Rationale:**
+- Target market (IT Services, Photographers) works project-based, not department-based
+- Traditional cost/revenue centers are for larger organizations with departments
+- Projects are the natural unit of profitability analysis for service businesses
+- Generic tags provide flexibility for additional dimensions (client, channel) in Phase 2
+
+**Analysis by Segment:**
+| Segment | Projects Useful? | Cost Centers Useful? |
+|---------|-----------------|---------------------|
+| IT Services | ✅ High (per-project profitability) | ❌ No departments |
+| Photographers | ✅ High (per-event profitability) | ❌ No departments |
+| Online Sellers | ⚠️ Low (product-based, not project-based) | ❌ No departments |
+
+**Implementation:**
+- **Phase 1:** Project entity with profitability report
+- **Phase 2:** Transaction tags for additional dimensions (client, channel, category)
+
+**Trade-offs:**
+- Online sellers don't benefit from project tracking (use tags for channels instead)
+- No overhead allocation to projects (too complex for MVP)
+- Worth it: High value for primary target segments
+
+---
+
 ### 31. Amortization Schedules ✓
 **Decision:** Automated period-end adjustments for prepaid expenses, unearned revenue, and intangible assets
 

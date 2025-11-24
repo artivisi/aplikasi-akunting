@@ -69,9 +69,12 @@ The features are ordered to maximize code reuse and enable incremental validatio
                     └── Core service ──────┴── Validates ─┴── Generates ──┘
                         reused by all         the engine     journal entries
 
+                    │                                                      │
+                    ├─────────────────────────────────────→ 1.9 Amortization Schedules
+                    │                                          (auto-generates adjustments)
                     │
-                    └─────────────────────────────────────→ 1.9 Amortization Schedules
-                                                               (auto-generates adjustments)
+                    └─────────────────────────────────────→ 1.10 Project Tracking
+                                                               (profitability analysis)
 ```
 
 - **Journal Entries first:** Core double-entry engine. Users who understand accounting can use immediately.
@@ -79,6 +82,7 @@ The features are ordered to maximize code reuse and enable incremental validatio
 - **Templates third:** Recipes that generate journal entries. Reuses JournalEntryService.
 - **Transactions fourth:** User-friendly abstraction. Reuses TemplateExecutionEngine → JournalEntryService.
 - **Amortization Schedules:** Automates period-end adjustments. Reuses JournalEntryService directly.
+- **Project Tracking:** Tags transactions by project. Reuses AccountBalanceCalculator for profitability.
 
 ---
 
@@ -370,7 +374,63 @@ Expenses:
 
 ---
 
-**Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments
+### 1.10 Project Tracking
+
+**Purpose:** Track profitability per project/job for service businesses.
+
+**Dependencies:** COA (1.1), JournalEntryService (1.2), Transactions (1.5)
+
+**Note:** Decision #7 - Critical for IT Services and Photographers. Simple tagging approach, not full project management.
+
+#### Features
+- [ ] Project entity (code, name, client, status, budget)
+- [ ] Project CRUD UI
+- [ ] Project list with filters (status, client)
+- [ ] Link transactions to project (optional project_id on journal entries)
+- [ ] Project selection in transaction form
+- [ ] Project Profitability Report
+- [ ] Project Income Statement (revenue - costs per project)
+
+```sql
+-- V008: Projects
+projects (id, code, name, client_name, description, status, budget_amount,
+    start_date, end_date, created_at, updated_at)
+
+-- Add to journal_entries
+ALTER TABLE journal_entries ADD COLUMN project_id UUID REFERENCES projects(id);
+```
+
+#### Project Status
+| Status | Description |
+|--------|-------------|
+| `active` | Currently in progress |
+| `completed` | Finished, still visible in reports |
+| `archived` | Hidden from dropdowns, visible in historical reports |
+
+#### Profitability Report
+```
+Project: Website Redesign - PT ABC
+Period: Jan - Mar 2025
+
+Revenue:
+  Pendapatan Jasa Development    Rp 50,000,000
+  ─────────────────────────────────────────────
+  Total Revenue                  Rp 50,000,000
+
+Direct Costs:
+  Beban Server & Cloud           Rp    500,000
+  Beban Software & Lisensi       Rp    300,000
+  ─────────────────────────────────────────────
+  Total Direct Costs             Rp    800,000
+
+Gross Profit                     Rp 49,200,000  (98.4%)
+```
+
+**Note:** Overhead allocation (rent, utilities) not included - too complex for MVP. Users can manually add project-tagged expenses for full costing.
+
+---
+
+**Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments, track project profitability
 
 **Note:** Document attachment deferred to Phase 2. Store receipts in external folder during MVP.
 
@@ -382,6 +442,8 @@ Expenses:
 - [ ] Can export reports to PDF/Excel
 - [ ] Can set up amortization schedules for prepaid/unearned items
 - [ ] Period-end adjustments auto-generated from schedules
+- [ ] Can create and track projects
+- [ ] Can generate Project Profitability Report
 - [ ] Basic user management
 - [ ] Database backup via pg_dump (no documents yet)
 - [ ] Production deployment tested
@@ -390,11 +452,12 @@ Expenses:
 
 | Component | Created In | Reused By |
 |-----------|------------|-----------|
-| JournalEntryService | 1.2 | 1.3, 1.4, 1.5, 1.9 |
-| AccountBalanceCalculator | 1.3 | 1.4 (validation), 1.5 (display), 1.9 (remaining balance) |
+| JournalEntryService | 1.2 | 1.3, 1.4, 1.5, 1.9, 1.10 |
+| AccountBalanceCalculator | 1.3 | 1.4 (validation), 1.5 (display), 1.9 (remaining balance), 1.10 (profitability) |
 | TemplateExecutionEngine | 1.4 | 1.5 |
 | ChartOfAccountRepository | 1.1 | All subsequent features |
 | AmortizationScheduleService | 1.9 | Period-end dashboard |
+| ProjectService | 1.10 | Transaction form, Profitability reports |
 
 ---
 
@@ -466,7 +529,40 @@ fiscal_periods
 - [ ] Backup scheduling (manual trigger for MVP)
 - [ ] Backup manifest (metadata, timestamp, file list)
 
-**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, and proper backup/restore
+### 2.9 Transaction Tags
+
+**Purpose:** Flexible multi-dimensional tagging for transactions beyond projects.
+
+**Dependencies:** Transactions (1.5), Projects (1.10)
+
+**Note:** Extends project tracking with user-defined dimensions (client, channel, category).
+
+#### Features
+- [ ] Tag type entity (user-defined: "Client", "Channel", "Category")
+- [ ] Tag entity (values per type)
+- [ ] Tag type CRUD UI
+- [ ] Tag CRUD UI
+- [ ] Multi-tag per transaction (journal entry)
+- [ ] Tag filters in transaction list
+- [ ] Tag-based reports (summary by tag)
+
+```sql
+-- V010: Transaction tags
+tag_types (id, name, description, is_system, created_at)
+tags (id, tag_type_id, name, color, created_at)
+journal_entry_tags (journal_entry_id, tag_id, PRIMARY KEY (journal_entry_id, tag_id))
+```
+
+#### Use Cases by Segment
+| Segment | Tag Types |
+|---------|-----------|
+| IT Services | Client, Project Type (dev, consulting, training) |
+| Photographers | Client, Event Type (wedding, corporate, product) |
+| Online Sellers | Channel (Shopee, Tokopedia, Instagram), Category |
+
+**Note:** Projects (1.10) handle the primary project tracking. Tags provide additional dimensions for analysis.
+
+**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, and flexible transaction tagging
 
 ---
 
