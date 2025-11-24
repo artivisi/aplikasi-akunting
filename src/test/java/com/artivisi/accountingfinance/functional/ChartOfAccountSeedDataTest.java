@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.functional;
 
+import com.artivisi.accountingfinance.functional.page.AccountFormPage;
 import com.artivisi.accountingfinance.functional.page.ChartOfAccountsPage;
 import com.artivisi.accountingfinance.functional.page.LoginPage;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
@@ -12,11 +13,13 @@ class ChartOfAccountSeedDataTest extends PlaywrightTestBase {
 
     private LoginPage loginPage;
     private ChartOfAccountsPage accountsPage;
+    private AccountFormPage formPage;
 
     @BeforeEach
     void setUp() {
         loginPage = new LoginPage(page, baseUrl());
         accountsPage = new ChartOfAccountsPage(page, baseUrl());
+        formPage = new AccountFormPage(page, baseUrl());
 
         loginPage.navigate().loginAsAdmin();
     }
@@ -162,5 +165,81 @@ class ChartOfAccountSeedDataTest extends PlaywrightTestBase {
         accountsPage.assertEditButtonVisible("3");
         accountsPage.assertEditButtonVisible("4");
         accountsPage.assertEditButtonVisible("5");
+    }
+
+    @Test
+    @DisplayName("Should have delete button only on leaf accounts")
+    void shouldHaveDeleteButtonOnlyOnLeafAccounts() {
+        accountsPage.navigate();
+
+        // Parent accounts should NOT have delete button
+        accountsPage.assertDeleteButtonNotVisible("1");  // ASET has children
+
+        // Expand to leaf accounts
+        accountsPage.clickExpandAccount("1");
+        accountsPage.assertDeleteButtonNotVisible("1.1");  // Aset Lancar has children
+
+        accountsPage.clickExpandAccount("1.1");
+
+        // Leaf accounts should have delete button
+        accountsPage.assertDeleteButtonVisible("1.1.01");  // Kas is a leaf
+        accountsPage.assertDeleteButtonVisible("1.1.02");  // Bank BCA is a leaf
+    }
+
+    @Test
+    @DisplayName("Should have activate/deactivate button on accounts")
+    void shouldHaveActivateDeactivateButton() {
+        accountsPage.navigate();
+
+        // Active accounts should have deactivate button
+        accountsPage.assertDeactivateButtonVisible("1");
+        accountsPage.assertDeactivateButtonVisible("2");
+        accountsPage.assertDeactivateButtonVisible("3");
+        accountsPage.assertDeactivateButtonVisible("4");
+        accountsPage.assertDeactivateButtonVisible("5");
+    }
+
+    @Test
+    @DisplayName("Should display permanent checkbox in new account form")
+    void shouldDisplayPermanentCheckboxInNewForm() {
+        formPage.navigateToNew();
+
+        formPage.assertPageTitleText("Tambah Akun");
+        formPage.assertPermanentCheckboxVisible();
+        // New accounts default to permanent = true
+        formPage.assertPermanentCheckboxChecked();
+    }
+
+    @Test
+    @DisplayName("Should show permanent checkbox checked for ASET account (permanent)")
+    void shouldShowPermanentCheckedForAssetAccount() {
+        accountsPage.navigate();
+        accountsPage.clickEditAccount("1");  // ASET
+
+        formPage.assertPageTitleText("Edit Akun");
+        formPage.assertPermanentCheckboxVisible();
+        formPage.assertPermanentCheckboxChecked();
+    }
+
+    @Test
+    @DisplayName("Should show permanent checkbox unchecked for BEBAN account (temporary)")
+    void shouldShowPermanentUncheckedForExpenseAccount() {
+        accountsPage.navigate();
+        accountsPage.clickEditAccount("5");  // BEBAN
+
+        formPage.assertPageTitleText("Edit Akun");
+        formPage.assertPermanentCheckboxVisible();
+        formPage.assertPermanentCheckboxUnchecked();
+    }
+
+    @Test
+    @DisplayName("Should show permanent checkbox unchecked for PENDAPATAN account (temporary)")
+    void shouldShowPermanentUncheckedForRevenueAccount() {
+        accountsPage.navigate();
+        accountsPage.clickEditAccount("4");  // PENDAPATAN
+
+        formPage.assertPageTitleText("Edit Akun");
+        formPage.assertPermanentCheckboxVisible();
+        formPage.assertPermanentCheckboxUnchecked();
     }
 }

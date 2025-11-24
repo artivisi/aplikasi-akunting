@@ -76,6 +76,26 @@ public class ChartOfAccountsPage {
         assertThat(page.locator("#btn-expand-" + id)).isVisible();
     }
 
+    public void assertDeleteButtonVisible(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        assertThat(page.locator("#btn-delete-" + id)).isVisible();
+    }
+
+    public void assertDeleteButtonNotVisible(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        assertThat(page.locator("#btn-delete-" + id)).not().isVisible();
+    }
+
+    public void assertDeactivateButtonVisible(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        assertThat(page.locator("#btn-deactivate-" + id)).isVisible();
+    }
+
+    public void assertActivateButtonVisible(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        assertThat(page.locator("#btn-activate-" + id)).isVisible();
+    }
+
     // Root accounts verification
     public void assertAllRootAccountsVisible() {
         assertAccountRowVisible("1");

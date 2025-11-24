@@ -122,6 +122,20 @@
                             </label>
                         </div>
 
+                        <!-- Permanent Account -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Akun Permanen</p>
+                                <p class="text-xs text-gray-500">Permanen: saldo dibawa ke periode berikutnya (Aset, Liabilitas, Ekuitas)</p>
+                                <p class="text-xs text-gray-500">Temporer: saldo di-reset saat tutup buku (Pendapatan, Beban)</p>
+                            </div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="permanent" th:field="*{permanent}"
+                                       class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                <span class="ml-2 text-sm font-medium text-gray-700">Permanen</span>
+                            </label>
+                        </div>
+
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">

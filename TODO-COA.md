@@ -26,8 +26,8 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Display account type badges
 - [x] Expand/collapse hierarchy to show child accounts
 - [x] Display edit button on each account
-- [ ] Display delete button on leaf accounts
-- [ ] Display activate/deactivate button
+- [x] Display delete button on leaf accounts
+- [x] Display activate/deactivate button
 
 ### 2. Create Account
 - [ ] Navigate to create form via "Tambah Akun" button
