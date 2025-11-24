@@ -9,7 +9,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - **Phase 0:** ✅ Complete (project setup, auth, CI/CD)
 - **Phase 1:** 🔄 In Progress (Core Accounting MVP)
   - 1.1 COA: ✅ Complete
-  - 1.2 Journal Entries: ⏳ Not Started - See `TODO-JOURNAL-ENTRIES.md`
+  - 1.2 Journal Entries: ✅ Complete - See `TODO-JOURNAL-ENTRIES.md`
+  - 1.3 Basic Reports: ⏳ Not Started
   - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -61,7 +62,8 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Next: Journal Entries (1.2) per `TODO-JOURNAL-ENTRIES.md`:
-1. Entity & migration for journal entries and lines
-2. Service layer with balance validation
-3. CRUD UI with post/void workflow
+Next: Basic Reports (1.3) per implementation plan:
+1. Trial Balance
+2. General Ledger report
+3. Balance Sheet
+4. Income Statement

@@ -233,16 +233,23 @@ Functional tests use Playwright for browser automation. They require Docker for 
 - ✅ Playwright functional testing framework
 
 ### Phase 1: Core Accounting 🔄
-**Chart of Accounts (1.1):**
+**Chart of Accounts (1.1):** ✅ Complete
 - ✅ Account entity with hierarchical structure
 - ✅ Account types (Asset, Liability, Equity, Revenue, Expense)
 - ✅ Pre-seeded IT Services COA (30+ accounts)
-- 🔄 Account CRUD UI (in progress)
-- ⏳ Soft delete implementation
+- ✅ Account CRUD UI with create, edit, activate/deactivate
+- ✅ Soft delete implementation
 
-**Journal Templates (1.2):** ⏳ Pending
-**Transactions (1.3):** ⏳ Pending
-**Reports (1.6):** ⏳ Pending
+**Journal Entries (1.2):** ✅ Complete
+- ✅ Manual journal entry CRUD (create, edit, view)
+- ✅ Status workflow (Draft → Posted → Void)
+- ✅ Balance validation (debit = credit)
+- ✅ Account impact section (before/after balances)
+- ✅ Account validation (prevent type change/delete if has entries)
+
+**Basic Reports (1.3):** ⏳ Pending
+**Journal Templates (1.4):** ⏳ Pending
+**Transactions (1.5):** ⏳ Pending
 
 See [Implementation Plan](docs/06-implementation-plan.md) for full details.
 
