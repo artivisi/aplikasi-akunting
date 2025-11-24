@@ -41,17 +41,17 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] id_transaction already nullable (for manual entries)
 - [x] JournalEntryStatus enum created
 
-### 2. Service Layer
+### 2. Service Layer ✅
 
 - [x] JournalEntryService.findById() - exists
 - [x] JournalEntryService.findByTransactionId() - exists
 - [x] JournalEntryService.getGeneralLedger() - exists
-- [ ] JournalEntryService.create() - create manual entry
-- [ ] JournalEntryService.update() - update draft entry only
-- [ ] JournalEntryService.post() - validate and post entry
-- [ ] JournalEntryService.void() - void posted entry with reason
-- [ ] JournalEntryService.validateBalance() - debit must equal credit
-- [ ] Immutability enforcement - posted entries cannot be edited
+- [x] JournalEntryService.create() - create manual entry (with auto journal number)
+- [x] JournalEntryService.update() - update draft entry only
+- [x] JournalEntryService.post() - validate and post entry
+- [x] JournalEntryService.voidEntry() - void posted entry with reason
+- [x] JournalEntryService.validateBalance() - debit must equal credit
+- [x] Immutability enforcement - only draft entries can be edited
 
 ### 3. Journal Entry List UI (Buku Besar)
 

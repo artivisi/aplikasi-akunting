@@ -64,4 +64,20 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+
+    // Methods for manual journal entries (using journal entry status)
+    List<JournalEntry> findAllByJournalNumberOrderByIdAsc(String journalNumber);
+
+    @Query("SELECT j FROM JournalEntry j WHERE j.status = 'POSTED' AND j.transaction IS NULL " +
+           "AND j.journalDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY j.journalDate, j.journalNumber")
+    List<JournalEntry> findManualPostedEntriesByDateRange(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    boolean existsByJournalNumber(String journalNumber);
+
+    @Query(value = "SELECT MAX(CAST(SUBSTRING(journal_number, 9, 4) AS INTEGER)) FROM journal_entries " +
+           "WHERE journal_number LIKE :prefix", nativeQuery = true)
+    Integer findMaxSequenceByPrefix(@Param("prefix") String prefix);
 }
