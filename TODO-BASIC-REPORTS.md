@@ -51,28 +51,27 @@ Test data via Flyway test-only migration (`src/test/resources/db/testmigration/V
 
 **Expected Totals (for test assertions):**
 
-Trial Balance (as of 2024-06-30, POSTED only):
-| Account | Debit | Credit |
-|---------|-------|--------|
-| Cash (1.1.01) | 100,000,000 | 16,000,000 |
-| Bank BCA (1.1.02) | 52,000,000 | 22,000,000 |
-| Peralatan Komputer (1.2.01) | 30,000,000 | 0 |
-| Akum. Peny. Peralatan (1.2.02) | 0 | 1,000,000 |
-| Hutang Usaha (2.1.01) | 0 | 10,000,000 |
-| Modal Disetor (3.1.01) | 0 | 100,000,000 |
-| Pendapatan Jasa Konsultasi (4.1.01) | 0 | 27,000,000 |
-| Pendapatan Jasa Development (4.1.02) | 0 | 25,000,000 |
-| Beban Gaji (5.1.01) | 16,000,000 | 0 |
-| Beban Server & Cloud (5.1.02) | 2,000,000 | 0 |
-| Beban Penyusutan (5.1.07) | 1,000,000 | 0 |
-| **TOTAL** | **201,000,000** | **201,000,000** |
+Trial Balance (as of 2024-06-30, POSTED only, includes 2023 entries):
+| Account | Debit Balance | Credit Balance |
+|---------|---------------|----------------|
+| Cash (1.1.01) | 134,000,000 | |
+| Bank BCA (1.1.02) | 40,000,000 | |
+| Peralatan Komputer (1.2.01) | 30,000,000 | |
+| Akum. Peny. Peralatan (1.2.02) | | 1,000,000 |
+| Hutang Usaha (2.1.01) | | 10,000,000 |
+| Modal Disetor (3.1.01) | | 150,000,000 |
+| Pendapatan Jasa Konsultasi (4.1.01) | | 37,000,000 |
+| Pendapatan Jasa Development (4.1.02) | | 25,000,000 |
+| Beban Gaji (5.1.01) | 16,000,000 | |
+| Beban Server & Cloud (5.1.02) | 2,000,000 | |
+| Beban Penyusutan (5.1.07) | 1,000,000 | |
+| **TOTAL** | **223,000,000** | **223,000,000** |
 
 Balance Sheet (as of 2024-06-30):
-- Total Assets = 143,000,000 (Cash 84M + BCA 30M + Peralatan 30M - Akum 1M)
+- Total Assets = 203,000,000 (Cash 134M + BCA 40M + Peralatan 30M - Akum 1M)
 - Total Liabilities = 10,000,000
-- Total Equity = 100,000,000
-- Net Income = 33,000,000 (Revenue 52M - Expense 19M)
-- **Assets = Liabilities + Equity + Net Income** ✓
+- Total Equity = 193,000,000 (Modal 150M + Prior Year 10M + Current Year NI 33M)
+- **Assets = Liabilities + Equity** ✓ (203M = 10M + 193M)
 
 Income Statement (2024-01-01 to 2024-06-30):
 - Total Revenue = 52,000,000 (Konsultasi 27M + Development 25M)
@@ -81,33 +80,39 @@ Income Statement (2024-01-01 to 2024-06-30):
 
 ---
 
-### 1. Trial Balance Report
+### 1. Trial Balance Report ✅
 
-- [ ] TrialBalanceService.calculateTrialBalance(asOfDate)
-- [ ] Calculate debit/credit totals per account
-- [ ] Show only accounts with activity
-- [ ] Trial Balance UI page (`/reports/trial-balance`)
-- [ ] Date selector (as of date)
-- [ ] Verify debit total = credit total
+- [x] TrialBalanceService.calculateTrialBalance(asOfDate)
+- [x] Calculate debit/credit totals per account
+- [x] Show only accounts with activity
+- [x] Trial Balance UI page (`/reports/trial-balance`)
+- [x] Date selector (as of date)
+- [x] Verify debit total = credit total
+- [x] Playwright tests (TrialBalanceTest.java - 20 tests)
 
-### 2. General Ledger Report
+### 2. General Ledger Report ✅
 
-- [ ] GeneralLedgerService already exists (reuse JournalEntryService.getGeneralLedger)
-- [ ] General Ledger UI page (`/reports/general-ledger`)
-- [ ] Account selector dropdown
-- [ ] Date range filter
-- [ ] Opening balance, transactions, closing balance
-- [ ] Running balance column
+Already implemented at `/journals` (Buku Besar):
+- [x] JournalEntryService.getGeneralLedger() and getGeneralLedgerPaged()
+- [x] General Ledger UI at `/journals` (linked from reports index)
+- [x] Account selector dropdown
+- [x] Date range filter
+- [x] Opening balance, transactions, closing balance
+- [x] Running balance column
+- [x] Playwright tests (JournalEntryListTest.java - 20 tests)
 
-### 3. Balance Sheet (Laporan Posisi Keuangan)
+### 3. Balance Sheet (Laporan Posisi Keuangan) ✅
 
-- [ ] BalanceSheetService.generateBalanceSheet(asOfDate)
-- [ ] Group accounts by type: Asset, Liability, Equity
-- [ ] Calculate subtotals per account type
-- [ ] Verify Assets = Liabilities + Equity
-- [ ] Balance Sheet UI page (`/reports/balance-sheet`)
-- [ ] Date selector (as of date)
-- [ ] Hierarchical account display
+- [x] ReportService.generateBalanceSheet(asOfDate) - already implemented
+- [x] Group accounts by type: Asset, Liability, Equity
+- [x] Calculate subtotals per account type
+- [x] Verify Assets = Liabilities + Equity (balance check)
+- [x] Balance Sheet UI page (`/reports/balance-sheet`) - updated with dynamic data
+- [x] Date selector (as of date)
+- [x] Current year earnings calculation
+- [x] Prior year retained earnings calculation
+- [x] Contra-asset handling (Accumulated Depreciation)
+- [x] Playwright tests (BalanceSheetTest.java - 28 tests)
 
 ### 4. Income Statement (Laporan Laba Rugi)
 
