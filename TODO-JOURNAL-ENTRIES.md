@@ -131,11 +131,11 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] Original entry preserved (audit trail)
 - [x] Success message displayed (page reloads with Void status)
 
-### 9. Account Validation (from COA)
+### 9. Account Validation (from COA) ✅
 
-- [ ] Account dropdown excludes inactive accounts
-- [ ] Cannot change account type if has journal entries
-- [ ] Cannot delete account if has journal entries
+- [x] Account dropdown excludes inactive accounts
+- [x] Cannot change account type if has journal entries
+- [x] Cannot delete account if has journal entries
 
 ### 10. Balance Validation ✅
 
@@ -158,7 +158,7 @@ Recommend: Keep current design but add manual entry support for adjustments.
 7. `JournalDetailPage.java` - Page object for detail tests ✅
 8. `JournalEntryPostTest.java` - Post and validation scenarios ✅ (13 tests)
 9. `JournalEntryVoidTest.java` - Void scenarios ✅ (13 tests)
-10. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
+10. `AccountValidationTest.java` - Account validation from COA ✅ (6 tests)
 
 ---
 

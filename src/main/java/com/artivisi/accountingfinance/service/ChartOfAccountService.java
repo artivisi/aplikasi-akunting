@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.enums.AccountType;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
+import com.artivisi.accountingfinance.repository.JournalEntryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class ChartOfAccountService {
 
     private final ChartOfAccountRepository chartOfAccountRepository;
+    private final JournalEntryRepository journalEntryRepository;
 
     public List<ChartOfAccount> findAll() {
         return chartOfAccountRepository.findByActiveOrderByAccountCodeAsc(true);
@@ -66,6 +68,10 @@ public class ChartOfAccountService {
                 .orElse(false);
     }
 
+    public boolean hasJournalEntries(UUID id) {
+        return journalEntryRepository.existsByAccountId(id);
+    }
+
     public ChartOfAccount findByAccountCode(String accountCode) {
         return chartOfAccountRepository.findByAccountCode(accountCode)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with code: " + accountCode));
@@ -100,6 +106,12 @@ public class ChartOfAccountService {
         existing.setDescription(accountData.getDescription());
 
         if (existing.getParent() == null) {
+            // Check if account type is being changed
+            if (existing.getAccountType() != accountData.getAccountType()) {
+                if (hasJournalEntries(id)) {
+                    throw new IllegalStateException("Cannot change account type: account has journal entries");
+                }
+            }
             existing.setAccountType(accountData.getAccountType());
             existing.setNormalBalance(accountData.getNormalBalance());
         }
@@ -126,6 +138,9 @@ public class ChartOfAccountService {
         ChartOfAccount account = findById(id);
         if (!account.getChildren().isEmpty()) {
             throw new IllegalStateException("Cannot delete account with child accounts");
+        }
+        if (hasJournalEntries(id)) {
+            throw new IllegalStateException("Cannot delete account with journal entries");
         }
         account.softDelete();
         chartOfAccountRepository.save(account);

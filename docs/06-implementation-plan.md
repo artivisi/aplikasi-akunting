@@ -63,11 +63,11 @@ audit_logs
 The features are ordered to maximize code reuse and enable incremental validation:
 
 ```
-1.1 COA ✅ → 1.2 Journal Entries → 1.3 Reports → 1.4 Templates → 1.5 Transactions
-                    │                    │              │               │
-                    │                    │              │               │
-                    └── Core service ────┴── Validates ─┴── Generates ──┘
-                        reused by all       the engine     journal entries
+1.1 COA ✅ → 1.2 Journal Entries ✅ → 1.3 Reports → 1.4 Templates → 1.5 Transactions
+                    │                      │              │               │
+                    │                      │              │               │
+                    └── Core service ──────┴── Validates ─┴── Generates ──┘
+                        reused by all         the engine     journal entries
 ```
 
 - **Journal Entries first:** Core double-entry engine. Users who understand accounting can use immediately.
@@ -95,7 +95,7 @@ chart_of_accounts
 
 ---
 
-### 1.2 Journal Entries (Manual)
+### 1.2 Journal Entries (Manual) ✅
 
 **Purpose:** Core double-entry bookkeeping engine. Accountants can record entries directly.
 
@@ -103,17 +103,17 @@ chart_of_accounts
 
 **Reused by:** Reports (1.3), Templates (1.4), Transactions (1.5)
 
-- [ ] Journal entry entity (header: date, description, reference, status)
-- [ ] Journal entry lines entity (account, debit, credit, memo)
-- [ ] Balance validation (debit = credit) before posting
-- [ ] Status workflow (draft → posted → void)
-- [ ] Immutable after posting (no edits, only void)
-- [ ] Void with reason
-- [ ] Journal entry CRUD UI
-- [ ] Journal entry list with filters (date range, status)
-- [ ] Account validation: cannot edit type if has journal entries
-- [ ] Account validation: cannot delete if has journal entries
-- [ ] Account dropdown: exclude inactive accounts
+- [x] Journal entry entity (header: date, description, reference, status)
+- [x] Journal entry lines entity (account, debit, credit, memo)
+- [x] Balance validation (debit = credit) before posting
+- [x] Status workflow (draft → posted → void)
+- [x] Immutable after posting (no edits, only void)
+- [x] Void with reason
+- [x] Journal entry CRUD UI
+- [x] Journal entry list with filters (date range, status)
+- [x] Account validation: cannot edit type if has journal entries
+- [x] Account validation: cannot delete if has journal entries
+- [x] Account dropdown: exclude inactive accounts
 
 ```sql
 -- V003: Journal entries

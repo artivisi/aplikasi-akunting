@@ -92,6 +92,14 @@ public class AccountFormPage {
         page.selectOption(ACCOUNT_TYPE_SELECT, type);
     }
 
+    public void assertAccountTypeDisabled() {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT)).isDisabled();
+    }
+
+    public void assertAccountTypeEnabled() {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT)).isEnabled();
+    }
+
     public void selectNormalBalanceDebit() {
         page.click(NORMAL_BALANCE_DEBIT);
     }

@@ -112,6 +112,8 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
 
     boolean existsByJournalNumber(String journalNumber);
 
+    boolean existsByAccountId(UUID accountId);
+
     @Query(value = "SELECT MAX(CAST(SUBSTRING(journal_number, 9, 4) AS INTEGER)) FROM journal_entries " +
            "WHERE journal_number LIKE :prefix", nativeQuery = true)
     Integer findMaxSequenceByPrefix(@Param("prefix") String prefix);

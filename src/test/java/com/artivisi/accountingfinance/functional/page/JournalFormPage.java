@@ -252,4 +252,13 @@ public class JournalFormPage {
     public void assertLineCreditValue(int lineIndex, String expectedValue) {
         assertThat(page.locator("#line-credit-" + lineIndex)).hasValue(expectedValue);
     }
+
+    // Account dropdown assertions
+    public void assertAccountInDropdown(String accountLabel) {
+        assertThat(page.locator("#line-account-0 option:has-text('" + accountLabel + "')")).hasCount(1);
+    }
+
+    public void assertAccountNotInDropdown(String accountLabel) {
+        assertThat(page.locator("#line-account-0 option:has-text('" + accountLabel + "')")).hasCount(0);
+    }
 }

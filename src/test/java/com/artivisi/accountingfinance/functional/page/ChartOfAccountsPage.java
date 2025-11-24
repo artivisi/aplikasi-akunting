@@ -216,4 +216,13 @@ public class ChartOfAccountsPage {
     private String accountCodeToId(String accountCode) {
         return accountCode.replace(".", "-");
     }
+
+    // Error message assertions
+    public void assertErrorMessageVisible() {
+        assertThat(page.locator(".alert-error, [data-testid='error-message']")).isVisible();
+    }
+
+    public void assertErrorMessageContains(String text) {
+        assertThat(page.locator(".alert-error, [data-testid='error-message']")).containsText(text);
+    }
 }

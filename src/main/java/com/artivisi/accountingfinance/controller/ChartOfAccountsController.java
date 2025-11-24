@@ -119,6 +119,14 @@ public class ChartOfAccountsController {
             model.addAttribute("hasChildren", hasChildren);
             model.addAttribute("hasParent", hasParent);
             return "accounts/form";
+        } catch (IllegalStateException e) {
+            bindingResult.rejectValue("accountType", "invalid", e.getMessage());
+            model.addAttribute("currentPage", "accounts");
+            model.addAttribute("accountTypes", AccountType.values());
+            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
+            model.addAttribute("hasChildren", hasChildren);
+            model.addAttribute("hasParent", hasParent);
+            return "accounts/form";
         }
 
         redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil diperbarui");
@@ -141,8 +149,12 @@ public class ChartOfAccountsController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
-        chartOfAccountService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil dihapus");
+        try {
+            chartOfAccountService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil dihapus");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/accounts";
     }
 }
