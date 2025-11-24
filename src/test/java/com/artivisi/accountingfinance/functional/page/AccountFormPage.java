@@ -224,4 +224,17 @@ public class AccountFormPage {
     public void clearAccountCode() {
         page.locator(ACCOUNT_CODE_INPUT).clear();
     }
+
+    // Parent dropdown assertions for deleted accounts test
+    public void assertParentAccountOptionNotExists(String optionText) {
+        assertThat(page.locator(PARENT_SELECT + " option:has-text(\"" + optionText + "\")")).hasCount(0);
+    }
+
+    public void assertParentAccountOptionExists(String optionText) {
+        assertThat(page.locator(PARENT_SELECT + " option:has-text(\"" + optionText + "\")")).hasCount(1);
+    }
+
+    public int getParentAccountOptionsCount() {
+        return page.locator(PARENT_SELECT + " option").count();
+    }
 }
