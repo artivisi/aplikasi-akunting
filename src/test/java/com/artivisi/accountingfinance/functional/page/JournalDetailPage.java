@@ -27,6 +27,8 @@ public class JournalDetailPage {
     private static final String BALANCE_STATUS = "[data-testid='balance-status']";
     private static final String POSTED_AT = "[data-testid='posted-at']";
     private static final String VOIDED_AT = "[data-testid='voided-at']";
+    private static final String POST_DIALOG = "#postDialog";
+    private static final String VOID_DIALOG = "#voidDialog";
 
     public JournalDetailPage(Page page, String baseUrl) {
         this.page = page;
@@ -181,11 +183,14 @@ public class JournalDetailPage {
     }
 
     public void confirmPost() {
-        page.click("button:has-text('Ya, Posting')");
+        page.locator(POST_DIALOG + ":not(.hidden)").waitFor();
+        page.locator(POST_DIALOG + " button:has-text('Ya, Posting')").click();
+        page.waitForLoadState();
     }
 
     public void cancelPost() {
-        page.click("#postDialog button:has-text('Batal')");
+        page.locator(POST_DIALOG + ":not(.hidden)").waitFor();
+        page.locator(POST_DIALOG + " button:has-text('Batal')").click();
     }
 
     public void fillVoidReason(String reason) {
@@ -193,11 +198,14 @@ public class JournalDetailPage {
     }
 
     public void confirmVoid() {
-        page.click("button:has-text('Ya, Void')");
+        page.locator(VOID_DIALOG + ":not(.hidden)").waitFor();
+        page.locator(VOID_DIALOG + " button:has-text('Ya, Void')").click();
+        page.waitForLoadState();
     }
 
     public void cancelVoid() {
-        page.click("#voidDialog button:has-text('Batal')");
+        page.locator(VOID_DIALOG + ":not(.hidden)").waitFor();
+        page.locator(VOID_DIALOG + " button:has-text('Batal')").click();
     }
 
     // Getters
@@ -211,5 +219,32 @@ public class JournalDetailPage {
 
     public String getStatusBadgeText() {
         return page.locator(STATUS_BADGE).textContent();
+    }
+
+    // Post dialog assertions
+    public void assertPostDialogVisible() {
+        assertThat(page.locator(POST_DIALOG)).isVisible();
+    }
+
+    public void assertPostDialogNotVisible() {
+        assertThat(page.locator(POST_DIALOG)).isHidden();
+    }
+
+    public void assertPostDialogContainsText(String text) {
+        assertThat(page.locator(POST_DIALOG)).containsText(text);
+    }
+
+    // Void dialog assertions
+    public void assertVoidDialogVisible() {
+        assertThat(page.locator(VOID_DIALOG)).isVisible();
+    }
+
+    public void assertVoidDialogNotVisible() {
+        assertThat(page.locator(VOID_DIALOG)).isHidden();
+    }
+
+    // Wait for page reload after post/void
+    public void waitForPageReload() {
+        page.waitForLoadState();
     }
 }

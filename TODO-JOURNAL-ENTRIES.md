@@ -110,15 +110,15 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] Edit button visible on draft entries only
 - [ ] Account impact section (before/after balances) - deferred
 
-### 7. Post Journal Entry
+### 7. Post Journal Entry ✅
 
-- [ ] Post button on draft entry
-- [ ] Validation: debit must equal credit
-- [ ] Confirmation dialog before posting
-- [ ] Status changes to POSTED
-- [ ] posted_at timestamp set
-- [ ] Entry becomes immutable
-- [ ] Success message displayed
+- [x] Post button on draft entry
+- [x] Validation: debit must equal credit
+- [x] Confirmation dialog before posting
+- [x] Status changes to POSTED
+- [x] posted_at timestamp set
+- [x] Entry becomes immutable
+- [x] Success message displayed (page reloads with Posted status)
 
 ### 8. Void Journal Entry
 
@@ -156,7 +156,7 @@ Recommend: Keep current design but add manual entry support for adjustments.
 5. `JournalEntryEditTest.java` - Edit draft scenarios ✅ (12 tests)
 6. `JournalEntryViewTest.java` - View detail scenarios ✅ (18 tests)
 7. `JournalDetailPage.java` - Page object for detail tests ✅
-8. `JournalEntryPostTest.java` - Post and validation scenarios (TODO)
+8. `JournalEntryPostTest.java` - Post and validation scenarios ✅ (13 tests)
 9. `JournalEntryVoidTest.java` - Void scenarios (TODO)
 10. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
 
