@@ -58,16 +58,16 @@ audit_logs
 
 **Scope:** IT Services industry only (primary use case for initial deployment)
 
-### 1.1 Chart of Accounts
+### 1.1 Chart of Accounts ✅
 - [x] Account entity and repository
 - [x] Account types (asset, liability, equity, revenue, expense)
 - [x] Hierarchical structure (parent/child)
 - [x] Pre-seeded COA template: **IT Services only**
 - [x] Soft delete (base entity with deleted_at, @SQLRestriction filter)
-- [ ] Account CRUD UI
-- [ ] Account activation/deactivation
+- [x] Account CRUD UI
+- [x] Account activation/deactivation
 
-**Note:** Other industry templates (Photography, Online Seller, General Freelancer) deferred to Phase 1+
+**Note:** Other industry templates (Photography, Online Seller, General Freelancer) deferred to Phase 6+
 
 ```sql
 -- V002: Chart of accounts
@@ -100,6 +100,9 @@ journal_template_lines
 - [ ] Transaction list with filters
 - [ ] Transaction detail view
 - [ ] Void transaction (with reason)
+- [ ] Account validation: cannot edit type if has transactions
+- [ ] Account validation: cannot delete if has transactions
+- [ ] Account dropdown: exclude inactive accounts
 
 ```sql
 -- V004: Transactions
@@ -437,6 +440,7 @@ budgets
 - [ ] Custom report builder
 - [ ] Dashboard analytics
 - [ ] Automated backups
+- [ ] Admin: view soft-deleted records
 
 ### Custom Projects (Per Client Request)
 - [ ] PJAP integration (e-Faktur, e-Bupot)

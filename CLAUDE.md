@@ -8,15 +8,15 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 
 - **Phase 0:** ✅ Complete (project setup, auth, CI/CD)
 - **Phase 1:** 🔄 In Progress (Core Accounting MVP)
-  - COA: entity/repo done, CRUD UI in progress
-  - See `TODO-COA.md` for detailed tasks
+  - 1.1 COA: ✅ Complete
+  - 1.2 Journal Templates: ⏳ Not Started
+  - See `docs/06-implementation-plan.md` for detailed tasks
 
 ## Key Files
 
 | Purpose | Location |
 |---------|----------|
 | Implementation Plan | `docs/06-implementation-plan.md` |
-| COA TODO List | `TODO-COA.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
@@ -60,7 +60,7 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Complete Chart of Accounts (1.1) per `TODO-COA.md`:
-1. Account CRUD with functional tests
-2. Activate/deactivate functionality
-3. Soft delete implementation
+Next: Journal Templates (1.2) per `docs/06-implementation-plan.md`:
+1. Template entity with versioning
+2. Template lines entity
+3. System templates for IT Services
