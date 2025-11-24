@@ -53,19 +53,19 @@ Recommend: Keep current design but add manual entry support for adjustments.
 - [x] JournalEntryService.validateBalance() - debit must equal credit
 - [x] Immutability enforcement - only draft entries can be edited
 
-### 3. Journal Entry List UI (Buku Besar)
+### 3. Journal Entry List UI (Buku Besar) ✅
 
 - [x] Display page title "Buku Besar"
 - [x] Controller endpoint exists (/journals)
 - [x] Template exists (journals/list.html)
-- [ ] **Replace hardcoded data with dynamic data**
-- [ ] Account filter dropdown (dynamic from DB)
-- [ ] Date range filter (functional)
-- [ ] Search filter (functional)
-- [ ] Display actual journal entries from DB
-- [ ] Show running balance per account
-- [ ] Pagination (functional)
-- [ ] Click row navigates to detail
+- [x] **Replace hardcoded data with dynamic data**
+- [x] Account filter dropdown (dynamic from DB)
+- [x] Date range filter (functional)
+- [x] Display actual journal entries from DB
+- [x] Show running balance per account
+- [x] Click row navigates to detail
+- [x] Pagination (functional)
+- [x] Search filter (functional)
 
 ### 4. Create Journal Entry
 
@@ -147,14 +147,15 @@ Recommend: Keep current design but add manual entry support for adjustments.
 
 ---
 
-## Test Files to Create
+## Test Files
 
-1. `JournalEntryListTest.java` - List display and filtering
-2. `JournalEntryCreateTest.java` - Create entry scenarios
-3. `JournalEntryEditTest.java` - Edit draft scenarios
-4. `JournalEntryPostTest.java` - Post and validation scenarios
-5. `JournalEntryVoidTest.java` - Void scenarios
-6. `JournalEntryValidationTest.java` - Balance and field validation
+1. `JournalEntryListTest.java` - List display and filtering ✅ (20 tests)
+2. `JournalListPage.java` - Page object for list tests ✅
+3. `JournalEntryCreateTest.java` - Create entry scenarios (TODO)
+4. `JournalEntryEditTest.java` - Edit draft scenarios (TODO)
+5. `JournalEntryPostTest.java` - Post and validation scenarios (TODO)
+6. `JournalEntryVoidTest.java` - Void scenarios (TODO)
+7. `JournalEntryValidationTest.java` - Balance and field validation (TODO)
 
 ---
 

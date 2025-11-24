@@ -34,6 +34,38 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
             @Param("endDate") LocalDate endDate);
 
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
+           "j.account.id = :accountId AND t.status = 'POSTED' AND " +
+           "j.journalDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY j.journalDate, j.journalNumber")
+    Page<JournalEntry> findPostedEntriesByAccountAndDateRangePaged(
+            @Param("accountId") UUID accountId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable);
+
+    @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
+           "j.account.id = :accountId AND t.status = 'POSTED' AND " +
+           "j.journalDate BETWEEN :startDate AND :endDate AND " +
+           "(LOWER(j.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(j.journalNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(j.referenceNumber) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY j.journalDate, j.journalNumber")
+    Page<JournalEntry> findPostedEntriesByAccountAndDateRangeAndSearchPaged(
+            @Param("accountId") UUID accountId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("SELECT COUNT(j) FROM JournalEntry j JOIN j.transaction t WHERE " +
+           "j.account.id = :accountId AND t.status = 'POSTED' AND " +
+           "j.journalDate BETWEEN :startDate AND :endDate")
+    long countPostedEntriesByAccountAndDateRange(
+            @Param("accountId") UUID accountId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "t.status = 'POSTED' AND j.journalDate BETWEEN :startDate AND :endDate " +
            "ORDER BY j.journalDate, j.journalNumber")
     Page<JournalEntry> findAllPostedEntriesByDateRange(

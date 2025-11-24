@@ -94,6 +94,92 @@ public class JournalEntryService {
         );
     }
 
+    public GeneralLedgerPagedData getGeneralLedgerPaged(
+            UUID accountId, LocalDate startDate, LocalDate endDate,
+            String search, Pageable pageable) {
+
+        ChartOfAccount account = chartOfAccountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+
+        // Calculate opening balance (same as before)
+        BigDecimal openingDebit = journalEntryRepository.sumDebitBeforeDate(accountId, startDate);
+        BigDecimal openingCredit = journalEntryRepository.sumCreditBeforeDate(accountId, startDate);
+
+        BigDecimal openingBalance;
+        if (account.getNormalBalance() == NormalBalance.DEBIT) {
+            openingBalance = openingDebit.subtract(openingCredit);
+        } else {
+            openingBalance = openingCredit.subtract(openingDebit);
+        }
+
+        // Get paginated entries
+        Page<JournalEntry> entriesPage;
+        if (search != null && !search.isBlank()) {
+            entriesPage = journalEntryRepository.findPostedEntriesByAccountAndDateRangeAndSearchPaged(
+                    accountId, startDate, endDate, search, pageable);
+        } else {
+            entriesPage = journalEntryRepository.findPostedEntriesByAccountAndDateRangePaged(
+                    accountId, startDate, endDate, pageable);
+        }
+
+        // For running balance, we need to calculate the balance up to the start of this page
+        // Get all entries before the current page to calculate starting balance
+        BigDecimal pageStartBalance = openingBalance;
+        if (pageable.getPageNumber() > 0) {
+            // Get all entries before the current page
+            List<JournalEntry> priorEntries = journalEntryRepository
+                    .findPostedEntriesByAccountAndDateRange(accountId, startDate, endDate);
+
+            int skipCount = (int) pageable.getOffset();
+            for (int i = 0; i < Math.min(skipCount, priorEntries.size()); i++) {
+                JournalEntry entry = priorEntries.get(i);
+                if (account.getNormalBalance() == NormalBalance.DEBIT) {
+                    pageStartBalance = pageStartBalance.add(entry.getDebitAmount()).subtract(entry.getCreditAmount());
+                } else {
+                    pageStartBalance = pageStartBalance.subtract(entry.getDebitAmount()).add(entry.getCreditAmount());
+                }
+            }
+        }
+
+        // Build line items with running balance
+        BigDecimal runningBalance = pageStartBalance;
+        List<LedgerLineItem> lineItems = new ArrayList<>();
+
+        for (JournalEntry entry : entriesPage.getContent()) {
+            if (account.getNormalBalance() == NormalBalance.DEBIT) {
+                runningBalance = runningBalance.add(entry.getDebitAmount()).subtract(entry.getCreditAmount());
+            } else {
+                runningBalance = runningBalance.subtract(entry.getDebitAmount()).add(entry.getCreditAmount());
+            }
+            lineItems.add(new LedgerLineItem(entry, runningBalance));
+        }
+
+        // Calculate totals for the entire date range (not just current page)
+        BigDecimal totalDebit = journalEntryRepository.sumDebitByAccountAndDateRange(accountId, startDate, endDate);
+        BigDecimal totalCredit = journalEntryRepository.sumCreditByAccountAndDateRange(accountId, startDate, endDate);
+
+        BigDecimal closingBalance;
+        if (account.getNormalBalance() == NormalBalance.DEBIT) {
+            closingBalance = openingBalance.add(totalDebit).subtract(totalCredit);
+        } else {
+            closingBalance = openingBalance.subtract(totalDebit).add(totalCredit);
+        }
+
+        return new GeneralLedgerPagedData(
+                account,
+                openingBalance,
+                totalDebit,
+                totalCredit,
+                closingBalance,
+                lineItems,
+                entriesPage.getNumber(),
+                entriesPage.getTotalPages(),
+                entriesPage.getTotalElements(),
+                entriesPage.hasNext(),
+                entriesPage.hasPrevious()
+        );
+    }
+
     public record GeneralLedgerData(
             ChartOfAccount account,
             BigDecimal openingBalance,
@@ -101,6 +187,20 @@ public class JournalEntryService {
             BigDecimal totalCredit,
             BigDecimal closingBalance,
             List<LedgerLineItem> entries
+    ) {}
+
+    public record GeneralLedgerPagedData(
+            ChartOfAccount account,
+            BigDecimal openingBalance,
+            BigDecimal totalDebit,
+            BigDecimal totalCredit,
+            BigDecimal closingBalance,
+            List<LedgerLineItem> entries,
+            int currentPage,
+            int totalPages,
+            long totalElements,
+            boolean hasNext,
+            boolean hasPrevious
     ) {}
 
     public record LedgerLineItem(
@@ -253,7 +353,7 @@ public class JournalEntryService {
     /**
      * Find all entries by journal number.
      */
-    public List<JournalEntry> findByJournalNumber(String journalNumber) {
+    public List<JournalEntry> findAllByJournalNumber(String journalNumber) {
         return journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
     }
 
