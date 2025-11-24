@@ -110,8 +110,11 @@ public class ReportService {
         List<BalanceSheetItem> liabilityItems = calculateBalanceSheetItems(liabilityAccounts, periodStart, asOfDate);
         List<BalanceSheetItem> equityItems = calculateBalanceSheetItems(equityAccounts, periodStart, asOfDate);
 
+        // Contra-assets (CREDIT normal balance like Accumulated Depreciation) reduce total assets
         BigDecimal totalAssets = assetItems.stream()
-                .map(BalanceSheetItem::balance)
+                .map(item -> item.account().getNormalBalance() == NormalBalance.CREDIT
+                        ? item.balance().negate()
+                        : item.balance())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalLiabilities = liabilityItems.stream()
@@ -123,10 +126,17 @@ public class ReportService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         LocalDate fiscalYearStart = asOfDate.withDayOfYear(1);
+
+        // Calculate prior year retained earnings (all net income before current fiscal year)
+        IncomeStatementReport priorYearsIncome = generateIncomeStatement(
+                LocalDate.of(1900, 1, 1), fiscalYearStart.minusDays(1));
+        BigDecimal retainedEarnings = priorYearsIncome.netIncome();
+
+        // Calculate current year earnings
         IncomeStatementReport incomeStatement = generateIncomeStatement(fiscalYearStart, asOfDate);
         BigDecimal currentYearEarnings = incomeStatement.netIncome();
 
-        totalEquity = totalEquity.add(currentYearEarnings);
+        totalEquity = totalEquity.add(retainedEarnings).add(currentYearEarnings);
 
         return new BalanceSheetReport(asOfDate, assetItems, liabilityItems, equityItems,
                 totalAssets, totalLiabilities, totalEquity, currentYearEarnings);
