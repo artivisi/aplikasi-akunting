@@ -13,12 +13,15 @@ public class AccountFormPage {
     private static final String ACCOUNT_CODE_INPUT = "#accountCode";
     private static final String ACCOUNT_NAME_INPUT = "#accountName";
     private static final String ACCOUNT_TYPE_SELECT = "#accountType";
+    private static final String PARENT_SELECT = "#parentId";
     private static final String NORMAL_BALANCE_DEBIT = "input[name='normalBalance'][value='DEBIT']";
     private static final String NORMAL_BALANCE_CREDIT = "input[name='normalBalance'][value='CREDIT']";
     private static final String IS_HEADER_CHECKBOX = "#isHeader";
     private static final String PERMANENT_CHECKBOX = "#permanent";
     private static final String DESCRIPTION_TEXTAREA = "#description";
     private static final String SAVE_BUTTON = "#btn-simpan";
+    private static final String VALIDATION_ERROR_BOX = ".bg-red-50";
+    private static final String DUPLICATE_CODE_ERROR = ".bg-red-50";
 
     public AccountFormPage(Page page, String baseUrl) {
         this.page = page;
@@ -115,5 +118,58 @@ public class AccountFormPage {
 
     public void clickSave() {
         page.click(SAVE_BUTTON);
+    }
+
+    // Additional assertions for form fields
+    public void assertAccountCodeInputEmpty() {
+        assertThat(page.locator(ACCOUNT_CODE_INPUT)).hasValue("");
+    }
+
+    public void assertAccountNameInputEmpty() {
+        assertThat(page.locator(ACCOUNT_NAME_INPUT)).hasValue("");
+    }
+
+    public void assertNormalBalanceRadiosVisible() {
+        assertThat(page.locator(NORMAL_BALANCE_DEBIT)).isVisible();
+        assertThat(page.locator(NORMAL_BALANCE_CREDIT)).isVisible();
+    }
+
+    public void assertDescriptionTextareaVisible() {
+        assertThat(page.locator(DESCRIPTION_TEXTAREA)).isVisible();
+    }
+
+    public void assertParentSelectVisible() {
+        assertThat(page.locator(PARENT_SELECT)).isVisible();
+    }
+
+    // Validation error assertions
+    public void assertValidationErrorVisible() {
+        assertThat(page.locator(VALIDATION_ERROR_BOX)).isVisible();
+    }
+
+    public void assertAccountCodeErrorVisible(String errorMessage) {
+        assertThat(page.locator(ACCOUNT_CODE_INPUT + " + p")).containsText(errorMessage);
+    }
+
+    public void assertAccountNameErrorVisible(String errorMessage) {
+        assertThat(page.locator(ACCOUNT_NAME_INPUT + " + p")).containsText(errorMessage);
+    }
+
+    public void assertAccountTypeErrorVisible(String errorMessage) {
+        assertThat(page.locator(ACCOUNT_TYPE_SELECT + " + p")).containsText(errorMessage);
+    }
+
+    public void assertNormalBalanceErrorVisible(String errorMessage) {
+        // Normal balance error is displayed after the radio button container as a <p> tag
+        assertThat(page.locator("p.text-red-600:has-text(\"" + errorMessage + "\")")).isVisible();
+    }
+
+    public void assertDuplicateCodeErrorVisible() {
+        assertThat(page.locator(VALIDATION_ERROR_BOX)).isVisible();
+    }
+
+    // Parent account selection
+    public void selectParentAccount(String parentLabel) {
+        page.selectOption(PARENT_SELECT, new com.microsoft.playwright.options.SelectOption().setLabel(parentLabel));
     }
 }

@@ -120,7 +120,7 @@
             </div>
 
             <!-- Children (recursive) -->
-            <div x-show="expanded" x-collapse th:if="${!#lists.isEmpty(account.children)}">
+            <div x-show="expanded" x-cloak th:if="${!#lists.isEmpty(account.children)}">
                 <th:block th:each="child : ${account.children}">
                     <div th:replace="~{accounts/fragments :: accountRow(account=${child}, level=${level + 1})}"></div>
                 </th:block>
