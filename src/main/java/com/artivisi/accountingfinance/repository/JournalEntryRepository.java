@@ -81,16 +81,16 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
            "WHERE j.account.id = :accountId AND t.status = 'POSTED' AND j.journalDate < :date")
     BigDecimal sumCreditBeforeDate(@Param("accountId") UUID accountId, @Param("date") LocalDate date);
 
-    @Query("SELECT COALESCE(SUM(j.debitAmount), 0) FROM JournalEntry j JOIN j.transaction t " +
-           "WHERE j.account.id = :accountId AND t.status = 'POSTED' AND " +
+    @Query("SELECT COALESCE(SUM(j.debitAmount), 0) FROM JournalEntry j " +
+           "WHERE j.account.id = :accountId AND j.status = 'POSTED' AND " +
            "j.journalDate BETWEEN :startDate AND :endDate")
     BigDecimal sumDebitByAccountAndDateRange(
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT COALESCE(SUM(j.creditAmount), 0) FROM JournalEntry j JOIN j.transaction t " +
-           "WHERE j.account.id = :accountId AND t.status = 'POSTED' AND " +
+    @Query("SELECT COALESCE(SUM(j.creditAmount), 0) FROM JournalEntry j " +
+           "WHERE j.account.id = :accountId AND j.status = 'POSTED' AND " +
            "j.journalDate BETWEEN :startDate AND :endDate")
     BigDecimal sumCreditByAccountAndDateRange(
             @Param("accountId") UUID accountId,

@@ -17,40 +17,67 @@ Validate journal entries and provide financial output. Item is only checked when
 
 ## TODO List
 
-### 0. Test Data Preparation
+### 0. Test Data Preparation ✅
 
 Test data via Flyway test-only migration (`src/test/resources/db/testmigration/V901__report_test_data.sql`).
 
 **Setup:**
-- [ ] Configure Flyway to include test migration location in test profile
-- [ ] Create `V901__report_test_data.sql` with comprehensive test data
+- [x] Configure Flyway to include test migration location in test profile
+- [x] Create `V901__report_test_data.sql` with comprehensive test data
 
 **Test Data Requirements:**
-- [ ] Journal entries across multiple months (Jan-Dec 2024)
-- [ ] Entries for all account types (Asset, Liability, Equity, Revenue, Expense)
-- [ ] Mix of POSTED and VOID entries (verify VOID excluded from calculations)
-- [ ] Multiple entries per account (for running balance verification)
-- [ ] Balanced entries (debit = credit per journal)
+- [x] Journal entries across multiple months (Jan-Jun 2024)
+- [x] Entries for all account types (Asset, Liability, Equity, Revenue, Expense)
+- [x] Mix of POSTED and VOID entries (verify VOID excluded from calculations)
+- [x] Multiple entries per account (for running balance verification)
+- [x] Balanced entries (debit = credit per journal)
+- [x] DRAFT entry (should also be excluded from calculations)
 
-**Sample Transactions:**
-```
-Jan 2024:
-- Initial capital injection: Cash (D) 100,000,000 / Equity (C) 100,000,000
-- Equipment purchase: Equipment (D) 20,000,000 / Cash (C) 20,000,000
-
-Feb-Nov 2024:
-- Monthly consulting revenue: Cash (D) / Revenue (C) varying amounts
-- Monthly expenses: Expense accounts (D) / Cash (C)
-- One VOID entry (to verify exclusion)
-
-Dec 2024:
-- Year-end entries for closing verification
-```
+**Test Transactions (V901):**
+| Journal | Date | Description | Debit Account | Credit Account | Amount |
+|---------|------|-------------|---------------|----------------|--------|
+| JRN-2024-0001 | 2024-01-05 | Capital injection | Cash | Modal Disetor | 100,000,000 |
+| JRN-2024-0002 | 2024-01-15 | Equipment purchase | Peralatan Komputer | Bank BCA | 20,000,000 |
+| JRN-2024-0003 | 2024-02-10 | Consulting revenue | Bank BCA | Pendapatan Konsultasi | 15,000,000 |
+| JRN-2024-0004 | 2024-02-28 | Salary expense | Beban Gaji | Cash | 8,000,000 |
+| JRN-2024-0005 | 2024-03-15 | Development revenue | Bank BCA | Pendapatan Development | 25,000,000 |
+| JRN-2024-0006 | 2024-03-20 | Cloud expense | Beban Server | Bank BCA | 2,000,000 |
+| JRN-2024-0007 | 2024-04-05 | Consulting revenue | Bank BCA | Pendapatan Konsultasi | 12,000,000 |
+| JRN-2024-0008 | 2024-04-15 | **VOID** | Beban Gaji | Cash | 5,000,000 |
+| JRN-2024-0009 | 2024-05-31 | Salary expense | Beban Gaji | Cash | 8,000,000 |
+| JRN-2024-0010 | 2024-06-10 | Equipment on credit | Peralatan Komputer | Hutang Usaha | 10,000,000 |
+| JRN-2024-0011 | 2024-06-30 | Depreciation | Beban Penyusutan | Akum. Penyusutan | 1,000,000 |
+| JRN-2024-0012 | 2024-06-30 | **DRAFT** | Beban Gaji | Cash | 3,000,000 |
 
 **Expected Totals (for test assertions):**
-- [ ] Document expected Trial Balance totals
-- [ ] Document expected Balance Sheet totals (A = L + E)
-- [ ] Document expected Income Statement totals (Revenue - Expense)
+
+Trial Balance (as of 2024-06-30, POSTED only):
+| Account | Debit | Credit |
+|---------|-------|--------|
+| Cash (1.1.01) | 100,000,000 | 16,000,000 |
+| Bank BCA (1.1.02) | 52,000,000 | 22,000,000 |
+| Peralatan Komputer (1.2.01) | 30,000,000 | 0 |
+| Akum. Peny. Peralatan (1.2.02) | 0 | 1,000,000 |
+| Hutang Usaha (2.1.01) | 0 | 10,000,000 |
+| Modal Disetor (3.1.01) | 0 | 100,000,000 |
+| Pendapatan Jasa Konsultasi (4.1.01) | 0 | 27,000,000 |
+| Pendapatan Jasa Development (4.1.02) | 0 | 25,000,000 |
+| Beban Gaji (5.1.01) | 16,000,000 | 0 |
+| Beban Server & Cloud (5.1.02) | 2,000,000 | 0 |
+| Beban Penyusutan (5.1.07) | 1,000,000 | 0 |
+| **TOTAL** | **201,000,000** | **201,000,000** |
+
+Balance Sheet (as of 2024-06-30):
+- Total Assets = 143,000,000 (Cash 84M + BCA 30M + Peralatan 30M - Akum 1M)
+- Total Liabilities = 10,000,000
+- Total Equity = 100,000,000
+- Net Income = 33,000,000 (Revenue 52M - Expense 19M)
+- **Assets = Liabilities + Equity + Net Income** ✓
+
+Income Statement (2024-01-01 to 2024-06-30):
+- Total Revenue = 52,000,000 (Konsultasi 27M + Development 25M)
+- Total Expense = 19,000,000 (Gaji 16M + Server 2M + Penyusutan 1M)
+- **Net Income = 33,000,000**
 
 ---
 

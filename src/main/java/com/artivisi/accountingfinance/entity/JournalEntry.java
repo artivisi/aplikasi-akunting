@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "journal_entries")
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor
