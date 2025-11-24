@@ -145,6 +145,23 @@ public class ChartOfAccountsPage {
         page.click("#btn-edit-" + id);
     }
 
+    public void clickDeleteAccount(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        page.onceDialog(dialog -> dialog.accept());
+        page.click("#btn-delete-" + id);
+    }
+
+    public void clickDeleteAccountAndCancel(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        page.onceDialog(dialog -> dialog.dismiss());
+        page.click("#btn-delete-" + id);
+    }
+
+    public void assertAccountRowNotVisible(String accountCode) {
+        String id = accountCodeToId(accountCode);
+        assertThat(page.locator("#account-row-" + id)).not().isVisible();
+    }
+
     // Helper method to convert account code to ID format
     // "1.1.01" -> "1-1-01"
     private String accountCodeToId(String accountCode) {

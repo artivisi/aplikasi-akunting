@@ -53,14 +53,14 @@ Complete COA features with functional tests. Item is only checked when verified 
 - [x] Cannot change account type if account has children
 - [ ] Cannot change account type if account has transactions (future)
 
-### 4. Delete Account
-- [ ] Delete button visible on leaf accounts only
-- [ ] Click delete removes account from database
-- [ ] Deleted account disappears from list
-- [ ] Success message displayed after deletion
-- [ ] Cannot delete account with children
+### 4. Delete Account (Soft Delete)
+- [x] Delete button visible on leaf accounts only
+- [x] Click delete sets deleted_at timestamp (soft delete)
+- [x] Deleted account disappears from list
+- [x] Success message displayed after deletion
+- [x] Cannot delete account with children
 - [ ] Cannot delete account with transactions (future)
-- [ ] Confirmation dialog before delete
+- [x] Confirmation dialog before delete
 
 ### 5. Activate/Deactivate Account
 - [ ] Deactivate button visible on active accounts
@@ -101,7 +101,7 @@ Complete COA features with functional tests. Item is only checked when verified 
 
 1. ~~`ChartOfAccountCreateTest.java` - Create account scenarios~~ ✅ Done
 2. ~~`ChartOfAccountEditTest.java` - Edit account scenarios~~ ✅ Done
-3. `ChartOfAccountDeleteTest.java` - Delete/soft delete scenarios
+3. ~~`ChartOfAccountDeleteTest.java` - Delete/soft delete scenarios~~ ✅ Done
 4. `ChartOfAccountStatusTest.java` - Activate/deactivate scenarios
 5. `ChartOfAccountValidationTest.java` - Validation error scenarios
 
