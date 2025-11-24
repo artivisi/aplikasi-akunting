@@ -129,6 +129,41 @@
 - Not suitable for manufacturers
 - Limited to simple buy/sell model
 
+### 31. Amortization Schedules ✓
+**Decision:** Automated period-end adjustments for prepaid expenses, unearned revenue, and intangible assets
+
+**Date:** 2025-11-24
+
+**Rationale:**
+- Period-end adjustments are routine, predictable, and repetitive
+- Reduces manual work for recurring adjustments
+- Prevents users from forgetting period-end entries
+- Ensures accurate financial statements
+
+**Scope:**
+| Type | Indonesian | Auto? |
+|------|------------|-------|
+| Prepaid Expense | Beban Dibayar Dimuka | ✅ Automated |
+| Unearned Revenue | Pendapatan Diterima Dimuka | ✅ Automated |
+| Intangible Asset | Aset Tak Berwujud | ✅ Automated |
+| Accrued Revenue | Pendapatan Akrual | ✅ Automated |
+| Fixed Asset Depreciation | Penyusutan Aset Tetap | ❌ Phase 5 (needs fiscal regulation) |
+| Complex/One-off Adjustments | Penyesuaian Lainnya | ❌ Manual (templates/journal entry) |
+
+**Implementation Notes:**
+- User creates schedule manually (no auto-detection from transactions)
+- Toggle for auto-post vs draft (user chooses during creation)
+- Monthly batch job generates journal entries
+- Last period absorbs rounding difference
+- Schedule tracks progress (completed_periods, remaining_amount)
+
+**Trade-offs:**
+- Additional module to implement
+- Users must set up schedules manually
+- Worth it: Significantly reduces period-end workload
+
+---
+
 ### 30. Cloud Hosting ✓
 **Decision:** Local Indonesian providers or cheap global (DigitalOcean), avoid big cloud unless requested
 

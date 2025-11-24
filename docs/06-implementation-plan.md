@@ -68,12 +68,17 @@ The features are ordered to maximize code reuse and enable incremental validatio
                     │                      │              │               │
                     └── Core service ──────┴── Validates ─┴── Generates ──┘
                         reused by all         the engine     journal entries
+
+                    │
+                    └─────────────────────────────────────→ 1.9 Amortization Schedules
+                                                               (auto-generates adjustments)
 ```
 
 - **Journal Entries first:** Core double-entry engine. Users who understand accounting can use immediately.
 - **Reports second:** Validates journal entries work correctly. Trial Balance = ultimate double-entry test.
 - **Templates third:** Recipes that generate journal entries. Reuses JournalEntryService.
 - **Transactions fourth:** User-friendly abstraction. Reuses TemplateExecutionEngine → JournalEntryService.
+- **Amortization Schedules:** Automates period-end adjustments. Reuses JournalEntryService directly.
 
 ---
 
@@ -288,7 +293,84 @@ user_template_preferences (id, user_id, template_id, is_favorite, last_used_at, 
 
 ---
 
-**Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports
+### 1.9 Amortization Schedules
+
+**Purpose:** Automate recurring period-end adjustments for prepaid expenses, unearned revenue, and intangible assets.
+
+**Dependencies:** COA (1.1), JournalEntryService (1.2)
+
+**Note:** Fixed asset depreciation handled separately in Phase 5 (requires fiscal regulation consultation).
+
+#### Schedule Types
+| Type | Indonesian | Example |
+|------|------------|---------|
+| `prepaid_expense` | Beban Dibayar Dimuka | Insurance, rent, software licenses |
+| `unearned_revenue` | Pendapatan Diterima Dimuka | Advance payments, retainer fees |
+| `intangible_asset` | Aset Tak Berwujud | Website, software development |
+| `accrued_revenue` | Pendapatan Akrual | Monthly retainer billed quarterly |
+
+#### Features
+- [ ] Amortization schedule entity
+- [ ] Amortization entries entity (tracks each period)
+- [ ] Schedule CRUD UI
+- [ ] Schedule list with filters (type, status)
+- [ ] Manual schedule creation (user-initiated, no auto-detection)
+- [ ] Auto-post toggle per schedule (user chooses during creation)
+- [ ] Monthly batch job (generates journal entries)
+- [ ] Period-end dashboard integration
+- [ ] Remaining balance display
+- [ ] Schedule completion handling
+- [ ] Rounding handling (last period absorbs difference)
+
+```sql
+-- V007: Amortization schedules
+amortization_schedules (id, schedule_type, code, name, description,
+    source_transaction_id, source_account_id, target_account_id,
+    total_amount, period_amount, start_date, end_date, frequency, total_periods,
+    completed_periods, amortized_amount, remaining_amount,
+    auto_post, post_day, status, created_by, created_at, updated_at)
+
+amortization_entries (id, schedule_id, period_number, period_start, period_end,
+    amount, journal_entry_id, status, generated_at, posted_at)
+```
+
+#### Journal Patterns
+| Type | Debit | Credit |
+|------|-------|--------|
+| Prepaid Expense | Beban (target) | Dibayar Dimuka (source) |
+| Unearned Revenue | Diterima Dimuka (source) | Pendapatan (target) |
+| Intangible Asset | Beban Amortisasi (target) | Akum. Amortisasi (source) |
+| Accrued Revenue | Piutang Pendapatan (source) | Pendapatan (target) |
+
+#### Workflow
+1. User creates schedule: name, type, accounts, amount, start/end date, frequency, auto-post toggle
+2. System calculates: period_amount = total_amount ÷ total_periods
+3. Monthly batch job creates journal entries (draft or posted based on auto_post setting)
+4. User reviews and posts drafts (if auto_post = false)
+5. System marks schedule completed when all periods done
+
+#### COA Additions (in V002 seed data)
+```
+Assets:
+1.1.05  Asuransi Dibayar Dimuka
+1.1.06  Sewa Dibayar Dimuka
+1.1.07  Langganan Dibayar Dimuka
+1.1.08  Piutang Pendapatan
+1.3     Aset Tak Berwujud (header)
+1.3.01  Website & Software
+1.3.02  Akum. Amortisasi Aset Tak Berwujud
+
+Liabilities:
+2.1.04  Pendapatan Diterima Dimuka
+
+Expenses:
+5.1.08  Beban Asuransi
+5.1.09  Beban Amortisasi
+```
+
+---
+
+**Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments
 
 **Note:** Document attachment deferred to Phase 2. Store receipts in external folder during MVP.
 
@@ -298,6 +380,8 @@ user_template_preferences (id, user_id, template_id, is_favorite, last_used_at, 
 - [ ] Trial Balance balances (validates double-entry correctness)
 - [ ] Can generate Balance Sheet and Income Statement
 - [ ] Can export reports to PDF/Excel
+- [ ] Can set up amortization schedules for prepaid/unearned items
+- [ ] Period-end adjustments auto-generated from schedules
 - [ ] Basic user management
 - [ ] Database backup via pg_dump (no documents yet)
 - [ ] Production deployment tested
@@ -306,10 +390,11 @@ user_template_preferences (id, user_id, template_id, is_favorite, last_used_at, 
 
 | Component | Created In | Reused By |
 |-----------|------------|-----------|
-| JournalEntryService | 1.2 | 1.3, 1.4, 1.5 |
-| AccountBalanceCalculator | 1.3 | 1.4 (validation), 1.5 (display) |
+| JournalEntryService | 1.2 | 1.3, 1.4, 1.5, 1.9 |
+| AccountBalanceCalculator | 1.3 | 1.4 (validation), 1.5 (display), 1.9 (remaining balance) |
 | TemplateExecutionEngine | 1.4 | 1.5 |
 | ChartOfAccountRepository | 1.1 | All subsequent features |
+| AmortizationScheduleService | 1.9 | Period-end dashboard |
 
 ---
 
