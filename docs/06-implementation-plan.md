@@ -133,7 +133,7 @@ JournalEntryService {
 
 ---
 
-### 1.3 Basic Reports
+### 1.3 Basic Reports ✅
 
 **Purpose:** Validate journal entries, provide financial output. Trial Balance is the ultimate test of double-entry correctness.
 
@@ -141,13 +141,13 @@ JournalEntryService {
 
 **Reused by:** Account balance display, validation checks
 
-- [ ] Trial Balance report
-- [ ] General Ledger report (all entries per account)
-- [ ] Balance Sheet (Laporan Posisi Keuangan)
-- [ ] Income Statement (Laporan Laba Rugi)
-- [ ] Date range filtering
-- [ ] PDF export
-- [ ] Excel export
+- [x] Trial Balance report
+- [x] General Ledger report (all entries per account)
+- [x] Balance Sheet (Laporan Posisi Keuangan)
+- [x] Income Statement (Laporan Laba Rugi)
+- [x] Date range filtering
+- [x] PDF export
+- [x] Excel export
 
 **Key Service Methods (reused later):**
 ```java
@@ -162,7 +162,7 @@ AccountBalanceCalculator {
 
 ---
 
-### 1.4 Journal Templates (Basic)
+### 1.4 Journal Templates (Basic) ✅
 
 **Purpose:** Predefined recipes for common transactions. Generates journal entries automatically.
 
@@ -170,15 +170,15 @@ AccountBalanceCalculator {
 
 **Reused by:** Transactions (1.5)
 
-- [ ] Template entity with versioning
-- [ ] Template lines entity (account mappings, debit/credit rules)
-- [ ] Category field (income, expense, payment, receipt, transfer)
-- [ ] Cash flow category field (operating, investing, financing)
-- [ ] System templates for IT Services (preloaded via migration)
-- [ ] Template CRUD UI
-- [ ] Template list with category filter
-- [ ] Template detail view
-- [ ] Template execution (generates journal entry)
+- [x] Template entity with versioning
+- [x] Template lines entity (account mappings, debit/credit rules)
+- [x] Category field (income, expense, payment, receipt, transfer)
+- [x] Cash flow category field (operating, investing, financing)
+- [x] System templates for IT Services (preloaded via migration)
+- [x] Template CRUD UI
+- [x] Template list with category filter
+- [x] Template detail view
+- [x] Template execution (generates journal entry)
 
 ```sql
 -- V004: Journal templates
