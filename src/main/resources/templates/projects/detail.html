@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Detail Proyek</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Detail Proyek</h1>
+
+    <div layout:fragment="content" class="space-y-6" data-testid="project-detail">
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900" th:text="${project.name}">Project Name</h2>
+                <p class="text-sm text-gray-500 font-mono" th:text="${project.code}">PRJ-001</p>
+                <p class="text-sm text-gray-500 mt-1" th:if="${project.client}">
+                    Klien: <a th:href="@{/clients/{id}(id=${project.client.id})}" class="text-primary-600 hover:underline" th:text="${project.client.name}">Client Name</a>
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span th:if="${project.status.name() == 'ACTIVE'}" class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800" th:text="${project.status.indonesianName}">Aktif</span>
+                <span th:if="${project.status.name() == 'COMPLETED'}" class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800" th:text="${project.status.indonesianName}">Selesai</span>
+                <span th:if="${project.status.name() == 'ARCHIVED'}" class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-600" th:text="${project.status.indonesianName}">Diarsipkan</span>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Proyek</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Nilai Kontrak</p>
+                    <p class="font-medium" th:text="${project.contractValue != null ? 'Rp ' + #numbers.formatDecimal(project.contractValue, 0, 'COMMA', 0, 'POINT') : '-'}">Rp 0</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Budget</p>
+                    <p class="font-medium" th:text="${project.budgetAmount != null ? 'Rp ' + #numbers.formatDecimal(project.budgetAmount, 0, 'COMMA', 0, 'POINT') : '-'}">Rp 0</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Progress</p>
+                    <p class="font-medium" th:text="${project.progressPercent + '%'}">0%</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Tanggal Mulai</p>
+                    <p class="font-medium" th:text="${project.startDate != null ? #temporals.format(project.startDate, 'dd MMM yyyy') : '-'}">01 Jan 2025</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Tanggal Selesai</p>
+                    <p class="font-medium" th:text="${project.endDate != null ? #temporals.format(project.endDate, 'dd MMM yyyy') : '-'}">31 Dec 2025</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Dibuat</p>
+                    <p class="font-medium" th:text="${#temporals.format(project.createdAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</p>
+                </div>
+                <div class="md:col-span-3" th:if="${project.description}">
+                    <p class="text-gray-500">Deskripsi</p>
+                    <p class="font-medium" th:text="${project.description}">Deskripsi</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Milestones -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Milestone</h3>
+            </div>
+            <div class="p-6">
+                <p th:if="${project.milestones.empty}" class="text-gray-500 text-center py-4">Belum ada milestone</p>
+                <div th:unless="${project.milestones.empty}" class="space-y-3">
+                    <div th:each="milestone : ${project.milestones}"
+                         class="flex items-center justify-between p-3 border rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-sm font-medium" th:text="${milestone.sequence}">1</span>
+                            <div>
+                                <p class="font-medium" th:text="${milestone.name}">Milestone Name</p>
+                                <p class="text-sm text-gray-500" th:text="${milestone.weightPercent + '% dari total'}">25% dari total</p>
+                            </div>
+                        </div>
+                        <span th:if="${milestone.status.name() == 'COMPLETED'}" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Selesai</span>
+                        <span th:if="${milestone.status.name() == 'IN_PROGRESS'}" class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Proses</span>
+                        <span th:if="${milestone.status.name() == 'PENDING'}" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <a th:href="@{/projects}" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                &larr; Kembali ke Daftar
+            </a>
+            <div class="flex items-center gap-2">
+                <a th:href="@{/projects/{id}/edit(id=${project.id})}"
+                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Edit
+                </a>
+                <form th:if="${project.status.name() == 'ACTIVE'}"
+                      th:action="@{/projects/{id}/complete(id=${project.id})}"
+                      method="post" class="inline"
+                      onsubmit="return confirm('Tandai proyek ini selesai?')">
+                    <button type="submit" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                        Selesaikan
+                    </button>
+                </form>
+                <form th:if="${project.status.name() == 'ACTIVE'}"
+                      th:action="@{/projects/{id}/archive(id=${project.id})}"
+                      method="post" class="inline"
+                      onsubmit="return confirm('Arsipkan proyek ini?')">
+                    <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                        Arsipkan
+                    </button>
+                </form>
+                <form th:if="${project.status.name() != 'ACTIVE'}"
+                      th:action="@{/projects/{id}/reactivate(id=${project.id})}"
+                      method="post" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                        Aktifkan Kembali
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

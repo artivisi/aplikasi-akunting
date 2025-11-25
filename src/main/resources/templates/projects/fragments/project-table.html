@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<body>
+    <div th:fragment="table" id="project-table">
+        <table class="min-w-full divide-y divide-gray-200" data-testid="project-table">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klien</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai Kontrak</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="project : ${projects}" th:data-id="${project.id}" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-mono text-gray-900" th:text="${project.code}">PRJ-001</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{/projects/{id}(id=${project.id})}" class="text-sm font-medium text-primary-600 hover:text-primary-900" th:text="${project.name}">Project Name</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm text-gray-600" th:text="${project.client?.name} ?: '-'">Client Name</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <span class="text-sm text-gray-900" th:text="${project.contractValue != null ? #numbers.formatDecimal(project.contractValue, 0, 'COMMA', 0, 'POINT') : '-'}">1,000,000</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span th:if="${project.status.name() == 'ACTIVE'}" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800" th:text="${project.status.indonesianName}">Aktif</span>
+                        <span th:if="${project.status.name() == 'COMPLETED'}" class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800" th:text="${project.status.indonesianName}">Selesai</span>
+                        <span th:if="${project.status.name() == 'ARCHIVED'}" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600" th:text="${project.status.indonesianName}">Diarsipkan</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <a th:href="@{/projects/{id}(id=${project.id})}" class="text-primary-600 hover:text-primary-900 text-sm">Detail</a>
+                    </td>
+                </tr>
+                <tr th:if="${projects.empty}">
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        Tidak ada proyek
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div th:if="${!projects.empty}" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+                Menampilkan <span th:text="${projects.number * projects.size + 1}">1</span> -
+                <span th:text="${projects.number * projects.size + projects.numberOfElements}">10</span>
+                dari <span th:text="${projects.totalElements}">100</span> proyek
+            </div>
+            <div class="flex items-center gap-2">
+                <a th:if="${projects.hasPrevious()}"
+                   th:href="@{/projects(page=${projects.number - 1}, status=${status}, clientId=${clientId}, search=${search})}"
+                   class="px-3 py-1 border rounded text-sm hover:bg-gray-50">Sebelumnya</a>
+                <a th:if="${projects.hasNext()}"
+                   th:href="@{/projects(page=${projects.number + 1}, status=${status}, clientId=${clientId}, search=${search})}"
+                   class="px-3 py-1 border rounded text-sm hover:bg-gray-50">Selanjutnya</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

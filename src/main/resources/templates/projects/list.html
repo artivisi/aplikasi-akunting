@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Daftar Proyek</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Daftar Proyek</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           id="search-input"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Cari proyek..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           hx-get="/projects"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#project-table"
+                           hx-swap="outerHTML"
+                           hx-include="[name='status'],[name='clientId']">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Filter Status -->
+                <select name="status"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/projects"
+                        hx-trigger="change"
+                        hx-target="#project-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'],[name='clientId']">
+                    <option value="" th:selected="${status == null}">Semua Status</option>
+                    <option th:each="s : ${statuses}"
+                            th:value="${s.name()}"
+                            th:text="${s.indonesianName}"
+                            th:selected="${status == s}">Status</option>
+                </select>
+
+                <!-- Filter Client -->
+                <select name="clientId"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/projects"
+                        hx-trigger="change"
+                        hx-target="#project-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'],[name='status']">
+                    <option value="" th:selected="${clientId == null}">Semua Klien</option>
+                    <option th:each="client : ${clients}"
+                            th:value="${client.id}"
+                            th:text="${client.name}"
+                            th:selected="${clientId == client.id}">Klien</option>
+                </select>
+            </div>
+
+            <a th:href="@{/projects/new}"
+               id="btn-new-project"
+               class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Proyek Baru
+            </a>
+        </div>
+
+        <!-- Project Table -->
+        <div class="bg-white rounded-lg shadow">
+            <th:block th:insert="~{projects/fragments/project-table :: table}"/>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Daftar Klien</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Daftar Klien</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           id="search-input"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Cari klien..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           hx-get="/clients"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#client-table"
+                           hx-swap="outerHTML"
+                           hx-include="[name='active']">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Filter Status -->
+                <select name="active"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/clients"
+                        hx-trigger="change"
+                        hx-target="#client-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search']">
+                    <option value="" th:selected="${active == null}">Semua Status</option>
+                    <option value="true" th:selected="${active == true}">Aktif</option>
+                    <option value="false" th:selected="${active == false}">Nonaktif</option>
+                </select>
+            </div>
+
+            <a th:href="@{/clients/new}"
+               id="btn-new-client"
+               class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Klien Baru
+            </a>
+        </div>
+
+        <!-- Client Table -->
+        <div class="bg-white rounded-lg shadow">
+            <th:block th:insert="~{clients/fragments/client-table :: table}"/>
+        </div>
+    </div>
+</body>
+</html>

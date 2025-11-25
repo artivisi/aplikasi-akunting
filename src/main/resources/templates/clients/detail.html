@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Detail Klien</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Detail Klien</h1>
+
+    <div layout:fragment="content" class="space-y-6" data-testid="client-detail">
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900" th:text="${client.name}">PT ABC</h2>
+                <p class="text-sm text-gray-500 font-mono" th:text="${client.code}">CLT-001</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span th:if="${client.active}" class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Aktif</span>
+                <span th:unless="${client.active}" class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-600">Nonaktif</span>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Klien</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Kontak</p>
+                    <p class="font-medium" th:text="${client.contactPerson} ?: '-'">John Doe</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Email</p>
+                    <p class="font-medium" th:text="${client.email} ?: '-'">john@example.com</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Telepon</p>
+                    <p class="font-medium" th:text="${client.phone} ?: '-'">021-1234567</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Dibuat</p>
+                    <p class="font-medium" th:text="${#temporals.format(client.createdAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</p>
+                </div>
+                <div class="md:col-span-2" th:if="${client.address}">
+                    <p class="text-gray-500">Alamat</p>
+                    <p class="font-medium" th:text="${client.address}">Alamat</p>
+                </div>
+                <div class="md:col-span-2" th:if="${client.notes}">
+                    <p class="text-gray-500">Catatan</p>
+                    <p class="font-medium" th:text="${client.notes}">Catatan</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <a th:href="@{/clients}" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                &larr; Kembali ke Daftar
+            </a>
+            <div class="flex items-center gap-2">
+                <a th:href="@{/clients/{id}/edit(id=${client.id})}"
+                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Edit
+                </a>
+                <form th:if="${client.active}"
+                      th:action="@{/clients/{id}/deactivate(id=${client.id})}"
+                      method="post" class="inline"
+                      onsubmit="return confirm('Nonaktifkan klien ini?')">
+                    <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                        Nonaktifkan
+                    </button>
+                </form>
+                <form th:unless="${client.active}"
+                      th:action="@{/clients/{id}/activate(id=${client.id})}"
+                      method="post" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                        Aktifkan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Projects List (placeholder for later) -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-medium text-gray-900">Proyek</h3>
+            </div>
+            <div class="p-6">
+                <p th:if="${client.projects.empty}" class="text-gray-500 text-center py-4">Belum ada proyek</p>
+                <div th:unless="${client.projects.empty}" class="space-y-2">
+                    <a th:each="project : ${client.projects}"
+                       th:href="@{/projects/{id}(id=${project.id})}"
+                       class="block p-3 border rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="font-medium" th:text="${project.name}">Project Name</span>
+                                <span class="text-sm text-gray-500 ml-2" th:text="${project.code}">PRJ-001</span>
+                            </div>
+                            <span th:class="'px-2 py-1 text-xs font-medium rounded-full ' + (${project.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : (${project.status.name() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'))"
+                                  th:text="${project.status.indonesianName}">Aktif</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

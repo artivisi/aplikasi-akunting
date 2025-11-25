@@ -61,6 +61,11 @@ public class JournalEntry extends BaseEntity {
     private Transaction transaction;
 
     @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_project")
+    private Project project;
+
+    @JsonIgnore
     @NotNull(message = "Account is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account", nullable = false)
