@@ -12,7 +12,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.2 Journal Entries: ✅ Complete
   - 1.3 Basic Reports: ✅ Complete
   - 1.4 Journal Templates: ✅ Complete
-  - 1.5 Transactions: ⏳ In Progress - See `TODO-TRANSACTIONS.md`
+  - 1.6 Formula Support: ⏳ In Progress - See `TODO-FORMULA-SUPPORT.md`
+  - 1.5 Transactions: ⏳ Pending (after 1.6) - See `TODO-TRANSACTIONS.md`
   - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -20,6 +21,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Purpose | Location |
 |---------|----------|
 | Implementation Plan | `docs/06-implementation-plan.md` |
+| Formula Support TODO | `TODO-FORMULA-SUPPORT.md` |
 | Transactions TODO | `TODO-TRANSACTIONS.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
@@ -64,10 +66,12 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Next: Transactions (1.5) per implementation plan:
-1. Convert UI templates from mockup to dynamic Thymeleaf
-2. Wire form submissions to REST API
-3. Fix page objects to match actual HTML
-4. Write Playwright functional tests
+Next: Formula Support (1.6) per implementation plan:
+1. Create unified `FormulaEvaluator` service using SpEL
+2. Create `FormulaContext` record for transaction data
+3. Update `TemplateExecutionEngine` to use FormulaEvaluator
+4. Update `TransactionService` to use FormulaEvaluator
+5. Write unit tests for all formula patterns
+6. Add test templates with formulas (PPN, PPh 23)
 
-**Note:** Backend is complete (entities, service, controller). Frontend templates are mockups with hardcoded data.
+**Why 1.6 before 1.5:** Two inconsistent formula implementations exist (regex vs SpEL). Unifying them first prevents preview ≠ post bugs in Transactions.

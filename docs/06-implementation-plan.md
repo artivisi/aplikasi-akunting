@@ -63,24 +63,25 @@ audit_logs
 The features are ordered to maximize code reuse and enable incremental validation:
 
 ```
-1.1 COA ✅ → 1.2 Journal Entries ✅ → 1.3 Reports → 1.4 Templates → 1.5 Transactions
-                    │                      │              │               │
-                    │                      │              │               │
-                    └── Core service ──────┴── Validates ─┴── Generates ──┘
-                        reused by all         the engine     journal entries
+1.1 COA ✅ → 1.2 Journal Entries ✅ → 1.3 Reports ✅ → 1.4 Templates ✅ → 1.6 Formula → 1.5 Transactions
+                    │                      │               │                │              │
+                    │                      │               │                │              │
+                    └── Core service ──────┴── Validates ──┴── Generates ───┴── Unified ───┘
+                        reused by all         the engine      journal entries   formula eval
 
-                    │                                                      │
-                    ├─────────────────────────────────────→ 1.9 Amortization Schedules
-                    │                                          (auto-generates adjustments)
+                    │                                                                       │
+                    ├──────────────────────────────────────────→ 1.9 Amortization Schedules
+                    │                                                (auto-generates adjustments)
                     │
-                    └─────────────────────────────────────→ 1.10 Project Tracking
-                                                               (profitability analysis)
+                    └──────────────────────────────────────────→ 1.10 Project Tracking
+                                                                     (profitability analysis)
 ```
 
 - **Journal Entries first:** Core double-entry engine. Users who understand accounting can use immediately.
 - **Reports second:** Validates journal entries work correctly. Trial Balance = ultimate double-entry test.
 - **Templates third:** Recipes that generate journal entries. Reuses JournalEntryService.
-- **Transactions fourth:** User-friendly abstraction. Reuses TemplateExecutionEngine → JournalEntryService.
+- **Formula Support before Transactions:** Unifies formula evaluation. Prevents preview ≠ post bugs.
+- **Transactions last:** User-friendly abstraction. Uses unified FormulaEvaluator via TemplateExecutionEngine.
 - **Amortization Schedules:** Automates period-end adjustments. Reuses JournalEntryService directly.
 - **Project Tracking:** Tags transactions by project. Reuses AccountBalanceCalculator for profitability.
 
@@ -265,19 +266,65 @@ User fills transaction form
 
 ---
 
-### 1.6 Formula Support (Optional for MVP)
+### 1.6 Formula Support
 
-**Purpose:** Enable percentage calculations in templates (e.g., 11% PPN).
+**Purpose:** Enable percentage calculations in templates (e.g., 11% PPN, 2% PPh 23).
 
-**Dependencies:** Templates (1.4)
+**Dependencies:** Templates (1.4), Transactions (1.5)
 
-**Note:** Basic templates with fixed amounts work without formulas. Implement when tax templates needed (Phase 2).
+**Reference:** Decision #13 in `docs/99-decisions-and-questions.md`
 
-- [ ] SpEL integration with SimpleEvaluationContext
-- [ ] FormulaContext class for transaction data
-- [ ] Percentage calculations (100%, 11%, etc.)
-- [ ] Simple arithmetic expressions
-- [ ] Formula validation on template save
+#### Current State Analysis
+
+**Issue: Two inconsistent formula implementations exist:**
+
+| Location | Approach | Limitations |
+|----------|----------|-------------|
+| `TemplateExecutionEngine.evaluateFormula()` | Regex-based | Cannot handle conditionals, limited patterns |
+| `TransactionService.calculateAmount()` | SpEL-based | No FormulaContext, just string replacement |
+
+**Neither follows Decision #13 properly:**
+- Decision #13 specifies: SpEL with `SimpleEvaluationContext.forReadOnlyDataBinding()`
+- Decision #13 specifies: `FormulaContext` root object with transaction data
+- Decision #13 example: `amount > 2000000 ? amount * 0.02 : 0` (conditional)
+
+**Current templates:** All 12 system templates use only `'amount'` - no actual formula testing.
+
+#### Implementation Tasks
+
+**1. Unify Formula Evaluation (per Decision #13)**
+- [ ] Create `FormulaContext` record with transaction data (amount, rate, etc.)
+- [ ] Create unified `FormulaEvaluator` service using SpEL
+- [ ] Use `SimpleEvaluationContext.forReadOnlyDataBinding()`
+- [ ] Remove regex-based evaluation from `TemplateExecutionEngine`
+- [ ] Update `TransactionService` to use unified evaluator
+
+**2. Formula Validation**
+- [ ] Validate formula syntax on template save
+- [ ] Return clear error messages for invalid formulas
+- [ ] Test formula against sample data before saving
+
+**3. Supported Formula Patterns**
+- [ ] Simple: `amount` (pass-through)
+- [ ] Percentage: `amount * 0.11` (PPN 11%)
+- [ ] Division: `amount / 1.11` (extract DPP from gross)
+- [ ] Conditional: `amount > 2000000 ? amount * 0.02 : 0` (PPh 23 threshold)
+- [ ] Constants: `1000000` (fixed amount)
+
+**4. Test Templates with Formulas**
+- [ ] Add test template: "Penjualan dengan PPN" (amount * 0.11 for PPN line)
+- [ ] Add test template: "PPh 23 Jasa" (conditional 2% withholding)
+- [ ] Seed via test migration (V9xx) for functional testing
+
+**5. Unit Tests**
+- [ ] `FormulaEvaluatorTest` - test all formula patterns
+- [ ] Test invalid formula handling
+- [ ] Test edge cases (zero, negative, large numbers)
+
+**6. Functional Tests**
+- [ ] Create template with percentage formula
+- [ ] Execute template, verify calculated amounts
+- [ ] Preview shows correct calculated values
 
 ---
 
@@ -570,6 +617,7 @@ When milestone is marked complete:
 ### MVP Checklist for Go Live
 - [ ] Can create manual journal entries (for accountants)
 - [ ] Can create transactions using templates (for business users)
+- [ ] Templates support formula calculations (percentages, conditionals)
 - [ ] Trial Balance balances (validates double-entry correctness)
 - [ ] Can generate Balance Sheet and Income Statement
 - [ ] Can export reports to PDF/Excel
@@ -594,6 +642,7 @@ When milestone is marked complete:
 | JournalEntryService | 1.2 | 1.3, 1.4, 1.5, 1.9, 1.10 |
 | AccountBalanceCalculator | 1.3 | 1.4 (validation), 1.5 (display), 1.9 (remaining balance), 1.10 (profitability) |
 | TemplateExecutionEngine | 1.4 | 1.5 |
+| FormulaEvaluator | 1.6 | 1.4 (template execution), 1.5 (transaction posting) |
 | ChartOfAccountRepository | 1.1 | All subsequent features |
 | AmortizationScheduleService | 1.9 | Period-end dashboard |
 | ProjectService | 1.10 | Transaction form, Profitability reports |
