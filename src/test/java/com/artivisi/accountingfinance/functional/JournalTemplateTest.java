@@ -393,4 +393,67 @@ class JournalTemplateTest extends PlaywrightTestBase {
             templateDetailPage.assertVersionVisible();
         }
     }
+
+    @Nested
+    @DisplayName("1.4.12 Formula Calculations")
+    class FormulaCalculationTests {
+
+        // Template IDs from V903 test migration
+        private static final String PPN_SALE_TEMPLATE_ID = "f0000000-0000-0000-0000-000000000011";
+        private static final String PPH23_TEMPLATE_ID = "f0000000-0000-0000-0000-000000000013";
+
+        @Test
+        @DisplayName("Should preview PPN template with calculated amounts")
+        void shouldPreviewPpnTemplateWithCalculatedAmounts() {
+            templateExecutePage.navigate(PPN_SALE_TEMPLATE_ID);
+
+            // Input gross amount: 11,100,000
+            templateExecutePage.fillAmount("11100000");
+            templateExecutePage.fillDescription("Test PPN calculation");
+
+            // Preview should show calculated values
+            templateExecutePage.clickPreviewButton();
+
+            // Expected: DPP = 10,000,000, PPN = 1,100,000
+            templateExecutePage.assertPreviewTableVisible();
+            templateExecutePage.assertTotalDebitText("11.100.000");
+            templateExecutePage.assertTotalCreditText("11.100.000");
+        }
+
+        @Test
+        @DisplayName("Should preview PPh 23 template with amount above threshold")
+        void shouldPreviewPph23TemplateAboveThreshold() {
+            templateExecutePage.navigate(PPH23_TEMPLATE_ID);
+
+            // Input 5,000,000 (above 2,000,000 threshold)
+            templateExecutePage.fillAmount("5000000");
+            templateExecutePage.fillDescription("Test PPh 23 above threshold");
+
+            templateExecutePage.clickPreviewButton();
+
+            // Expected: PPh 23 = 100,000 (2% of 5,000,000)
+            // Total Debit = 5,000,000, Total Credit = 4,900,000 + 100,000 = 5,000,000
+            templateExecutePage.assertPreviewTableVisible();
+            templateExecutePage.assertTotalDebitText("5.000.000");
+            templateExecutePage.assertTotalCreditText("5.000.000");
+        }
+
+        @Test
+        @DisplayName("Should preview PPh 23 template with amount below threshold")
+        void shouldPreviewPph23TemplateBelowThreshold() {
+            templateExecutePage.navigate(PPH23_TEMPLATE_ID);
+
+            // Input 1,500,000 (below 2,000,000 threshold)
+            templateExecutePage.fillAmount("1500000");
+            templateExecutePage.fillDescription("Test PPh 23 below threshold");
+
+            templateExecutePage.clickPreviewButton();
+
+            // Expected: PPh 23 = 0 (below threshold)
+            // Total Debit = 1,500,000, Total Credit = 1,500,000 + 0 = 1,500,000
+            templateExecutePage.assertPreviewTableVisible();
+            templateExecutePage.assertTotalDebitText("1.500.000");
+            templateExecutePage.assertTotalCreditText("1.500.000");
+        }
+    }
 }

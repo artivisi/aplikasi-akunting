@@ -168,36 +168,8 @@
                             </button>
                         </div>
 
-                        <!-- Help for formulas -->
-                        <div x-data="{ open: false }" class="mb-4">
-                            <button type="button" @click="open = !open"
-                                    class="flex items-center text-xs text-gray-600 hover:text-gray-900 transition-colors">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Panduan Formula
-                            </button>
-                            <div x-show="open" x-collapse class="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                                    <div>
-                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount</code>
-                                        <p class="text-blue-700 mt-0.5">Jumlah input</p>
-                                    </div>
-                                    <div>
-                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount * 0.11</code>
-                                        <p class="text-blue-700 mt-0.5">PPN 11%</p>
-                                    </div>
-                                    <div>
-                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount / 1.11</code>
-                                        <p class="text-blue-700 mt-0.5">DPP dari harga inklusif</p>
-                                    </div>
-                                    <div>
-                                        <code class="bg-blue-100 px-1 rounded text-blue-800">amount - ppn</code>
-                                        <p class="text-blue-700 mt-0.5">Reference variabel lain</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Help for formulas - comprehensive documentation -->
+                        <div th:replace="~{fragments/formula-help :: formula-help}"></div>
 
                         <!-- Journal Lines Table -->
                         <div class="border border-gray-200 rounded-lg overflow-hidden">

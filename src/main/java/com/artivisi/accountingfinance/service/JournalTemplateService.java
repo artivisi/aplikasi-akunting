@@ -29,6 +29,7 @@ public class JournalTemplateService {
     private final JournalTemplateRepository journalTemplateRepository;
     private final JournalTemplateLineRepository journalTemplateLineRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
+    private final FormulaEvaluator formulaEvaluator;
 
     public List<JournalTemplate> findAll() {
         return journalTemplateRepository.findByActiveOrderByTemplateNameAsc(true);
@@ -181,6 +182,16 @@ public class JournalTemplateService {
 
         if (!hasDebit || !hasCredit) {
             throw new IllegalArgumentException("Template must have at least one debit and one credit line");
+        }
+
+        // Validate formulas for each line
+        for (int i = 0; i < template.getLines().size(); i++) {
+            JournalTemplateLine line = template.getLines().get(i);
+            List<String> errors = formulaEvaluator.validate(line.getFormula());
+            if (!errors.isEmpty()) {
+                throw new IllegalArgumentException(
+                        String.format("Invalid formula on line %d: %s", i + 1, String.join(", ", errors)));
+            }
         }
     }
 }
