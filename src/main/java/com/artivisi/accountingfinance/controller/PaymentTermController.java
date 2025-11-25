@@ -146,9 +146,9 @@ public class PaymentTermController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            invoiceService.createFromPaymentTerm(id);
+            var invoice = invoiceService.createFromPaymentTerm(id);
             redirectAttributes.addFlashAttribute("successMessage", "Invoice berhasil dibuat dari termin pembayaran");
-            return "redirect:/projects/" + projectId;
+            return "redirect:/invoices/" + invoice.getId();
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/projects/" + projectId;

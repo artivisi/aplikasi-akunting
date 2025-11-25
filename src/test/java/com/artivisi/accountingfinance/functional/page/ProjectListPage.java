@@ -52,4 +52,9 @@ public class ProjectListPage {
     public boolean hasProjectWithName(String name) {
         return page.locator(PROJECT_TABLE + " tbody tr:has-text('" + name + "')").count() > 0;
     }
+
+    public void clickFirstProjectLink() {
+        page.locator(PROJECT_TABLE + " tbody tr[data-id] a").first().click();
+        page.waitForLoadState();
+    }
 }

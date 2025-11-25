@@ -46,6 +46,10 @@ public class ProjectFormPage {
         page.selectOption(CLIENT_SELECT, new com.microsoft.playwright.options.SelectOption().setLabel(clientName));
     }
 
+    public void selectClientByIndex(int index) {
+        page.selectOption(CLIENT_SELECT, new com.microsoft.playwright.options.SelectOption().setIndex(index));
+    }
+
     public void fillContractValue(String value) {
         page.fill(CONTRACT_VALUE_INPUT, value);
     }

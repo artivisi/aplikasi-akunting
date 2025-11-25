@@ -15,6 +15,7 @@ public class TransactionListPage {
     private static final String NEW_TRANSACTION_BUTTON = "#btn-transaksi-baru";
     private static final String FILTER_STATUS = "#filter-status";
     private static final String FILTER_CATEGORY = "#filter-category";
+    private static final String FILTER_PROJECT = "#filter-project";
     private static final String FILTER_BUTTON = "#btn-filter";
     private static final String SEARCH_INPUT = "#search-transaksi";
     private static final String TRANSACTION_ROW = "[data-testid^='trx-row-']";
@@ -92,6 +93,19 @@ public class TransactionListPage {
         page.selectOption(FILTER_CATEGORY, category);
         page.click(FILTER_BUTTON);
         page.waitForLoadState();
+    }
+
+    public void filterByProject(String projectId) {
+        page.selectOption(FILTER_PROJECT, projectId);
+        page.click(FILTER_BUTTON);
+        // Wait for URL to contain the projectId parameter
+        page.waitForURL("**/transactions**projectId=" + projectId + "**",
+            new com.microsoft.playwright.Page.WaitForURLOptions().setTimeout(10000));
+        page.waitForLoadState();
+    }
+
+    public boolean hasProjectFilter() {
+        return page.locator(FILTER_PROJECT).count() > 0;
     }
 
     public void searchTransaction(String query) {

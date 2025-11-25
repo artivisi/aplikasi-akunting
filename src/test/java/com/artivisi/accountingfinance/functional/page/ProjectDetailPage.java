@@ -133,4 +133,38 @@ public class ProjectDetailPage {
         page.waitForLoadState();
         return page.locator(MILESTONE_ITEM + ":has-text('" + milestoneName + "')").locator("span.rounded-full").last().textContent().trim();
     }
+
+    // Payment Term methods
+    private static final String PAYMENT_TERMS_SECTION = "[data-testid='payment-terms-section']";
+    private static final String NEW_PAYMENT_TERM_BUTTON = "#btn-new-payment-term";
+    private static final String PAYMENT_TERM_ITEM = "[data-payment-term-id]";
+
+    public boolean hasPaymentTermsSection() {
+        return page.locator(PAYMENT_TERMS_SECTION).count() > 0;
+    }
+
+    public boolean hasNewPaymentTermButton() {
+        return page.locator(NEW_PAYMENT_TERM_BUTTON).count() > 0;
+    }
+
+    public void clickNewPaymentTermButton() {
+        page.click(NEW_PAYMENT_TERM_BUTTON);
+        page.waitForLoadState();
+    }
+
+    public int getPaymentTermCount() {
+        return page.locator(PAYMENT_TERM_ITEM).count();
+    }
+
+    public boolean hasPaymentTermWithName(String name) {
+        page.waitForLoadState();
+        return page.locator(PAYMENT_TERM_ITEM + ":has-text('" + name + "')").count() > 0;
+    }
+
+    public void clickGenerateInvoiceButton(String termName) {
+        page.waitForLoadState();
+        page.onceDialog(dialog -> dialog.accept());
+        page.locator(PAYMENT_TERM_ITEM + ":has-text('" + termName + "')").locator("button[title='Buat Invoice']").click();
+        page.waitForLoadState();
+    }
 }

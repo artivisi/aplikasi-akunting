@@ -54,11 +54,14 @@ public class ProjectPaymentTermService {
 
         paymentTerm.setProject(project);
 
-        // Link milestone if specified
+        // Link milestone if specified, otherwise set to null
         if (paymentTerm.getMilestone() != null && paymentTerm.getMilestone().getId() != null) {
             ProjectMilestone milestone = milestoneRepository.findById(paymentTerm.getMilestone().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Milestone not found"));
             paymentTerm.setMilestone(milestone);
+        } else {
+            // Clear transient milestone to prevent persistence errors
+            paymentTerm.setMilestone(null);
         }
 
         return paymentTermRepository.save(paymentTerm);

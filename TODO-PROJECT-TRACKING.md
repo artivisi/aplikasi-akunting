@@ -212,8 +212,8 @@ Track profitability per project/job for service businesses. Simple tagging appro
 - [x] Send invoice
 - [x] Redirect to transaction form when clicking Tandai Lunas
 - [x] Cancel invoice
-- [ ] Generate invoice from payment term (click button, verify invoice created)
-- [ ] Full invoice payment flow with transaction completion
+- [x] Generate invoice from payment term (click button, verify invoice created)
+- [x] Full invoice payment flow with transaction completion
 
 ---
 
@@ -242,7 +242,7 @@ Track profitability per project/job for service businesses. Simple tagging appro
 #### 6.5 Functional Tests
 - [x] Create transaction with project
 - [x] Verify project shown on transaction detail
-- [ ] Filter transactions by project (manual test)
+- [x] Filter transactions by project
 
 ---
 

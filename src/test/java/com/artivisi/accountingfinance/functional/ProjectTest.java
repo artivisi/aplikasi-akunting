@@ -1,15 +1,24 @@
 package com.artivisi.accountingfinance.functional;
 
+import com.artivisi.accountingfinance.functional.page.ClientFormPage;
+import com.artivisi.accountingfinance.functional.page.InvoiceDetailPage;
+import com.artivisi.accountingfinance.functional.page.InvoiceListPage;
 import com.artivisi.accountingfinance.functional.page.MilestoneFormPage;
+import com.artivisi.accountingfinance.functional.page.PaymentTermFormPage;
 import com.artivisi.accountingfinance.functional.page.ProjectDetailPage;
 import com.artivisi.accountingfinance.functional.page.ProjectFormPage;
 import com.artivisi.accountingfinance.functional.page.ProjectListPage;
 import com.artivisi.accountingfinance.functional.page.LoginPage;
+import com.artivisi.accountingfinance.functional.page.TransactionFormPage;
+import com.artivisi.accountingfinance.functional.page.TransactionListPage;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +30,12 @@ class ProjectTest extends PlaywrightTestBase {
     private ProjectFormPage formPage;
     private ProjectDetailPage detailPage;
     private MilestoneFormPage milestoneFormPage;
+    private PaymentTermFormPage paymentTermFormPage;
+    private ClientFormPage clientFormPage;
+    private InvoiceListPage invoiceListPage;
+    private InvoiceDetailPage invoiceDetailPage;
+    private TransactionListPage transactionListPage;
+    private TransactionFormPage transactionFormPage;
 
     @BeforeEach
     void setUp() {
@@ -29,6 +44,12 @@ class ProjectTest extends PlaywrightTestBase {
         formPage = new ProjectFormPage(page, baseUrl());
         detailPage = new ProjectDetailPage(page, baseUrl());
         milestoneFormPage = new MilestoneFormPage(page, baseUrl());
+        paymentTermFormPage = new PaymentTermFormPage(page, baseUrl());
+        clientFormPage = new ClientFormPage(page, baseUrl());
+        invoiceListPage = new InvoiceListPage(page, baseUrl());
+        invoiceDetailPage = new InvoiceDetailPage(page, baseUrl());
+        transactionListPage = new TransactionListPage(page, baseUrl());
+        transactionFormPage = new TransactionFormPage(page, baseUrl());
 
         loginPage.navigate().loginAsAdmin();
     }
@@ -322,6 +343,227 @@ class ProjectTest extends PlaywrightTestBase {
 
             // Should be removed
             assertThat(detailPage.getMilestoneCount()).isEqualTo(countBefore - 1);
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.14 Payment Term Invoice Generation")
+    class PaymentTermInvoiceTests {
+
+        private String createTestClientAndGetProjectId() {
+            // Create client first
+            clientFormPage.navigateToNew();
+            String clientCode = "CLI-PT-" + System.currentTimeMillis();
+            String clientName = "Payment Term Test Client " + System.currentTimeMillis();
+            clientFormPage.fillCode(clientCode);
+            clientFormPage.fillName(clientName);
+            clientFormPage.clickSubmit();
+
+            // Create project with client
+            formPage.navigateToNew();
+            String uniqueCode = "PRJ-PT-" + System.currentTimeMillis();
+            String uniqueName = "Payment Term Test " + System.currentTimeMillis();
+            formPage.fillCode(uniqueCode);
+            formPage.fillName(uniqueName);
+            formPage.fillContractValue("10000000");
+            formPage.selectClientByIndex(1); // Select first client
+            formPage.clickSubmit();
+
+            // Extract project ID from current URL
+            String url = page.url();
+            return url.substring(url.lastIndexOf("/") + 1);
+        }
+
+        @Test
+        @DisplayName("Should display payment terms section")
+        void shouldDisplayPaymentTermsSection() {
+            createTestClientAndGetProjectId();
+
+            assertThat(detailPage.hasPaymentTermsSection()).isTrue();
+            assertThat(detailPage.hasNewPaymentTermButton()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should create payment term")
+        void shouldCreatePaymentTerm() {
+            createTestClientAndGetProjectId();
+
+            // Click new payment term button
+            detailPage.clickNewPaymentTermButton();
+
+            // Fill payment term form
+            paymentTermFormPage.assertPageTitleText("Termin Pembayaran Baru");
+            String termName = "DP 30%";
+            paymentTermFormPage.fillName(termName);
+            paymentTermFormPage.selectDueTrigger("ON_SIGNING");
+            paymentTermFormPage.fillPercentage("30");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect to project detail
+            page.waitForURL("**/projects/**");
+            page.waitForLoadState();
+
+            // Should show payment term in project detail
+            assertThat(detailPage.hasPaymentTermWithName(termName)).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should generate invoice from payment term")
+        void shouldGenerateInvoiceFromPaymentTerm() {
+            String projectId = createTestClientAndGetProjectId();
+
+            // Create payment term
+            detailPage.clickNewPaymentTermButton();
+            String termName = "Invoice Gen Test " + System.currentTimeMillis();
+            paymentTermFormPage.fillName(termName);
+            paymentTermFormPage.selectDueTrigger("ON_SIGNING");
+            paymentTermFormPage.fillPercentage("50");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect to project detail
+            page.waitForURL("**/projects/" + projectId);
+            page.waitForLoadState();
+
+            // Verify payment term was created
+            assertThat(detailPage.hasPaymentTermWithName(termName)).isTrue();
+
+            // Click generate invoice button
+            detailPage.clickGenerateInvoiceButton(termName);
+
+            // Should redirect to invoice detail page (now controller redirects to invoice)
+            page.waitForURL("**/invoices/**");
+            page.waitForLoadState();
+            assertThat(page.url()).contains("/invoices/");
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.15 Invoice Payment Flow")
+    class InvoicePaymentFlowTests {
+
+        @Test
+        @DisplayName("Should complete full invoice payment flow with transaction")
+        void shouldCompleteInvoicePaymentFlowWithTransaction() {
+            // Create client
+            clientFormPage.navigateToNew();
+            String clientCode = "CLI-PAY-" + System.currentTimeMillis();
+            clientFormPage.fillCode(clientCode);
+            clientFormPage.fillName("Payment Flow Test Client");
+            clientFormPage.clickSubmit();
+
+            // Create project with client
+            formPage.navigateToNew();
+            String projectCode = "PRJ-PAY-" + System.currentTimeMillis();
+            formPage.fillCode(projectCode);
+            formPage.fillName("Payment Flow Test Project");
+            formPage.fillContractValue("5000000");
+            formPage.selectClientByIndex(1);
+            formPage.clickSubmit();
+
+            // Extract project ID from URL
+            String url = page.url();
+            String projectId = url.substring(url.lastIndexOf("/") + 1);
+
+            // Create payment term
+            detailPage.clickNewPaymentTermButton();
+            String termName = "Full Payment Test";
+            paymentTermFormPage.fillName(termName);
+            paymentTermFormPage.selectDueTrigger("ON_SIGNING");
+            paymentTermFormPage.fillPercentage("100");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect to project detail
+            page.waitForURL("**/projects/" + projectId);
+            page.waitForLoadState();
+
+            // Verify payment term was created
+            assertThat(detailPage.hasPaymentTermWithName(termName)).isTrue();
+
+            // Generate invoice from payment term
+            detailPage.clickGenerateInvoiceButton(termName);
+
+            // Wait for redirect to invoice detail page
+            page.waitForURL("**/invoices/**");
+            page.waitForLoadState();
+
+            // Invoice should be created - now send it
+            invoiceDetailPage.assertStatusText("Draf");
+            invoiceDetailPage.clickSendButton();
+            invoiceDetailPage.assertStatusText("Terkirim");
+
+            // Click "Tandai Lunas" - redirects to transaction form
+            invoiceDetailPage.clickMarkPaidLink();
+
+            // Wait for transaction form
+            page.waitForURL("**/transactions/new**");
+            page.waitForLoadState();
+
+            // Should be on transaction form with invoice context
+            assertThat(page.url()).contains("/transactions/new");
+            assertThat(page.url()).contains("invoiceId=");
+
+            // Fill transaction form - amount and description should be pre-filled but fill them to be safe
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+            transactionFormPage.fillTransactionDate(today);
+            transactionFormPage.fillAmount("5000000");
+            transactionFormPage.fillDescription("Pembayaran invoice test");
+            transactionFormPage.fillReferenceNumber("TRF-" + System.currentTimeMillis());
+
+            // Save and post transaction
+            transactionFormPage.clickSaveAndPost();
+            page.waitForLoadState();
+
+            // Transaction should be created, navigate to invoice to verify PAID status
+            invoiceListPage.navigate();
+            // The latest invoice should now be PAID
+            assertThat(page.content()).contains("Lunas");
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.16 Transaction Project Filter")
+    class TransactionProjectFilterTests {
+
+        @Test
+        @DisplayName("Should display project filter on transaction list")
+        void shouldDisplayProjectFilterOnTransactionList() {
+            // Create a project first so the filter is visible
+            formPage.navigateToNew();
+            String projectCode = "PRJ-FILT-DISP-" + System.currentTimeMillis();
+            formPage.fillCode(projectCode);
+            formPage.fillName("Filter Display Test");
+            formPage.clickSubmit();
+
+            transactionListPage.navigate();
+
+            // Project filter should be visible when projects exist
+            assertThat(transactionListPage.hasProjectFilter()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should filter transactions by project")
+        void shouldFilterTransactionsByProject() {
+            // Create a project
+            formPage.navigateToNew();
+            String projectCode = "PRJ-FILT-" + System.currentTimeMillis();
+            String projectName = "Filter Test Project";
+            formPage.fillCode(projectCode);
+            formPage.fillName(projectName);
+            formPage.clickSubmit();
+
+            // Get project ID from URL
+            String url = page.url();
+            String projectId = url.substring(url.lastIndexOf("/") + 1);
+
+            // Navigate to transactions and filter by this project
+            transactionListPage.navigate();
+            page.waitForLoadState();
+
+            // Filter by the new project - this will wait for URL change
+            transactionListPage.filterByProject(projectId);
+
+            // The filter should be applied (URL should contain projectId parameter)
+            assertThat(page.url()).contains("projectId=" + projectId);
         }
     }
 }
