@@ -7,31 +7,29 @@
     <title>Template Jurnal</title>
 </head>
 <body>
-    <h1 layout:fragment="page-title">Template Jurnal</h1>
+    <h1 id="page-title" layout:fragment="page-title">Template Jurnal</h1>
 
-    <div layout:fragment="content" class="h-full flex flex-col">
+    <div layout:fragment="content" class="h-full flex flex-col" data-testid="template-list">
         <!-- Header Actions -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 flex-shrink-0">
-            <!-- Filters Row -->
+            <!-- Category Filter -->
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Search -->
-                <div class="relative">
-                    <input type="text" placeholder="Cari template..."
-                           class="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                </div>
-
-                <!-- Favorites Toggle -->
-                <label class="flex items-center text-sm text-gray-600 cursor-pointer">
-                    <input type="checkbox" class="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                    Favorit saja
-                </label>
+                <a th:href="@{/templates}"
+                   th:classappend="${selectedCategory == null} ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                   class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors">
+                    Semua
+                </a>
+                <a th:each="cat : ${categories}"
+                   th:href="@{/templates(category=${cat.name()})}"
+                   th:classappend="${selectedCategory == cat.name()} ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                   th:text="${cat.name() == 'INCOME'} ? 'Pendapatan' : (${cat.name() == 'EXPENSE'} ? 'Pengeluaran' : (${cat.name() == 'PAYMENT'} ? 'Pembayaran' : (${cat.name() == 'RECEIPT'} ? 'Penerimaan' : (${cat.name() == 'TRANSFER'} ? 'Transfer' : 'Penyesuaian'))))"
+                   class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors">
+                    Category
+                </a>
             </div>
 
             <!-- Add Template Button -->
-            <a th:href="@{/templates/new}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+            <a th:href="@{/templates/new}" id="btn-new-template" data-testid="btn-new-template" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -39,543 +37,104 @@
             </a>
         </div>
 
-        <!-- Category Tabs -->
-        <div class="flex items-center space-x-1 mb-6 border-b border-gray-200 flex-shrink-0 overflow-x-auto">
-            <button class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 -mb-px">
-                Semua
-            </button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 -mb-px">
-                <span class="inline-flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                    Pendapatan
-                </span>
-            </button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 -mb-px">
-                <span class="inline-flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
-                    Pengeluaran
-                </span>
-            </button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 -mb-px">
-                <span class="inline-flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                    Pembayaran
-                </span>
-            </button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 -mb-px">
-                <span class="inline-flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-cyan-500 mr-2"></span>
-                    Penerimaan
-                </span>
-            </button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 -mb-px">
-                <span class="inline-flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
-                    Transfer
-                </span>
-            </button>
-        </div>
-
-        <!-- Recently Used Section -->
-        <div class="mb-6 flex-shrink-0">
-            <h2 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(templates)}" class="flex-1 flex items-center justify-center">
+            <div class="text-center">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                Terakhir Digunakan
-            </h2>
-            <div class="flex gap-3 overflow-x-auto pb-2">
-                <!-- Recent Template 1 -->
-                <a th:href="@{/transactions/new(templateId='income-consulting')}" class="flex-shrink-0 w-48 p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                        <span class="text-xs text-gray-400">3x minggu ini</span>
-                    </div>
-                    <p class="text-sm font-medium text-gray-900 truncate">Pendapatan Jasa Konsultasi</p>
-                    <p class="text-xs text-gray-500 mt-1">Terakhir: 2 jam lalu</p>
-                </a>
-
-                <!-- Recent Template 2 -->
-                <a th:href="@{/transactions/new(templateId='expense-server')}" class="flex-shrink-0 w-48 p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                        <span class="text-xs text-gray-400">2x minggu ini</span>
-                    </div>
-                    <p class="text-sm font-medium text-gray-900 truncate">Beban Server &amp; Cloud</p>
-                    <p class="text-xs text-gray-500 mt-1">Terakhir: kemarin</p>
-                </a>
-
-                <!-- Recent Template 3 -->
-                <a th:href="@{/transactions/new(templateId='transfer-bank')}" class="flex-shrink-0 w-48 p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                        <span class="text-xs text-gray-400">1x minggu ini</span>
-                    </div>
-                    <p class="text-sm font-medium text-gray-900 truncate">Transfer Antar Bank</p>
-                    <p class="text-xs text-gray-500 mt-1">Terakhir: 3 hari lalu</p>
+                <p class="text-gray-500">Belum ada template</p>
+                <a th:href="@{/templates/new}" class="mt-4 inline-flex items-center text-primary-600 hover:text-primary-700">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Buat Template Baru
                 </a>
             </div>
         </div>
 
         <!-- Templates Grid -->
-        <div class="flex-1 overflow-y-auto">
-            <!-- Income Templates Section -->
-            <div class="mb-8">
-                <h2 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                    Pendapatan
-                    <span class="ml-2 text-xs font-normal text-gray-400">3 template</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Template Card: Pendapatan Jasa Konsultasi -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Pendapatan Jasa Konsultasi</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-amber-400 hover:text-amber-500">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        <div th:unless="${#lists.isEmpty(templates)}" class="flex-1 overflow-y-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div th:each="template : ${templates}"
+                     class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                     data-testid="template-card">
+                    <div class="p-4">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center">
+                                <!-- Category Icon -->
+                                <span th:classappend="${template.category.name() == 'INCOME'} ? 'bg-green-100' :
+                                                      (${template.category.name() == 'EXPENSE'} ? 'bg-red-100' :
+                                                      (${template.category.name() == 'TRANSFER'} ? 'bg-purple-100' :
+                                                      (${template.category.name() == 'PAYMENT'} ? 'bg-blue-100' :
+                                                      (${template.category.name() == 'RECEIPT'} ? 'bg-cyan-100' : 'bg-amber-100'))))"
+                                      class="w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                    <svg th:classappend="${template.category.name() == 'INCOME'} ? 'text-green-600' :
+                                                         (${template.category.name() == 'EXPENSE'} ? 'text-red-600' :
+                                                         (${template.category.name() == 'TRANSFER'} ? 'text-purple-600' :
+                                                         (${template.category.name() == 'PAYMENT'} ? 'text-blue-600' :
+                                                         (${template.category.name() == 'RECEIPT'} ? 'text-cyan-600' : 'text-amber-600'))))"
+                                         class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
-                                </button>
-                            </div>
-
-                            <!-- Mini Journal Preview -->
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Pendapatan Konsultasi</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
                                 </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/income-consulting}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='income-consulting')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-900" th:text="${template.templateName}">Template Name</h3>
+                                    <p class="text-xs text-gray-500">
+                                        <span th:text="${template.cashFlowCategory != null} ? 'Cash Flow: ' + ${template.cashFlowCategory.name()} : ''">Cash Flow</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Favorite Star -->
+                            <span th:if="${template.isFavorite}" class="text-amber-400">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </span>
+                        </div>
+
+                        <!-- Mini Journal Preview -->
+                        <div class="bg-gray-50 rounded p-2 mb-3 text-xs" th:if="${template.lines != null and !template.lines.isEmpty()}">
+                            <div th:each="line, iterStat : ${template.lines}" th:if="${iterStat.index < 2}">
+                                <div class="flex justify-between text-gray-600 mb-1">
+                                    <span>
+                                        <span th:text="${line.position.name() == 'DEBIT'} ? 'D: ' : 'K: '">D:</span>
+                                        <span th:text="${line.account?.accountName}">Account</span>
+                                    </span>
+                                    <span class="font-mono" th:text="${line.formula != null} ? ${line.formula} : 'amount'">amount</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Template Card: Pendapatan Jasa Development -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Pendapatan Jasa Development</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        <div class="flex items-center justify-between">
+                            <!-- System Badge -->
+                            <span th:if="${template.isSystem}"
+                                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                Sistem
+                            </span>
+                            <span th:unless="${template.isSystem}"
+                                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                v<span th:text="${template.version}">1</span>
+                            </span>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-1">
+                                <a th:href="@{/templates/{id}(id=${template.id})}"
+                                   class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                                   title="Lihat Detail">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Pendapatan Development</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/income-development}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='income-development')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Template Card: Pendapatan Jasa Training -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Pendapatan Jasa Training</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                </a>
+                                <a th:href="@{/templates/{id}/execute(id=${template.id})}"
+                                   class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors"
+                                   title="Gunakan">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Pendapatan Training</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/income-training}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='income-training')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Expense Templates Section -->
-            <div class="mb-8">
-                <h2 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                    Pengeluaran
-                    <span class="ml-2 text-xs font-normal text-gray-400">5 template</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Template Card: Beban Server -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Beban Server &amp; Cloud</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-amber-400 hover:text-amber-500">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Beban Server</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/expense-server}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='expense-server')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Template Card: Beban Software -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Beban Software &amp; Lisensi</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Beban Software</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/expense-software}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='expense-software')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Template Card: Beban Gaji -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Beban Gaji</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: Operating</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Beban Gaji</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Bank/Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/expense-salary}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='expense-salary')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transfer Templates Section -->
-            <div class="mb-8">
-                <h2 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
-                    Transfer
-                    <span class="ml-2 text-xs font-normal text-gray-400">2 template</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Template Card: Transfer Antar Bank -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Transfer Antar Bank</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: -</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Bank Tujuan</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Bank Asal</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/transfer-bank}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='transfer-bank')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Template Card: Setor Kas ke Bank -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                        </svg>
-                                    </span>
-                                    <div>
-                                        <h3 class="text-sm font-semibold text-gray-900">Setor Kas ke Bank</h3>
-                                        <p class="text-xs text-gray-500">Cash Flow: -</p>
-                                    </div>
-                                </div>
-                                <button class="text-gray-300 hover:text-amber-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="bg-gray-50 rounded p-2 mb-3 text-xs">
-                                <div class="flex justify-between text-gray-600 mb-1">
-                                    <span>D: Bank</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>K: Kas</span>
-                                    <span class="font-mono">amount</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    Sistem
-                                </span>
-                                <div class="flex items-center space-x-1">
-                                    <a th:href="@{/templates/transfer-cash-bank}" class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    <a th:href="@{/transactions/new(templateId='transfer-cash-bank')}" class="p-1.5 text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors" title="Gunakan">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </a>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
