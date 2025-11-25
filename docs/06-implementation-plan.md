@@ -333,6 +333,36 @@ User fills transaction form
 
 ---
 
+### 1.7.5 HTMX Partial Rendering Optimization
+
+**Purpose:** Optimize existing pages to use HTMX partial rendering for better UX.
+
+**Dependencies:** All list pages (1.2, 1.4, 1.5, 1.7)
+
+**Reference:** `TODO-HTMX-OPTIMIZATION.md`
+
+#### Pages to Optimize
+| Page | Current Issue | HTMX Target |
+|------|---------------|-------------|
+| Template List | Full reload on search/filter | Swap grid only |
+| Journal List | Full reload on account/date/search | Swap ledger section |
+| Transaction List | Full reload + reload after actions | Swap table + inline row updates |
+| Dashboard KPIs | Not implemented | Load via HTMX fragments |
+
+#### Pattern
+1. Extract content area to Thymeleaf fragment
+2. Add HTMX attributes (hx-get, hx-target, hx-swap)
+3. Controller detects HX-Request header, returns fragment
+4. Use hx-push-url for bookmarkable URLs
+
+#### Implementation
+- [ ] Template List: search/filter partial rendering
+- [ ] Journal List: filters/pagination partial rendering
+- [ ] Transaction List: filters + inline post/delete
+- [ ] Dashboard KPIs: load via HTMX on page load
+
+---
+
 ### 1.8 Amortization Schedules
 
 **Purpose:** Automate recurring period-end adjustments for prepaid expenses, unearned revenue, and intangible assets.
@@ -388,6 +418,11 @@ amortization_entries (id, schedule_id, period_number, period_start, period_end,
 3. Monthly batch job creates journal entries (draft or posted based on auto_post setting)
 4. User reviews and posts drafts (if auto_post = false)
 5. System marks schedule completed when all periods done
+
+#### UI with HTMX
+- Schedule list: HTMX filters (type, status) - swap table without full reload
+- Schedule detail: HTMX for entry status updates (post draft entries inline)
+- Period-end dashboard: HTMX to load pending schedules section
 
 #### COA Additions (in V002 seed data)
 ```
@@ -450,6 +485,14 @@ Expenses:
 - [ ] Invoice status tracking (draft, sent, paid, overdue)
 - [ ] Link invoice to payment term
 - [ ] Auto-trigger revenue recognition on milestone completion
+
+#### UI with HTMX
+- Project list: HTMX filters (status, client) - swap table without full reload
+- Client list: HTMX search - swap table on typing
+- Project detail: Inline milestone updates (mark complete via HTMX)
+- Project detail: Inline payment term/invoice status updates
+- Invoice list: HTMX filters (status, client, project)
+- Transaction form: Project dropdown loaded via HTMX based on client selection
 
 ```sql
 -- V008: Clients, Projects, Milestones, Payment Terms, Invoices

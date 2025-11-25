@@ -15,7 +15,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.5 Transactions: ✅ Complete
   - 1.6 Formula Support: ✅ Complete
   - 1.7 Template Enhancements: ✅ Complete
-  - 1.8 Amortization Schedules: ⏳ Next
+  - 1.7.5 HTMX Optimization: ⏳ Next - See `TODO-HTMX-OPTIMIZATION.md`
+  - 1.8 Amortization Schedules: ⏳ Pending
   - 1.9 Project Tracking: ⏳ Pending
   - See `docs/06-implementation-plan.md` for full plan
 
@@ -24,6 +25,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Purpose | Location |
 |---------|----------|
 | Implementation Plan | `docs/06-implementation-plan.md` |
+| HTMX Optimization TODO | `TODO-HTMX-OPTIMIZATION.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
@@ -68,9 +70,10 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Next: Amortization Schedules (1.8) per implementation plan:
-1. Amortization schedule entity
-2. Amortization entries entity (tracks each period)
-3. Schedule CRUD UI
-4. Monthly batch job (generates journal entries)
-5. Period-end dashboard integration
+Next: HTMX Partial Rendering Optimization (1.7.5) - See `TODO-HTMX-OPTIMIZATION.md`:
+1. Template List: search/filter partial rendering
+2. Journal List: filters/pagination partial rendering
+3. Transaction List: filters + inline post/delete
+4. Dashboard KPIs: load via HTMX fragments
+
+Then: Amortization Schedules (1.8) with HTMX patterns built-in
