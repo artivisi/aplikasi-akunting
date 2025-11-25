@@ -79,6 +79,12 @@
                         </div>
                     </div>
 
+                    <!-- Tags Section (using HTMX fragment) -->
+                    <div class="mb-6"
+                         th:with="templateId=${template.id}"
+                         th:insert="~{fragments/template-tags :: tag-list}">
+                    </div>
+
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                         <div>
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</p>

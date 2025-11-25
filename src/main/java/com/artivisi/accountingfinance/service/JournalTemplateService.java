@@ -3,10 +3,12 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.entity.JournalTemplateLine;
+import com.artivisi.accountingfinance.entity.JournalTemplateTag;
 import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.JournalTemplateLineRepository;
 import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
+import com.artivisi.accountingfinance.repository.JournalTemplateTagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class JournalTemplateService {
 
     private final JournalTemplateRepository journalTemplateRepository;
     private final JournalTemplateLineRepository journalTemplateLineRepository;
+    private final JournalTemplateTagRepository journalTemplateTagRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
     private final FormulaEvaluator formulaEvaluator;
 
@@ -168,6 +171,52 @@ public class JournalTemplateService {
             throw new IllegalStateException("Cannot delete system template");
         }
         journalTemplateRepository.delete(template);
+    }
+
+    // Tag-related methods
+
+    public List<String> getDistinctTags() {
+        return journalTemplateTagRepository.findDistinctTags();
+    }
+
+    public List<String> searchTags(String query) {
+        return journalTemplateTagRepository.searchTags(query);
+    }
+
+    public List<JournalTemplate> findByTag(String tag) {
+        List<UUID> templateIds = journalTemplateTagRepository.findTemplateIdsByTag(tag.toLowerCase().trim());
+        if (templateIds.isEmpty()) {
+            return List.of();
+        }
+        return journalTemplateRepository.findAllById(templateIds).stream()
+                .filter(t -> t.getActive())
+                .sorted((a, b) -> a.getTemplateName().compareToIgnoreCase(b.getTemplateName()))
+                .toList();
+    }
+
+    @Transactional
+    public void addTag(UUID templateId, String tag) {
+        JournalTemplate template = findById(templateId);
+        String normalizedTag = tag.toLowerCase().trim();
+        if (journalTemplateTagRepository.existsByJournalTemplateIdAndTag(templateId, normalizedTag)) {
+            throw new IllegalArgumentException("Tag already exists on this template");
+        }
+        template.addTag(normalizedTag);
+        journalTemplateRepository.save(template);
+    }
+
+    @Transactional
+    public void removeTag(UUID templateId, String tag) {
+        JournalTemplate template = findById(templateId);
+        template.removeTag(tag);
+        journalTemplateRepository.save(template);
+    }
+
+    public List<String> getTagsForTemplate(UUID templateId) {
+        return journalTemplateTagRepository.findByJournalTemplateId(templateId).stream()
+                .map(JournalTemplateTag::getTag)
+                .sorted()
+                .toList();
     }
 
     private void validateTemplateLines(JournalTemplate template) {

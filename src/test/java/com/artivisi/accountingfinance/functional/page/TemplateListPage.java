@@ -54,7 +54,7 @@ public class TemplateListPage {
     }
 
     public void assertTemplateVisible(String templateName) {
-        assertThat(page.locator(TEMPLATE_CARD + ":has-text('" + templateName + "')")).isVisible();
+        assertThat(page.locator(TEMPLATE_CARD + ":has-text('" + templateName + "')").first()).isVisible();
     }
 
     public void assertTemplateNotVisible(String templateName) {
@@ -72,6 +72,77 @@ public class TemplateListPage {
 
     public void clickViewDetail(String templateName) {
         page.locator(TEMPLATE_CARD + ":has-text('" + templateName + "') a[title='Lihat Detail']").click();
+        page.waitForLoadState();
+    }
+
+    // Search functionality
+    public void searchTemplates(String query) {
+        page.fill(SEARCH_INPUT, query);
+        page.click("[data-testid='search-button']");
+        page.waitForLoadState();
+    }
+
+    public void assertSearchInputVisible() {
+        assertThat(page.locator(SEARCH_INPUT)).isVisible();
+    }
+
+    // Favorites functionality
+    public void assertFavoriteButtonVisible() {
+        assertThat(page.locator("[data-testid='favorite-button']").first()).isVisible();
+    }
+
+    public void assertFavoritesFilterVisible() {
+        assertThat(page.locator("[data-testid='filter-favorites']")).isVisible();
+    }
+
+    public void clickFavoritesFilter() {
+        page.click("[data-testid='filter-favorites']");
+        page.waitForLoadState();
+    }
+
+    public void clickFavoriteButton(String templateName) {
+        // Use first() to handle multiple matches and scroll into view
+        var button = page.locator(TEMPLATE_CARD + ":has-text('" + templateName + "') [data-testid='favorite-button']").first();
+        button.scrollIntoViewIfNeeded();
+        button.click();
+        page.waitForTimeout(500); // Wait for HTMX to complete
+    }
+
+    public boolean isFavoriteActive(String templateName) {
+        var button = page.locator(TEMPLATE_CARD + ":has-text('" + templateName + "') [data-testid='favorite-button']").first();
+        String classes = button.getAttribute("class");
+        return classes != null && classes.contains("text-amber-400");
+    }
+
+    // Tag functionality
+    public void clickTagFilter(String tag) {
+        page.click("[data-testid='tag-filter']:has-text('" + tag + "')");
+        page.waitForLoadState();
+    }
+
+    public void assertTagFilterVisible(String tag) {
+        assertThat(page.locator("[data-testid='tag-filter']:has-text('" + tag + "')")).isVisible();
+    }
+
+    public void assertNoTagFiltersVisible() {
+        assertThat(page.locator("[data-testid='tag-filter']")).not().isVisible();
+    }
+
+    // Recently used section
+    public void assertRecentlyUsedSectionVisible() {
+        assertThat(page.locator("[data-testid='recent-template']")).isVisible();
+    }
+
+    public void assertRecentlyUsedSectionNotVisible() {
+        assertThat(page.locator("[data-testid='recent-template']")).not().isVisible();
+    }
+
+    public int getRecentlyUsedCount() {
+        return page.locator("[data-testid='recent-template']").count();
+    }
+
+    public void clickRecentTemplate(String templateName) {
+        page.locator("[data-testid='recent-template']:has-text('" + templateName + "')").click();
         page.waitForLoadState();
     }
 }

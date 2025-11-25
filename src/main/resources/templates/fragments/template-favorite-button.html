@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Favorite button fragment for HTMX swap -->
+<button th:fragment="favorite-button"
+        type="button"
+        th:classappend="${isFavorite} ? 'text-amber-400 hover:text-amber-500' : 'text-gray-300 hover:text-amber-400'"
+        class="transition-colors"
+        data-testid="favorite-button"
+        th:hx-post="@{/templates/{id}/toggle-favorite(id=${templateId})}"
+        hx-swap="outerHTML">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+</button>
+
+</body>
+</html>

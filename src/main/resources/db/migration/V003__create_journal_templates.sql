@@ -143,3 +143,35 @@ INSERT INTO journal_templates (id, template_name, category, cash_flow_category, 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000023', 'e0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000024', 'e0000000-0000-0000-0000-000000000012', '30000000-0000-0000-0000-000000000101', 'CREDIT', 'amount', 2);
+
+-- Template Tags (for categorization)
+CREATE TABLE journal_template_tags (
+    id UUID PRIMARY KEY,
+    id_journal_template UUID NOT NULL REFERENCES journal_templates(id) ON DELETE CASCADE,
+    tag VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uk_template_tag UNIQUE (id_journal_template, tag)
+);
+
+CREATE INDEX idx_jtt_template ON journal_template_tags(id_journal_template);
+CREATE INDEX idx_jtt_tag ON journal_template_tags(tag);
+
+-- User Template Preferences (per-user favorites and usage tracking)
+CREATE TABLE user_template_preferences (
+    id UUID PRIMARY KEY,
+    id_user UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id_journal_template UUID NOT NULL REFERENCES journal_templates(id) ON DELETE CASCADE,
+    is_favorite BOOLEAN NOT NULL DEFAULT FALSE,
+    last_used_at TIMESTAMP,
+    use_count INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uk_user_template UNIQUE (id_user, id_journal_template)
+);
+
+CREATE INDEX idx_utp_user ON user_template_preferences(id_user);
+CREATE INDEX idx_utp_template ON user_template_preferences(id_journal_template);
+CREATE INDEX idx_utp_favorite ON user_template_preferences(id_user, is_favorite);
+CREATE INDEX idx_utp_last_used ON user_template_preferences(id_user, last_used_at DESC);

@@ -94,4 +94,47 @@ public class TemplateDetailPage {
         page.click(DELETE_BUTTON);
         page.waitForLoadState();
     }
+
+    // Tag management methods
+    public void clickAddTagButton() {
+        var button = page.locator("[data-testid='add-tag-button']");
+        button.scrollIntoViewIfNeeded();
+        button.click();
+        page.waitForTimeout(200);
+    }
+
+    public void enterTag(String tag) {
+        page.fill("[data-testid='tag-input']", tag);
+    }
+
+    public void addTag(String tag) {
+        enterTag(tag);
+        clickAddTagButton();
+        page.waitForTimeout(500); // Wait for HTMX to complete
+    }
+
+    public void removeTag(String tag) {
+        page.locator("[data-testid='detail-tag']:has-text('" + tag + "') button").click();
+        page.waitForTimeout(500); // Wait for HTMX to complete
+    }
+
+    public int getTagCount() {
+        return page.locator("[data-testid='detail-tag']").count();
+    }
+
+    public void assertTagVisible(String tag) {
+        assertThat(page.locator("[data-testid='detail-tag']:has-text('" + tag + "')")).isVisible();
+    }
+
+    public void assertTagNotVisible(String tag) {
+        assertThat(page.locator("[data-testid='detail-tag']:has-text('" + tag + "')")).not().isVisible();
+    }
+
+    public void assertAddTagButtonVisible() {
+        assertThat(page.locator("[data-testid='add-tag-button']")).isVisible();
+    }
+
+    public void assertTagInputVisible() {
+        assertThat(page.locator("[data-testid='tag-input']")).isVisible();
+    }
 }

@@ -80,6 +80,11 @@ public class JournalTemplate extends BaseEntity {
     @OrderBy("lineOrder ASC")
     private List<JournalTemplateLine> lines = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "journalTemplate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderBy("tag ASC")
+    private List<JournalTemplateTag> tags = new ArrayList<>();
+
     public void addLine(JournalTemplateLine line) {
         lines.add(line);
         line.setJournalTemplate(this);
@@ -88,5 +93,18 @@ public class JournalTemplate extends BaseEntity {
     public void removeLine(JournalTemplateLine line) {
         lines.remove(line);
         line.setJournalTemplate(null);
+    }
+
+    public void addTag(String tag) {
+        JournalTemplateTag templateTag = new JournalTemplateTag(this, tag.toLowerCase().trim());
+        tags.add(templateTag);
+    }
+
+    public void removeTag(String tag) {
+        tags.removeIf(t -> t.getTag().equalsIgnoreCase(tag.trim()));
+    }
+
+    public List<String> getTagNames() {
+        return tags.stream().map(JournalTemplateTag::getTag).toList();
     }
 }
