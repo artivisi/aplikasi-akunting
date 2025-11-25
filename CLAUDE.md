@@ -12,8 +12,11 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.2 Journal Entries: ✅ Complete
   - 1.3 Basic Reports: ✅ Complete
   - 1.4 Journal Templates: ✅ Complete
-  - 1.6 Formula Support: ⏳ In Progress - See `TODO-FORMULA-SUPPORT.md`
-  - 1.5 Transactions: ⏳ Pending (after 1.6) - See `TODO-TRANSACTIONS.md`
+  - 1.5 Transactions: ✅ Complete
+  - 1.6 Formula Support: ✅ Complete
+  - 1.7 Template Enhancements: ⏳ Next - See `TODO-TEMPLATE-ENHANCEMENTS.md`
+  - 1.8 Amortization Schedules: ⏳ Pending
+  - 1.9 Project Tracking: ⏳ Pending
   - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -21,8 +24,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Purpose | Location |
 |---------|----------|
 | Implementation Plan | `docs/06-implementation-plan.md` |
-| Formula Support TODO | `TODO-FORMULA-SUPPORT.md` |
-| Transactions TODO | `TODO-TRANSACTIONS.md` |
+| Template Enhancements TODO | `TODO-TEMPLATE-ENHANCEMENTS.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
@@ -36,6 +38,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 2. **No fallback/default values:** Throw errors instead of silently handling missing data
 3. **Technical language:** No marketing speak, strictly technical documentation
 4. **Test-driven:** Write functional tests for new features
+5. **Migration strategy:** Modify existing migrations instead of creating new ones (pre-production)
 
 ## Running the App
 
@@ -53,7 +56,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ## Database
 
 - PostgreSQL via Testcontainers (tests)
-- Flyway migrations: V001-V006
+- Flyway migrations: V001-V004
 - Seed data: IT Services COA, admin user (admin/admin)
 
 ## Architecture
@@ -66,12 +69,9 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Next: Formula Support (1.6) per implementation plan:
-1. Create unified `FormulaEvaluator` service using SpEL
-2. Create `FormulaContext` record for transaction data
-3. Update `TemplateExecutionEngine` to use FormulaEvaluator
-4. Update `TransactionService` to use FormulaEvaluator
-5. Write unit tests for all formula patterns
-6. Add test templates with formulas (PPN, PPh 23)
-
-**Why 1.6 before 1.5:** Two inconsistent formula implementations exist (regex vs SpEL). Unifying them first prevents preview ≠ post bugs in Transactions.
+Next: Template Enhancements (1.7) per implementation plan:
+1. Add template tags for categorization
+2. Implement per-user favorites (not global)
+3. Add search functionality
+4. Add recently used templates list
+5. Update UI with search, tags, and favorites
