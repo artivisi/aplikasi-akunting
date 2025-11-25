@@ -266,65 +266,54 @@ User fills transaction form
 
 ---
 
-### 1.6 Formula Support
+### 1.6 Formula Support ✅
 
 **Purpose:** Enable percentage calculations in templates (e.g., 11% PPN, 2% PPh 23).
 
-**Dependencies:** Templates (1.4), Transactions (1.5)
+**Dependencies:** Templates (1.4)
 
 **Reference:** Decision #13 in `docs/99-decisions-and-questions.md`
 
-#### Current State Analysis
+#### Implementation
 
-**Issue: Two inconsistent formula implementations exist:**
-
-| Location | Approach | Limitations |
-|----------|----------|-------------|
-| `TemplateExecutionEngine.evaluateFormula()` | Regex-based | Cannot handle conditionals, limited patterns |
-| `TransactionService.calculateAmount()` | SpEL-based | No FormulaContext, just string replacement |
-
-**Neither follows Decision #13 properly:**
-- Decision #13 specifies: SpEL with `SimpleEvaluationContext.forReadOnlyDataBinding()`
-- Decision #13 specifies: `FormulaContext` root object with transaction data
-- Decision #13 example: `amount > 2000000 ? amount * 0.02 : 0` (conditional)
-
-**Current templates:** All 12 system templates use only `'amount'` - no actual formula testing.
-
-#### Implementation Tasks
-
-**1. Unify Formula Evaluation (per Decision #13)**
-- [ ] Create `FormulaContext` record with transaction data (amount, rate, etc.)
-- [ ] Create unified `FormulaEvaluator` service using SpEL
-- [ ] Use `SimpleEvaluationContext.forReadOnlyDataBinding()`
-- [ ] Remove regex-based evaluation from `TemplateExecutionEngine`
-- [ ] Update `TransactionService` to use unified evaluator
+**1. Unified Formula Evaluation (per Decision #13)**
+- [x] Create `FormulaContext` record with transaction data (`dto/FormulaContext.java`)
+- [x] Create unified `FormulaEvaluator` service using SpEL (`service/FormulaEvaluator.java`)
+- [x] Use `SimpleEvaluationContext.forReadOnlyDataBinding()`
+- [x] Update `TemplateExecutionEngine` to use FormulaEvaluator
+- [x] Update `TransactionService` to use FormulaEvaluator
 
 **2. Formula Validation**
-- [ ] Validate formula syntax on template save
-- [ ] Return clear error messages for invalid formulas
-- [ ] Test formula against sample data before saving
+- [x] Validate formula syntax on template save
+- [x] Return clear error messages for invalid formulas
+- [x] Test formula against sample data before saving
 
 **3. Supported Formula Patterns**
-- [ ] Simple: `amount` (pass-through)
-- [ ] Percentage: `amount * 0.11` (PPN 11%)
-- [ ] Division: `amount / 1.11` (extract DPP from gross)
-- [ ] Conditional: `amount > 2000000 ? amount * 0.02 : 0` (PPh 23 threshold)
-- [ ] Constants: `1000000` (fixed amount)
+- [x] Simple: `amount` (pass-through)
+- [x] Percentage: `amount * 0.11` (PPN 11%)
+- [x] Division: `amount / 1.11` (extract DPP from gross)
+- [x] Conditional: `amount > 2000000 ? amount * 0.02 : 0` (PPh 23 threshold)
+- [x] Constants: `1000000` (fixed amount)
 
 **4. Test Templates with Formulas**
-- [ ] Add test template: "Penjualan dengan PPN" (amount * 0.11 for PPN line)
-- [ ] Add test template: "PPh 23 Jasa" (conditional 2% withholding)
-- [ ] Seed via test migration (V9xx) for functional testing
+- [x] Add test template: "Penjualan dengan PPN" (3 lines with formula)
+- [x] Add test template: "PPh 23 Jasa" (conditional withholding)
+- [x] Seed via test migration (`V903__formula_test_templates.sql`)
 
 **5. Unit Tests**
-- [ ] `FormulaEvaluatorTest` - test all formula patterns
-- [ ] Test invalid formula handling
-- [ ] Test edge cases (zero, negative, large numbers)
+- [x] `FormulaEvaluatorTest` - 28 tests for all formula patterns
+- [x] Test invalid formula handling
+- [x] Test edge cases (zero, negative, large numbers)
 
 **6. Functional Tests**
-- [ ] Create template with percentage formula
-- [ ] Execute template, verify calculated amounts
-- [ ] Preview shows correct calculated values
+- [x] Execute PPN template, verify calculated amounts
+- [x] Execute PPh 23 template with amount > threshold
+- [x] Execute PPh 23 template with amount < threshold
+
+**7. In-App Documentation**
+- [x] Formula help panel (`templates/fragments/formula-help.html`)
+- [x] Live formula preview ("Coba Formula") on template form
+- [x] Scenario examples in Indonesian
 
 ---
 
