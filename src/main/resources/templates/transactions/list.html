@@ -13,7 +13,12 @@
         <!-- Header Actions -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 flex-shrink-0">
             <!-- Filters Row -->
-            <form th:action="@{/transactions}" method="get" class="flex flex-wrap items-center gap-2">
+            <form id="filter-form" th:action="@{/transactions}" method="get"
+                  hx-get="/transactions"
+                  hx-target="#transaction-table"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  class="flex flex-wrap items-center gap-2">
                 <!-- Search -->
                 <div class="relative">
                     <input id="search-transaksi" type="text" name="search" placeholder="Cari transaksi..."
@@ -34,13 +39,25 @@
                 </div>
 
                 <!-- Status Filter -->
-                <select id="filter-status" name="status" class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <select id="filter-status" name="status"
+                        hx-get="/transactions"
+                        hx-target="#transaction-table"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#filter-form"
+                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <option value="">Semua Status</option>
                     <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.name()}" th:selected="${selectedStatus == s.name()}">Status</option>
                 </select>
 
                 <!-- Category Filter -->
-                <select id="filter-category" name="category" class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <select id="filter-category" name="category"
+                        hx-get="/transactions"
+                        hx-target="#transaction-table"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#filter-form"
+                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <option value="">Semua Kategori</option>
                     <option th:each="cat : ${categories}" th:value="${cat.name()}"
                             th:text="${cat.name() == 'INCOME'} ? 'Pendapatan' : (${cat.name() == 'EXPENSE'} ? 'Pengeluaran' : (${cat.name() == 'PAYMENT'} ? 'Pembayaran' : (${cat.name() == 'RECEIPT'} ? 'Penerimaan' : 'Transfer')))"
@@ -98,221 +115,8 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4 flex-shrink-0">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Transaksi</p>
-                <p class="text-xl font-bold text-primary-600 mt-1" th:text="${page.totalElements}">0</p>
-                <p class="text-xs text-gray-400 mt-1">transaksi</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Draft Pending</p>
-                <p class="text-xl font-bold text-amber-600 mt-1" th:text="${draftCount}">0</p>
-                <p class="text-xs text-gray-400 mt-1">perlu diproses</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</p>
-                <p class="text-xl font-bold text-gray-600 mt-1" th:text="${page.number + 1} + ' / ' + ${page.totalPages > 0 ? page.totalPages : 1}">1 / 1</p>
-                <p class="text-xs text-gray-400 mt-1">dari total</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Per Halaman</p>
-                <p class="text-xl font-bold text-gray-600 mt-1" th:text="${page.size}">20</p>
-                <p class="text-xs text-gray-400 mt-1">transaksi</p>
-            </div>
-        </div>
-
-        <!-- Transactions Table -->
-        <div id="tabel-transaksi" class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-0">
-            <!-- Table Header -->
-            <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider flex-shrink-0">
-                <div class="col-span-2">No. Transaksi</div>
-                <div class="col-span-1">Tanggal</div>
-                <div class="col-span-3">Keterangan</div>
-                <div class="col-span-2">Kategori</div>
-                <div class="col-span-2 text-right">Jumlah</div>
-                <div class="col-span-1 text-center">Status</div>
-                <div class="col-span-1 text-center">Aksi</div>
-            </div>
-
-            <!-- Empty State -->
-            <div th:if="${#lists.isEmpty(transactions)}" class="flex-1 flex items-center justify-center py-12">
-                <div class="text-center">
-                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <p class="text-gray-500">Belum ada transaksi</p>
-                </div>
-            </div>
-
-            <!-- Scrollable Content -->
-            <div th:unless="${#lists.isEmpty(transactions)}" class="flex-1 overflow-y-auto divide-y divide-gray-100">
-                <a th:each="trx : ${transactions}"
-                   th:href="@{/transactions/{id}(id=${trx.id})}"
-                   th:classappend="${trx.status.name() == 'DRAFT'} ? 'bg-amber-50/30 hover:bg-amber-50' : (${trx.status.name() == 'VOID'} ? 'opacity-60 hover:bg-gray-50' : 'hover:bg-gray-50')"
-                   class="grid grid-cols-12 gap-4 px-4 py-3 transition-colors items-center cursor-pointer"
-                   th:data-testid="${'trx-row-' + trx.transactionNumber}">
-                    <div class="col-span-2">
-                        <p th:classappend="${trx.status.name() == 'VOID'} ? 'line-through'"
-                           class="text-sm font-medium text-gray-900" th:text="${trx.transactionNumber}">TRX-2025-0001</p>
-                        <p class="text-xs text-gray-500" th:text="${trx.journalTemplate?.category?.name()}">Category</p>
-                    </div>
-                    <div class="col-span-1 text-sm text-gray-600" th:text="${#temporals.format(trx.transactionDate, 'dd MMM')}">01 Jan</div>
-                    <div class="col-span-3">
-                        <p th:classappend="${trx.status.name() == 'VOID'} ? 'line-through'"
-                           class="text-sm text-gray-900 truncate" th:text="${trx.description}">Description</p>
-                        <p th:if="${trx.status.name() == 'VOID'}" class="text-xs text-red-500 truncate" th:text="'Void: ' + ${trx.voidReason?.indonesianName}">Void reason</p>
-                        <p th:unless="${trx.status.name() == 'VOID'}" class="text-xs text-gray-500 truncate" th:text="${trx.referenceNumber}">Reference</p>
-                    </div>
-                    <div class="col-span-2">
-                        <span th:classappend="${trx.journalTemplate?.category?.name() == 'INCOME'} ? 'bg-green-100 text-green-800' : (${trx.journalTemplate?.category?.name() == 'EXPENSE'} ? 'bg-red-100 text-red-800' : (${trx.journalTemplate?.category?.name() == 'TRANSFER'} ? 'bg-purple-100 text-purple-800' : (${trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'bg-blue-100 text-blue-800' : 'bg-cyan-100 text-cyan-800')))"
-                              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
-                            <span th:classappend="${trx.journalTemplate?.category?.name() == 'INCOME'} ? 'bg-green-500' : (${trx.journalTemplate?.category?.name() == 'EXPENSE'} ? 'bg-red-500' : (${trx.journalTemplate?.category?.name() == 'TRANSFER'} ? 'bg-purple-500' : (${trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'bg-blue-500' : 'bg-cyan-500')))"
-                                  class="w-1.5 h-1.5 rounded-full mr-1.5"></span>
-                            <span th:text="${trx.journalTemplate?.category?.name() == 'INCOME'} ? 'Pendapatan' : (${trx.journalTemplate?.category?.name() == 'EXPENSE'} ? 'Pengeluaran' : (${trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'Pembayaran' : (${trx.journalTemplate?.category?.name() == 'RECEIPT'} ? 'Penerimaan' : 'Transfer')))">Category</span>
-                        </span>
-                    </div>
-                    <div class="col-span-2 text-right">
-                        <p th:classappend="${trx.status.name() == 'VOID'} ? 'text-gray-400 line-through' : (${trx.journalTemplate?.category?.name() == 'INCOME' or trx.journalTemplate?.category?.name() == 'RECEIPT'} ? 'text-green-600' : (${trx.journalTemplate?.category?.name() == 'EXPENSE' or trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'text-red-600' : 'text-gray-600'))"
-                           class="text-sm font-medium">
-                            <span th:if="${trx.journalTemplate?.category?.name() == 'INCOME' or trx.journalTemplate?.category?.name() == 'RECEIPT'}">+ </span>
-                            <span th:if="${trx.journalTemplate?.category?.name() == 'EXPENSE' or trx.journalTemplate?.category?.name() == 'PAYMENT'}">- </span>
-                            <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.amount, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
-                        </p>
-                    </div>
-                    <div class="col-span-1 text-center">
-                        <span th:classappend="${trx.status.name() == 'DRAFT'} ? 'bg-amber-100 text-amber-800' : (${trx.status.name() == 'POSTED'} ? 'bg-accent-100 text-accent-800' : 'bg-red-100 text-red-800')"
-                              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                              th:text="${trx.status.name()}">Status</span>
-                    </div>
-                    <div class="col-span-1 flex justify-center space-x-1" @click.stop>
-                        <!-- View -->
-                        <a th:href="@{/transactions/{id}(id=${trx.id})}"
-                           class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
-                           title="Lihat Detail">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </a>
-                        <!-- Edit (draft only) -->
-                        <a th:if="${trx.status.name() == 'DRAFT'}"
-                           th:href="@{/transactions/{id}/edit(id=${trx.id})}"
-                           class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
-                           title="Edit">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </a>
-                        <!-- Post (draft only) -->
-                        <button th:if="${trx.status.name() == 'DRAFT'}"
-                                th:data-id="${trx.id}"
-                                class="btn-post p-1.5 text-gray-400 hover:text-accent-600 hover:bg-accent-50 rounded transition-colors"
-                                title="Post">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </button>
-                        <!-- Delete (draft only) -->
-                        <button th:if="${trx.status.name() == 'DRAFT'}"
-                                th:data-id="${trx.id}"
-                                class="btn-delete p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                title="Hapus">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                        </button>
-                        <!-- Void (posted only) -->
-                        <a th:if="${trx.status.name() == 'POSTED'}"
-                           th:href="@{/transactions/{id}/void(id=${trx.id})}"
-                           class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                           title="Void">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                            </svg>
-                        </a>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Pagination -->
-            <div th:unless="${#lists.isEmpty(transactions)}" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0">
-                <div class="text-sm text-gray-500">
-                    Menampilkan
-                    <span class="font-medium" th:text="${page.number * page.size + 1}">1</span>-<span class="font-medium" th:text="${page.number * page.size + page.numberOfElements}">20</span>
-                    dari <span class="font-medium" th:text="${page.totalElements}">0</span> transaksi
-                </div>
-                <div class="flex items-center space-x-2">
-                    <a th:href="@{/transactions(page=${page.number - 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
-                       th:classappend="${page.first} ? 'opacity-50 pointer-events-none'"
-                       class="px-3 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Sebelumnya
-                    </a>
-                    <span class="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg"
-                          th:text="${page.number + 1}">1</span>
-                    <a th:href="@{/transactions(page=${page.number + 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
-                       th:classappend="${page.last} ? 'opacity-50 pointer-events-none'"
-                       class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Selanjutnya
-                    </a>
-                </div>
-            </div>
-        </div>
+        <!-- Transaction Table (loaded via fragment) -->
+        <th:block th:insert="~{fragments/transaction-table :: table}"/>
     </div>
-
-    <!-- Script for post/delete actions -->
-    <th:block layout:fragment="scripts">
-        <script th:inline="javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                // Post button handler
-                document.querySelectorAll('.btn-post').forEach(btn => {
-                    btn.addEventListener('click', async function(e) {
-                        e.preventDefault();
-                        const id = this.dataset.id;
-                        if (confirm('Posting transaksi ini? Setelah diposting tidak dapat diedit.')) {
-                            try {
-                                const response = await fetch(`/transactions/api/${id}/post`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' }
-                                });
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const error = await response.json();
-                                    alert('Gagal posting: ' + (error.message || 'Unknown error'));
-                                }
-                            } catch (err) {
-                                alert('Gagal posting: ' + err.message);
-                            }
-                        }
-                    });
-                });
-
-                // Delete button handler
-                document.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', async function(e) {
-                        e.preventDefault();
-                        const id = this.dataset.id;
-                        if (confirm('Hapus transaksi ini? Aksi ini tidak dapat dibatalkan.')) {
-                            try {
-                                const response = await fetch(`/transactions/api/${id}`, {
-                                    method: 'DELETE',
-                                    headers: { 'Content-Type': 'application/json' }
-                                });
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const error = await response.json();
-                                    alert('Gagal menghapus: ' + (error.message || 'Unknown error'));
-                                }
-                            } catch (err) {
-                                alert('Gagal menghapus: ' + err.message);
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
-    </th:block>
 </body>
 </html>

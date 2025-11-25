@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -51,6 +52,7 @@ public class TransactionController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
+            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
             Model model) {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("selectedStatus", status);
@@ -86,6 +88,10 @@ public class TransactionController {
         model.addAttribute("page", transactionPage);
         model.addAttribute("draftCount", transactionService.countByStatus(TransactionStatus.DRAFT));
 
+        // Return fragment for HTMX requests, full page otherwise
+        if ("true".equals(hxRequest)) {
+            return "fragments/transaction-table :: table";
+        }
         return "transactions/list";
     }
 
@@ -147,6 +153,23 @@ public class TransactionController {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("transaction", transaction);
         return "transactions/void";
+    }
+
+    // HTMX Endpoints for inline actions
+
+    @PostMapping("/{id}/post")
+    public String htmxPost(@PathVariable UUID id, Authentication authentication, Model model) {
+        String username = authentication != null ? authentication.getName() : "system";
+        Transaction posted = transactionService.post(id, username);
+        model.addAttribute("trx", posted);
+        return "fragments/transaction-table :: row";
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> htmxDelete(@PathVariable UUID id) {
+        transactionService.delete(id);
+        return ResponseEntity.ok().build();
     }
 
     // REST API Endpoints

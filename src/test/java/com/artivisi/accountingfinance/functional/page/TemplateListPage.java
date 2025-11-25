@@ -79,7 +79,9 @@ public class TemplateListPage {
     public void searchTemplates(String query) {
         page.fill(SEARCH_INPUT, query);
         page.click("[data-testid='search-button']");
-        page.waitForLoadState();
+        // Wait for HTMX to complete the request
+        page.waitForTimeout(500);
+        page.waitForSelector("#template-grid");
     }
 
     public void assertSearchInputVisible() {

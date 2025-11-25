@@ -11,11 +11,21 @@
 
     <div layout:fragment="content" class="h-full flex flex-col">
         <!-- Header Actions -->
-        <form id="filter-form" th:action="@{/journals}" method="get" class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 flex-shrink-0">
+        <form id="filter-form" th:action="@{/journals}" method="get"
+              hx-get="/journals"
+              hx-target="#journal-ledger"
+              hx-swap="outerHTML"
+              hx-push-url="true"
+              class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 flex-shrink-0">
             <!-- Filters Row -->
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Account Filter -->
-                <select id="account-filter" name="accountId" onchange="this.form.submit()"
+                <select id="account-filter" name="accountId"
+                        hx-get="/journals"
+                        hx-target="#journal-ledger"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#filter-form"
                         class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-w-48">
                     <option value="">Pilih Akun</option>
                     <option th:each="account : ${accounts}"
@@ -74,200 +84,8 @@
             </div>
         </form>
 
-        <!-- No Account Selected Message -->
-        <div id="no-account-message" th:if="${ledgerData == null}" class="flex-1 flex items-center justify-center">
-            <div class="text-center">
-                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-500">Pilih akun untuk melihat buku besar</h3>
-                <p class="text-sm text-gray-400 mt-1">Gunakan dropdown di atas untuk memilih akun</p>
-            </div>
-        </div>
-
-        <!-- Account Data (shown when account is selected) -->
-        <div id="ledger-data" th:if="${ledgerData != null}">
-            <!-- Account Info Card -->
-            <div id="account-info-card" class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
-                                <span class="text-xs font-bold text-blue-600" th:text="${#strings.abbreviate(ledgerData.account.accountName, 3)}">ACC</span>
-                            </span>
-                        </div>
-                        <div class="ml-3">
-                            <h3 id="account-name" class="text-sm font-semibold text-blue-800" th:text="${ledgerData.account.accountCode + ' - ' + ledgerData.account.accountName}">Account Name</h3>
-                            <p id="account-type" class="text-xs text-blue-600">
-                                <span th:text="${ledgerData.account.accountType.indonesianName}">Type</span> |
-                                Saldo Normal: <span th:text="${ledgerData.account.normalBalance.name()}">DEBIT</span>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-blue-600">Saldo Akhir</p>
-                        <p id="closing-balance-header" class="text-xl font-bold text-blue-800" th:text="${#numbers.formatDecimal(ledgerData.closingBalance, 0, 'COMMA', 0, 'POINT')}">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Summary Cards -->
-            <div id="summary-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4 flex-shrink-0">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo Awal</p>
-                    <p id="opening-balance" class="text-xl font-bold text-gray-900 mt-1" th:text="${#numbers.formatDecimal(ledgerData.openingBalance, 0, 'COMMA', 0, 'POINT')}">0</p>
-                    <p class="text-xs text-gray-400 mt-1" th:text="${#temporals.format(startDate, 'd MMM yyyy')}">Date</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Debit</p>
-                    <p id="total-debit" class="text-xl font-bold text-green-600 mt-1" th:text="${#numbers.formatDecimal(ledgerData.totalDebit, 0, 'COMMA', 0, 'POINT')}">0</p>
-                    <p id="entry-count-debit" class="text-xs text-gray-400 mt-1" th:text="${ledgerData.totalElements + ' entri'}">0 entri</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Kredit</p>
-                    <p id="total-credit" class="text-xl font-bold text-red-600 mt-1" th:text="${#numbers.formatDecimal(ledgerData.totalCredit, 0, 'COMMA', 0, 'POINT')}">0</p>
-                    <p id="entry-count-credit" class="text-xs text-gray-400 mt-1" th:text="${ledgerData.totalElements + ' entri'}">0 entri</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo Akhir</p>
-                    <p id="closing-balance" class="text-xl font-bold text-primary-600 mt-1" th:text="${#numbers.formatDecimal(ledgerData.closingBalance, 0, 'COMMA', 0, 'POINT')}">0</p>
-                    <p class="text-xs text-gray-400 mt-1" th:text="${#temporals.format(endDate, 'd MMM yyyy')}">Date</p>
-                </div>
-            </div>
-
-            <!-- Journal Entries Table -->
-            <div id="entries-table" class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-0">
-                <!-- Table Header -->
-                <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider flex-shrink-0">
-                    <div class="col-span-1">Tanggal</div>
-                    <div class="col-span-2">No. Jurnal</div>
-                    <div class="col-span-4">Keterangan</div>
-                    <div class="col-span-2 text-right">Debit</div>
-                    <div class="col-span-2 text-right">Kredit</div>
-                    <div class="col-span-1 text-right">Saldo</div>
-                </div>
-
-                <!-- Scrollable Content -->
-                <div id="entries-content" class="flex-1 overflow-y-auto divide-y divide-gray-100">
-                    <!-- Opening Balance -->
-                    <div id="opening-balance-row" class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 items-center">
-                        <div class="col-span-1 text-sm text-gray-600" th:text="${#temporals.format(startDate, 'd MMM')}">Date</div>
-                        <div class="col-span-2 text-sm text-gray-500 italic">-</div>
-                        <div class="col-span-4 text-sm text-gray-700 font-medium">Saldo Awal</div>
-                        <div class="col-span-2 text-right text-sm font-mono text-gray-400">-</div>
-                        <div class="col-span-2 text-right text-sm font-mono text-gray-400">-</div>
-                        <div id="opening-balance-value" class="col-span-1 text-right text-sm font-mono font-semibold text-gray-900" th:text="${#numbers.formatDecimal(ledgerData.openingBalance, 0, 'COMMA', 0, 'POINT')}">0</div>
-                    </div>
-
-                    <!-- Journal Entries -->
-                    <a th:each="item : ${ledgerData.entries}"
-                       th:href="@{/journals/{id}(id=${item.entry.id})}"
-                       th:classappend="${item.entry.void} ? 'opacity-50' : ''"
-                       class="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors items-center cursor-pointer">
-                        <div class="col-span-1 text-sm text-gray-600" th:text="${#temporals.format(item.entry.journalDate, 'd MMM')}">Date</div>
-                        <div class="col-span-2">
-                            <p class="text-sm font-medium"
-                               th:classappend="${item.entry.void} ? 'text-gray-400 line-through' : 'text-primary-600 hover:text-primary-800'"
-                               th:text="${item.entry.journalNumber}">JE-0001</p>
-                            <p th:if="${item.entry.void}" class="text-xs text-red-500">VOID</p>
-                            <p th:if="${item.entry.transaction != null}" class="text-xs text-gray-500" th:text="${item.entry.transaction.transactionNumber}">TRX</p>
-                        </div>
-                        <div class="col-span-4">
-                            <p class="text-sm"
-                               th:classappend="${item.entry.void} ? 'text-gray-400 line-through' : 'text-gray-900'"
-                               th:text="${item.entry.description}">Description</p>
-                            <p th:if="${item.entry.void}" class="text-xs text-red-500" th:text="'Void: ' + ${item.entry.voidReason}">Reason</p>
-                            <p th:if="${item.entry.referenceNumber != null && !item.entry.void}" class="text-xs text-gray-500" th:text="'Ref: ' + ${item.entry.referenceNumber}">Ref</p>
-                        </div>
-                        <div class="col-span-2 text-right text-sm font-mono"
-                             th:classappend="${item.entry.void} ? 'text-gray-300 line-through' : (${item.entry.debitAmount > 0} ? 'text-green-600' : 'text-gray-400')"
-                             th:text="${item.entry.debitAmount > 0} ? ${#numbers.formatDecimal(item.entry.debitAmount, 0, 'COMMA', 0, 'POINT')} : '-'">-</div>
-                        <div class="col-span-2 text-right text-sm font-mono"
-                             th:classappend="${item.entry.void} ? 'text-gray-300 line-through' : (${item.entry.creditAmount > 0} ? 'text-red-600' : 'text-gray-400')"
-                             th:text="${item.entry.creditAmount > 0} ? ${#numbers.formatDecimal(item.entry.creditAmount, 0, 'COMMA', 0, 'POINT')} : '-'">-</div>
-                        <div class="col-span-1 text-right text-sm font-mono font-medium"
-                             th:classappend="${item.entry.void} ? 'text-gray-400' : 'text-gray-900'"
-                             th:text="${item.entry.void} ? '-' : ${#numbers.formatDecimal(item.runningBalance, 0, 'COMMA', 0, 'POINT')}">0</div>
-                    </a>
-
-                    <!-- Empty State -->
-                    <div id="empty-entries" th:if="${#lists.isEmpty(ledgerData.entries)}" class="px-4 py-8 text-center text-gray-500">
-                        <p>Tidak ada jurnal entry pada periode ini</p>
-                    </div>
-                </div>
-
-                <!-- Running Total Footer -->
-                <div th:if="${!#lists.isEmpty(ledgerData.entries)}" class="border-t-2 border-gray-300 flex-shrink-0">
-                    <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100">
-                        <div class="col-span-1"></div>
-                        <div class="col-span-2"></div>
-                        <div class="col-span-4 text-sm font-semibold text-gray-700">Total Periode</div>
-                        <div class="col-span-2 text-right text-sm font-mono font-bold text-green-700" th:text="${#numbers.formatDecimal(ledgerData.totalDebit, 0, 'COMMA', 0, 'POINT')}">0</div>
-                        <div class="col-span-2 text-right text-sm font-mono font-bold text-red-700" th:text="${#numbers.formatDecimal(ledgerData.totalCredit, 0, 'COMMA', 0, 'POINT')}">0</div>
-                        <div class="col-span-1"></div>
-                    </div>
-                    <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-primary-50">
-                        <div class="col-span-1"></div>
-                        <div class="col-span-2"></div>
-                        <div class="col-span-4 text-sm font-semibold text-primary-800">Saldo Akhir</div>
-                        <div class="col-span-4"></div>
-                        <div class="col-span-1 text-right text-sm font-mono font-bold text-primary-800" th:text="${#numbers.formatDecimal(ledgerData.closingBalance, 0, 'COMMA', 0, 'POINT')}">0</div>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div id="pagination" th:if="${ledgerData.totalPages > 1}" class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 flex-shrink-0">
-                    <div class="flex items-center text-sm text-gray-500">
-                        <span>Menampilkan</span>
-                        <span class="mx-1 font-medium" th:text="${ledgerData.currentPage * pageSize + 1}">1</span>
-                        <span>-</span>
-                        <span class="mx-1 font-medium" th:text="${T(Math).min((ledgerData.currentPage + 1) * pageSize, ledgerData.totalElements)}">20</span>
-                        <span>dari</span>
-                        <span id="total-entries" class="mx-1 font-medium" th:text="${ledgerData.totalElements}">100</span>
-                        <span>entri</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <!-- Previous Page -->
-                        <a th:if="${ledgerData.hasPrevious}"
-                           th:href="@{/journals(accountId=${selectedAccount}, startDate=${startDate}, endDate=${endDate}, search=${searchQuery}, page=${ledgerData.currentPage - 1}, size=${pageSize})}"
-                           id="btn-prev-page"
-                           class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            Sebelumnya
-                        </a>
-                        <span th:unless="${ledgerData.hasPrevious}"
-                              class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
-                            Sebelumnya
-                        </span>
-
-                        <!-- Page Numbers -->
-                        <th:block th:each="i : ${#numbers.sequence(0, ledgerData.totalPages - 1)}">
-                            <a th:if="${i != ledgerData.currentPage}"
-                               th:href="@{/journals(accountId=${selectedAccount}, startDate=${startDate}, endDate=${endDate}, search=${searchQuery}, page=${i}, size=${pageSize})}"
-                               th:text="${i + 1}"
-                               class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            </a>
-                            <span th:if="${i == ledgerData.currentPage}"
-                                  th:text="${i + 1}"
-                                  id="current-page-number"
-                                  class="px-3 py-1 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg">
-                            </span>
-                        </th:block>
-
-                        <!-- Next Page -->
-                        <a th:if="${ledgerData.hasNext}"
-                           th:href="@{/journals(accountId=${selectedAccount}, startDate=${startDate}, endDate=${endDate}, search=${searchQuery}, page=${ledgerData.currentPage + 1}, size=${pageSize})}"
-                           id="btn-next-page"
-                           class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            Berikutnya
-                        </a>
-                        <span th:unless="${ledgerData.hasNext}"
-                              class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
-                            Berikutnya
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Journal Ledger (loaded via fragment) -->
+        <th:block th:insert="~{fragments/journal-ledger :: ledger}"/>
     </div>
 </body>
 </html>

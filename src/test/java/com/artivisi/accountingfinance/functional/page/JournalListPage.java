@@ -50,6 +50,9 @@ public class JournalListPage {
     // Actions
     public void selectAccountByLabel(String label) {
         page.selectOption(ACCOUNT_FILTER, new com.microsoft.playwright.options.SelectOption().setLabel(label));
+        // Wait for HTMX to complete the request
+        page.waitForTimeout(500);
+        page.waitForSelector("#journal-ledger");
     }
 
     public void setStartDate(String date) {
@@ -62,6 +65,9 @@ public class JournalListPage {
 
     public void clickApply() {
         page.click(BTN_APPLY);
+        // Wait for HTMX to complete the request
+        page.waitForTimeout(500);
+        page.waitForSelector("#journal-ledger");
     }
 
     // Page title assertions
@@ -227,10 +233,16 @@ public class JournalListPage {
     // Pagination actions
     public void clickNextPage() {
         page.click(BTN_NEXT_PAGE);
+        // Wait for HTMX to complete the request
+        page.waitForTimeout(500);
+        page.waitForSelector("#journal-ledger");
     }
 
     public void clickPrevPage() {
         page.click(BTN_PREV_PAGE);
+        // Wait for HTMX to complete the request
+        page.waitForTimeout(500);
+        page.waitForSelector("#journal-ledger");
     }
 
     // Opening balance value from the row

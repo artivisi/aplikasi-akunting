@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -51,6 +52,7 @@ public class JournalEntryController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "20") int size,
+            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
             Model model) {
 
         LocalDate start = requireNonNullElse(startDate, LocalDate.now().withDayOfMonth(1));
@@ -71,6 +73,10 @@ public class JournalEntryController {
                     journalEntryService.getGeneralLedgerPaged(accountId, start, end, search, pageable));
         }
 
+        // Return fragment for HTMX requests, full page otherwise
+        if ("true".equals(hxRequest)) {
+            return "fragments/journal-ledger :: ledger";
+        }
         return "journals/list";
     }
 

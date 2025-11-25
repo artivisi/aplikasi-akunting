@@ -159,30 +159,6 @@ JournalEntryService {
 - [x] PDF export
 - [x] Excel export
 
-#### Dashboard KPIs
-- [ ] Revenue (current month, vs previous month %)
-- [ ] Expenses (current month, vs previous month %)
-- [ ] Net Profit (current month, vs previous month %)
-- [ ] Profit Margin % (current month, vs previous month pts)
-- [ ] Cash Balance (sum of cash/bank accounts)
-- [ ] Receivables Total (Piutang Usaha balance)
-- [ ] Payables Total (Hutang Usaha balance)
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  November 2025                                               │
-├─────────────────────────────────────────────────────────────┤
-│  Revenue        Rp 85,000,000    ▲ 12% vs Oct               │
-│  Expenses       Rp 35,000,000    ▼ 5% vs Oct                │
-│  Net Profit     Rp 50,000,000    ▲ 25% vs Oct               │
-│  Profit Margin  58.8%            ▲ 6pts vs Oct              │
-│                                                              │
-│  Cash           Rp 120,000,000                              │
-│  Receivables    Rp 25,000,000                               │
-│  Payables       Rp 10,000,000                               │
-└─────────────────────────────────────────────────────────────┘
-```
-
 **Key Service Methods (reused later):**
 ```java
 AccountBalanceCalculator {
@@ -342,12 +318,13 @@ User fills transaction form
 **Reference:** `TODO-HTMX-OPTIMIZATION.md`
 
 #### Pages to Optimize
-| Page | Current Issue | HTMX Target |
-|------|---------------|-------------|
-| Template List | Full reload on search/filter | Swap grid only |
-| Journal List | Full reload on account/date/search | Swap ledger section |
-| Transaction List | Full reload + reload after actions | Swap table + inline row updates |
-| Dashboard KPIs | Not implemented | Load via HTMX fragments |
+| Page | Current Issue | HTMX Target | Status |
+|------|---------------|-------------|--------|
+| Template List | Full reload on search/filter | Swap grid only | ✅ Done |
+| Journal List | Full reload on account/date/search | Swap ledger section | ✅ Done |
+| Transaction List | Full reload + reload after actions | Swap table + inline row updates | ✅ Done |
+
+**Note:** Dashboard KPIs moved to section 1.10 - will be built with HTMX from the start.
 
 #### Pattern
 1. Extract content area to Thymeleaf fragment
@@ -356,10 +333,9 @@ User fills transaction form
 4. Use hx-push-url for bookmarkable URLs
 
 #### Implementation
-- [ ] Template List: search/filter partial rendering
-- [ ] Journal List: filters/pagination partial rendering
-- [ ] Transaction List: filters + inline post/delete
-- [ ] Dashboard KPIs: load via HTMX on page load
+- [x] Template List: search/filter partial rendering
+- [x] Journal List: filters/pagination partial rendering
+- [x] Transaction List: filters + inline post/delete
 
 ---
 
@@ -615,6 +591,52 @@ When milestone is marked complete:
 4. Updates project profitability in real-time
 
 **Note:** Overhead allocation (rent, utilities) not included - too complex for MVP. Users can manually add project-tagged expenses for full costing.
+
+---
+
+### 1.10 Dashboard KPIs
+
+**Purpose:** Provide at-a-glance business health metrics on the main dashboard.
+
+**Dependencies:** Reports (1.3), AccountBalanceCalculator
+
+#### KPI Features
+- [ ] Revenue (current month, vs previous month %)
+- [ ] Expenses (current month, vs previous month %)
+- [ ] Net Profit (current month, vs previous month %)
+- [ ] Profit Margin % (current month, vs previous month pts)
+- [ ] Cash Balance (sum of cash/bank accounts)
+- [ ] Receivables Total (Piutang Usaha balance)
+- [ ] Payables Total (Hutang Usaha balance)
+
+#### UI Mockup
+```
+┌─────────────────────────────────────────────────────────────┐
+│  November 2025                                               │
+├─────────────────────────────────────────────────────────────┤
+│  Revenue        Rp 85,000,000    ▲ 12% vs Oct               │
+│  Expenses       Rp 35,000,000    ▼ 5% vs Oct                │
+│  Net Profit     Rp 50,000,000    ▲ 25% vs Oct               │
+│  Profit Margin  58.8%            ▲ 6pts vs Oct              │
+│                                                              │
+│  Cash           Rp 120,000,000                              │
+│  Receivables    Rp 25,000,000                               │
+│  Payables       Rp 10,000,000                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### UI with HTMX
+- Load KPI cards via HTMX on page load (`hx-trigger="load"`)
+- Date range selector with HTMX to refresh KPIs
+- Loading indicator (`hx-indicator`) while calculating
+- Fragment: `fragments/dashboard-kpis.html`
+
+#### Implementation
+- [ ] Create DashboardService with KPI calculation methods
+- [ ] Create DashboardController with HTMX endpoint
+- [ ] Create dashboard-kpis.html fragment
+- [ ] Update dashboard.html to load KPIs via HTMX
+- [ ] Add date range selector for historical comparison
 
 ---
 
