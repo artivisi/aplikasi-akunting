@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.service;
 
+import com.artivisi.accountingfinance.dto.FormulaContext;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
@@ -20,15 +21,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -47,8 +44,7 @@ public class TransactionService {
     private final JournalEntryRepository journalEntryRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
     private final JournalTemplateService journalTemplateService;
-
-    private final ExpressionParser expressionParser = new SpelExpressionParser();
+    private final FormulaEvaluator formulaEvaluator;
 
     public List<Transaction> findAll() {
         return transactionRepository.findAll();
@@ -249,30 +245,13 @@ public class TransactionService {
         return number;
     }
 
+    /**
+     * Calculate amount using unified FormulaEvaluator.
+     *
+     * @see FormulaEvaluator
+     */
     private BigDecimal calculateAmount(String formula, BigDecimal baseAmount) {
-        if (formula == null || formula.isBlank() || formula.equalsIgnoreCase("amount")) {
-            return baseAmount;
-        }
-
-        try {
-            SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding()
-                    .withInstanceMethods()
-                    .build();
-
-            Map<String, BigDecimal> variables = new HashMap<>();
-            variables.put("amount", baseAmount);
-
-            String processedFormula = formula.replace("amount", baseAmount.toPlainString());
-            Object result = expressionParser.parseExpression(processedFormula).getValue(context);
-
-            if (result instanceof Number) {
-                return new BigDecimal(result.toString()).setScale(2, RoundingMode.HALF_UP);
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid formula: " + formula, e);
-        }
-
-        return baseAmount;
+        return formulaEvaluator.evaluate(formula, FormulaContext.of(baseAmount));
     }
 
     private void validateJournalBalance(List<JournalEntry> entries) {

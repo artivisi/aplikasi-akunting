@@ -1,6 +1,6 @@
 package com.artivisi.accountingfinance.service;
 
-import com.artivisi.accountingfinance.entity.ChartOfAccount;
+import com.artivisi.accountingfinance.dto.FormulaContext;
 import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.entity.JournalTemplateLine;
@@ -10,12 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +20,7 @@ public class TemplateExecutionEngine {
 
     private final JournalEntryService journalEntryService;
     private final JournalTemplateService journalTemplateService;
+    private final FormulaEvaluator formulaEvaluator;
 
     /**
      * Execute a template and create journal entries.
@@ -145,63 +143,13 @@ public class TemplateExecutionEngine {
     }
 
     /**
-     * Evaluate formula expressions.
-     * Supported formats:
-     * - "amount" - returns the full amount
-     * - "amount * 0.11" - multiplies amount by factor
-     * - "amount / 2" - divides amount by factor
-     * - Numeric literal like "1000000" - returns the constant
+     * Evaluate formula expressions using FormulaEvaluator.
+     * Delegates to unified SpEL-based evaluation.
+     *
+     * @see FormulaEvaluator
      */
     BigDecimal evaluateFormula(String formula, BigDecimal amount) {
-        if (formula == null || formula.isBlank()) {
-            return amount;
-        }
-
-        String trimmed = formula.trim().toLowerCase();
-
-        // Handle simple "amount"
-        if (trimmed.equals("amount")) {
-            return amount;
-        }
-
-        // Handle multiplication: amount * factor
-        Pattern multiplyPattern = Pattern.compile("amount\\s*\\*\\s*([0-9.]+)");
-        Matcher multiplyMatcher = multiplyPattern.matcher(trimmed);
-        if (multiplyMatcher.matches()) {
-            BigDecimal factor = new BigDecimal(multiplyMatcher.group(1));
-            return amount.multiply(factor).setScale(2, RoundingMode.HALF_UP);
-        }
-
-        // Handle division: amount / factor
-        Pattern dividePattern = Pattern.compile("amount\\s*/\\s*([0-9.]+)");
-        Matcher divideMatcher = dividePattern.matcher(trimmed);
-        if (divideMatcher.matches()) {
-            BigDecimal divisor = new BigDecimal(divideMatcher.group(1));
-            return amount.divide(divisor, 2, RoundingMode.HALF_UP);
-        }
-
-        // Handle subtraction: amount - factor
-        Pattern subtractPattern = Pattern.compile("amount\\s*-\\s*([0-9.]+)");
-        Matcher subtractMatcher = subtractPattern.matcher(trimmed);
-        if (subtractMatcher.matches()) {
-            BigDecimal subtractValue = new BigDecimal(subtractMatcher.group(1));
-            return amount.subtract(subtractValue).setScale(2, RoundingMode.HALF_UP);
-        }
-
-        // Handle addition: amount + factor
-        Pattern addPattern = Pattern.compile("amount\\s*\\+\\s*([0-9.]+)");
-        Matcher addMatcher = addPattern.matcher(trimmed);
-        if (addMatcher.matches()) {
-            BigDecimal addValue = new BigDecimal(addMatcher.group(1));
-            return amount.add(addValue).setScale(2, RoundingMode.HALF_UP);
-        }
-
-        // Try to parse as numeric constant
-        try {
-            return new BigDecimal(trimmed).setScale(2, RoundingMode.HALF_UP);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid formula: " + formula);
-        }
+        return formulaEvaluator.evaluate(formula, FormulaContext.of(amount));
     }
 
     // Records for input/output
