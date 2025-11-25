@@ -7,7 +7,7 @@
     <title th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</title>
 </head>
 <body>
-    <h1 layout:fragment="page-title" th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</h1>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${isEdit} ? 'Edit Template' : (${isDuplicate} ? 'Duplikat Template' : 'Template Baru')">Template</h1>
 
     <div layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
         <div class="max-w-4xl">
@@ -36,46 +36,9 @@
             </div>
 
             <!-- Main Form -->
-            <form action="#" method="post"
-                  x-data="{
-                      templateName: '',
-                      category: '',
-                      cashFlow: 'operating',
-                      templateType: 'simple',
-                      journalLines: [
-                          { id: 1, account: '1.1.02', accountName: 'Bank BCA', position: 'debit', formula: 'amount' },
-                          { id: 2, account: '4.1.01', accountName: 'Pendapatan Jasa', position: 'credit', formula: 'amount' }
-                      ],
-                      nextLineId: 3,
-                      addLine() {
-                          this.journalLines.push({
-                              id: this.nextLineId++,
-                              account: '',
-                              accountName: '',
-                              position: 'debit',
-                              formula: 'amount'
-                          });
-                      },
-                      removeLine(id) {
-                          if (this.journalLines.length > 2) {
-                              this.journalLines = this.journalLines.filter(l => l.id !== id);
-                          }
-                      },
-                      getCategoryColor(cat) {
-                          const colors = {
-                              income: 'bg-green-100 text-green-800',
-                              expense: 'bg-red-100 text-red-800',
-                              payment: 'bg-blue-100 text-blue-800',
-                              receipt: 'bg-cyan-100 text-cyan-800',
-                              transfer: 'bg-purple-100 text-purple-800'
-                          };
-                          return colors[cat] || 'bg-gray-100 text-gray-800';
-                      },
-                      getCashFlowLabel(cf) {
-                          const labels = { operating: 'Operasional', investing: 'Investasi', financing: 'Pendanaan' };
-                          return labels[cf] || cf;
-                      }
-                  }">
+            <form th:action="${isEdit} ? @{/templates/{id}(id=${template.id})} : @{/templates}" method="post"
+                  x-data="templateForm()"
+                  x-init="init()">
 
                 <!-- Template Info Section -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
@@ -105,11 +68,8 @@
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                         required>
                                     <option value="">Pilih kategori</option>
-                                    <option value="income">Pendapatan</option>
-                                    <option value="expense">Pengeluaran</option>
-                                    <option value="payment">Pembayaran</option>
-                                    <option value="receipt">Penerimaan</option>
-                                    <option value="transfer">Transfer</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.name()}"
+                                            th:text="${cat.name() == 'INCOME'} ? 'Pendapatan' : (${cat.name() == 'EXPENSE'} ? 'Pengeluaran' : (${cat.name() == 'PAYMENT'} ? 'Pembayaran' : (${cat.name() == 'RECEIPT'} ? 'Penerimaan' : (${cat.name() == 'TRANSFER'} ? 'Transfer' : 'Penyesuaian'))))">Category</option>
                                 </select>
                             </div>
 
@@ -134,12 +94,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <select id="cashFlow" name="cashFlow" x-model="cashFlow"
+                                <select id="cashFlow" name="cashFlowCategory" x-model="cashFlowCategory"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                         required>
-                                    <option value="operating">Aktivitas Operasional</option>
-                                    <option value="investing">Aktivitas Investasi</option>
-                                    <option value="financing">Aktivitas Pendanaan</option>
+                                    <option th:each="cf : ${cashFlowCategories}" th:value="${cf.name()}"
+                                            th:text="${cf.name() == 'OPERATING'} ? 'Aktivitas Operasional' : (${cf.name() == 'INVESTING'} ? 'Aktivitas Investasi' : 'Aktivitas Pendanaan')">Cash Flow</option>
                                 </select>
                             </div>
 
@@ -164,8 +123,8 @@
                                 </div>
                                 <select id="templateType" name="templateType" x-model="templateType"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <option value="simple">Sederhana (satu jumlah)</option>
-                                    <option value="detailed">Terperinci (jumlah per baris)</option>
+                                    <option th:each="tt : ${templateTypes}" th:value="${tt.name()}"
+                                            th:text="${tt.name() == 'SIMPLE'} ? 'Sederhana (satu jumlah)' : 'Terperinci (jumlah per baris)'">Type</option>
                                 </select>
                             </div>
 
@@ -186,15 +145,9 @@
                     <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
                         <div class="flex items-center space-x-3 text-sm">
                             <span class="text-gray-600">Preview:</span>
-                            <span x-show="category" :class="getCategoryColor(category)" class="px-2 py-0.5 rounded-full text-xs font-medium">
-                                <span x-show="category === 'income'">Pendapatan</span>
-                                <span x-show="category === 'expense'">Pengeluaran</span>
-                                <span x-show="category === 'payment'">Pembayaran</span>
-                                <span x-show="category === 'receipt'">Penerimaan</span>
-                                <span x-show="category === 'transfer'">Transfer</span>
-                            </span>
-                            <span x-show="cashFlow" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700" x-text="getCashFlowLabel(cashFlow)"></span>
-                            <span x-show="templateType === 'detailed'" class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Terperinci</span>
+                            <span x-show="category" :class="getCategoryColor(category)" class="px-2 py-0.5 rounded-full text-xs font-medium" x-text="getCategoryLabel(category)"></span>
+                            <span x-show="cashFlowCategory" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700" x-text="getCashFlowLabel(cashFlowCategory)"></span>
+                            <span x-show="templateType === 'DETAILED'" class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Terperinci</span>
                         </div>
                     </div>
                 </div>
@@ -261,46 +214,31 @@
                                 <div class="grid grid-cols-12 gap-2 px-4 py-3 border-t border-gray-100 items-center">
                                     <!-- Account Selection -->
                                     <div class="col-span-4">
-                                        <select x-model="line.account"
-                                                @change="line.accountName = $event.target.options[$event.target.selectedIndex].text.split(' - ')[1] || ''"
+                                        <select x-model="line.accountId"
+                                                :id="'line-account-' + index"
+                                                :name="'lines[' + index + '].accountId'"
                                                 class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                                             <option value="">Pilih akun</option>
-                                            <optgroup label="Kas &amp; Bank">
-                                                <option value="1.1.01">1.1.01 - Kas</option>
-                                                <option value="1.1.02">1.1.02 - Bank BCA</option>
-                                                <option value="1.1.03">1.1.03 - Bank BNI</option>
-                                            </optgroup>
-                                            <optgroup label="Piutang">
-                                                <option value="1.2.01">1.2.01 - Piutang Usaha</option>
-                                            </optgroup>
-                                            <optgroup label="Hutang">
-                                                <option value="2.1.01">2.1.01 - Hutang Usaha</option>
-                                                <option value="2.1.02">2.1.02 - Hutang PPN</option>
-                                            </optgroup>
-                                            <optgroup label="Pendapatan">
-                                                <option value="4.1.01">4.1.01 - Pendapatan Jasa</option>
-                                                <option value="4.1.02">4.1.02 - Pendapatan Konsultasi</option>
-                                            </optgroup>
-                                            <optgroup label="Beban">
-                                                <option value="5.1.01">5.1.01 - Beban Gaji</option>
-                                                <option value="5.1.02">5.1.02 - Beban Listrik</option>
-                                                <option value="5.1.03">5.1.03 - Beban Server</option>
-                                            </optgroup>
+                                            <option th:each="account : ${accounts}"
+                                                    th:value="${account.id}"
+                                                    th:text="${account.accountCode + ' - ' + account.accountName}">Account</option>
                                         </select>
+                                        <input type="hidden" :name="'lines[' + index + '].lineOrder'" :value="index + 1">
                                     </div>
 
                                     <!-- Position (Debit/Credit) -->
                                     <div class="col-span-2 flex justify-center">
+                                        <input type="hidden" :name="'lines[' + index + '].position'" :value="line.position">
                                         <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden">
                                             <button type="button"
-                                                    @click="line.position = 'debit'"
-                                                    :class="line.position === 'debit' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                                    @click="line.position = 'DEBIT'"
+                                                    :class="line.position === 'DEBIT' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                                                     class="px-3 py-1 text-xs font-medium transition-colors">
                                                 Debit
                                             </button>
                                             <button type="button"
-                                                    @click="line.position = 'credit'"
-                                                    :class="line.position === 'credit' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                                    @click="line.position = 'CREDIT'"
+                                                    :class="line.position === 'CREDIT' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                                                     class="px-3 py-1 text-xs font-medium border-l border-gray-300 transition-colors">
                                                 Kredit
                                             </button>
@@ -310,6 +248,7 @@
                                     <!-- Formula Input -->
                                     <div class="col-span-4">
                                         <input type="text" x-model="line.formula"
+                                               :name="'lines[' + index + '].formula'"
                                                placeholder="amount"
                                                class="w-full px-2 py-1.5 text-sm font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                                     </div>
@@ -352,11 +291,11 @@
                                     <div class="flex items-center space-x-4">
                                         <span class="text-gray-600">Total baris: <span class="font-medium text-gray-900" x-text="journalLines.length"></span></span>
                                         <span class="text-gray-400">|</span>
-                                        <span class="text-gray-600">Debit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'debit').length"></span></span>
-                                        <span class="text-gray-600">Kredit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'credit').length"></span></span>
+                                        <span class="text-gray-600">Debit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'DEBIT').length"></span></span>
+                                        <span class="text-gray-600">Kredit: <span class="font-medium text-gray-900" x-text="journalLines.filter(l => l.position === 'CREDIT').length"></span></span>
                                     </div>
                                     <div class="flex items-center text-xs">
-                                        <template x-if="journalLines.filter(l => l.position === 'debit').length > 0 && journalLines.filter(l => l.position === 'credit').length > 0">
+                                        <template x-if="journalLines.filter(l => l.position === 'DEBIT').length > 0 && journalLines.filter(l => l.position === 'CREDIT').length > 0">
                                             <span class="flex items-center text-accent-700">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -364,7 +303,7 @@
                                                 Struktur valid
                                             </span>
                                         </template>
-                                        <template x-if="journalLines.filter(l => l.position === 'debit').length === 0 || journalLines.filter(l => l.position === 'credit').length === 0">
+                                        <template x-if="journalLines.filter(l => l.position === 'DEBIT').length === 0 || journalLines.filter(l => l.position === 'CREDIT').length === 0">
                                             <span class="flex items-center text-amber-600">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -450,5 +389,111 @@
             </form>
         </div>
     </div>
+
+    <script th:inline="javascript" layout:fragment="scripts">
+        function templateForm() {
+            return {
+                templateName: '',
+                category: '',
+                cashFlowCategory: 'OPERATING',
+                templateType: 'SIMPLE',
+                journalLines: [],
+                nextLineId: 1,
+
+                init() {
+                    /*<![CDATA[*/
+                    const isEdit = /*[[${isEdit}]]*/ false;
+                    const isDuplicate = /*[[${isDuplicate}]]*/ false;
+
+                    if (isEdit || isDuplicate) {
+                        this.templateName = /*[[${template?.templateName ?: (sourceTemplate?.templateName ?: '')}]]*/ '';
+                        this.category = /*[[${template?.category?.name() ?: (sourceTemplate?.category?.name() ?: '')}]]*/ '';
+                        this.cashFlowCategory = /*[[${template?.cashFlowCategory?.name() ?: (sourceTemplate?.cashFlowCategory?.name() ?: 'OPERATING')}]]*/ 'OPERATING';
+                        this.templateType = /*[[${template?.templateType?.name() ?: (sourceTemplate?.templateType?.name() ?: 'SIMPLE')}]]*/ 'SIMPLE';
+
+                        // Load existing lines from server-rendered data
+                        const templateLines = [
+                            /*[# th:each="line, iterStat : ${template != null ? template.lines : (sourceTemplate != null ? sourceTemplate.lines : {})}" ]*/
+                            {
+                                id: /*[[${iterStat.index + 1}]]*/ 1,
+                                accountId: /*[[${line.account?.id ?: ''}]]*/ '',
+                                position: /*[[${line.position?.name() ?: 'DEBIT'}]]*/ 'DEBIT',
+                                formula: /*[[${line.formula ?: 'amount'}]]*/ 'amount'
+                            },
+                            /*[/]*/
+                        ];
+
+                        // Remove trailing empty object if no lines exist
+                        this.journalLines = templateLines.filter(line => line.accountId !== '');
+
+                        if (this.journalLines.length > 0) {
+                            this.nextLineId = this.journalLines.length + 1;
+                        } else {
+                            this.addDefaultLines();
+                        }
+                    } else {
+                        this.addDefaultLines();
+                    }
+                    /*]]>*/
+                },
+
+                addDefaultLines() {
+                    this.journalLines = [
+                        { id: 1, accountId: '', position: 'DEBIT', formula: 'amount' },
+                        { id: 2, accountId: '', position: 'CREDIT', formula: 'amount' }
+                    ];
+                    this.nextLineId = 3;
+                },
+
+                addLine() {
+                    this.journalLines.push({
+                        id: this.nextLineId++,
+                        accountId: '',
+                        position: 'DEBIT',
+                        formula: 'amount'
+                    });
+                },
+
+                removeLine(id) {
+                    if (this.journalLines.length > 2) {
+                        this.journalLines = this.journalLines.filter(l => l.id !== id);
+                    }
+                },
+
+                getCategoryColor(cat) {
+                    const colors = {
+                        'INCOME': 'bg-green-100 text-green-800',
+                        'EXPENSE': 'bg-red-100 text-red-800',
+                        'PAYMENT': 'bg-blue-100 text-blue-800',
+                        'RECEIPT': 'bg-cyan-100 text-cyan-800',
+                        'TRANSFER': 'bg-purple-100 text-purple-800',
+                        'ADJUSTMENT': 'bg-amber-100 text-amber-800'
+                    };
+                    return colors[cat] || 'bg-gray-100 text-gray-800';
+                },
+
+                getCategoryLabel(cat) {
+                    const labels = {
+                        'INCOME': 'Pendapatan',
+                        'EXPENSE': 'Pengeluaran',
+                        'PAYMENT': 'Pembayaran',
+                        'RECEIPT': 'Penerimaan',
+                        'TRANSFER': 'Transfer',
+                        'ADJUSTMENT': 'Penyesuaian'
+                    };
+                    return labels[cat] || cat;
+                },
+
+                getCashFlowLabel(cf) {
+                    const labels = {
+                        'OPERATING': 'Operasional',
+                        'INVESTING': 'Investasi',
+                        'FINANCING': 'Pendanaan'
+                    };
+                    return labels[cf] || cf;
+                }
+            };
+        }
+    </script>
 </body>
 </html>

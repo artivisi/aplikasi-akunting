@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.controller;
 
+import com.artivisi.accountingfinance.dto.ExecuteTemplateDto;
 import com.artivisi.accountingfinance.dto.JournalTemplateDto;
 import com.artivisi.accountingfinance.dto.JournalTemplateLineDto;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
@@ -10,6 +11,7 @@ import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.enums.TemplateType;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
+import com.artivisi.accountingfinance.service.TemplateExecutionEngine;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +41,7 @@ public class JournalTemplateController {
 
     private final JournalTemplateService journalTemplateService;
     private final ChartOfAccountService chartOfAccountService;
+    private final TemplateExecutionEngine templateExecutionEngine;
 
     @GetMapping
     public String list(
@@ -106,6 +111,38 @@ public class JournalTemplateController {
         model.addAttribute("templateTypes", TemplateType.values());
         model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
         return "templates/form";
+    }
+
+    @GetMapping("/{id}/execute")
+    public String executePage(@PathVariable UUID id, Model model) {
+        model.addAttribute("currentPage", "templates");
+        model.addAttribute("template", journalTemplateService.findByIdWithLines(id));
+        return "templates/execute";
+    }
+
+    // Form POST Endpoints
+
+    @PostMapping
+    public String create(@Valid JournalTemplateDto dto, RedirectAttributes redirectAttributes) {
+        JournalTemplate template = mapDtoToEntity(dto);
+        JournalTemplate saved = journalTemplateService.create(template);
+        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil dibuat");
+        return "redirect:/templates/" + saved.getId();
+    }
+
+    @PostMapping("/{id}")
+    public String update(@PathVariable UUID id, @Valid JournalTemplateDto dto, RedirectAttributes redirectAttributes) {
+        JournalTemplate template = mapDtoToEntity(dto);
+        JournalTemplate updated = journalTemplateService.update(id, template);
+        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil diperbarui (versi " + updated.getVersion() + ")");
+        return "redirect:/templates/" + id;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        journalTemplateService.delete(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil dihapus");
+        return "redirect:/templates";
     }
 
     // REST API Endpoints
@@ -189,6 +226,34 @@ public class JournalTemplateController {
     public ResponseEntity<Void> apiDelete(@PathVariable UUID id) {
         journalTemplateService.delete(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/{id}/preview")
+    @ResponseBody
+    public ResponseEntity<TemplateExecutionEngine.PreviewResult> apiPreview(
+            @PathVariable UUID id,
+            @Valid @RequestBody ExecuteTemplateDto dto) {
+        JournalTemplate template = journalTemplateService.findByIdWithLines(id);
+        TemplateExecutionEngine.ExecutionContext context = new TemplateExecutionEngine.ExecutionContext(
+                dto.transactionDate(),
+                dto.amount(),
+                dto.description()
+        );
+        return ResponseEntity.ok(templateExecutionEngine.preview(template, context));
+    }
+
+    @PostMapping("/api/{id}/execute")
+    @ResponseBody
+    public ResponseEntity<TemplateExecutionEngine.ExecutionResult> apiExecute(
+            @PathVariable UUID id,
+            @Valid @RequestBody ExecuteTemplateDto dto) {
+        JournalTemplate template = journalTemplateService.findByIdWithLines(id);
+        TemplateExecutionEngine.ExecutionContext context = new TemplateExecutionEngine.ExecutionContext(
+                dto.transactionDate(),
+                dto.amount(),
+                dto.description()
+        );
+        return ResponseEntity.ok(templateExecutionEngine.execute(template, context));
     }
 
     private JournalTemplate mapDtoToEntity(JournalTemplateDto dto) {
