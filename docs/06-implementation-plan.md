@@ -1059,6 +1059,49 @@ echo "Restore completed"
 - [ ] Test backup/restore
 - [ ] Document admin procedures
 
+#### Data Migration (From Excel)
+
+##### Migration Strategy
+- Opening balance from Jan 1, 2025 Balance Sheet
+- Manual transaction entry for Jan-Nov 2025 (~550 transactions)
+- Verify Trial Balance against Excel before go-live
+
+##### Step 1: Opening Balance Entry (Jan 1, 2025)
+- [ ] Prepare Balance Sheet figures from Excel
+- [ ] Create single journal entry with all opening balances:
+  ```
+  Dr. Assets (Kas, Bank, Piutang, etc.)
+  Cr. Contra Assets (Akum. Penyusutan)
+  Cr. Liabilities (Hutang, Kewajiban Escrow)
+  Cr. Equity (Modal Disetor, Laba Ditahan)
+  ```
+- [ ] Verify: Total Debit = Total Credit
+- [ ] Post opening balance entry
+
+##### Step 2: Enter Historical Transactions
+- [ ] Enter Jan 2025 transactions (~50)
+- [ ] Enter Feb 2025 transactions (~50)
+- [ ] Enter Mar 2025 transactions (~50)
+- [ ] Enter Apr 2025 transactions (~50)
+- [ ] Enter May 2025 transactions (~50)
+- [ ] Enter Jun 2025 transactions (~50)
+- [ ] Enter Jul 2025 transactions (~50)
+- [ ] Enter Aug 2025 transactions (~50)
+- [ ] Enter Sep 2025 transactions (~50)
+- [ ] Enter Oct 2025 transactions (~50)
+- [ ] Enter Nov 2025 transactions (~50)
+
+##### Step 3: Verification
+- [ ] Generate Trial Balance from app
+- [ ] Compare with Excel totals per account
+- [ ] Investigate and fix discrepancies
+- [ ] Final sign-off: Trial Balance matches
+
+##### Step 4: Go Live
+- [ ] Switch to app for new transactions
+- [ ] Archive Excel files (read-only backup)
+- [ ] Document cutover date
+
 ---
 
 **Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments, track project/client profitability with milestones and payment terms
