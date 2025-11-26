@@ -1270,6 +1270,78 @@ CREATE INDEX idx_documents_journal_entry ON documents(journal_entry_id);
 - [ ] Receipt data extraction service
 - [ ] Fallback to raw text if parsing fails
 
+##### Google Cloud Vision Setup (One-time Admin Setup)
+
+**Step 1: Create Google Cloud Project**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project: `akunting-receipt-ocr`
+3. Note the Project ID (e.g., `akunting-receipt-ocr-12345`)
+
+**Step 2: Enable Vision API**
+1. Go to **APIs & Services** → **Library**
+2. Search for "Cloud Vision API"
+3. Click **Enable**
+
+**Step 3: Create Service Account**
+1. Go to **APIs & Services** → **Credentials**
+2. Click **Create Credentials** → **Service Account**
+3. Name: `receipt-ocr-service`
+4. Role: **Cloud Vision API User** (or basic **Viewer** for read-only)
+5. Click **Done**
+
+**Step 4: Generate JSON Key**
+1. Click on the created service account
+2. Go to **Keys** tab
+3. **Add Key** → **Create new key** → **JSON**
+4. Download the JSON file (e.g., `akunting-receipt-ocr-credentials.json`)
+5. Store securely (never commit to git!)
+
+**Step 5: Configure Application**
+```bash
+# Option A: Environment variable (recommended for production)
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/akunting-receipt-ocr-credentials.json
+
+# Option B: application.yml (for development)
+google:
+  cloud:
+    vision:
+      credentials-path: ${GOOGLE_CLOUD_CREDENTIALS_PATH}
+```
+
+**Step 6: Verify Setup**
+```bash
+# Test with gcloud CLI (optional)
+gcloud auth activate-service-account --key-file=credentials.json
+gcloud ml vision detect-text ./test-receipt.jpg
+```
+
+**Pricing & Free Tier:**
+| Feature | Free Tier | Price After |
+|---------|-----------|-------------|
+| DOCUMENT_TEXT_DETECTION | 1,000 units/month | $1.50 per 1,000 |
+| TEXT_DETECTION | 1,000 units/month | $1.50 per 1,000 |
+
+**Note:** DOCUMENT_TEXT_DETECTION is better for receipts (handles multi-column layouts)
+
+**Maven Dependency:**
+```xml
+<dependency>
+    <groupId>com.google.cloud</groupId>
+    <artifactId>google-cloud-vision</artifactId>
+    <version>3.31.0</version>
+</dependency>
+```
+
+**Spring Boot Configuration:**
+```yaml
+# application.yml
+google:
+  cloud:
+    vision:
+      enabled: true
+      credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}
+```
+
 ##### Receipt Parsing
 - [ ] Extract merchant name (usually top of receipt)
 - [ ] Extract transaction date/time
