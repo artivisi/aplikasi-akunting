@@ -10,83 +10,99 @@
     <h1 layout:fragment="page-title" id="page-title">Dashboard</h1>
 
     <div layout:fragment="content" id="dashboard-content" class="h-full flex flex-col">
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <!-- Total Pendapatan -->
-            <div id="card-pendapatan" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Pendapatan</p>
-                        <p class="text-lg font-bold text-gray-900">Rp 45.5jt</p>
-                        <p class="text-xs text-accent-600 flex items-center">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                            </svg>
-                            +12.5%
-                        </p>
+        <!-- KPI Cards - Loaded via HTMX -->
+        <div id="dashboard-kpis-container"
+             hx-get="/dashboard/kpis"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <!-- Loading skeleton while HTMX loads -->
+            <div class="animate-pulse">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-5 bg-gray-200 rounded w-32"></div>
+                    <div class="h-8 bg-gray-200 rounded w-32"></div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-accent-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Total Pengeluaran -->
-            <div id="card-pengeluaran" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Pengeluaran</p>
-                        <p class="text-lg font-bold text-gray-900">Rp 28.7jt</p>
-                        <p class="text-xs text-red-600 flex items-center">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                            </svg>
-                            +8.2%
-                        </p>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Laba Bersih -->
-            <div id="card-laba-bersih" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Laba Bersih</p>
-                        <p class="text-lg font-bold text-gray-900">Rp 16.7jt</p>
-                        <p class="text-xs text-accent-600 flex items-center">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                            </svg>
-                            +18.3%
-                        </p>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transaksi Bulan Ini -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Transaksi</p>
-                        <p class="text-lg font-bold text-gray-900">127</p>
-                        <p class="text-xs text-gray-500">Bulan ini</p>
-                    </div>
-                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-16"></div>
+                                <div class="h-6 bg-gray-200 rounded w-20"></div>
+                                <div class="h-3 bg-gray-200 rounded w-12"></div>
+                            </div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ## Current Status
 
 - **Phase 0:** ✅ Complete (project setup, auth, CI/CD)
-- **Phase 1:** 🔄 In Progress (Core Accounting MVP)
+- **Phase 1:** ✅ Complete (Core Accounting MVP)
   - 1.1 COA: ✅ Complete
   - 1.2 Journal Entries: ✅ Complete
   - 1.3 Basic Reports: ✅ Complete
@@ -17,12 +17,9 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.7 Template Enhancements: ✅ Complete
   - 1.7.5 HTMX Optimization: ✅ Complete
   - 1.8 Amortization Schedules: ✅ Complete
-  - 1.9 Project Tracking: 🔄 In Progress - See `TODO-PROJECT-TRACKING.md`
-    - Client/Project/Milestone Management: ✅ Complete
-    - Payment Terms & Invoices: ✅ Complete
-    - Transaction-Project Linking: ✅ Complete
-    - Profitability Reports: ⏳ Pending
-  - 1.10 Dashboard KPIs: ⏳ Pending
+  - 1.9 Project Tracking: ✅ Complete
+  - 1.10 Dashboard KPIs: ✅ Complete
+- **Phase 2:** ⏳ Next (Tax Compliance)
   - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -75,12 +72,16 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Project Tracking (1.9) - See `TODO-PROJECT-TRACKING.md`:
-- ✅ Database schema (clients, projects, milestones, payment_terms, invoices)
-- ✅ Client management (entity, service, controller, UI)
-- ✅ Project management with milestones
-- ✅ Payment terms and invoice generation
-- ✅ Transaction-project linking
-- ⏳ Profitability reports (project, client, cost overrun)
+Phase 1 Core Accounting MVP is now complete. Ready for Phase 2 (Tax Compliance).
 
-Next: Dashboard KPIs (1.10)
+Key completed features:
+- Chart of Accounts with IT Services pre-seeded template
+- Double-entry journal entries with posting workflow
+- Trial Balance, Income Statement, Balance Sheet reports
+- Journal Templates with formula support
+- Transactions (user-friendly interface for business users)
+- Amortization Schedules (prepaid/unearned items)
+- Project Tracking (clients, projects, milestones, invoices, profitability)
+- Dashboard KPIs (revenue, expenses, profit, cash, receivables, payables)
+
+Next: Phase 2 Tax Compliance - See `docs/06-implementation-plan.md`

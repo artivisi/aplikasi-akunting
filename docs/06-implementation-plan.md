@@ -421,7 +421,7 @@ Expenses:
 
 ---
 
-### 1.9 Project Tracking 🔄
+### 1.9 Project Tracking ✅
 
 **Purpose:** Track profitability per project/job for service businesses.
 
@@ -460,7 +460,7 @@ Expenses:
 - [x] Invoice generation from payment term
 - [x] Invoice status tracking (draft, sent, paid, overdue)
 - [x] Link invoice to payment term
-- [ ] Auto-trigger revenue recognition on milestone completion
+- [x] Auto-trigger revenue recognition on milestone completion
 
 #### UI with HTMX
 - Project list: HTMX filters (status, client) - swap table without full reload
@@ -601,13 +601,13 @@ When milestone is marked complete:
 **Dependencies:** Reports (1.3), AccountBalanceCalculator
 
 #### KPI Features
-- [ ] Revenue (current month, vs previous month %)
-- [ ] Expenses (current month, vs previous month %)
-- [ ] Net Profit (current month, vs previous month %)
-- [ ] Profit Margin % (current month, vs previous month pts)
-- [ ] Cash Balance (sum of cash/bank accounts)
-- [ ] Receivables Total (Piutang Usaha balance)
-- [ ] Payables Total (Hutang Usaha balance)
+- [x] Revenue (current month, vs previous month %)
+- [x] Expenses (current month, vs previous month %)
+- [x] Net Profit (current month, vs previous month %)
+- [x] Profit Margin % (current month, vs previous month pts)
+- [x] Cash Balance (sum of cash/bank accounts)
+- [x] Receivables Total (Piutang Usaha balance)
+- [x] Payables Total (Hutang Usaha balance)
 
 #### UI Mockup
 ```
@@ -632,13 +632,13 @@ When milestone is marked complete:
 - Fragment: `fragments/dashboard-kpis.html`
 
 #### Implementation
-- [ ] Create DashboardService with KPI calculation methods
-- [ ] Create DashboardController with HTMX endpoint
-- [ ] Create dashboard-kpis.html fragment
-- [ ] Update dashboard.html to load KPIs via HTMX
-- [ ] Add date range selector for historical comparison
-- [ ] Pending amortization entries count widget
-- [ ] Link to pending amortization entries list
+- [x] Create DashboardService with KPI calculation methods
+- [x] Create DashboardController with HTMX endpoint
+- [x] Create dashboard-kpis.html fragment
+- [x] Update dashboard.html to load KPIs via HTMX
+- [x] Add month selector for historical comparison
+- [ ] Pending amortization entries count widget (deferred to Phase 2)
+- [ ] Link to pending amortization entries list (deferred to Phase 2)
 
 ---
 
@@ -653,7 +653,7 @@ When milestone is marked complete:
 - [ ] Trial Balance balances (validates double-entry correctness)
 - [ ] Can generate Balance Sheet and Income Statement
 - [ ] Can export reports to PDF/Excel
-- [ ] Dashboard shows KPIs (revenue, expenses, profit, cash, receivables, payables)
+- [x] Dashboard shows KPIs (revenue, expenses, profit, cash, receivables, payables)
 - [ ] Can set up amortization schedules for prepaid/unearned items
 - [ ] Period-end adjustments auto-generated from schedules
 - [ ] Can create and manage clients
