@@ -1163,43 +1163,258 @@ echo "Restore completed"
 ### 2.0 Infrastructure (Deferred from Phase 0)
 - [ ] Local storage directory setup
 
-### 2.1 Document Attachment
-- [ ] Document entity
-- [ ] Local filesystem storage
-- [ ] File upload UI (single file)
-- [ ] Attach to transaction
-- [ ] View/download document
-- [ ] Thumbnail generation (images)
+### 2.1 Transaction Evidence (Document Attachment)
+
+**Purpose:** Attach receipts, invoices, and supporting documents to transactions.
+
+**Dependencies:** Transactions (1.5)
+
+**Reused by:** Telegram Receipt Import (2.2)
+
+#### Features
+- [ ] Document entity (id, filename, content_type, size, storage_path, checksum)
+- [ ] Local filesystem storage service
+- [ ] Storage directory configuration (application.yml)
+- [ ] File upload UI (drag-and-drop, single file)
+- [ ] Attach document to transaction (transaction_id FK)
+- [ ] Attach document to journal entry (journal_entry_id FK)
+- [ ] View document (inline for images/PDFs)
+- [ ] Download document
+- [ ] Thumbnail generation (images only, lazy)
+- [ ] Delete document (soft delete, keep file for audit)
+- [ ] File type validation (images, PDF only for MVP)
+- [ ] File size limit (10MB default)
 
 ```sql
--- V008: Documents
-documents
+-- V009: Documents
+documents (id, filename, original_filename, content_type, file_size,
+    storage_path, checksum_sha256,
+    transaction_id, journal_entry_id, invoice_id,
+    uploaded_by, uploaded_at, deleted_at)
+
+CREATE INDEX idx_documents_transaction ON documents(transaction_id);
+CREATE INDEX idx_documents_journal_entry ON documents(journal_entry_id);
 ```
 
-### 2.2 Tax Accounts Setup
+#### Storage Structure
+```
+/data/documents/
+  ├── 2025/
+  │   ├── 01/
+  │   │   ├── {uuid}.jpg
+  │   │   ├── {uuid}.pdf
+  │   │   └── {uuid}_thumb.jpg
+  │   └── 02/
+  └── 2026/
+```
+
+#### UI Integration
+- Transaction form: document upload section
+- Transaction detail: document preview/download
+- Journal entry detail: linked documents list
+
+---
+
+### 2.2 Telegram Receipt Import
+
+**Purpose:** Capture receipts via Telegram bot, auto-extract transaction data using OCR, create draft transactions for review.
+
+**Dependencies:** Document Attachment (2.1), Transactions (1.5), Templates (1.4)
+
+**External Services:** Google Cloud Vision API (free tier: 1,000 units/month)
+
+#### Architecture
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
+│ Telegram Bot│───►│ Spring Boot  │───►│ Google Vision   │───►│ Draft Trans  │
+│ (photo)     │    │ (webhook)    │    │ (OCR + parsing) │    │ (review UI)  │
+└─────────────┘    └──────────────┘    └─────────────────┘    └──────────────┘
+                          │                                          │
+                          └──────────► Document Storage ◄────────────┘
+```
+
+#### Features
+
+##### Telegram Bot Integration
+- [ ] TelegramBots library dependency (org.telegram:telegrambots)
+- [ ] Bot configuration (token, username in application.yml)
+- [ ] Long polling mode (simpler, no HTTPS required)
+- [ ] User registration flow (link Telegram user to app user)
+- [ ] Photo message handler
+- [ ] Text command handler (/start, /status, /help)
+- [ ] Rate limiting (max 10 receipts/hour per user)
+
+##### Receipt OCR (Google Cloud Vision)
+- [ ] Google Cloud Vision client dependency
+- [ ] Vision API configuration (credentials JSON)
+- [ ] Document text detection (DOCUMENT_TEXT_DETECTION)
+- [ ] Receipt data extraction service
+- [ ] Fallback to raw text if parsing fails
+
+##### Receipt Parsing
+- [ ] Extract merchant name (usually top of receipt)
+- [ ] Extract transaction date/time
+- [ ] Extract total amount (look for "TOTAL", "GRAND TOTAL", etc.)
+- [ ] Extract payment method (if visible)
+- [ ] Extract items list (optional, for detailed matching)
+- [ ] Indonesian receipt format handling (Rp, IDR)
+- [ ] Confidence scoring per field
+
+##### Merchant-to-Template Mapping
+- [ ] MerchantMapping entity (pattern → template)
+- [ ] Fuzzy merchant name matching
+- [ ] Auto-learn from user selections
+- [ ] Mapping CRUD UI
+- [ ] Bulk import common merchants
+
+##### Draft Transaction Workflow
+- [ ] DraftTransaction entity (pending external transactions)
+- [ ] Draft list UI with filters (status, date, source)
+- [ ] Draft detail/edit UI
+- [ ] Review and approve workflow
+- [ ] Reject with reason
+- [ ] Batch approve selected drafts
+- [ ] Auto-approve rules (high confidence + known merchant)
+
+```sql
+-- V010: Telegram Receipt Import
+telegram_user_links (id, user_id, telegram_user_id, telegram_username,
+    linked_at, is_active)
+
+draft_transactions (id, source, source_reference, telegram_message_id,
+    -- Extracted data
+    merchant_name, transaction_date, amount, currency, raw_ocr_text,
+    -- Parsed fields confidence (0-1)
+    merchant_confidence, date_confidence, amount_confidence,
+    -- Mapping
+    suggested_template_id, overall_confidence,
+    -- Document
+    document_id,
+    -- Status
+    status, rejection_reason,
+    created_by, created_at, processed_by, processed_at)
+    -- status: 'pending', 'approved', 'rejected', 'auto_approved'
+
+merchant_mappings (id, merchant_pattern, match_type, template_id,
+    default_description, match_count, last_used_at,
+    created_by, created_at, updated_at)
+    -- match_type: 'exact', 'contains', 'regex'
+
+CREATE INDEX idx_draft_transactions_status ON draft_transactions(status);
+CREATE INDEX idx_draft_transactions_user ON draft_transactions(created_by);
+CREATE INDEX idx_merchant_mappings_pattern ON merchant_mappings(merchant_pattern);
+```
+
+#### Receipt Parsing Examples
+
+**Indonesian Receipt (Indomaret/Alfamart):**
+```
+INDOMARET
+JL. SUDIRMAN NO 123
+JAKARTA
+
+12/11/2025 14:30:25
+
+AQUA 600ML      2 x 4,000    8,000
+INDOMIE GORENG  3 x 3,500   10,500
+                          --------
+TOTAL                      18,500
+TUNAI                      20,000
+KEMBALIAN                   1,500
+```
+Extracted: merchant=INDOMARET, date=2025-11-12 14:30, amount=18500
+
+**Restaurant Receipt:**
+```
+WARUNG PADANG SEDERHANA
+Jl. Gatot Subroto 45
+
+Nasi Padang Komplit    35,000
+Es Teh Manis            5,000
+                     --------
+Subtotal               40,000
+PPN 11%                 4,400
+                     --------
+TOTAL                  44,400
+
+QRIS - 26 Nov 2025
+```
+Extracted: merchant=WARUNG PADANG SEDERHANA, date=2025-11-26, amount=44400
+
+#### Auto-Approve Rules
+```java
+if (overallConfidence > 0.90
+    && merchantMapping.matchCount > 5
+    && amount < autoApproveThreshold) {
+    autoApprove(draft);
+} else {
+    saveToPending(draft);
+}
+```
+
+#### Cost Estimate (Google Cloud Vision)
+
+| Usage | Free Tier | Overage Cost |
+|-------|-----------|--------------|
+| Document Text Detection | 1,000 units/month | $1.50 per 1,000 |
+
+For 500 receipts/month: **FREE** (within free tier)
+
+#### User Flow
+
+1. **Setup (one-time)**
+   - User goes to Settings → Telegram Integration
+   - Click "Connect Telegram"
+   - Bot sends verification code
+   - User enters code in app → linked
+
+2. **Daily Usage**
+   - User takes photo of receipt
+   - Send to bot via Telegram
+   - Bot replies: "✓ Receipt received. Processing..."
+   - Bot replies: "Extracted: Indomaret Rp 18,500 on 12 Nov. Review in app."
+
+3. **Review in App**
+   - User logs in, sees notification badge
+   - Goes to Draft Transactions
+   - Reviews extracted data, selects template if needed
+   - Clicks Approve → Transaction posted
+   - Or edits and approves
+
+#### Telegram Bot Commands
+```
+/start - Register and link account
+/status - Check pending drafts count
+/recent - Show last 5 receipts
+/help - Show usage instructions
+```
+
+---
+
+### 2.3 Tax Accounts Setup
 - [ ] Pre-configured tax accounts in COA templates
 - [ ] PPN Masukan / Keluaran accounts
 - [ ] PPh 21, 23, 4(2), 25, 29 accounts
 
-### 2.3 PPN Templates
+### 2.4 PPN Templates
 - [ ] Penjualan + PPN Keluaran template
 - [ ] Pembelian + PPN Masukan template
 - [ ] PPN calculation (11%)
 - [ ] Non-PKP templates (no PPN)
 
-### 2.4 PPh Templates
+### 2.5 PPh Templates
 - [ ] PPh 23 withholding templates (2%)
 - [ ] PPh 4(2) templates
 - [ ] Conditional formulas for thresholds
 
-### 2.5 Tax Reports
+### 2.6 Tax Reports
 - [ ] PPN Summary Report
 - [ ] PPN Detail (Keluaran/Masukan)
 - [ ] PPh 23 Withholding Report
 - [ ] e-Faktur CSV export format
 - [ ] e-Bupot export format
 
-### 2.6 Fiscal Period Management
+### 2.7 Fiscal Period Management
 - [ ] Fiscal periods entity
 - [ ] Period status (open, month_closed, tax_filed)
 - [ ] Soft lock on month close
@@ -1207,16 +1422,16 @@ documents
 - [ ] Period close workflow
 
 ```sql
--- V009: Fiscal periods
+-- V011: Fiscal periods
 fiscal_periods
 ```
 
-### 2.7 Tax Calendar
+### 2.8 Tax Calendar
 - [ ] Tax deadline configuration
 - [ ] Dashboard reminders
 - [ ] Monthly checklist
 
-### 2.8 Backup & Restore Utility
+### 2.9 Backup & Restore Utility
 - [ ] Backup service (database + documents)
 - [ ] Coordinated backup (consistent state between DB and files)
 - [ ] Backup to local directory
@@ -1224,7 +1439,7 @@ fiscal_periods
 - [ ] Backup scheduling (manual trigger for MVP)
 - [ ] Backup manifest (metadata, timestamp, file list)
 
-### 2.9 Transaction Tags
+### 2.10 Transaction Tags
 
 **Purpose:** Flexible multi-dimensional tagging for transactions beyond projects.
 
@@ -1242,7 +1457,7 @@ fiscal_periods
 - [ ] Tag-based reports (summary by tag)
 
 ```sql
--- V010: Transaction tags
+-- V012: Transaction tags
 tag_types (id, name, description, is_system, created_at)
 tags (id, tag_type_id, name, color, created_at)
 journal_entry_tags (journal_entry_id, tag_id, PRIMARY KEY (journal_entry_id, tag_id))
@@ -1257,7 +1472,7 @@ journal_entry_tags (journal_entry_id, tag_id, PRIMARY KEY (journal_entry_id, tag
 
 **Note:** Projects (1.10) handle the primary project tracking. Tags provide additional dimensions for analysis.
 
-### 2.10 Trend Analysis
+### 2.11 Trend Analysis
 
 **Purpose:** Visualize business performance over time.
 
@@ -1283,7 +1498,7 @@ Revenue Trend (Last 12 Months)
      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 ```
 
-### 2.11 Smart Alerts
+### 2.12 Smart Alerts
 
 **Purpose:** Proactive notifications to help users take action before problems occur.
 
@@ -1329,7 +1544,7 @@ Recommendation:
 - [ ] Alert history and acknowledgment
 
 ```sql
--- V011: Smart alerts
+-- V013: Smart alerts
 alert_configurations (id, alert_type, enabled, threshold_value,
     notify_dashboard, notify_email, created_at, updated_at)
 
@@ -1337,7 +1552,7 @@ alert_history (id, alert_type, entity_type, entity_id,
     alert_data, acknowledged, acknowledged_by, acknowledged_at, created_at)
 ```
 
-### 2.12 Account Balances (Materialized) - Performance Optimization
+### 2.13 Account Balances (Materialized) - Performance Optimization
 
 **Purpose:** Cache account balances for faster report generation.
 
@@ -1355,7 +1570,7 @@ alert_history (id, alert_type, entity_type, entity_id,
 account_balances (id, account_id, period_start, period_end, opening_balance, debit_total, credit_total, closing_balance, ...)
 ```
 
-### 2.13 User Management & Role-Based Access Control
+### 2.14 User Management & Role-Based Access Control
 
 **Purpose:** Manage users and restrict access based on roles. Required when adding non-trusted users (staff, external auditors).
 
@@ -1405,7 +1620,7 @@ account_balances (id, account_id, period_start, period_end, opening_balance, deb
 #### Database Schema
 
 ```sql
--- V012: User roles and permissions
+-- V014: User roles and permissions
 CREATE TABLE roles (
     id UUID PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,  -- ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR
@@ -1473,7 +1688,7 @@ CREATE TABLE user_roles (
 3. **OWNER vs ADMIN:** Business owner shouldn't need technical admin access
 4. **Migration path:** Existing admin user gets ADMIN + OWNER roles
 
-**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, and role-based access control
+**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, Telegram receipt import with OCR, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, and role-based access control
 
 ---
 
@@ -1489,7 +1704,7 @@ CREATE TABLE user_roles (
 - [ ] Admin UI for parser config
 
 ```sql
--- V010: Bank parser configs
+-- V014: Bank parser configs
 bank_parser_configs
 ```
 
@@ -1504,7 +1719,7 @@ bank_parser_configs
 - [ ] Reconciliation report
 
 ```sql
--- V011: Bank reconciliation
+-- V015: Bank reconciliation
 bank_reconciliations
 bank_statement_items
 ```
@@ -1515,7 +1730,7 @@ bank_statement_items
 - [ ] Preload configs (Tokopedia, Shopee, Bukalapak, Lazada)
 
 ```sql
--- V012: Marketplace parser configs
+-- V016: Marketplace parser configs
 marketplace_parser_configs
 ```
 
@@ -1546,7 +1761,7 @@ marketplace_parser_configs
 - [ ] NPWP validation
 
 ```sql
--- V013: Employees
+-- V017: Employees
 employees
 ```
 
@@ -1557,7 +1772,7 @@ employees
 - [ ] Employee salary configuration UI
 
 ```sql
--- V014: Salary components
+-- V018: Salary components
 salary_components
 ```
 
@@ -1584,7 +1799,7 @@ salary_components
 - [ ] Generate payslips
 
 ```sql
--- V015: Payroll
+-- V019: Payroll
 payroll_runs
 payroll_details
 ```
@@ -1610,7 +1825,7 @@ payroll_details
 - [ ] Purchase recording
 
 ```sql
--- V016: Fixed assets
+-- V020: Fixed assets
 fixed_assets
 ```
 
@@ -1633,7 +1848,7 @@ fixed_assets
 - [ ] Copy from previous period
 
 ```sql
--- V017: Budgets
+-- V021: Budgets
 budgets
 ```
 
