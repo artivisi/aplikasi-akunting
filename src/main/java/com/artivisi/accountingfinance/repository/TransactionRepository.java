@@ -52,6 +52,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = :status")
     long countByStatus(@Param("status") TransactionStatus status);
 
+    long countByTransactionDateBetween(LocalDate startDate, LocalDate endDate);
+
     @Query("SELECT t FROM Transaction t WHERE t.status = 'POSTED' AND " +
            "t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.transactionDate DESC")
     List<Transaction> findPostedTransactionsBetweenDates(
