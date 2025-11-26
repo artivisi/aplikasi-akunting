@@ -848,6 +848,219 @@ Pre-built templates available for download (not in migrations):
 
 ---
 
+### 1.13 Deployment & Operations
+
+**Purpose:** Production deployment with systemd, filesystem storage, and backup/restore capabilities.
+
+**Dependencies:** All Phase 1 features
+
+#### Deployment Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      VPS Server                         │
+├─────────────────────────────────────────────────────────┤
+│  systemd                                                │
+│  ├── accounting.service (Spring Boot app)               │
+│  └── postgresql.service (database)                      │
+│                                                         │
+│  /opt/accounting/                                       │
+│  ├── accounting-finance.jar                             │
+│  ├── application-prod.properties                        │
+│  ├── documents/           ← filesystem storage          │
+│  │   ├── invoices/                                      │
+│  │   ├── receipts/                                      │
+│  │   └── attachments/                                   │
+│  ├── backup/              ← backup files                │
+│  └── logs/                ← application logs            │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Systemd Service
+
+```ini
+# /etc/systemd/system/accounting.service
+[Unit]
+Description=Accounting Finance Application
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=accounting
+WorkingDirectory=/opt/accounting
+ExecStart=/usr/bin/java -jar accounting-finance.jar --spring.profiles.active=prod
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Production Configuration
+
+```properties
+# application-prod.properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/accountingdb
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
+server.port=10000
+
+# Document storage
+app.storage.type=filesystem
+app.storage.path=/opt/accounting/documents
+
+# Logging
+logging.file.path=/opt/accounting/logs
+logging.level.root=INFO
+```
+
+#### Backup & Restore
+
+##### Backup Features
+- [ ] Database backup (pg_dump)
+- [ ] Document folder backup (tar/rsync)
+- [ ] Combined backup script
+- [ ] Backup manifest (timestamp, file list, checksums)
+- [ ] Backup rotation (keep last N backups)
+- [ ] Backup to external location (rsync to remote)
+- [ ] Backup scheduling (cron)
+- [ ] Backup notification (success/failure)
+
+##### Restore Features
+- [ ] Restore from backup file
+- [ ] Validate backup integrity (checksums)
+- [ ] Restore database (pg_restore)
+- [ ] Restore documents
+- [ ] Point-in-time recovery (if WAL enabled)
+- [ ] Restore confirmation prompt
+
+##### Backup Script
+
+```bash
+#!/bin/bash
+# /opt/accounting/scripts/backup.sh
+
+BACKUP_DIR=/opt/accounting/backup
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_NAME="accounting_${TIMESTAMP}"
+
+# Create backup directory
+mkdir -p ${BACKUP_DIR}/${BACKUP_NAME}
+
+# Database backup
+pg_dump -U accounting accountingdb > ${BACKUP_DIR}/${BACKUP_NAME}/database.sql
+
+# Documents backup
+tar -czf ${BACKUP_DIR}/${BACKUP_NAME}/documents.tar.gz -C /opt/accounting documents/
+
+# Create manifest
+cat > ${BACKUP_DIR}/${BACKUP_NAME}/manifest.json << EOF
+{
+  "timestamp": "${TIMESTAMP}",
+  "database": "database.sql",
+  "documents": "documents.tar.gz",
+  "checksums": {
+    "database": "$(sha256sum ${BACKUP_DIR}/${BACKUP_NAME}/database.sql | cut -d' ' -f1)",
+    "documents": "$(sha256sum ${BACKUP_DIR}/${BACKUP_NAME}/documents.tar.gz | cut -d' ' -f1)"
+  }
+}
+EOF
+
+# Create final archive
+tar -czf ${BACKUP_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} ${BACKUP_NAME}
+rm -rf ${BACKUP_DIR}/${BACKUP_NAME}
+
+# Rotate old backups (keep last 7)
+ls -t ${BACKUP_DIR}/*.tar.gz | tail -n +8 | xargs -r rm
+
+echo "Backup completed: ${BACKUP_DIR}/${BACKUP_NAME}.tar.gz"
+```
+
+##### Restore Script
+
+```bash
+#!/bin/bash
+# /opt/accounting/scripts/restore.sh
+
+BACKUP_FILE=$1
+RESTORE_DIR=/tmp/accounting_restore
+
+if [ -z "$BACKUP_FILE" ]; then
+  echo "Usage: restore.sh <backup_file.tar.gz>"
+  exit 1
+fi
+
+# Extract backup
+mkdir -p ${RESTORE_DIR}
+tar -xzf ${BACKUP_FILE} -C ${RESTORE_DIR}
+BACKUP_NAME=$(ls ${RESTORE_DIR})
+
+# Validate checksums
+echo "Validating backup integrity..."
+# ... checksum validation ...
+
+# Stop application
+sudo systemctl stop accounting
+
+# Restore database
+echo "Restoring database..."
+psql -U accounting accountingdb < ${RESTORE_DIR}/${BACKUP_NAME}/database.sql
+
+# Restore documents
+echo "Restoring documents..."
+rm -rf /opt/accounting/documents/*
+tar -xzf ${RESTORE_DIR}/${BACKUP_NAME}/documents.tar.gz -C /opt/accounting/
+
+# Cleanup
+rm -rf ${RESTORE_DIR}
+
+# Start application
+sudo systemctl start accounting
+
+echo "Restore completed"
+```
+
+##### Cron Schedule
+
+```cron
+# Daily backup at 2 AM
+0 2 * * * /opt/accounting/scripts/backup.sh >> /opt/accounting/logs/backup.log 2>&1
+
+# Weekly sync to remote (optional)
+0 3 * * 0 rsync -avz /opt/accounting/backup/ user@remote:/backups/accounting/
+```
+
+#### Deployment Checklist
+
+##### Pre-Deployment
+- [ ] VPS provisioned (Ubuntu 22.04+ recommended)
+- [ ] Java 25 installed
+- [ ] PostgreSQL 17 installed and configured
+- [ ] Firewall configured (only 80/443 open)
+- [ ] SSL certificate obtained (Let's Encrypt)
+- [ ] Nginx reverse proxy configured (optional)
+- [ ] accounting user created
+
+##### Deployment Steps
+- [ ] Create /opt/accounting directory structure
+- [ ] Copy jar and configuration
+- [ ] Create systemd service file
+- [ ] Configure PostgreSQL database
+- [ ] Run Flyway migrations
+- [ ] Start and enable service
+- [ ] Verify application health
+- [ ] Configure backup cron
+
+##### Post-Deployment
+- [ ] Import COA via 1.12
+- [ ] Import Journal Templates via 1.12
+- [ ] Create initial users
+- [ ] Test backup/restore
+- [ ] Document admin procedures
+
+---
+
 **Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments, track project/client profitability with milestones and payment terms
 
 **Note:** Document attachment deferred to Phase 2. Store receipts in external folder during MVP.
