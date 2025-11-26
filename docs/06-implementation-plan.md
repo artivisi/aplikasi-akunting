@@ -1063,8 +1063,19 @@ echo "Restore completed"
 
 ##### Migration Strategy
 - Opening balance from Jan 1, 2025 Balance Sheet
-- Manual transaction entry for Jan-Nov 2025 (~550 transactions)
+- Manual transaction entry for Jan-Nov 2025 (~220 transactions at ~20/month)
+- Staff familiarization during migration
 - Verify Trial Balance against Excel before go-live
+
+##### Migration Timeline
+
+| Phase | Period | Activity | Owner |
+|-------|--------|----------|-------|
+| **Preparation** | Dec 1-7, 2025 | Deploy app, import COA & templates | Admin |
+| **Staff Training** | Dec 8-14, 2025 | Train staff on transaction entry | Admin + Staff |
+| **Data Entry** | Dec 15-31, 2025 | Enter opening balance + historical transactions | Staff |
+| **Verification** | Jan 1-3, 2026 | Compare Trial Balance, fix discrepancies | Admin |
+| **Go Live** | Jan 4, 2026 | Start using app for 2026 transactions | All |
 
 ##### Step 1: Opening Balance Entry (Jan 1, 2025)
 - [ ] Prepare Balance Sheet figures from Excel
@@ -1078,18 +1089,20 @@ echo "Restore completed"
 - [ ] Verify: Total Debit = Total Credit
 - [ ] Post opening balance entry
 
-##### Step 2: Enter Historical Transactions
-- [ ] Enter Jan 2025 transactions (~50)
-- [ ] Enter Feb 2025 transactions (~50)
-- [ ] Enter Mar 2025 transactions (~50)
-- [ ] Enter Apr 2025 transactions (~50)
-- [ ] Enter May 2025 transactions (~50)
-- [ ] Enter Jun 2025 transactions (~50)
-- [ ] Enter Jul 2025 transactions (~50)
-- [ ] Enter Aug 2025 transactions (~50)
-- [ ] Enter Sep 2025 transactions (~50)
-- [ ] Enter Oct 2025 transactions (~50)
-- [ ] Enter Nov 2025 transactions (~50)
+##### Step 2: Enter Historical Transactions (~220 total)
+- [ ] Enter Jan 2025 transactions (~20)
+- [ ] Enter Feb 2025 transactions (~20)
+- [ ] Enter Mar 2025 transactions (~20)
+- [ ] Enter Apr 2025 transactions (~20)
+- [ ] Enter May 2025 transactions (~20)
+- [ ] Enter Jun 2025 transactions (~20)
+- [ ] Enter Jul 2025 transactions (~20)
+- [ ] Enter Aug 2025 transactions (~20)
+- [ ] Enter Sep 2025 transactions (~20)
+- [ ] Enter Oct 2025 transactions (~20)
+- [ ] Enter Nov 2025 transactions (~20)
+
+**Tip:** With journal templates configured, ~220 transactions can be entered in 1-2 days of focused work. Use this as opportunity to test templates and train staff.
 
 ##### Step 3: Verification
 - [ ] Generate Trial Balance from app
@@ -1097,7 +1110,7 @@ echo "Restore completed"
 - [ ] Investigate and fix discrepancies
 - [ ] Final sign-off: Trial Balance matches
 
-##### Step 4: Go Live
+##### Step 4: Go Live (Target: Jan 4, 2026)
 - [ ] Switch to app for new transactions
 - [ ] Archive Excel files (read-only backup)
 - [ ] Document cutover date
