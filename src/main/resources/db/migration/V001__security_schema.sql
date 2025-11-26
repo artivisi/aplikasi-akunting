@@ -1,4 +1,5 @@
--- V001: Core tables - users, company_config, audit_logs
+-- V001: Security Schema
+-- Tables: users, audit_logs
 
 -- Users table
 CREATE TABLE users (
@@ -18,23 +19,6 @@ CREATE TABLE users (
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_active ON users(active);
 
--- Company configuration table
-CREATE TABLE company_config (
-    id UUID PRIMARY KEY,
-    company_name VARCHAR(255) NOT NULL,
-    company_address TEXT,
-    company_phone VARCHAR(50),
-    company_email VARCHAR(255),
-    tax_id VARCHAR(50),
-    fiscal_year_start_month INTEGER NOT NULL DEFAULT 1,
-    currency_code VARCHAR(10) NOT NULL DEFAULT 'IDR',
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_by VARCHAR(100),
-    updated_by VARCHAR(100),
-    deleted_at TIMESTAMP
-);
-
 -- Audit logs table
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY,
@@ -52,16 +36,3 @@ CREATE TABLE audit_logs (
 CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX idx_audit_logs_user ON audit_logs(id_user);
 CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
-
--- Insert default admin user (password: admin)
-INSERT INTO users (id, username, password, full_name, email, active, created_at, updated_at)
-VALUES (
-    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    'admin',
-    '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S',
-    'Administrator',
-    'admin@artivisi.com',
-    TRUE,
-    NOW(),
-    NOW()
-);
