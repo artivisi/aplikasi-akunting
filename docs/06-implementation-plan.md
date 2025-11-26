@@ -1408,6 +1408,51 @@ For 500 receipts/month: **FREE** (within free tier)
 /help - Show usage instructions
 ```
 
+#### Telegram Bot Setup (One-time Admin Setup)
+
+**Step 1: Create Bot via BotFather**
+1. Open Telegram, search for `@BotFather`
+2. Send `/newbot`
+3. Enter bot name: `Akunting Receipt Bot` (display name)
+4. Enter username: `akunting_receipt_bot` (must end with `bot`)
+5. BotFather returns: `HTTP API token: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
+6. Save the token securely (this is `TELEGRAM_BOT_TOKEN`)
+
+**Step 2: Configure Bot Settings**
+```
+/setdescription - "Kirim foto struk untuk input transaksi otomatis"
+/setabouttext - "Bot untuk aplikasi akunting. Kirim struk belanja untuk diproses."
+/setuserpic - Upload bot profile picture
+/setcommands - Set command menu:
+    start - Mulai dan hubungkan akun
+    status - Cek jumlah draft pending
+    recent - Lihat 5 struk terakhir
+    help - Bantuan penggunaan
+```
+
+**Step 3: Set Webhook (automatic on app startup, or manual)**
+```bash
+# Manual webhook registration (optional, app does this on startup)
+curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/api/telegram/webhook",
+    "secret_token": "your-secret-token",
+    "allowed_updates": ["message"]
+  }'
+
+# Verify webhook status
+curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"
+```
+
+**Step 4: Environment Variables**
+```bash
+# .env or deployment config
+TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
+TELEGRAM_BOT_USERNAME=akunting_receipt_bot
+TELEGRAM_WEBHOOK_SECRET=random-secret-string-min-32-chars
+```
+
 #### Webhook Implementation Details
 
 **Configuration (application.yml):**
