@@ -7,7 +7,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ## Current Status
 
 - **Phase 0:** ✅ Complete (project setup, auth, CI/CD)
-- **Phase 1:** 🔄 In Progress (Core Accounting MVP)
+- **Phase 1:** ✅ Complete (Core Accounting MVP)
   - 1.1 COA: ✅ Complete
   - 1.2 Journal Entries: ✅ Complete
   - 1.3 Basic Reports: ✅ Complete
@@ -19,8 +19,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.8 Amortization Schedules: ✅ Complete
   - 1.9 Project Tracking: ✅ Complete
   - 1.10 Dashboard KPIs: ✅ Complete
-  - 1.11 User Manual: ⏳ Next
-- **Phase 2:** Tax Compliance
+  - 1.11 User Manual: ✅ Complete
+- **Phase 2:** Tax Compliance ⏳ Next
   - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -28,7 +28,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Purpose | Location |
 |---------|----------|
 | Implementation Plan | `docs/06-implementation-plan.md` |
-| Project Tracking TODO | `TODO-PROJECT-TRACKING.md` |
+| User Manual | `docs/user-manual/*.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
@@ -73,14 +73,10 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-User Manual (1.11) - Complete documentation for Phase 1 features:
-- Update `ScreenshotCapture.java` with new page definitions
-- Update `UserManualGenerator.java` with new sections
-- Write 7 new markdown chapters (reports, amortization, clients, projects, invoices, profitability, glossary)
-- Add test data for meaningful screenshots
+Phase 1 (Core Accounting MVP) is complete. All features implemented:
+- COA, Journal Entries, Reports, Templates, Transactions
+- Formula Support, Template Enhancements, HTMX Optimization
+- Amortization Schedules, Project Tracking, Dashboard KPIs
+- User Manual (14 chapters with automated screenshots)
 
-Existing infrastructure:
-- `docs/user-manual/*.md` - Markdown content
-- `ScreenshotCapture.java` - Playwright screenshot capture
-- `UserManualGenerator.java` - Flexmark HTML generator
-- `.github/workflows/publish-manual.yml` - GitHub Pages deployment
+Next: Phase 2 (Tax Compliance) - See `docs/06-implementation-plan.md`
