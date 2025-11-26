@@ -1223,22 +1223,41 @@ CREATE INDEX idx_documents_journal_entry ON documents(journal_entry_id);
 
 **External Services:** Google Cloud Vision API (free tier: 1,000 units/month)
 
-#### Architecture
+#### Architecture (Webhook Mode)
 ```
-┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
-│ Telegram Bot│───►│ Spring Boot  │───►│ Google Vision   │───►│ Draft Trans  │
-│ (photo)     │    │ (webhook)    │    │ (OCR + parsing) │    │ (review UI)  │
-└─────────────┘    └──────────────┘    └─────────────────┘    └──────────────┘
-                          │                                          │
-                          └──────────► Document Storage ◄────────────┘
+┌─────────────┐         ┌────────────────────────────────┐    ┌──────────────┐
+│  Telegram   │  HTTPS  │     Your App (Spring Boot)     │    │ Google Cloud │
+│  Servers    │────────►│  POST /api/telegram/webhook    │───►│ Vision API   │
+└─────────────┘  push   └────────────────────────────────┘    └──────────────┘
+                                      │                              │
+                                      ▼                              ▼
+                              ┌───────────────┐              ┌──────────────┐
+                              │ Document      │              │ Receipt      │
+                              │ Storage       │              │ Parser       │
+                              └───────────────┘              └──────────────┘
+                                      │                              │
+                                      └──────────┬───────────────────┘
+                                                 ▼
+                                      ┌───────────────────┐
+                                      │ Draft Transaction │
+                                      │ (pending review)  │
+                                      └───────────────────┘
 ```
+
+**Why Webhook over Long Polling:**
+- Instant delivery (no polling delay)
+- Lower resource usage (no persistent connection)
+- Telegram auto-retries failed deliveries
+- Better scalability for production
 
 #### Features
 
-##### Telegram Bot Integration
-- [ ] TelegramBots library dependency (org.telegram:telegrambots)
-- [ ] Bot configuration (token, username in application.yml)
-- [ ] Long polling mode (simpler, no HTTPS required)
+##### Telegram Bot Integration (Webhook Mode)
+- [ ] TelegramBots library dependency (org.telegram:telegrambots-springboot-webhook-starter)
+- [ ] Bot configuration (token, username, webhook URL in application.yml)
+- [ ] Webhook endpoint: POST /api/telegram/webhook
+- [ ] Webhook registration on application startup
+- [ ] Secret token validation (X-Telegram-Bot-Api-Secret-Token header)
 - [ ] User registration flow (link Telegram user to app user)
 - [ ] Photo message handler
 - [ ] Text command handler (/start, /status, /help)
@@ -1387,6 +1406,48 @@ For 500 receipts/month: **FREE** (within free tier)
 /status - Check pending drafts count
 /recent - Show last 5 receipts
 /help - Show usage instructions
+```
+
+#### Webhook Implementation Details
+
+**Configuration (application.yml):**
+```yaml
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}
+    webhook:
+      url: https://your-app.com/api/telegram/webhook
+      secret-token: ${TELEGRAM_WEBHOOK_SECRET}
+```
+
+**Controller:**
+```java
+@RestController
+@RequestMapping("/api/telegram")
+public class TelegramWebhookController {
+
+    @PostMapping("/webhook")
+    public BotApiMethod<?> onUpdate(
+            @RequestBody Update update,
+            @RequestHeader("X-Telegram-Bot-Api-Secret-Token") String token) {
+        validateSecretToken(token);
+        return receiptBotService.handleUpdate(update);
+    }
+}
+```
+
+**Webhook Registration (on startup):**
+```java
+@EventListener(ApplicationReadyEvent.class)
+public void registerWebhook() {
+    SetWebhook webhook = SetWebhook.builder()
+        .url(webhookUrl)
+        .secretToken(secretToken)
+        .allowedUpdates(List.of("message"))
+        .build();
+    telegramClient.execute(webhook);
+}
 ```
 
 ---
