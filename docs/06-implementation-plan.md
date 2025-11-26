@@ -1355,7 +1355,125 @@ alert_history (id, alert_type, entity_type, entity_id,
 account_balances (id, account_id, period_start, period_end, opening_balance, debit_total, credit_total, closing_balance, ...)
 ```
 
-**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, and optimized balance calculations
+### 2.13 User Management & Role-Based Access Control
+
+**Purpose:** Manage users and restrict access based on roles. Required when adding non-trusted users (staff, external auditors).
+
+**Dependencies:** Core authentication (Phase 0)
+
+**Note:** MVP operates with single trusted admin user. Implement this when adding staff or external users.
+
+#### Roles
+
+| Role | Indonesian | Description | Typical User |
+|------|------------|-------------|--------------|
+| `ADMIN` | Administrator | System configuration, user management, destructive operations | IT person, system admin |
+| `OWNER` | Pemilik | Full business visibility, approvals, company settings | Director, business owner |
+| `ACCOUNTANT` | Akuntan | Full accounting operations, post/void entries | Internal accountant |
+| `STAFF` | Staf | Data entry via templates, cannot post (requires approval) | Admin staff |
+| `AUDITOR` | Auditor | Read-only access, export reports | External auditor, tax consultant |
+
+#### Permission Matrix
+
+| Feature | ADMIN | OWNER | ACCOUNTANT | STAFF | AUDITOR |
+|---------|:-----:|:-----:|:----------:|:-----:|:-------:|
+| **System** |
+| User Management | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Import/Clear COA | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Backup/Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Settings** |
+| Company Settings | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Bank Accounts | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Master Data** |
+| COA CRUD | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Template CRUD | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Client CRUD | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Project CRUD | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Transactions** |
+| Create Transaction | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Post Transaction | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Void Transaction | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Manual Journal Entry | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Invoices** |
+| Create/Edit Invoice | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Mark Invoice Paid | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Reports** |
+| View Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ |
+| View Reports | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Export PDF/Excel | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+#### Database Schema
+
+```sql
+-- V012: User roles and permissions
+CREATE TABLE roles (
+    id UUID PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,  -- ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR
+    name VARCHAR(100) NOT NULL,         -- Indonesian display name
+    description TEXT,
+    is_system BOOLEAN DEFAULT FALSE,    -- System roles cannot be deleted
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,  -- e.g., 'user.create', 'transaction.post'
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,      -- system, settings, master, transaction, invoice, report
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE role_permissions (
+    role_id UUID REFERENCES roles(id),
+    permission_id UUID REFERENCES permissions(id),
+    PRIMARY KEY (role_id, permission_id)
+);
+
+CREATE TABLE user_roles (
+    user_id UUID REFERENCES users(id),
+    role_id UUID REFERENCES roles(id),
+    PRIMARY KEY (user_id, role_id)
+);
+```
+
+#### Features
+
+##### User Management
+- [ ] User entity enhancements (link to roles)
+- [ ] User CRUD UI (create, edit, activate/deactivate)
+- [ ] User list with filters (role, active status)
+- [ ] Password reset by admin
+- [ ] User cannot delete own account
+- [ ] At least one ADMIN must exist
+
+##### Role Management
+- [ ] Role entity with permission links
+- [ ] Seed default roles (ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR)
+- [ ] Role assignment UI (assign roles to users)
+- [ ] View role permissions (read-only for system roles)
+- [ ] Custom roles (optional, for flexibility)
+
+##### Authorization
+- [ ] Update UserDetailsServiceImpl to load roles/permissions
+- [ ] Create PermissionEvaluator for SpEL expressions
+- [ ] Add @PreAuthorize annotations to controllers
+- [ ] Menu visibility based on permissions
+- [ ] Button/action visibility based on permissions
+- [ ] API-level permission checks
+
+##### Audit
+- [ ] Log permission denied attempts
+- [ ] Log user management actions (create, role change, deactivate)
+
+#### Implementation Notes
+
+1. **STAFF workflow:** Creates draft transactions → ACCOUNTANT reviews and posts
+2. **AUDITOR access:** Read-only, useful for external tax consultants during audit
+3. **OWNER vs ADMIN:** Business owner shouldn't need technical admin access
+4. **Migration path:** Existing admin user gets ADMIN + OWNER roles
+
+**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, and role-based access control
 
 ---
 
