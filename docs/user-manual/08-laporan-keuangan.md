@@ -103,7 +103,17 @@ Semua laporan dapat diekspor dalam dua format:
 - Format tanggal: DD/MM/YYYY
 - Untuk laporan periodik (Laba Rugi), pilih tanggal awal dan akhir
 
-### Tips Penggunaan
+### Contoh Cetakan
+
+Download contoh cetakan laporan keuangan dalam format PDF:
+
+| Laporan | Download |
+|---------|----------|
+| Neraca Saldo | [Download PDF](samples/trial-balance-print.pdf) |
+| Neraca | [Download PDF](samples/balance-sheet-print.pdf) |
+| Laba Rugi | [Download PDF](samples/income-statement-print.pdf) |
+
+## Tips Penggunaan
 
 1. Cetak Neraca Saldo akhir bulan untuk validasi pembukuan
 2. Bandingkan Laba Rugi antar periode untuk melihat tren

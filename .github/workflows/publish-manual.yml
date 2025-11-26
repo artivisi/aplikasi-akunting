@@ -88,6 +88,12 @@ jobs:
         env:
           APP_URL: http://localhost:8080
 
+      - name: Generate printable PDF samples
+        if: ${{ github.event.inputs.skip_screenshots != 'true' }}
+        run: ./mvnw exec:java -Dexec.mainClass="com.artivisi.accountingfinance.manual.PrintableSamplesCapture" -Dexec.classpathScope=test
+        env:
+          APP_URL: http://localhost:8080
+
       - name: Generate user manual
         run: ./mvnw exec:java -Dexec.mainClass="com.artivisi.accountingfinance.manual.UserManualGenerator" -Dexec.classpathScope=test
 

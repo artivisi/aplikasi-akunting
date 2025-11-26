@@ -131,6 +131,29 @@ Alur revenue recognition dengan invoice:
 3. **Invoice Paid**: Pembayaran diterima
    - Dr. Kas/Bank / Cr. Piutang Usaha
 
+## Cetak Invoice
+
+Invoice dapat dicetak untuk dikirim ke klien dalam format PDF. Cetakan invoice mencakup:
+
+- Kop surat perusahaan (logo dan nama)
+- Data klien (nama, alamat, kontak)
+- Detail invoice (nomor, tanggal, jatuh tempo)
+- Informasi proyek terkait
+- Total tagihan dalam format rupiah dengan terbilang
+- Catatan/keterangan invoice
+- Informasi rekening bank untuk pembayaran
+
+### Cara Cetak
+
+1. Buka detail invoice
+2. Klik tombol **Cetak Invoice**
+3. Halaman cetak akan terbuka
+4. Gunakan fungsi Print browser (Ctrl+P) untuk mencetak atau save as PDF
+
+### Contoh Cetakan
+
+Download contoh cetakan invoice: [Download PDF](samples/invoice-print.pdf)
+
 ## Tips Penggunaan
 
 1. Buat invoice segera setelah milestone selesai
