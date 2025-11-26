@@ -12,7 +12,7 @@
 | Phase | Focus | Status |
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
-| **1** | Core Accounting (MVP) - IT Services | 🔄 In Progress |
+| **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
 | **2** | Tax Compliance | ⏳ Not Started |
 | **3** | Reconciliation | ⏳ Not Started |
 | **4** | Payroll | ⏳ Not Started |
@@ -52,7 +52,7 @@ audit_logs
 
 ---
 
-## Phase 1: Core Accounting (MVP)
+## Phase 1: Core Accounting (MVP) ✅
 
 **Goal:** Minimal viable accounting system to go live
 
@@ -642,21 +642,21 @@ When milestone is marked complete:
 
 ---
 
-### 1.11 Comprehensive User Manual
+### 1.11 Comprehensive User Manual ✅
 
 **Purpose:** Complete user documentation with automated screenshot capture and GitHub Pages publishing.
 
 **Dependencies:** All Phase 1 features complete
 
-#### Current Infrastructure
+#### Infrastructure
 
-**Existing Components:**
 | Component | Location | Status |
 |-----------|----------|--------|
-| Markdown content | `docs/user-manual/*.md` | 7 chapters (basic features) |
-| Screenshot capture | `ScreenshotCapture.java` | 12 page definitions |
-| HTML generator | `UserManualGenerator.java` | Flexmark-based, Tailwind CSS |
+| Markdown content | `docs/user-manual/*.md` | 14 chapters |
+| Screenshot capture | `ScreenshotCapture.java` | 26 page definitions |
+| HTML generator | `UserManualGenerator.java` | 14 sections, scrollable TOC |
 | GitHub Action | `.github/workflows/publish-manual.yml` | Auto-deploy to GitHub Pages |
+| Screenshot test | `ScreenshotCaptureTest.java` | Playwright-based verification |
 
 **Workflow:**
 1. Push to main/claude/** triggers workflow
@@ -665,61 +665,32 @@ When milestone is marked complete:
 4. Flexmark converts markdown → HTML with embedded screenshots
 5. Deploy to GitHub Pages
 
-#### Documentation Gaps
-
-**Missing Markdown Chapters:**
-| Chapter | File | Feature |
-|---------|------|---------|
-| 08 | `08-laporan-keuangan.md` | Trial Balance, Balance Sheet, Income Statement |
-| 09 | `09-amortisasi.md` | Amortization schedules, entries, auto-posting |
-| 10 | `10-klien.md` | Client management |
-| 11 | `11-proyek.md` | Projects, milestones, payment terms |
-| 12 | `12-invoice.md` | Invoice lifecycle, payment linking |
-| 13 | `13-laporan-profitabilitas.md` | Project/client profitability, cost overrun |
-| 14 | `14-glosarium.md` | Accounting terms glossary (Indonesian) |
-
-**Missing Screenshot Definitions (ScreenshotCapture.java):**
-| Section | Pages to Add |
-|---------|--------------|
-| Reports | `/reports/trial-balance`, `/reports/balance-sheet`, `/reports/income-statement` |
-| Amortization | `/amortization`, `/amortization/new`, `/amortization/{id}` |
-| Clients | `/clients`, `/clients/new`, `/clients/{id}` |
-| Projects | `/projects`, `/projects/new`, `/projects/{id}` |
-| Invoices | `/invoices`, `/invoices/new`, `/invoices/{id}` |
-| Profitability | `/reports/project-profitability`, `/reports/client-profitability` |
-
-**Missing Section Definitions (UserManualGenerator.java):**
-- Add Section records for chapters 08-14
-- Map screenshots to sections
-
 #### Implementation Tasks
 
 ##### Phase A: Update Existing Infrastructure
-- [ ] Update `ScreenshotCapture.java` - Add ~15 new PageDefinition records for missing pages
-- [ ] Update `UserManualGenerator.java` - Add Section records for chapters 08-14
+- [x] Update `ScreenshotCapture.java` - 26 PageDefinition records with seed data UUIDs
+- [x] Update `UserManualGenerator.java` - 14 Section records, fixed navbar scrolling
 
 ##### Phase A.1: Update Existing Chapters (1-7)
-- [ ] Update `01-pendahuluan.md` - Add Amortization, Projects, Clients, Invoices to feature list
-- [ ] Update `03-dashboard.md` - Rewrite for 8 KPI cards, month selector, HTMX loading (currently describes old mockup)
-- [ ] Update `05-template-jurnal.md` - Add Tags, Search, Favorites (1.7), Conditional formulas (1.6)
-- [ ] Update `06-transaksi.md` - Add Project linking, filter by project (1.9)
+- [x] Update `01-pendahuluan.md` - Add Amortization, Projects, Clients, Invoices to feature list
+- [x] Update `03-dashboard.md` - Rewrite for 8 KPI cards, month selector, HTMX loading
+- [x] Update `05-template-jurnal.md` - Add Tags, Search, Favorites, Conditional formulas
+- [x] Update `06-transaksi.md` - Add Project linking, filter by project
 
 ##### Phase B: New Documentation Content
-- [ ] Write `08-laporan-keuangan.md` - Reports overview, filters, export
-- [ ] Write `09-amortisasi.md` - Schedule creation, entry management, batch posting
-- [ ] Write `10-klien.md` - CRUD operations, deactivation
-- [ ] Write `11-proyek.md` - Milestones, progress calculation, status workflow
-- [ ] Write `12-invoice.md` - Generation from payment terms, payment flow
-- [ ] Write `13-laporan-profitabilitas.md` - Metrics, cost overrun detection
-- [ ] Write `14-glosarium.md` - Accounting terms reference
+- [x] Write `08-laporan-keuangan.md` - Reports overview, filters, export
+- [x] Write `09-amortisasi.md` - Schedule creation, entry management, batch posting
+- [x] Write `10-klien.md` - CRUD operations, deactivation
+- [x] Write `11-proyek.md` - Milestones, progress calculation, status workflow
+- [x] Write `12-invoice.md` - Generation from payment terms, payment flow
+- [x] Write `13-laporan-profitabilitas.md` - Metrics, cost overrun detection
+- [x] Write `14-glosarium.md` - Accounting terms reference
 
 ##### Phase C: Test Data for Screenshots
-- [ ] Add test migration for screenshot data (realistic sample data)
-- [ ] Ensure all pages have meaningful content for screenshots
-- [ ] Add project with milestones and payment terms for demo
-- [ ] Add sample invoices in various statuses
+- [x] Use existing test migrations for screenshot data (V904, V905)
+- [x] Pages have meaningful content from seed data
 
-##### Phase D: Enhancements (Optional)
+##### Phase D: Enhancements (Deferred to Phase 2)
 - [ ] In-app help link (menu item linking to GitHub Pages)
 - [ ] Contextual help tooltips on complex form fields
 - [ ] Search functionality (client-side JS on generated HTML)
@@ -732,23 +703,23 @@ When milestone is marked complete:
 **Note:** Document attachment deferred to Phase 2. Store receipts in external folder during MVP.
 
 ### MVP Checklist for Go Live
-- [ ] Can create manual journal entries (for accountants)
-- [ ] Can create transactions using templates (for business users)
-- [ ] Templates support formula calculations (percentages, conditionals)
-- [ ] Trial Balance balances (validates double-entry correctness)
-- [ ] Can generate Balance Sheet and Income Statement
-- [ ] Can export reports to PDF/Excel
+- [x] Can create manual journal entries (for accountants)
+- [x] Can create transactions using templates (for business users)
+- [x] Templates support formula calculations (percentages, conditionals)
+- [x] Trial Balance balances (validates double-entry correctness)
+- [x] Can generate Balance Sheet and Income Statement
+- [x] Can export reports to PDF/Excel
 - [x] Dashboard shows KPIs (revenue, expenses, profit, cash, receivables, payables)
-- [ ] Can set up amortization schedules for prepaid/unearned items
-- [ ] Period-end adjustments auto-generated from schedules
-- [ ] Can create and manage clients
-- [ ] Can create projects with milestones and payment terms
-- [ ] Can generate invoices from payment terms
-- [ ] Milestone completion triggers revenue recognition
-- [ ] Cost overrun detection (% spent vs % complete)
-- [ ] Can generate Project Profitability Report
-- [ ] Can generate Client Profitability Report
-- [ ] Basic user management
+- [x] Can set up amortization schedules for prepaid/unearned items
+- [x] Period-end adjustments auto-generated from schedules
+- [x] Can create and manage clients
+- [x] Can create projects with milestones and payment terms
+- [x] Can generate invoices from payment terms
+- [x] Milestone completion triggers revenue recognition
+- [x] Cost overrun detection (% spent vs % complete)
+- [x] Can generate Project Profitability Report
+- [x] Can generate Client Profitability Report
+- [x] Basic user management
 - [ ] Database backup via pg_dump (no documents yet)
 - [ ] Production deployment tested
 
