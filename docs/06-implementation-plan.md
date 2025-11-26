@@ -91,15 +91,14 @@ The features are ordered to maximize code reuse and enable incremental validatio
 - [x] Account entity and repository
 - [x] Account types (asset, liability, equity, revenue, expense)
 - [x] Hierarchical structure (parent/child)
-- [x] Pre-seeded COA template: **IT Services only**
 - [x] Soft delete (base entity with deleted_at, @SQLRestriction filter)
 - [x] Account CRUD UI
 - [x] Account activation/deactivation
 
-**Note:** Other industry templates (Photography, Online Seller, General Freelancer) deferred to Phase 6+
+**Note:** COA seed data removed from migrations. Users import COA via 1.12 Data Import feature.
 
 ```sql
--- V002: Chart of accounts
+-- V002: Chart of accounts (schema only, no seed data)
 chart_of_accounts
 ```
 
@@ -184,14 +183,15 @@ AccountBalanceCalculator {
 - [x] Template lines entity (account mappings, debit/credit rules)
 - [x] Category field (income, expense, payment, receipt, transfer)
 - [x] Cash flow category field (operating, investing, financing)
-- [x] System templates for IT Services (preloaded via migration)
 - [x] Template CRUD UI
 - [x] Template list with category filter
 - [x] Template detail view
 - [x] Template execution (generates journal entry)
 
+**Note:** Template seed data removed from migrations. Users import templates via 1.12 Data Import feature.
+
 ```sql
--- V004: Journal templates
+-- V003: Journal templates (schema only, no seed data)
 journal_templates (id, name, code, category, cash_flow_category, version, is_system, ...)
 journal_template_lines (id, template_id, account_id, debit_formula, credit_formula, description, ...)
 ```
@@ -698,6 +698,425 @@ When milestone is marked complete:
 
 ---
 
+### 1.12 Data Import
+
+**Purpose:** Import COA and Journal Templates from JSON/Excel files. Replaces hardcoded seed data in migrations.
+
+**Dependencies:** COA (1.1), Templates (1.4)
+
+**Rationale:** Every company has different COA needs. Seed data in migrations creates coupling between code and business data. Import feature allows:
+- Fresh start with custom COA
+- Industry-specific templates (IT Services, Retail, Manufacturing)
+- Easy migration from other systems
+- No code changes needed for customization
+
+#### Features
+
+##### COA Import
+- [ ] Import from JSON file
+- [ ] Import from Excel file (XLSX)
+- [ ] Validate account structure (parent references, account types)
+- [ ] Validate account codes (uniqueness, format)
+- [ ] Preview before import (show what will be created)
+- [ ] Import progress indicator
+- [ ] Error handling with line-by-line feedback
+- [ ] Skip existing accounts option
+- [ ] **Clear before import option** - delete all existing accounts before importing
+
+##### Journal Template Import
+- [ ] Import from JSON file
+- [ ] Validate template structure (lines, formulas)
+- [ ] Validate account references (must exist in COA)
+- [ ] Preview before import
+- [ ] Import progress indicator
+- [ ] Error handling with detailed feedback
+- [ ] Skip existing templates option
+- [ ] **Clear before import option** - delete all existing templates before importing
+
+##### Clear Data (Pre-Import)
+- [ ] Clear all COA accounts (with cascade validation)
+- [ ] Block clear if journal entries exist (data integrity)
+- [ ] Clear all journal templates (with cascade to template lines)
+- [ ] Block clear if transactions reference templates
+- [ ] Confirmation dialog with warning
+- [ ] Audit log of clear operation
+
+##### First-Run Setup Wizard
+- [ ] Detect empty COA on first login
+- [ ] Offer import options:
+  - Start from scratch (empty)
+  - Import from file
+  - Use SAK EMKM template (downloadable)
+- [ ] Guide user through initial setup
+
+#### Importable Templates
+
+Pre-built templates available for download (not in migrations):
+
+```
+/templates/
+├── coa/
+│   ├── sak-emkm-it-services.json      ← Your company's COA
+│   ├── sak-emkm-retail.json
+│   └── sak-emkm-manufacturing.json
+└── journal-templates/
+    ├── it-services.json                ← Your company's templates
+    ├── retail.json
+    └── manufacturing.json
+```
+
+#### JSON Format: COA
+
+```json
+{
+  "name": "SAK EMKM - IT Services",
+  "version": "1.0",
+  "accounts": [
+    {
+      "code": "1",
+      "name": "ASET",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1",
+      "name": "Aset Lancar",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.01",
+      "name": "Kas",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    }
+  ]
+}
+```
+
+#### JSON Format: Journal Templates
+
+```json
+{
+  "name": "IT Services Templates",
+  "version": "1.0",
+  "templates": [
+    {
+      "name": "Pendapatan Jasa Konsultasi",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template untuk mencatat pendapatan jasa konsultasi",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### UI with HTMX
+- File upload with drag-and-drop
+- Real-time validation feedback
+- Import progress bar
+- Success/error summary
+
+#### Implementation
+- [ ] Create ImportService for COA
+- [ ] Create ImportService for Templates
+- [ ] Create ImportController with HTMX endpoints
+- [ ] Create import UI pages
+- [ ] Create setup wizard for first-run
+- [ ] Create downloadable template files
+- [ ] Add import menu item
+
+---
+
+### 1.13 Deployment & Operations
+
+**Purpose:** Production deployment with systemd, filesystem storage, and backup/restore capabilities.
+
+**Dependencies:** All Phase 1 features
+
+#### Deployment Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      VPS Server                         │
+├─────────────────────────────────────────────────────────┤
+│  systemd                                                │
+│  ├── accounting.service (Spring Boot app)               │
+│  └── postgresql.service (database)                      │
+│                                                         │
+│  /opt/accounting/                                       │
+│  ├── accounting-finance.jar                             │
+│  ├── application-prod.properties                        │
+│  ├── documents/           ← filesystem storage          │
+│  │   ├── invoices/                                      │
+│  │   ├── receipts/                                      │
+│  │   └── attachments/                                   │
+│  ├── backup/              ← backup files                │
+│  └── logs/                ← application logs            │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Systemd Service
+
+```ini
+# /etc/systemd/system/accounting.service
+[Unit]
+Description=Accounting Finance Application
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=accounting
+WorkingDirectory=/opt/accounting
+ExecStart=/usr/bin/java -jar accounting-finance.jar --spring.profiles.active=prod
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Production Configuration
+
+```properties
+# application-prod.properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/accountingdb
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
+server.port=10000
+
+# Document storage
+app.storage.type=filesystem
+app.storage.path=/opt/accounting/documents
+
+# Logging
+logging.file.path=/opt/accounting/logs
+logging.level.root=INFO
+```
+
+#### Backup & Restore
+
+##### Backup Features
+- [ ] Database backup (pg_dump)
+- [ ] Document folder backup (tar/rsync)
+- [ ] Combined backup script
+- [ ] Backup manifest (timestamp, file list, checksums)
+- [ ] Backup rotation (keep last N backups)
+- [ ] Backup to external location (rsync to remote)
+- [ ] Backup scheduling (cron)
+- [ ] Backup notification (success/failure)
+
+##### Restore Features
+- [ ] Restore from backup file
+- [ ] Validate backup integrity (checksums)
+- [ ] Restore database (pg_restore)
+- [ ] Restore documents
+- [ ] Point-in-time recovery (if WAL enabled)
+- [ ] Restore confirmation prompt
+
+##### Backup Script
+
+```bash
+#!/bin/bash
+# /opt/accounting/scripts/backup.sh
+
+BACKUP_DIR=/opt/accounting/backup
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_NAME="accounting_${TIMESTAMP}"
+
+# Create backup directory
+mkdir -p ${BACKUP_DIR}/${BACKUP_NAME}
+
+# Database backup
+pg_dump -U accounting accountingdb > ${BACKUP_DIR}/${BACKUP_NAME}/database.sql
+
+# Documents backup
+tar -czf ${BACKUP_DIR}/${BACKUP_NAME}/documents.tar.gz -C /opt/accounting documents/
+
+# Create manifest
+cat > ${BACKUP_DIR}/${BACKUP_NAME}/manifest.json << EOF
+{
+  "timestamp": "${TIMESTAMP}",
+  "database": "database.sql",
+  "documents": "documents.tar.gz",
+  "checksums": {
+    "database": "$(sha256sum ${BACKUP_DIR}/${BACKUP_NAME}/database.sql | cut -d' ' -f1)",
+    "documents": "$(sha256sum ${BACKUP_DIR}/${BACKUP_NAME}/documents.tar.gz | cut -d' ' -f1)"
+  }
+}
+EOF
+
+# Create final archive
+tar -czf ${BACKUP_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} ${BACKUP_NAME}
+rm -rf ${BACKUP_DIR}/${BACKUP_NAME}
+
+# Rotate old backups (keep last 7)
+ls -t ${BACKUP_DIR}/*.tar.gz | tail -n +8 | xargs -r rm
+
+echo "Backup completed: ${BACKUP_DIR}/${BACKUP_NAME}.tar.gz"
+```
+
+##### Restore Script
+
+```bash
+#!/bin/bash
+# /opt/accounting/scripts/restore.sh
+
+BACKUP_FILE=$1
+RESTORE_DIR=/tmp/accounting_restore
+
+if [ -z "$BACKUP_FILE" ]; then
+  echo "Usage: restore.sh <backup_file.tar.gz>"
+  exit 1
+fi
+
+# Extract backup
+mkdir -p ${RESTORE_DIR}
+tar -xzf ${BACKUP_FILE} -C ${RESTORE_DIR}
+BACKUP_NAME=$(ls ${RESTORE_DIR})
+
+# Validate checksums
+echo "Validating backup integrity..."
+# ... checksum validation ...
+
+# Stop application
+sudo systemctl stop accounting
+
+# Restore database
+echo "Restoring database..."
+psql -U accounting accountingdb < ${RESTORE_DIR}/${BACKUP_NAME}/database.sql
+
+# Restore documents
+echo "Restoring documents..."
+rm -rf /opt/accounting/documents/*
+tar -xzf ${RESTORE_DIR}/${BACKUP_NAME}/documents.tar.gz -C /opt/accounting/
+
+# Cleanup
+rm -rf ${RESTORE_DIR}
+
+# Start application
+sudo systemctl start accounting
+
+echo "Restore completed"
+```
+
+##### Cron Schedule
+
+```cron
+# Daily backup at 2 AM
+0 2 * * * /opt/accounting/scripts/backup.sh >> /opt/accounting/logs/backup.log 2>&1
+
+# Weekly sync to remote (optional)
+0 3 * * 0 rsync -avz /opt/accounting/backup/ user@remote:/backups/accounting/
+```
+
+#### Deployment Checklist
+
+##### Pre-Deployment
+- [ ] VPS provisioned (Ubuntu 22.04+ recommended)
+- [ ] Java 25 installed
+- [ ] PostgreSQL 17 installed and configured
+- [ ] Firewall configured (only 80/443 open)
+- [ ] SSL certificate obtained (Let's Encrypt)
+- [ ] Nginx reverse proxy configured (optional)
+- [ ] accounting user created
+
+##### Deployment Steps
+- [ ] Create /opt/accounting directory structure
+- [ ] Copy jar and configuration
+- [ ] Create systemd service file
+- [ ] Configure PostgreSQL database
+- [ ] Run Flyway migrations
+- [ ] Start and enable service
+- [ ] Verify application health
+- [ ] Configure backup cron
+
+##### Post-Deployment
+- [ ] Import COA via 1.12
+- [ ] Import Journal Templates via 1.12
+- [ ] Create initial users
+- [ ] Test backup/restore
+- [ ] Document admin procedures
+
+#### Data Migration (From Excel)
+
+##### Migration Strategy
+- Opening balance from Jan 1, 2025 Balance Sheet
+- Manual transaction entry for Jan-Nov 2025 (~220 transactions at ~20/month)
+- Staff familiarization during migration
+- Verify Trial Balance against Excel before go-live
+
+##### Migration Timeline
+
+| Phase | Period | Activity | Owner |
+|-------|--------|----------|-------|
+| **Preparation** | Dec 1-7, 2025 | Deploy app, import COA & templates | Admin |
+| **Staff Training** | Dec 8-14, 2025 | Train staff on transaction entry | Admin + Staff |
+| **Data Entry** | Dec 15-31, 2025 | Enter opening balance + historical transactions | Staff |
+| **Verification** | Jan 1-3, 2026 | Compare Trial Balance, fix discrepancies | Admin |
+| **Go Live** | Jan 4, 2026 | Start using app for 2026 transactions | All |
+
+##### Step 1: Opening Balance Entry (Jan 1, 2025)
+- [ ] Prepare Balance Sheet figures from Excel
+- [ ] Create single journal entry with all opening balances:
+  ```
+  Dr. Assets (Kas, Bank, Piutang, etc.)
+  Cr. Contra Assets (Akum. Penyusutan)
+  Cr. Liabilities (Hutang, Kewajiban Escrow)
+  Cr. Equity (Modal Disetor, Laba Ditahan)
+  ```
+- [ ] Verify: Total Debit = Total Credit
+- [ ] Post opening balance entry
+
+##### Step 2: Enter Historical Transactions (~220 total)
+- [ ] Enter Jan 2025 transactions (~20)
+- [ ] Enter Feb 2025 transactions (~20)
+- [ ] Enter Mar 2025 transactions (~20)
+- [ ] Enter Apr 2025 transactions (~20)
+- [ ] Enter May 2025 transactions (~20)
+- [ ] Enter Jun 2025 transactions (~20)
+- [ ] Enter Jul 2025 transactions (~20)
+- [ ] Enter Aug 2025 transactions (~20)
+- [ ] Enter Sep 2025 transactions (~20)
+- [ ] Enter Oct 2025 transactions (~20)
+- [ ] Enter Nov 2025 transactions (~20)
+
+**Tip:** With journal templates configured, ~220 transactions can be entered in 1-2 days of focused work. Use this as opportunity to test templates and train staff.
+
+##### Step 3: Verification
+- [ ] Generate Trial Balance from app
+- [ ] Compare with Excel totals per account
+- [ ] Investigate and fix discrepancies
+- [ ] Final sign-off: Trial Balance matches
+
+##### Step 4: Go Live (Target: Jan 4, 2026)
+- [ ] Switch to app for new transactions
+- [ ] Archive Excel files (read-only backup)
+- [ ] Document cutover date
+
+---
+
 **Deliverable:** Working accounting system - can record journal entries manually or via templates, generate reports, automate period-end adjustments, track project/client profitability with milestones and payment terms
 
 **Note:** Document attachment deferred to Phase 2. Store receipts in external folder during MVP.
@@ -936,7 +1355,125 @@ alert_history (id, alert_type, entity_type, entity_id,
 account_balances (id, account_id, period_start, period_end, opening_balance, debit_total, credit_total, closing_balance, ...)
 ```
 
-**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, and optimized balance calculations
+### 2.13 User Management & Role-Based Access Control
+
+**Purpose:** Manage users and restrict access based on roles. Required when adding non-trusted users (staff, external auditors).
+
+**Dependencies:** Core authentication (Phase 0)
+
+**Note:** MVP operates with single trusted admin user. Implement this when adding staff or external users.
+
+#### Roles
+
+| Role | Indonesian | Description | Typical User |
+|------|------------|-------------|--------------|
+| `ADMIN` | Administrator | System configuration, user management, destructive operations | IT person, system admin |
+| `OWNER` | Pemilik | Full business visibility, approvals, company settings | Director, business owner |
+| `ACCOUNTANT` | Akuntan | Full accounting operations, post/void entries | Internal accountant |
+| `STAFF` | Staf | Data entry via templates, cannot post (requires approval) | Admin staff |
+| `AUDITOR` | Auditor | Read-only access, export reports | External auditor, tax consultant |
+
+#### Permission Matrix
+
+| Feature | ADMIN | OWNER | ACCOUNTANT | STAFF | AUDITOR |
+|---------|:-----:|:-----:|:----------:|:-----:|:-------:|
+| **System** |
+| User Management | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Import/Clear COA | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Backup/Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Settings** |
+| Company Settings | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Bank Accounts | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Master Data** |
+| COA CRUD | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Template CRUD | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Client CRUD | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Project CRUD | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Transactions** |
+| Create Transaction | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Post Transaction | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Void Transaction | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Manual Journal Entry | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Invoices** |
+| Create/Edit Invoice | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Mark Invoice Paid | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Reports** |
+| View Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ |
+| View Reports | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Export PDF/Excel | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+#### Database Schema
+
+```sql
+-- V012: User roles and permissions
+CREATE TABLE roles (
+    id UUID PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,  -- ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR
+    name VARCHAR(100) NOT NULL,         -- Indonesian display name
+    description TEXT,
+    is_system BOOLEAN DEFAULT FALSE,    -- System roles cannot be deleted
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,  -- e.g., 'user.create', 'transaction.post'
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,      -- system, settings, master, transaction, invoice, report
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE role_permissions (
+    role_id UUID REFERENCES roles(id),
+    permission_id UUID REFERENCES permissions(id),
+    PRIMARY KEY (role_id, permission_id)
+);
+
+CREATE TABLE user_roles (
+    user_id UUID REFERENCES users(id),
+    role_id UUID REFERENCES roles(id),
+    PRIMARY KEY (user_id, role_id)
+);
+```
+
+#### Features
+
+##### User Management
+- [ ] User entity enhancements (link to roles)
+- [ ] User CRUD UI (create, edit, activate/deactivate)
+- [ ] User list with filters (role, active status)
+- [ ] Password reset by admin
+- [ ] User cannot delete own account
+- [ ] At least one ADMIN must exist
+
+##### Role Management
+- [ ] Role entity with permission links
+- [ ] Seed default roles (ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR)
+- [ ] Role assignment UI (assign roles to users)
+- [ ] View role permissions (read-only for system roles)
+- [ ] Custom roles (optional, for flexibility)
+
+##### Authorization
+- [ ] Update UserDetailsServiceImpl to load roles/permissions
+- [ ] Create PermissionEvaluator for SpEL expressions
+- [ ] Add @PreAuthorize annotations to controllers
+- [ ] Menu visibility based on permissions
+- [ ] Button/action visibility based on permissions
+- [ ] API-level permission checks
+
+##### Audit
+- [ ] Log permission denied attempts
+- [ ] Log user management actions (create, role change, deactivate)
+
+#### Implementation Notes
+
+1. **STAFF workflow:** Creates draft transactions → ACCOUNTANT reviews and posts
+2. **AUDITOR access:** Read-only, useful for external tax consultants during audit
+3. **OWNER vs ADMIN:** Business owner shouldn't need technical admin access
+4. **Migration path:** Existing admin user gets ADMIN + OWNER roles
+
+**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, and role-based access control
 
 ---
 

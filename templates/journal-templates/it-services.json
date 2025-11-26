@@ -1,0 +1,639 @@
+{
+  "name": "IT Services Journal Templates",
+  "version": "1.0",
+  "description": "Template jurnal untuk perusahaan jasa IT (konsultasi, development, training, remittance)",
+  "templates": [
+    {
+      "name": "Pendapatan Jasa Training",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Mencatat pendapatan dari jasa training",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "4.1.01",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Jasa Training"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Jasa Konsultasi",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Mencatat pendapatan dari jasa konsultasi/development",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Jasa Konsultasi"
+        }
+      ]
+    },
+    {
+      "name": "Terima DP Proyek",
+      "category": "RECEIPT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Mencatat penerimaan uang muka (DP) dari klien",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "2.1.04",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Diterima Dimuka"
+        }
+      ]
+    },
+    {
+      "name": "Pengakuan Pendapatan Proyek",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Mengakui pendapatan dari DP saat milestone selesai",
+      "lines": [
+        {
+          "accountCode": "2.1.04",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Pendapatan Diterima Dimuka"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Jasa Konsultasi"
+        }
+      ]
+    },
+    {
+      "name": "Terima Pelunasan Piutang",
+      "category": "RECEIPT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Mencatat penerimaan pembayaran dari klien",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "1.1.10",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Piutang Usaha"
+        }
+      ]
+    },
+    {
+      "name": "Escrow: Terima Dana User",
+      "category": "RECEIPT",
+      "cashFlowCategory": "OPERATING",
+      "description": "User deposit dana untuk transfer remittance",
+      "lines": [
+        {
+          "accountCode": "1.1.04",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BNI - Escrow"
+        },
+        {
+          "accountCode": "2.1.05",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Kewajiban Dana Escrow"
+        }
+      ]
+    },
+    {
+      "name": "Escrow: Settlement ke Penerima",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Settlement dana ke penerima, fee diakui sebagai pendapatan",
+      "lines": [
+        {
+          "accountCode": "2.1.05",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Kewajiban Dana Escrow"
+        },
+        {
+          "accountCode": "1.1.04",
+          "position": "CREDIT",
+          "formula": "amount - fee",
+          "description": "Bank BNI - Escrow (net of fee)"
+        },
+        {
+          "accountCode": "4.1.03",
+          "position": "CREDIT",
+          "formula": "fee",
+          "description": "Pendapatan Fee Remittance"
+        }
+      ]
+    },
+    {
+      "name": "Escrow: Transfer Fee ke Operasional",
+      "category": "TRANSFER",
+      "cashFlowCategory": "OPERATING",
+      "description": "Transfer accumulated fee dari escrow ke rekening operasional",
+      "lines": [
+        {
+          "accountCode": "1.1.03",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BNI - Operasional"
+        },
+        {
+          "accountCode": "1.1.04",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BNI - Escrow"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Gaji",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran gaji karyawan",
+      "lines": [
+        {
+          "accountCode": "5.1.01",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Gaji"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Accrual Gaji Bulan Berjalan",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Akrual gaji akhir bulan (belum dibayar)",
+      "lines": [
+        {
+          "accountCode": "5.1.01",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Gaji"
+        },
+        {
+          "accountCode": "2.1.10",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Hutang Gaji"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Hutang Gaji",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran hutang gaji yang sudah diakrual",
+      "lines": [
+        {
+          "accountCode": "2.1.10",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Hutang Gaji"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar BPJS",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran BPJS Kesehatan dan Ketenagakerjaan",
+      "lines": [
+        {
+          "accountCode": "5.1.02",
+          "position": "DEBIT",
+          "formula": "bpjsKesehatan",
+          "description": "Beban BPJS Kesehatan"
+        },
+        {
+          "accountCode": "5.1.03",
+          "position": "DEBIT",
+          "formula": "bpjsKetenagakerjaan",
+          "description": "Beban BPJS Ketenagakerjaan"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "bpjsKesehatan + bpjsKetenagakerjaan",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Cloud & Server",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran cloud/server untuk aplikasi sendiri (AWS, GCP, dll)",
+      "lines": [
+        {
+          "accountCode": "5.1.20",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Cloud & Server"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Accrual Beban Cloud",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Akrual beban cloud yang belum ditagih (akhir bulan)",
+      "lines": [
+        {
+          "accountCode": "5.1.20",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Cloud & Server"
+        },
+        {
+          "accountCode": "2.1.15",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Beban Yang Masih Harus Dibayar"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Cloud Klien (Reimbursable)",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Bayar cloud untuk klien yang akan direimbursement",
+      "lines": [
+        {
+          "accountCode": "1.1.13",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Piutang Biaya Ditanggung Klien"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Terima Reimbursement dari Klien",
+      "category": "RECEIPT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Klien mengganti biaya yang sudah dibayarkan",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "1.1.13",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Piutang Biaya Ditanggung Klien"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Software & Lisensi",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran software, SaaS, lisensi",
+      "lines": [
+        {
+          "accountCode": "5.1.21",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Software & Lisensi"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Telekomunikasi",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran telepon dan internet",
+      "lines": [
+        {
+          "accountCode": "5.1.05",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Telekomunikasi"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Listrik",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran listrik kantor",
+      "lines": [
+        {
+          "accountCode": "5.1.06",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Listrik"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Beban Sewa",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran sewa kantor",
+      "lines": [
+        {
+          "accountCode": "5.1.04",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Sewa"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Karyawan Reimburse Pengeluaran",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Karyawan bayar duluan, perusahaan akan ganti",
+      "lines": [
+        {
+          "accountCode": "5.1.08",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Transportasi (atau sesuai jenis)"
+        },
+        {
+          "accountCode": "2.1.11",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Hutang Reimbursement Karyawan"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Reimbursement ke Karyawan",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Ganti biaya yang sudah dibayar karyawan",
+      "lines": [
+        {
+          "accountCode": "2.1.11",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Hutang Reimbursement Karyawan"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Tunjangan Kesehatan",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Reimbursement biaya kesehatan karyawan",
+      "lines": [
+        {
+          "accountCode": "5.1.14",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Tunjangan Kesehatan"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar Team Building / Outing",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran kegiatan rekreasi karyawan",
+      "lines": [
+        {
+          "accountCode": "5.1.15",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Rekreasi Karyawan"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Transfer Antar Bank",
+      "category": "TRANSFER",
+      "cashFlowCategory": "OPERATING",
+      "description": "Transfer dana antar rekening bank",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank tujuan"
+        },
+        {
+          "accountCode": "1.1.03",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank asal"
+        }
+      ]
+    },
+    {
+      "name": "Setoran Modal",
+      "category": "RECEIPT",
+      "cashFlowCategory": "FINANCING",
+      "description": "Setoran modal dari pemilik",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "3.1.01",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Modal Disetor"
+        }
+      ]
+    },
+    {
+      "name": "Prive / Pengambilan Pribadi",
+      "category": "PAYMENT",
+      "cashFlowCategory": "FINANCING",
+      "description": "Pengambilan dana oleh pemilik",
+      "lines": [
+        {
+          "accountCode": "3.2.01",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Laba Ditahan"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Beban Admin Bank",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Potongan biaya administrasi bank",
+      "lines": [
+        {
+          "accountCode": "5.2.01",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Bank"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Bunga Bank",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Bunga dari rekening bank",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        },
+        {
+          "accountCode": "4.2.01",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Bunga"
+        }
+      ]
+    },
+    {
+      "name": "Penyusutan Peralatan",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Jurnal penyesuaian penyusutan bulanan",
+      "lines": [
+        {
+          "accountCode": "5.1.18",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Penyusutan"
+        },
+        {
+          "accountCode": "1.2.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Akum. Penyusutan Peralatan"
+        }
+      ]
+    },
+    {
+      "name": "Amortisasi Aset Tak Berwujud",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Jurnal penyesuaian amortisasi bulanan",
+      "lines": [
+        {
+          "accountCode": "5.1.19",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Amortisasi"
+        },
+        {
+          "accountCode": "1.3.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Akum. Amortisasi"
+        }
+      ]
+    }
+  ]
+}
