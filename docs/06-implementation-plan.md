@@ -91,15 +91,14 @@ The features are ordered to maximize code reuse and enable incremental validatio
 - [x] Account entity and repository
 - [x] Account types (asset, liability, equity, revenue, expense)
 - [x] Hierarchical structure (parent/child)
-- [x] Pre-seeded COA template: **IT Services only**
 - [x] Soft delete (base entity with deleted_at, @SQLRestriction filter)
 - [x] Account CRUD UI
 - [x] Account activation/deactivation
 
-**Note:** Other industry templates (Photography, Online Seller, General Freelancer) deferred to Phase 6+
+**Note:** COA seed data removed from migrations. Users import COA via 1.12 Data Import feature.
 
 ```sql
--- V002: Chart of accounts
+-- V002: Chart of accounts (schema only, no seed data)
 chart_of_accounts
 ```
 
@@ -184,14 +183,15 @@ AccountBalanceCalculator {
 - [x] Template lines entity (account mappings, debit/credit rules)
 - [x] Category field (income, expense, payment, receipt, transfer)
 - [x] Cash flow category field (operating, investing, financing)
-- [x] System templates for IT Services (preloaded via migration)
 - [x] Template CRUD UI
 - [x] Template list with category filter
 - [x] Template detail view
 - [x] Template execution (generates journal entry)
 
+**Note:** Template seed data removed from migrations. Users import templates via 1.12 Data Import feature.
+
 ```sql
--- V004: Journal templates
+-- V003: Journal templates (schema only, no seed data)
 journal_templates (id, name, code, category, cash_flow_category, version, is_system, ...)
 journal_template_lines (id, template_id, account_id, debit_formula, credit_formula, description, ...)
 ```
@@ -695,6 +695,146 @@ When milestone is marked complete:
 - [ ] Contextual help tooltips on complex form fields
 - [ ] Search functionality (client-side JS on generated HTML)
 - [ ] PDF export option (print-friendly CSS already exists)
+
+---
+
+### 1.12 Data Import
+
+**Purpose:** Import COA and Journal Templates from JSON/Excel files. Replaces hardcoded seed data in migrations.
+
+**Dependencies:** COA (1.1), Templates (1.4)
+
+**Rationale:** Every company has different COA needs. Seed data in migrations creates coupling between code and business data. Import feature allows:
+- Fresh start with custom COA
+- Industry-specific templates (IT Services, Retail, Manufacturing)
+- Easy migration from other systems
+- No code changes needed for customization
+
+#### Features
+
+##### COA Import
+- [ ] Import from JSON file
+- [ ] Import from Excel file (XLSX)
+- [ ] Validate account structure (parent references, account types)
+- [ ] Validate account codes (uniqueness, format)
+- [ ] Preview before import (show what will be created)
+- [ ] Import progress indicator
+- [ ] Error handling with line-by-line feedback
+- [ ] Skip existing accounts option
+
+##### Journal Template Import
+- [ ] Import from JSON file
+- [ ] Validate template structure (lines, formulas)
+- [ ] Validate account references (must exist in COA)
+- [ ] Preview before import
+- [ ] Import progress indicator
+- [ ] Error handling with detailed feedback
+- [ ] Skip existing templates option
+
+##### First-Run Setup Wizard
+- [ ] Detect empty COA on first login
+- [ ] Offer import options:
+  - Start from scratch (empty)
+  - Import from file
+  - Use SAK EMKM template (downloadable)
+- [ ] Guide user through initial setup
+
+#### Importable Templates
+
+Pre-built templates available for download (not in migrations):
+
+```
+/templates/
+├── coa/
+│   ├── sak-emkm-it-services.json      ← Your company's COA
+│   ├── sak-emkm-retail.json
+│   └── sak-emkm-manufacturing.json
+└── journal-templates/
+    ├── it-services.json                ← Your company's templates
+    ├── retail.json
+    └── manufacturing.json
+```
+
+#### JSON Format: COA
+
+```json
+{
+  "name": "SAK EMKM - IT Services",
+  "version": "1.0",
+  "accounts": [
+    {
+      "code": "1",
+      "name": "ASET",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1",
+      "name": "Aset Lancar",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.01",
+      "name": "Kas",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    }
+  ]
+}
+```
+
+#### JSON Format: Journal Templates
+
+```json
+{
+  "name": "IT Services Templates",
+  "version": "1.0",
+  "templates": [
+    {
+      "name": "Pendapatan Jasa Konsultasi",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template untuk mencatat pendapatan jasa konsultasi",
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### UI with HTMX
+- File upload with drag-and-drop
+- Real-time validation feedback
+- Import progress bar
+- Success/error summary
+
+#### Implementation
+- [ ] Create ImportService for COA
+- [ ] Create ImportService for Templates
+- [ ] Create ImportController with HTMX endpoints
+- [ ] Create import UI pages
+- [ ] Create setup wizard for first-run
+- [ ] Create downloadable template files
+- [ ] Add import menu item
 
 ---
 
