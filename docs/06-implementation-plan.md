@@ -1473,7 +1473,111 @@ CREATE TABLE user_roles (
 3. **OWNER vs ADMIN:** Business owner shouldn't need technical admin access
 4. **Migration path:** Existing admin user gets ADMIN + OWNER roles
 
-**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, and role-based access control
+### 2.14 Variable Account Templates
+
+**Purpose:** Allow templates to have variable account selection at transaction time. Reduces template duplication (e.g., one "Penerimaan Bank" template instead of 5 per-bank templates).
+
+**Dependencies:** Templates (1.4), Transactions (1.5)
+
+**Note:** MVP uses multiple templates per bank account. This enhancement reduces template count and improves UX.
+
+#### Problem Statement
+
+Current system requires fixed accounts in templates:
+```
+Templates needed for bank receipts:
+- Penerimaan Bank BCA       → fixed to account 1.1.02.01
+- Penerimaan Bank BNI Ops   → fixed to account 1.1.02.02
+- Penerimaan Bank BNI Escrow → fixed to account 1.1.02.03
+- Penerimaan Bank BSI       → fixed to account 1.1.02.04
+- Penerimaan Bank CIMB      → fixed to account 1.1.02.05
+
+Total: 5 templates for same transaction pattern
+```
+
+#### Solution
+
+Mark template lines as "variable" with account filter:
+```
+Single template: "Penerimaan Bank"
+- Line 1: ${bankAccount} DEBIT amount  ← user selects at transaction time
+- Line 2: 4.1.01 CREDIT amount         ← fixed revenue account
+
+Filter: parentCode:1.1.02 (only bank accounts shown in dropdown)
+```
+
+#### Database Schema
+
+```sql
+-- Add to journal_template_lines
+ALTER TABLE journal_template_lines ADD COLUMN is_variable BOOLEAN DEFAULT FALSE;
+ALTER TABLE journal_template_lines ADD COLUMN account_filter VARCHAR(255);
+-- account_filter examples:
+--   "parentCode:1.1.02"     → accounts under Bank parent
+--   "type:ASSET"            → all asset accounts
+--   "code:1.1.*"            → accounts matching pattern
+```
+
+#### Features
+
+##### Template Configuration
+- [ ] Add `isVariable` checkbox to template line form
+- [ ] Add `accountFilter` field (shown when isVariable=true)
+- [ ] Validate filter syntax on save
+- [ ] Preview matching accounts
+
+##### Transaction Form
+- [ ] Detect variable lines in selected template
+- [ ] Show account dropdown for variable lines (filtered by accountFilter)
+- [ ] Pre-select default account from template (if set)
+- [ ] Store selected account in TransactionAccountMapping
+
+##### Migration
+- [ ] Existing templates unchanged (isVariable=false by default)
+- [ ] Optional: merge duplicate templates after feature is live
+
+#### Filter Syntax
+
+| Filter | Matches |
+|--------|---------|
+| `parentCode:1.1.02` | Accounts with parent code 1.1.02 |
+| `type:ASSET` | All ASSET type accounts |
+| `type:EXPENSE` | All EXPENSE type accounts |
+| `code:1.1.*` | Accounts with code starting with 1.1. |
+| `code:*.01` | Accounts with code ending in .01 |
+| `active:true` | Only active accounts |
+
+Filters can be combined: `parentCode:1.1.02,active:true`
+
+#### UI Mockup
+
+```
+Template: Penerimaan Bank
+┌─────────────────────────────────────────────────────────┐
+│ Tanggal: [2025-11-26]                                   │
+│ Jumlah:  [Rp 10,000,000]                                │
+│                                                         │
+│ Rekening Bank: [▼ Bank BCA - 1.1.02.01        ]        │ ← dropdown
+│                   Bank BCA - 1.1.02.01                  │
+│                   Bank BNI Operasional - 1.1.02.02      │
+│                   Bank BNI Escrow - 1.1.02.03           │
+│                   Bank BSI - 1.1.02.04                  │
+│                   Bank CIMB - 1.1.02.05                 │
+│                                                         │
+│ Keterangan: [Pembayaran invoice #123]                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Benefits
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Bank receipt templates | 5 | 1 |
+| Bank payment templates | 5 | 1 |
+| Transfer templates | 25 (5×5) | 1 |
+| Total template reduction | ~60% fewer templates |
+
+**Deliverable:** Tax-compliant accounting with export formats for DJP, document storage, proper backup/restore, flexible transaction tagging, trend analysis, smart alerts, optimized balance calculations, role-based access control, and variable account templates
 
 ---
 
