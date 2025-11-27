@@ -51,21 +51,42 @@ public class UserManualGenerator {
 
     public static List<Section> getSections() {
         return List.of(
-            new Section("pendahuluan", "Pendahuluan", "01-pendahuluan.md", List.of()),
-            new Section("login", "Login & Autentikasi", "02-login.md", List.of("login")),
-            new Section("dashboard", "Dashboard", "03-dashboard.md", List.of("dashboard")),
-            new Section("bagan-akun", "Bagan Akun", "04-bagan-akun.md", List.of("accounts-list", "accounts-form")),
-            new Section("template-jurnal", "Template Jurnal", "05-template-jurnal.md", List.of("templates-list", "templates-detail", "templates-form")),
-            new Section("transaksi", "Transaksi", "06-transaksi.md", List.of("transactions-list", "transactions-detail", "transactions-form")),
-            new Section("buku-besar", "Buku Besar", "07-buku-besar.md", List.of("journals-list", "journals-detail")),
-            new Section("laporan-keuangan", "Laporan Keuangan", "08-laporan-keuangan.md", List.of("reports-trial-balance", "reports-balance-sheet", "reports-income-statement")),
-            new Section("amortisasi", "Jadwal Amortisasi", "09-amortisasi.md", List.of("amortization-list", "amortization-form")),
-            new Section("klien", "Manajemen Klien", "10-klien.md", List.of("clients-list", "clients-detail", "clients-form")),
-            new Section("proyek", "Manajemen Proyek", "11-proyek.md", List.of("projects-list", "projects-detail", "projects-form")),
-            new Section("invoice", "Invoice", "12-invoice.md", List.of("invoices-list")),
-            new Section("laporan-profitabilitas", "Laporan Profitabilitas", "13-laporan-profitabilitas.md", List.of("reports-project-profitability", "reports-client-profitability")),
-            new Section("laporan-pajak", "Laporan Pajak", "15-laporan-pajak.md", List.of("reports-ppn-summary", "reports-pph23-withholding", "reports-tax-summary")),
-            new Section("glosarium", "Glosarium", "14-glosarium.md", List.of())
+            // Pengantar
+            new Section("pendahuluan", "Pendahuluan", "00-pendahuluan.md", List.of()),
+            new Section("konsep-dasar", "Konsep Dasar Akuntansi", "01-konsep-dasar.md", List.of()),
+
+            // Bagian I: Operasi Harian
+            new Section("mencatat-pendapatan", "Mencatat Pendapatan", "10-mencatat-pendapatan.md", List.of("transactions-form", "transactions-detail")),
+            new Section("mencatat-pengeluaran", "Mencatat Pengeluaran", "11-mencatat-pengeluaran.md", List.of("transactions-list", "transactions-form")),
+            new Section("transfer-antar-akun", "Transfer Antar Akun", "12-transfer-antar-akun.md", List.of("transactions-form")),
+            new Section("telegram-receipt", "Telegram Receipt", "13-telegram-receipt.md", List.of()),
+
+            // Bagian II: Pelaporan
+            new Section("laporan-harian", "Laporan Harian", "20-laporan-harian.md", List.of("dashboard", "transactions-list", "journals-list")),
+            new Section("laporan-bulanan", "Laporan Bulanan", "21-laporan-bulanan.md", List.of("reports-trial-balance", "reports-balance-sheet", "reports-income-statement")),
+            new Section("laporan-tahunan", "Laporan Tahunan", "22-laporan-tahunan.md", List.of("reports-income-statement", "reports-balance-sheet")),
+
+            // Bagian III: Perpajakan
+            new Section("transaksi-ppn", "Transaksi PPN", "30-transaksi-ppn.md", List.of("transactions-form", "reports-ppn-summary")),
+            new Section("transaksi-pph", "Transaksi PPh", "31-transaksi-pph.md", List.of("transactions-form", "reports-pph23-withholding")),
+            new Section("laporan-pajak", "Laporan Pajak", "32-laporan-pajak.md", List.of("reports-ppn-summary", "reports-pph23-withholding", "reports-tax-summary")),
+
+            // Bagian IV: Manajemen Proyek
+            new Section("setup-proyek", "Setup Proyek", "40-setup-proyek.md", List.of("projects-form", "clients-list")),
+            new Section("tracking-proyek", "Tracking Proyek", "41-tracking-proyek.md", List.of("projects-detail", "projects-list")),
+            new Section("invoice-penagihan", "Invoice & Penagihan", "42-invoice-penagihan.md", List.of("invoices-list")),
+            new Section("analisis-profitabilitas", "Analisis Profitabilitas", "43-analisis-profitabilitas.md", List.of("reports-project-profitability", "reports-client-profitability")),
+
+            // Bagian V: Konfigurasi
+            new Section("setup-awal", "Setup Awal", "50-setup-awal.md", List.of("accounts-list", "accounts-form")),
+            new Section("kelola-template", "Kelola Template", "51-kelola-template.md", List.of("templates-list", "templates-detail", "templates-form")),
+            new Section("kelola-klien", "Kelola Klien", "52-kelola-klien.md", List.of("clients-list", "clients-detail", "clients-form")),
+            new Section("jadwal-amortisasi", "Jadwal Amortisasi", "53-jadwal-amortisasi.md", List.of("amortization-list", "amortization-form")),
+
+            // Lampiran
+            new Section("glosarium", "Glosarium", "90-glosarium.md", List.of()),
+            new Section("referensi-akun", "Referensi Akun", "91-referensi-akun.md", List.of("accounts-list")),
+            new Section("referensi-template", "Referensi Template", "92-referensi-template.md", List.of("templates-list"))
         );
     }
 
