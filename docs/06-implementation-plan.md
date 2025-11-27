@@ -13,7 +13,7 @@
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
-| **2** | Tax Compliance | 🚧 In Progress (2.0, 2.1, 2.9 done) |
+| **2** | Tax Compliance | 🚧 In Progress (2.0, 2.1, 2.3-2.6, 2.9 done) |
 | **3** | Reconciliation | ⏳ Not Started |
 | **4** | Payroll | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |

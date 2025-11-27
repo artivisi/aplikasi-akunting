@@ -7,6 +7,7 @@ import com.artivisi.accountingfinance.service.ProjectProfitabilityService;
 import com.artivisi.accountingfinance.service.ProjectService;
 import com.artivisi.accountingfinance.service.ReportExportService;
 import com.artivisi.accountingfinance.service.ReportService;
+import com.artivisi.accountingfinance.service.TaxReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ public class ReportController {
     private final ProjectService projectService;
     private final ClientService clientService;
     private final CompanyConfigService companyConfigService;
+    private final TaxReportService taxReportService;
 
     private static final DateTimeFormatter FILE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -370,5 +372,123 @@ public class ReportController {
         model.addAttribute("company", company);
 
         return "reports/income-statement-print";
+    }
+
+    // ==================== TAX REPORTS ====================
+
+    @GetMapping("/ppn-summary")
+    public String ppnSummary(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        model.addAttribute("currentPage", "reports");
+        model.addAttribute("reportType", "ppn-summary");
+
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", taxReportService.generatePPNSummary(start, end));
+
+        return "reports/ppn-summary";
+    }
+
+    @GetMapping("/pph23-withholding")
+    public String pph23Withholding(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        model.addAttribute("currentPage", "reports");
+        model.addAttribute("reportType", "pph23-withholding");
+
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", taxReportService.generatePPh23Withholding(start, end));
+
+        return "reports/pph23-withholding";
+    }
+
+    @GetMapping("/tax-summary")
+    public String taxSummary(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        model.addAttribute("currentPage", "reports");
+        model.addAttribute("reportType", "tax-summary");
+
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", taxReportService.generateTaxSummary(start, end));
+
+        return "reports/tax-summary";
+    }
+
+    // Tax Reports API Endpoints
+
+    @GetMapping("/api/ppn-summary")
+    @ResponseBody
+    public ResponseEntity<TaxReportService.PPNSummaryReport> apiPPNSummary(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(taxReportService.generatePPNSummary(startDate, endDate));
+    }
+
+    @GetMapping("/api/pph23-withholding")
+    @ResponseBody
+    public ResponseEntity<TaxReportService.PPh23WithholdingReport> apiPPh23Withholding(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(taxReportService.generatePPh23Withholding(startDate, endDate));
+    }
+
+    @GetMapping("/api/tax-summary")
+    @ResponseBody
+    public ResponseEntity<TaxReportService.TaxSummaryReport> apiTaxSummary(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(taxReportService.generateTaxSummary(startDate, endDate));
+    }
+
+    // Tax Reports Print Endpoints
+
+    @GetMapping("/ppn-summary/print")
+    public String printPPNSummary(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+        CompanyConfig company = companyConfigService.getConfig();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", taxReportService.generatePPNSummary(start, end));
+        model.addAttribute("company", company);
+
+        return "reports/ppn-summary-print";
+    }
+
+    @GetMapping("/pph23-withholding/print")
+    public String printPPh23Withholding(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+        CompanyConfig company = companyConfigService.getConfig();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", taxReportService.generatePPh23Withholding(start, end));
+        model.addAttribute("company", company);
+
+        return "reports/pph23-withholding-print";
     }
 }

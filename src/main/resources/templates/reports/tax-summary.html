@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Ringkasan Pajak</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Ringkasan Pajak</h1>
+
+    <div id="tax-summary-content" layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
+        <div class="max-w-4xl">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/reports}" class="hover:text-primary-600 transition-colors">Laporan</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span class="text-gray-900">Ringkasan Pajak</span>
+            </nav>
+
+            <!-- Filter Section -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <form th:action="@{/reports/tax-summary}" method="get" class="flex flex-wrap items-end gap-4">
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <button id="btn-generate" type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            Tampilkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Report -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Report Header -->
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 id="report-title" class="text-lg font-bold text-gray-900">RINGKASAN PAJAK</h2>
+                            <p class="text-sm text-gray-600">Tax Summary Report</p>
+                            <p id="report-period" class="text-sm text-gray-500 mt-1"
+                               th:text="'Periode: ' + ${#temporals.format(startDate, 'd MMMM yyyy')} + ' - ' + ${#temporals.format(endDate, 'd MMMM yyyy')}">
+                                Periode: 1 - 30 November 2025
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Content -->
+                <div class="p-6">
+                    <!-- Tax Items Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akun Pajak</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Debit</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Kredit</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <th:block th:if="${report != null and !report.items.isEmpty()}">
+                                    <tr th:each="item : ${report.items}" class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-600" th:text="${item.account.accountCode}">1.1.25</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900" th:text="${item.label}">PPN Masukan</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-mono text-right text-gray-700" th:text="${#numbers.formatDecimal(item.debit, 1, 'POINT', 0, 'COMMA')}">0</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-mono text-right text-gray-700" th:text="${#numbers.formatDecimal(item.credit, 1, 'POINT', 0, 'COMMA')}">0</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-mono text-right font-semibold"
+                                            th:classappend="${item.balance.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-gray-900' : 'text-red-600'"
+                                            th:text="${#numbers.formatDecimal(item.balance, 1, 'POINT', 0, 'COMMA')}">0</td>
+                                    </tr>
+                                </th:block>
+                                <tr th:if="${report == null or report.items.isEmpty()}">
+                                    <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">
+                                        Tidak ada data pajak untuk periode ini
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot th:if="${report != null}" class="bg-gray-100">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-3 text-sm font-semibold text-gray-900">Total Kewajiban Pajak</td>
+                                    <td class="px-4 py-3 text-sm font-mono text-right font-bold"
+                                        th:classappend="${report.totalBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-gray-900' : 'text-red-600'"
+                                        th:text="${#numbers.formatDecimal(report.totalBalance, 1, 'POINT', 0, 'COMMA')}">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <a th:href="@{/reports/ppn-summary(startDate=${startDate}, endDate=${endDate})}"
+                           class="p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                                </svg>
+                                <div>
+                                    <span class="text-sm font-semibold text-blue-800">Ringkasan PPN</span>
+                                    <p class="text-xs text-blue-600">Lihat detail PPN Masukan dan Keluaran</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a th:href="@{/reports/pph23-withholding(startDate=${startDate}, endDate=${endDate})}"
+                           class="p-4 bg-orange-50 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                                </svg>
+                                <div>
+                                    <span class="text-sm font-semibold text-orange-800">Pemotongan PPh 23</span>
+                                    <p class="text-xs text-orange-600">Lihat detail PPh 23 yang dipotong</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -116,7 +116,15 @@ public class ScreenshotCapture {
             new PageDefinition("reports-project-profitability", "Profitabilitas Proyek", "/reports/project-profitability", true,
                     "Laporan profitabilitas per proyek", "laporan-profitabilitas"),
             new PageDefinition("reports-client-profitability", "Profitabilitas Klien", "/reports/client-profitability", true,
-                    "Laporan profitabilitas per klien", "laporan-profitabilitas")
+                    "Laporan profitabilitas per klien", "laporan-profitabilitas"),
+
+            // Tax Reports
+            new PageDefinition("reports-ppn-summary", "Ringkasan PPN", "/reports/ppn-summary", true,
+                    "Laporan ringkasan PPN Keluaran dan Masukan", "laporan-pajak"),
+            new PageDefinition("reports-pph23-withholding", "Pemotongan PPh 23", "/reports/pph23-withholding", true,
+                    "Laporan pemotongan PPh 23 dari vendor", "laporan-pajak"),
+            new PageDefinition("reports-tax-summary", "Ringkasan Pajak", "/reports/tax-summary", true,
+                    "Overview semua akun pajak", "laporan-pajak")
         );
     }
 

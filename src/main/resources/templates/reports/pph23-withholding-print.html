@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemotongan PPh 23</title>
+    <style>
+        @page { size: A4; margin: 12mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 9pt; line-height: 1.4; color: #1f2937; background: white; }
+        .container { max-width: 210mm; margin: 0 auto; padding: 6mm; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5mm; padding-bottom: 3mm; border-bottom: 2px solid #4f46e5; }
+        .company-info { flex: 1; }
+        .company-logo { max-height: 45px; max-width: 160px; margin-bottom: 2mm; }
+        .company-name { font-size: 13pt; font-weight: 700; color: #1f2937; }
+        .company-details { font-size: 8pt; color: #6b7280; line-height: 1.5; margin-top: 1mm; }
+        .report-title-section { text-align: right; }
+        .report-title { font-size: 15pt; font-weight: 700; color: #4f46e5; }
+        .report-subtitle { font-size: 8pt; color: #6b7280; margin-top: 1mm; }
+        .report-period { font-size: 9pt; color: #374151; margin-top: 2mm; font-weight: 500; }
+
+        /* Content Box */
+        .content-box { margin: 4mm 0; padding: 4mm; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .content-box.orange { background: #fff7ed; border-color: #fed7aa; }
+        .content-box.green { background: #f0fdf4; border-color: #bbf7d0; }
+        .box-row { display: flex; justify-content: space-between; align-items: center; }
+        .box-label { font-size: 10pt; font-weight: 600; }
+        .box-sublabel { font-size: 8pt; color: #6b7280; margin-top: 1mm; }
+        .box-value { font-size: 14pt; font-weight: 700; font-family: 'Consolas', monospace; }
+
+        /* Result Box */
+        .result-box { margin-top: 5mm; padding: 5mm; border-radius: 6px; text-align: center; }
+        .result-box.outstanding { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; }
+        .result-box.clear { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; }
+        .result-label { font-size: 9pt; opacity: 0.9; }
+        .result-title { font-size: 11pt; font-weight: 700; margin-top: 1mm; }
+        .result-value { font-size: 20pt; font-weight: 700; font-family: 'Consolas', monospace; margin-top: 2mm; }
+
+        /* Info Box */
+        .info-box { margin-top: 5mm; padding: 4mm; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; }
+        .info-title { font-size: 9pt; font-weight: 600; color: #1d4ed8; margin-bottom: 2mm; }
+        .info-text { font-size: 8pt; color: #1e40af; line-height: 1.5; }
+
+        /* Footer */
+        .footer { margin-top: 6mm; padding-top: 3mm; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 7pt; color: #9ca3af; }
+
+        /* Print Controls */
+        .print-controls { position: fixed; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 1000; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; }
+        .btn-print { background: #4f46e5; color: white; }
+        .btn-back { background: #f3f4f6; color: #374151; }
+
+        @media print {
+            .print-controls { display: none; }
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls">
+        <a th:href="@{/reports/pph23-withholding(startDate=${startDate}, endDate=${endDate})}" class="btn btn-back">Kembali</a>
+        <button onclick="window.print()" class="btn btn-print">Cetak</button>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-info">
+                <img th:if="${company.companyLogoPath != null and !company.companyLogoPath.isEmpty()}"
+                     th:src="@{${company.companyLogoPath}}" alt="Logo" class="company-logo">
+                <img th:unless="${company.companyLogoPath != null and !company.companyLogoPath.isEmpty()}"
+                     th:src="@{/img/logo-artivisi.svg}" alt="Logo" class="company-logo">
+                <div class="company-name" th:text="${company.companyName}">Nama Perusahaan</div>
+                <div class="company-details">
+                    <span th:if="${company.companyAddress}" th:text="${company.companyAddress}">Alamat</span><br th:if="${company.companyAddress}">
+                    <span th:if="${company.companyPhone}">Tel: [[${company.companyPhone}]]</span>
+                    <span th:if="${company.companyPhone != null and company.companyEmail != null}"> | </span>
+                    <span th:if="${company.companyEmail}" th:text="${company.companyEmail}">email</span><br th:if="${company.companyPhone != null or company.companyEmail != null}">
+                    <span th:if="${company.taxId}">NPWP: [[${company.taxId}]]</span>
+                </div>
+            </div>
+            <div class="report-title-section">
+                <div class="report-title">PPh PASAL 23</div>
+                <div class="report-subtitle">Income Tax Article 23 Withholding Report</div>
+                <div class="report-period" th:text="'Periode: ' + ${#temporals.format(startDate, 'd MMMM yyyy')} + ' - ' + ${#temporals.format(endDate, 'd MMMM yyyy')}">Periode</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Total Withheld -->
+            <div class="content-box orange">
+                <div class="box-row">
+                    <div>
+                        <div class="box-label" style="color: #c2410c;">Total PPh 23 Dipotong</div>
+                        <div class="box-sublabel">PPh 23 yang dipotong dari pembayaran ke vendor</div>
+                    </div>
+                    <div class="box-value" style="color: #c2410c;" th:text="${report != null} ? ${#numbers.formatDecimal(report.totalWithheld, 1, 'POINT', 0, 'COMMA')} : '0'">0</div>
+                </div>
+            </div>
+
+            <!-- Total Deposited -->
+            <div class="content-box green">
+                <div class="box-row">
+                    <div>
+                        <div class="box-label" style="color: #15803d;">Total PPh 23 Disetor</div>
+                        <div class="box-sublabel">PPh 23 yang sudah disetor ke negara</div>
+                    </div>
+                    <div class="box-value" style="color: #15803d;" th:text="${report != null} ? '(' + ${#numbers.formatDecimal(report.totalDeposited, 1, 'POINT', 0, 'COMMA')} + ')' : '(0)'">0</div>
+                </div>
+            </div>
+
+            <!-- Result Box -->
+            <div th:if="${report != null}" class="result-box"
+                 th:classappend="${report.balance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'outstanding' : 'clear'">
+                <div class="result-label">Status</div>
+                <div class="result-title" th:text="${report.balance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'SALDO HUTANG PPh 23' : 'LUNAS'">SALDO HUTANG PPh 23</div>
+                <div class="result-value" th:text="${#numbers.formatDecimal(report.balance, 1, 'POINT', 0, 'COMMA')}">0</div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <div class="info-title">Kewajiban Penyetoran PPh 23</div>
+                <div class="info-text">
+                    PPh 23 yang dipotong harus disetor ke negara paling lambat tanggal 10 bulan berikutnya dan dilaporkan melalui SPT Masa PPh Pasal 23 paling lambat tanggal 20 bulan berikutnya.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span th:text="'Dicetak: ' + ${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy HH:mm')}">Dicetak: 01 Jan 2025</span>
+            <span th:text="${company.companyName}">Nama Perusahaan</span>
+        </div>
+    </div>
+</body>
+</html>

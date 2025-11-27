@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Ringkasan PPN</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Ringkasan PPN</h1>
+
+    <div id="ppn-summary-content" layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
+        <div class="max-w-4xl">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/reports}" class="hover:text-primary-600 transition-colors">Laporan</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span class="text-gray-900">Ringkasan PPN</span>
+            </nav>
+
+            <!-- Filter Section -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <form th:action="@{/reports/ppn-summary}" method="get" class="flex flex-wrap items-end gap-4">
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <button id="btn-generate" type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            Tampilkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Report -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Report Header -->
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 id="report-title" class="text-lg font-bold text-gray-900">RINGKASAN PPN</h2>
+                            <p class="text-sm text-gray-600">VAT Summary Report</p>
+                            <p id="report-period" class="text-sm text-gray-500 mt-1"
+                               th:text="'Periode: ' + ${#temporals.format(startDate, 'd MMMM yyyy')} + ' - ' + ${#temporals.format(endDate, 'd MMMM yyyy')}">
+                                Periode: 1 - 30 November 2025
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <a id="btn-print" th:href="@{/reports/ppn-summary/print(startDate=${startDate}, endDate=${endDate})}"
+                               target="_blank"
+                               class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                    </svg>
+                                    Cetak
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Content -->
+                <div class="p-6">
+                    <!-- PPN Keluaran Section -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center py-3 px-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div>
+                                <span class="text-sm font-semibold text-blue-800">PPN Keluaran (Output VAT)</span>
+                                <p class="text-xs text-blue-600 mt-0.5">PPN yang dipungut dari penjualan</p>
+                            </div>
+                            <span id="ppn-keluaran" class="text-lg font-mono font-semibold text-blue-800"
+                                  th:text="${report != null} ? ${#numbers.formatDecimal(report.ppnKeluaran, 1, 'POINT', 0, 'COMMA')} : '0'">0</span>
+                        </div>
+                    </div>
+
+                    <!-- PPN Masukan Section -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center py-3 px-4 bg-green-50 rounded-lg border border-green-200">
+                            <div>
+                                <span class="text-sm font-semibold text-green-800">PPN Masukan (Input VAT)</span>
+                                <p class="text-xs text-green-600 mt-0.5">PPN yang dapat dikreditkan dari pembelian</p>
+                            </div>
+                            <span id="ppn-masukan" class="text-lg font-mono font-semibold text-green-800"
+                                  th:text="${report != null} ? '(' + ${#numbers.formatDecimal(report.ppnMasukan, 1, 'POINT', 0, 'COMMA')} + ')' : '(0)'">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Net PPN -->
+                    <div th:if="${report != null}" class="flex justify-between items-center py-4 px-4 rounded-lg border-2"
+                         th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'bg-red-100 border-red-300' : 'bg-accent-100 border-accent-300'">
+                        <div>
+                            <span class="text-base font-bold"
+                                  th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-red-900' : 'text-accent-900'"
+                                  th:text="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'PPN KURANG BAYAR' : 'PPN LEBIH BAYAR'">PPN KURANG BAYAR</span>
+                            <p class="text-xs mt-0.5"
+                               th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-red-700' : 'text-accent-700'"
+                               th:text="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'VAT Payable' : 'VAT Refundable'">VAT Payable</p>
+                        </div>
+                        <span id="net-ppn" class="text-xl font-mono font-bold"
+                              th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-red-900' : 'text-accent-900'"
+                              th:text="${#numbers.formatDecimal(report.netPPN.abs(), 1, 'POINT', 0, 'COMMA')}">0</span>
+                    </div>
+
+                    <!-- Status Message -->
+                    <div th:if="${report != null}" id="ppn-status" class="mt-4 p-4 rounded-lg border text-center"
+                         th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'bg-red-50 border-red-200' : 'bg-accent-50 border-accent-200'">
+                        <div class="flex items-center justify-center"
+                             th:classappend="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-red-700' : 'text-accent-700'">
+                            <svg th:if="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0}" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <svg th:unless="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0}" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span id="ppn-message" class="font-medium"
+                                  th:text="${report.netPPN.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'PPN harus disetor ke negara sebelum tanggal jatuh tempo' : 'Terdapat kelebihan bayar PPN yang dapat dikompensasi'">
+                                PPN harus disetor ke negara
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Calculation Details -->
+                    <div th:if="${report != null}" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Detail Perhitungan</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">PPN Keluaran (dari penjualan)</span>
+                                <span class="font-mono" th:text="${#numbers.formatDecimal(report.ppnKeluaran, 1, 'POINT', 0, 'COMMA')}">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">PPN Masukan (dari pembelian)</span>
+                                <span class="font-mono" th:text="'(' + ${#numbers.formatDecimal(report.ppnMasukan, 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                            </div>
+                            <div class="flex justify-between pt-2 border-t border-gray-300">
+                                <span class="font-semibold text-gray-800">PPN Terutang</span>
+                                <span class="font-mono font-semibold" th:text="${#numbers.formatDecimal(report.netPPN, 1, 'POINT', 0, 'COMMA')}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

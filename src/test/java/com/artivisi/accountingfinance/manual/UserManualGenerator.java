@@ -64,6 +64,7 @@ public class UserManualGenerator {
             new Section("proyek", "Manajemen Proyek", "11-proyek.md", List.of("projects-list", "projects-detail", "projects-form")),
             new Section("invoice", "Invoice", "12-invoice.md", List.of("invoices-list")),
             new Section("laporan-profitabilitas", "Laporan Profitabilitas", "13-laporan-profitabilitas.md", List.of("reports-project-profitability", "reports-client-profitability")),
+            new Section("laporan-pajak", "Laporan Pajak", "15-laporan-pajak.md", List.of("reports-ppn-summary", "reports-pph23-withholding", "reports-tax-summary")),
             new Section("glosarium", "Glosarium", "14-glosarium.md", List.of())
         );
     }
