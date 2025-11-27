@@ -32,6 +32,9 @@ Kumpulan semua akun yang mencatat setiap transaksi secara kronologis.
 **Debit**
 Sisi kiri dalam pencatatan akuntansi. Menambah aset dan beban, mengurangi kewajiban dan pendapatan.
 
+**DPP (Dasar Pengenaan Pajak)**
+Nilai yang menjadi dasar perhitungan pajak. Untuk PPN, DPP adalah harga sebelum pajak.
+
 **Draft**
 Status transaksi atau dokumen yang tersimpan tapi belum final/diposting.
 
@@ -39,6 +42,11 @@ Status transaksi atau dokumen yang tersimpan tapi belum final/diposting.
 
 **Ekuitas**
 Hak pemilik atas aset perusahaan setelah dikurangi kewajiban. Ekuitas = Aset - Kewajiban.
+
+### F
+
+**Faktur Pajak**
+Dokumen bukti pungutan PPN yang dibuat oleh PKP saat menyerahkan BKP/JKP.
 
 ### J
 
@@ -86,6 +94,9 @@ Laporan posisi keuangan yang menunjukkan aset, kewajiban, dan ekuitas pada tangg
 **Neraca Saldo**
 Daftar semua akun beserta saldo debit dan kredit untuk memvalidasi keseimbangan pembukuan.
 
+**NTPN (Nomor Transaksi Penerimaan Negara)**
+Nomor bukti penerimaan negara yang diterbitkan saat penyetoran pajak.
+
 ### P
 
 **Pendapatan**
@@ -104,10 +115,16 @@ Hak perusahaan atas uang dari pelanggan yang belum diterima.
 Proses memindahkan transaksi dari status draft menjadi final dan mempengaruhi saldo akun.
 
 **PPN (Pajak Pertambahan Nilai)**
-Pajak yang dikenakan atas penyerahan barang/jasa. Tarif standar 11%.
+Pajak yang dikenakan atas penyerahan barang/jasa kena pajak. Tarif standar 11%.
+
+**PPN Keluaran**
+PPN yang dipungut dari penjualan. Dicatat sebagai hutang pajak.
+
+**PPN Masukan**
+PPN yang dibayar pada pembelian. Dapat dikreditkan dengan PPN Keluaran.
 
 **PPh (Pajak Penghasilan)**
-Pajak atas penghasilan. PPh 21 untuk karyawan, PPh 23 untuk jasa, dll.
+Pajak atas penghasilan. PPh 21 untuk karyawan, PPh 23 untuk jasa, PPh 4(2) untuk final.
 
 ### R
 
@@ -118,6 +135,9 @@ Prinsip akuntansi yang menentukan kapan pendapatan diakui dalam laporan keuangan
 
 **Saldo Berjalan**
 Saldo akun yang terus diperbarui setiap kali ada transaksi.
+
+**SPT (Surat Pemberitahuan)**
+Surat yang digunakan untuk melaporkan perhitungan dan pembayaran pajak.
 
 ### T
 
@@ -139,18 +159,22 @@ Pembatalan transaksi yang sudah diposting. Menghasilkan jurnal reversal otomatis
 
 | Singkatan | Kepanjangan |
 |-----------|-------------|
+| BKP | Barang Kena Pajak |
 | COA | Chart of Accounts (Bagan Akun) |
 | DPP | Dasar Pengenaan Pajak |
-| HTMX | Hypertext Markup eXtensions |
+| JKP | Jasa Kena Pajak |
 | KPI | Key Performance Indicator |
+| NPWP | Nomor Pokok Wajib Pajak |
+| NTPN | Nomor Transaksi Penerimaan Negara |
 | PDF | Portable Document Format |
 | PKP | Pengusaha Kena Pajak |
 | PPN | Pajak Pertambahan Nilai |
 | PPh | Pajak Penghasilan |
 | PSAK | Pernyataan Standar Akuntansi Keuangan |
+| SPT | Surat Pemberitahuan |
 | UKM | Usaha Kecil dan Menengah |
 
-## Persamaan Dasar
+## Rumus Dasar
 
 ### Persamaan Akuntansi
 ```
@@ -165,10 +189,26 @@ Laba = Pendapatan - Beban
 ### PPN
 ```
 PPN = DPP × 11%
-DPP = Harga Inklusif / 1,11
+DPP = Harga Inklusif / 1.11
+```
+
+### PPh 23
+```
+PPh 23 = DPP × 2%
 ```
 
 ### Margin Laba
 ```
 Margin = (Laba / Pendapatan) × 100%
 ```
+
+### ROI (Return on Investment)
+```
+ROI = (Laba / Biaya) × 100%
+```
+
+## Lihat Juga
+
+- [Konsep Dasar](01-konsep-dasar.md) - Penjelasan konsep akuntansi dasar
+- [Referensi Akun](91-referensi-akun.md) - Daftar kode akun
+- [Referensi Template](92-referensi-template.md) - Daftar template bawaan
