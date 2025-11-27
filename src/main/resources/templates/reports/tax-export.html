@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Export Data Pajak untuk Coretax</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Export Data Pajak untuk Coretax</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Header Info -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-sm text-blue-700">
+                    <p class="font-medium">Tentang Export Coretax</p>
+                    <p class="mt-1">File Excel yang diexport dapat dikonversi ke format XML menggunakan DJP Converter, lalu diimport ke sistem Coretax.</p>
+                    <a href="https://www.pajak.go.id/reformdjp/coretax/template-xml-dan-converter-excel-ke-xml"
+                       target="_blank"
+                       class="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800 underline">
+                        Download DJP Converter
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Period Selection -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Pilih Periode</h2>
+            <form th:action="@{/reports/tax-export}" method="get" class="flex flex-wrap items-end gap-4">
+                <div>
+                    <label for="startMonth" class="block text-sm font-medium text-gray-700 mb-1">Dari Bulan</label>
+                    <select id="startMonth" name="startMonth"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        <option th:each="month : ${availableMonths}"
+                                th:value="${#temporals.format(month, 'yyyy-MM')}"
+                                th:text="${#temporals.format(month, 'MMMM yyyy')}"
+                                th:selected="${#temporals.format(month, 'yyyy-MM') == startMonth}">
+                            Januari 2025
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label for="endMonth" class="block text-sm font-medium text-gray-700 mb-1">Sampai Bulan</label>
+                    <select id="endMonth" name="endMonth"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        <option th:each="month : ${availableMonths}"
+                                th:value="${#temporals.format(month, 'yyyy-MM')}"
+                                th:text="${#temporals.format(month, 'MMMM yyyy')}"
+                                th:selected="${#temporals.format(month, 'yyyy-MM') == endMonth}">
+                            Januari 2025
+                        </option>
+                    </select>
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Tampilkan
+                </button>
+            </form>
+
+            <div class="mt-4 text-sm text-gray-500">
+                Periode: <span th:text="${#temporals.format(startDate, 'dd MMMM yyyy')}">1 Januari 2025</span>
+                s/d <span th:text="${#temporals.format(endDate, 'dd MMMM yyyy')}">31 Januari 2025</span>
+            </div>
+        </div>
+
+        <!-- Export Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- e-Faktur Keluaran -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">e-Faktur Keluaran</h3>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800"
+                          th:text="${stats.fakturKeluaranCount()} + ' faktur'">
+                        0 faktur
+                    </span>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">
+                    Faktur pajak penjualan (PPN Keluaran) untuk diimport ke Coretax.
+                </p>
+                <div class="text-sm text-gray-700 mb-4">
+                    <span class="font-medium">Total PPN:</span>
+                    <span th:text="${#numbers.formatDecimal(stats.totalPPNKeluaran(), 0, 'COMMA', 0, 'POINT')}">0</span>
+                </div>
+                <a th:href="@{/reports/tax-export/efaktur-keluaran(startMonth=${startMonth}, endMonth=${endMonth})}"
+                   class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                   th:classappend="${stats.fakturKeluaranCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Excel
+                </a>
+            </div>
+
+            <!-- e-Faktur Masukan -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">e-Faktur Masukan</h3>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800"
+                          th:text="${stats.fakturMasukanCount()} + ' faktur'">
+                        0 faktur
+                    </span>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">
+                    Faktur pajak pembelian (PPN Masukan) untuk diimport ke Coretax.
+                </p>
+                <div class="text-sm text-gray-700 mb-4">
+                    <span class="font-medium">Total PPN:</span>
+                    <span th:text="${#numbers.formatDecimal(stats.totalPPNMasukan(), 0, 'COMMA', 0, 'POINT')}">0</span>
+                </div>
+                <a th:href="@{/reports/tax-export/efaktur-masukan(startMonth=${startMonth}, endMonth=${endMonth})}"
+                   class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                   th:classappend="${stats.fakturMasukanCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Excel
+                </a>
+            </div>
+
+            <!-- Bukti Potong Unifikasi -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Bupot Unifikasi</h3>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800"
+                          th:text="${stats.bupotUnifikasiCount()} + ' bupot'">
+                        0 bupot
+                    </span>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">
+                    Bukti potong PPh 21/23/4(2) untuk diimport ke Coretax.
+                </p>
+                <div class="text-sm text-gray-700 mb-4">
+                    <span class="font-medium">Total PPh:</span>
+                    <span th:text="${#numbers.formatDecimal(stats.totalPPh(), 0, 'COMMA', 0, 'POINT')}">0</span>
+                </div>
+                <a th:href="@{/reports/tax-export/bupot-unifikasi(startMonth=${startMonth}, endMonth=${endMonth})}"
+                   class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                   th:classappend="${stats.bupotUnifikasiCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Excel
+                </a>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Cara Menggunakan</h3>
+            <ol class="list-decimal list-inside space-y-3 text-sm text-gray-700">
+                <li>
+                    <span class="font-medium">Download file Excel</span> dari halaman ini sesuai jenis dokumen yang dibutuhkan.
+                </li>
+                <li>
+                    <span class="font-medium">Download DJP Converter</span> dari
+                    <a href="https://www.pajak.go.id/reformdjp/coretax/template-xml-dan-converter-excel-ke-xml"
+                       target="_blank" class="text-primary-600 hover:underline">pajak.go.id</a>
+                </li>
+                <li>
+                    <span class="font-medium">Buka DJP Converter</span> dan pilih jenis dokumen (e-Faktur atau Bupot Unifikasi).
+                </li>
+                <li>
+                    <span class="font-medium">Import file Excel</span> yang sudah didownload ke DJP Converter.
+                </li>
+                <li>
+                    <span class="font-medium">Export ke XML</span> menggunakan menu Developer > Export di Excel.
+                </li>
+                <li>
+                    <span class="font-medium">Import XML ke Coretax</span> melalui menu e-Faktur atau e-Bupot di Coretax.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Requirements Notice -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-yellow-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div class="text-sm text-yellow-700">
+                    <p class="font-medium">Persyaratan Data</p>
+                    <ul class="mt-1 list-disc list-inside space-y-1">
+                        <li>Pastikan NPWP dan NITKU perusahaan sudah diisi di <a th:href="@{/settings/company}" class="underline">Pengaturan Perusahaan</a></li>
+                        <li>Pastikan NPWP/NIK klien sudah diisi untuk transaksi yang akan diexport</li>
+                        <li>Data yang divalidasi Coretax: NPWP, NITKU, Kode Objek Pajak, dan Tarif</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -62,6 +62,23 @@ public class Client {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    // Tax identification fields (for Coretax integration)
+    @Size(max = 20, message = "NPWP maksimal 20 karakter")
+    @Column(name = "npwp", length = 20)
+    private String npwp;
+
+    @Size(max = 22, message = "NITKU maksimal 22 karakter")
+    @Column(name = "nitku", length = 22)
+    private String nitku;
+
+    @Size(max = 16, message = "NIK maksimal 16 karakter")
+    @Column(name = "nik", length = 16)
+    private String nik;
+
+    @Size(max = 10, message = "Tipe ID maksimal 10 karakter")
+    @Column(name = "id_type", length = 10)
+    private String idType = "TIN";
+
     @Column(name = "active", nullable = false)
     private Boolean active = true;
 

@@ -38,6 +38,14 @@ public class CompanyConfig extends BaseEntity {
     @Column(name = "tax_id", length = 50)
     private String taxId;
 
+    @Size(max = 20, message = "NPWP must not exceed 20 characters")
+    @Column(name = "npwp", length = 20)
+    private String npwp;
+
+    @Size(max = 22, message = "NITKU must not exceed 22 characters")
+    @Column(name = "nitku", length = 22)
+    private String nitku;
+
     @Min(value = 1, message = "Fiscal year start month must be between 1 and 12")
     @Max(value = 12, message = "Fiscal year start month must be between 1 and 12")
     @Column(name = "fiscal_year_start_month", nullable = false)

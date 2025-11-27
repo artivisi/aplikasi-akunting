@@ -53,6 +53,29 @@
             </div>
         </div>
 
+        <!-- Tax Information Card -->
+        <div class="bg-white rounded-lg shadow p-6" th:if="${client.npwp != null || client.nitku != null || client.nik != null}">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pajak (Coretax)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Tipe Identitas</p>
+                    <p class="font-medium" th:text="${client.idType == 'TIN'} ? 'NPWP (PKP)' : 'NIK (Non-PKP)'">NPWP</p>
+                </div>
+                <div th:if="${client.npwp}">
+                    <p class="text-gray-500">NPWP</p>
+                    <p class="font-medium font-mono" th:text="${client.npwp}">XX.XXX.XXX.X-XXX.XXX</p>
+                </div>
+                <div th:if="${client.nitku}">
+                    <p class="text-gray-500">NITKU</p>
+                    <p class="font-medium font-mono" th:text="${client.nitku}">XXXXXXXXXXXXXXXXXXXXXXX</p>
+                </div>
+                <div th:if="${client.nik}">
+                    <p class="text-gray-500">NIK</p>
+                    <p class="font-medium font-mono" th:text="${client.nik}">XXXXXXXXXXXXXXXX</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Actions -->
         <div class="flex items-center justify-between">
             <a th:href="@{/clients}" class="px-4 py-2 text-gray-600 hover:text-gray-900">

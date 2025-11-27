@@ -12,6 +12,8 @@ CREATE TABLE company_config (
     company_phone VARCHAR(50),
     company_email VARCHAR(255),
     tax_id VARCHAR(50),
+    npwp VARCHAR(20),                    -- 16 digits formatted: XX.XXX.XXX.X-XXX.XXX
+    nitku VARCHAR(22),                   -- 22 characters (NPWP + 6 digit branch)
     fiscal_year_start_month INTEGER NOT NULL DEFAULT 1,
     currency_code VARCHAR(10) NOT NULL DEFAULT 'IDR',
     signing_officer_name VARCHAR(255),
@@ -183,13 +185,21 @@ CREATE TABLE clients (
     phone VARCHAR(50),
     address TEXT,
     notes TEXT,
+    -- Tax identification fields (for Coretax integration)
+    npwp VARCHAR(20),                    -- 16 digits formatted: XX.XXX.XXX.X-XXX.XXX
+    nitku VARCHAR(22),                   -- 22 characters (NPWP + 6 digit branch)
+    nik VARCHAR(16),                     -- 16 digit NIK for non-PKP clients
+    id_type VARCHAR(10) DEFAULT 'TIN',   -- TIN (NPWP) or NIK
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_client_id_type CHECK (id_type IN ('TIN', 'NIK'))
 );
 
 CREATE INDEX idx_clients_active ON clients(active);
 CREATE INDEX idx_clients_name ON clients(name);
+CREATE INDEX idx_clients_npwp ON clients(npwp);
 
 -- ============================================
 -- Projects
@@ -577,3 +587,49 @@ CREATE INDEX idx_documents_transaction ON documents(id_transaction);
 CREATE INDEX idx_documents_journal_entry ON documents(id_journal_entry);
 CREATE INDEX idx_documents_invoice ON documents(id_invoice);
 CREATE INDEX idx_documents_uploaded_at ON documents(uploaded_at);
+
+-- ============================================
+-- Tax Transaction Details (for Coretax export)
+-- ============================================
+
+CREATE TABLE tax_transaction_details (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_transaction UUID NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+
+    -- e-Faktur fields (PPN)
+    faktur_number VARCHAR(20),           -- Nomor Faktur Pajak
+    faktur_date DATE,
+    transaction_code VARCHAR(10),        -- 01, 02, 03, 04, 07, 08
+    dpp DECIMAL(19, 2),                  -- Dasar Pengenaan Pajak
+    ppn DECIMAL(19, 2),                  -- PPN amount (11%)
+    ppnbm DECIMAL(19, 2) DEFAULT 0,      -- PPnBM if applicable
+
+    -- e-Bupot fields (PPh)
+    bupot_number VARCHAR(30),            -- Nomor Bukti Potong
+    tax_object_code VARCHAR(20),         -- Kode Objek Pajak (e.g., 24-104-01)
+    gross_amount DECIMAL(19, 2),         -- Jumlah Bruto
+    tax_rate DECIMAL(5, 2),              -- Tarif (e.g., 2.00, 10.00)
+    tax_amount DECIMAL(19, 2),           -- PPh dipotong
+
+    -- Counterparty information (copied from client at time of transaction)
+    counterparty_npwp VARCHAR(20),       -- NPWP lawan transaksi
+    counterparty_nitku VARCHAR(22),
+    counterparty_nik VARCHAR(16),
+    counterparty_id_type VARCHAR(10),    -- TIN or NIK
+    counterparty_name VARCHAR(255),
+    counterparty_address TEXT,
+
+    -- Tax type categorization
+    tax_type VARCHAR(20),                -- PPN_KELUARAN, PPN_MASUKAN, PPH_23, PPH_42, etc.
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_tax_type CHECK (tax_type IN ('PPN_KELUARAN', 'PPN_MASUKAN', 'PPH_21', 'PPH_23', 'PPH_42', 'PPH_25', 'PPH_29'))
+);
+
+CREATE INDEX idx_tax_details_transaction ON tax_transaction_details(id_transaction);
+CREATE INDEX idx_tax_details_faktur ON tax_transaction_details(faktur_number);
+CREATE INDEX idx_tax_details_bupot ON tax_transaction_details(bupot_number);
+CREATE INDEX idx_tax_details_type ON tax_transaction_details(tax_type);
+CREATE INDEX idx_tax_details_faktur_date ON tax_transaction_details(faktur_date);
