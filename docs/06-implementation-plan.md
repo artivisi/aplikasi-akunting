@@ -13,7 +13,7 @@
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
-| **2** | Tax Compliance | ⏳ Not Started |
+| **2** | Tax Compliance | 🚧 In Progress (2.0, 2.1, 2.9 done) |
 | **3** | Reconciliation | ⏳ Not Started |
 | **4** | Payroll | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |
@@ -27,7 +27,7 @@
 - [x] Spring Boot 4.0 project structure
 - [x] PostgreSQL 17 local setup (Testcontainers for tests)
 - [x] Flyway migration setup
-- [x] Basic CI/CD pipeline (GitHub Actions)
+- [x] CI/CD pipeline with test execution and coverage (GitHub Actions)
 
 ### 0.2 Core Infrastructure
 - [x] Spring Security configuration (session-based)
@@ -1144,10 +1144,10 @@ echo "Restore completed"
 
 **Goal:** Indonesian tax features (PPN, PPh) + document attachment
 
-### 2.0 Infrastructure (Deferred from Phase 0)
-- [ ] Local storage directory setup
+### 2.0 Infrastructure (Deferred from Phase 0) ✅
+- [x] Local storage directory setup
 
-### 2.1 Transaction Evidence (Document Attachment)
+### 2.1 Transaction Evidence (Document Attachment) ✅
 
 **Purpose:** Attach receipts, invoices, and supporting documents to transactions.
 
@@ -1156,18 +1156,18 @@ echo "Restore completed"
 **Reused by:** Telegram Receipt Import (2.2)
 
 #### Features
-- [ ] Document entity (id, filename, content_type, size, storage_path, checksum)
-- [ ] Local filesystem storage service
-- [ ] Storage directory configuration (application.yml)
-- [ ] File upload UI (drag-and-drop, single file)
-- [ ] Attach document to transaction (transaction_id FK)
-- [ ] Attach document to journal entry (journal_entry_id FK)
-- [ ] View document (inline for images/PDFs)
-- [ ] Download document
-- [ ] Thumbnail generation (images only, lazy)
-- [ ] Delete document (soft delete, keep file for audit)
-- [ ] File type validation (images, PDF only for MVP)
-- [ ] File size limit (10MB default)
+- [x] Document entity (id, filename, content_type, size, storage_path, checksum)
+- [x] Local filesystem storage service
+- [x] Storage directory configuration (application.yml)
+- [x] File upload UI (drag-and-drop, single file)
+- [x] Attach document to transaction (transaction_id FK)
+- [x] Attach document to journal entry (journal_entry_id FK)
+- [x] View document (inline for images/PDFs)
+- [x] Download document
+- [ ] Thumbnail generation (images only, lazy) - deferred
+- [x] Delete document (soft delete, keep file for audit)
+- [x] File type validation (images, PDF only for MVP)
+- [x] File size limit (10MB default)
 
 ```sql
 -- V009: Documents
@@ -1593,13 +1593,16 @@ fiscal_periods
 - [ ] Dashboard reminders
 - [ ] Monthly checklist
 
-### 2.9 Backup & Restore Utility
-- [ ] Backup service (database + documents)
-- [ ] Coordinated backup (consistent state between DB and files)
-- [ ] Backup to local directory
-- [ ] Restore utility with validation
-- [ ] Backup scheduling (manual trigger for MVP)
-- [ ] Backup manifest (metadata, timestamp, file list)
+### 2.9 Backup & Restore Utility ✅
+- [x] Backup service (database + documents)
+- [x] Coordinated backup (consistent state between DB and files)
+- [x] Backup to local directory
+- [x] Restore utility with validation
+- [x] Backup scheduling (manual trigger via Ansible, cron optional)
+- [x] Backup manifest (metadata, timestamp, checksums)
+- [x] Backup rotation (configurable retention count)
+- [x] Remote sync (rsync, optional)
+- [x] Notifications (webhook, optional)
 
 ### 2.10 Transaction Tags
 
