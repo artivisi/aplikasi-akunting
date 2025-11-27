@@ -13,7 +13,7 @@
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
-| **2** | Tax Compliance | 🚧 In Progress (2.0-2.6, 2.9 done) |
+| **2** | Tax Compliance | 🚧 In Progress (2.0-2.7, 2.9 done) |
 | **3** | Reconciliation | ⏳ Not Started |
 | **4** | Payroll | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |
@@ -1583,15 +1583,16 @@ public void registerWebhook() {
 - Workflow: App → Excel export → DJP Converter → XML → Coretax import
 - Validated fields: NPWP, NITKU, Kode Objek Pajak, Tarif
 
-### 2.7 Fiscal Period Management
-- [ ] Fiscal periods entity
-- [ ] Period status (open, month_closed, tax_filed)
-- [ ] Soft lock on month close
-- [ ] Hard lock after tax filing
-- [ ] Period close workflow
+### 2.7 Fiscal Period Management ✅
+- [x] Fiscal periods entity
+- [x] Period status (open, month_closed, tax_filed)
+- [x] Soft lock on month close
+- [x] Hard lock after tax filing
+- [x] Period close workflow
+- [x] Functional tests (9 Playwright tests)
 
 ```sql
--- V011: Fiscal periods
+-- Added to V003: fiscal_periods table
 fiscal_periods
 ```
 
