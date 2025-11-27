@@ -44,79 +44,79 @@ public class ScreenshotCapture {
         return List.of(
             // Authentication
             new PageDefinition("login", "Halaman Login", "/login", false,
-                    "Halaman login untuk masuk ke aplikasi", "login"),
+                    "Halaman login untuk masuk ke aplikasi", "pendahuluan"),
 
             // Dashboard
             new PageDefinition("dashboard", "Dashboard", "/dashboard", true,
-                    "Tampilan utama dengan KPI keuangan bulanan", "dashboard"),
+                    "Tampilan utama dengan KPI keuangan bulanan", "laporan-harian"),
 
             // Chart of Accounts
             new PageDefinition("accounts-list", "Daftar Akun", "/accounts", true,
-                    "Daftar semua akun dalam bagan akun", "bagan-akun"),
+                    "Daftar semua akun dalam bagan akun", "setup-awal"),
             new PageDefinition("accounts-form", "Form Akun", "/accounts/new", true,
-                    "Form untuk menambah atau mengubah akun", "bagan-akun"),
+                    "Form untuk menambah atau mengubah akun", "setup-awal"),
 
             // Templates
             new PageDefinition("templates-list", "Daftar Template", "/templates", true,
-                    "Daftar template jurnal dengan kategori dan pencarian", "template-jurnal"),
+                    "Daftar template jurnal dengan kategori dan pencarian", "kelola-template"),
             new PageDefinition("templates-detail", "Detail Template", "/templates/" + TEMPLATE_ID, true,
-                    "Konfigurasi dan formula template", "template-jurnal"),
+                    "Konfigurasi dan formula template", "kelola-template"),
             new PageDefinition("templates-form", "Form Template", "/templates/new", true,
-                    "Form untuk membuat template baru dengan formula", "template-jurnal"),
+                    "Form untuk membuat template baru dengan formula", "kelola-template"),
 
             // Transactions
             new PageDefinition("transactions-list", "Daftar Transaksi", "/transactions", true,
-                    "Daftar transaksi dengan filter status, periode, dan proyek", "transaksi"),
+                    "Daftar transaksi dengan filter status, periode, dan proyek", "mencatat-pengeluaran"),
             new PageDefinition("transactions-detail", "Detail Transaksi", "/transactions/" + TRANSACTION_ID, true,
-                    "Detail transaksi dengan jurnal dan audit trail", "transaksi"),
+                    "Detail transaksi dengan jurnal dan audit trail", "mencatat-pendapatan"),
             new PageDefinition("transactions-form", "Form Transaksi", "/transactions/new", true,
-                    "Form untuk membuat transaksi baru", "transaksi"),
+                    "Form untuk membuat transaksi baru", "mencatat-pendapatan"),
 
             // Journal Entries
             new PageDefinition("journals-list", "Buku Besar", "/journals", true,
-                    "Tampilan buku besar dengan saldo berjalan", "buku-besar"),
+                    "Tampilan buku besar dengan saldo berjalan", "laporan-harian"),
             new PageDefinition("journals-detail", "Detail Jurnal", "/journals/" + JOURNAL_ID, true,
-                    "Detail entri jurnal dengan dampak akun", "buku-besar"),
+                    "Detail entri jurnal dengan dampak akun", "laporan-harian"),
 
             // Reports
             new PageDefinition("reports-trial-balance", "Neraca Saldo", "/reports/trial-balance", true,
-                    "Laporan neraca saldo per tanggal", "laporan-keuangan"),
+                    "Laporan neraca saldo per tanggal", "laporan-bulanan"),
             new PageDefinition("reports-balance-sheet", "Neraca", "/reports/balance-sheet", true,
-                    "Laporan posisi keuangan (Neraca)", "laporan-keuangan"),
+                    "Laporan posisi keuangan (Neraca)", "laporan-bulanan"),
             new PageDefinition("reports-income-statement", "Laba Rugi", "/reports/income-statement", true,
-                    "Laporan laba rugi per periode", "laporan-keuangan"),
+                    "Laporan laba rugi per periode", "laporan-bulanan"),
 
             // Amortization Schedules
             new PageDefinition("amortization-list", "Daftar Jadwal Amortisasi", "/amortization", true,
-                    "Daftar jadwal amortisasi dengan filter tipe dan status", "amortisasi"),
+                    "Daftar jadwal amortisasi dengan filter tipe dan status", "jadwal-amortisasi"),
             new PageDefinition("amortization-form", "Form Jadwal Amortisasi", "/amortization/new", true,
-                    "Form untuk membuat jadwal amortisasi baru", "amortisasi"),
+                    "Form untuk membuat jadwal amortisasi baru", "jadwal-amortisasi"),
 
             // Clients
             new PageDefinition("clients-list", "Daftar Klien", "/clients", true,
-                    "Daftar klien dengan pencarian", "klien"),
+                    "Daftar klien dengan pencarian", "kelola-klien"),
             new PageDefinition("clients-detail", "Detail Klien", "/clients/" + CLIENT_ID, true,
-                    "Detail klien dengan daftar proyek", "klien"),
+                    "Detail klien dengan daftar proyek", "kelola-klien"),
             new PageDefinition("clients-form", "Form Klien", "/clients/new", true,
-                    "Form untuk menambah klien baru", "klien"),
+                    "Form untuk menambah klien baru", "kelola-klien"),
 
             // Projects
             new PageDefinition("projects-list", "Daftar Proyek", "/projects", true,
-                    "Daftar proyek dengan filter status dan klien", "proyek"),
+                    "Daftar proyek dengan filter status dan klien", "tracking-proyek"),
             new PageDefinition("projects-detail", "Detail Proyek", "/projects/" + PROJECT_ID, true,
-                    "Detail proyek dengan milestone dan termin pembayaran", "proyek"),
+                    "Detail proyek dengan milestone dan termin pembayaran", "tracking-proyek"),
             new PageDefinition("projects-form", "Form Proyek", "/projects/new", true,
-                    "Form untuk membuat proyek baru", "proyek"),
+                    "Form untuk membuat proyek baru", "setup-proyek"),
 
             // Invoices
             new PageDefinition("invoices-list", "Daftar Invoice", "/invoices", true,
-                    "Daftar invoice dengan filter status dan klien", "invoice"),
+                    "Daftar invoice dengan filter status dan klien", "invoice-penagihan"),
 
             // Profitability Reports
             new PageDefinition("reports-project-profitability", "Profitabilitas Proyek", "/reports/project-profitability", true,
-                    "Laporan profitabilitas per proyek", "laporan-profitabilitas"),
+                    "Laporan profitabilitas per proyek", "analisis-profitabilitas"),
             new PageDefinition("reports-client-profitability", "Profitabilitas Klien", "/reports/client-profitability", true,
-                    "Laporan profitabilitas per klien", "laporan-profitabilitas"),
+                    "Laporan profitabilitas per klien", "analisis-profitabilitas"),
 
             // Tax Reports
             new PageDefinition("reports-ppn-summary", "Ringkasan PPN", "/reports/ppn-summary", true,
