@@ -1553,21 +1553,21 @@ public void registerWebhook() {
 
 ---
 
-### 2.3 Tax Accounts Setup
-- [ ] Pre-configured tax accounts in COA templates
-- [ ] PPN Masukan / Keluaran accounts
-- [ ] PPh 21, 23, 4(2), 25, 29 accounts
+### 2.3 Tax Accounts Setup ✅
+- [x] Pre-configured tax accounts in COA templates
+- [x] PPN Masukan / Keluaran accounts
+- [x] PPh 21, 23, 4(2), 25, 29 accounts
 
-### 2.4 PPN Templates
-- [ ] Penjualan + PPN Keluaran template
-- [ ] Pembelian + PPN Masukan template
-- [ ] PPN calculation (11%)
-- [ ] Non-PKP templates (no PPN)
+### 2.4 PPN Templates ✅
+- [x] Penjualan + PPN Keluaran template
+- [x] Pembelian + PPN Masukan template
+- [x] PPN calculation (11%)
+- [x] Non-PKP templates (no PPN) - existing basic templates work for non-PKP
 
-### 2.5 PPh Templates
-- [ ] PPh 23 withholding templates (2%)
-- [ ] PPh 4(2) templates
-- [ ] Conditional formulas for thresholds
+### 2.5 PPh Templates ✅
+- [x] PPh 23 withholding templates (2%)
+- [x] PPh 4(2) templates (10% for rental)
+- [x] Tax payment templates (Setor PPh 21/23/4(2)/PPN/25)
 
 ### 2.6 Tax Reports
 - [ ] PPN Summary Report

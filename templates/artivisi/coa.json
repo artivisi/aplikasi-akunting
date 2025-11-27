@@ -1,7 +1,7 @@
 {
-  "name": "SAK EMKM - IT Services",
+  "name": "Artivisi - IT Services",
   "version": "1.0",
-  "description": "Chart of Accounts untuk perusahaan jasa IT (konsultasi, development, training) sesuai SAK EMKM",
+  "description": "Chart of Accounts untuk PT Artivisi Intermedia - perusahaan jasa IT (konsultasi, development, training) sesuai SAK EMKM",
   "accounts": [
     {
       "code": "1",
@@ -130,6 +130,16 @@
       "isHeader": false,
       "isPermanent": true,
       "description": "Emas batangan, deposito, dll"
+    },
+    {
+      "code": "1.1.25",
+      "name": "PPN Masukan",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPN yang dapat dikreditkan dari pembelian"
     },
     {
       "code": "1.2",
@@ -284,6 +294,56 @@
       "isHeader": false,
       "isPermanent": true,
       "description": "Accrued expenses - beban yang sudah terjadi tapi belum dibayar/ditagih"
+    },
+    {
+      "code": "2.1.20",
+      "name": "Hutang PPh 21",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh 21 karyawan yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.21",
+      "name": "Hutang PPh 23",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh 23 atas jasa yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.22",
+      "name": "Hutang PPh 4(2)",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh Final atas sewa/konstruksi yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.23",
+      "name": "Hutang PPh 25",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Angsuran PPh Badan bulanan yang harus disetor"
+    },
+    {
+      "code": "2.1.24",
+      "name": "Hutang PPh 29",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Kurang bayar PPh Badan tahunan yang harus disetor"
     },
     {
       "code": "3",

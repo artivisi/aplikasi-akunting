@@ -1,6 +1,7 @@
 {
-  "name": "SAK EMKM - IT Services",
+  "name": "Artivisi - IT Services",
   "version": "1.0",
+  "description": "Chart of Accounts untuk PT Artivisi Intermedia - perusahaan jasa IT (konsultasi, development, training) sesuai SAK EMKM",
   "accounts": [
     {
       "code": "1",
@@ -26,28 +27,173 @@
       "normalBalance": "DEBIT",
       "parentCode": "1.1",
       "isHeader": false,
-      "isPermanent": true,
-      "description": "Kas di tangan"
+      "isPermanent": true
     },
     {
       "code": "1.1.02",
-      "name": "Bank",
+      "name": "Bank BCA",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.03",
+      "name": "Bank BNI - Operasional",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.04",
+      "name": "Bank BNI - Escrow",
       "type": "ASSET",
       "normalBalance": "DEBIT",
       "parentCode": "1.1",
       "isHeader": false,
       "isPermanent": true,
-      "description": "Rekening bank perusahaan"
+      "description": "Escrow account untuk dana remittance sebelum settlement"
     },
     {
-      "code": "1.1.03",
+      "code": "1.1.05",
+      "name": "Bank BSI",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.06",
+      "name": "Bank CIMB",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.10",
       "name": "Piutang Usaha",
       "type": "ASSET",
       "normalBalance": "DEBIT",
       "parentCode": "1.1",
       "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.11",
+      "name": "Piutang Karyawan",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.12",
+      "name": "Piutang Lain-lain",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.13",
+      "name": "Piutang Biaya Ditanggung Klien",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
       "isPermanent": true,
-      "description": "Piutang dari pelanggan"
+      "description": "Biaya yang dibayarkan untuk klien (cloud, travel) yang akan direimbursement"
+    },
+    {
+      "code": "1.1.15",
+      "name": "Beban Dibayar Dimuka",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.1.20",
+      "name": "Investasi Jangka Pendek",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Emas batangan, deposito, dll"
+    },
+    {
+      "code": "1.1.25",
+      "name": "PPN Masukan",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPN yang dapat dikreditkan dari pembelian"
+    },
+    {
+      "code": "1.2",
+      "name": "Aset Tetap",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.2.01",
+      "name": "Peralatan",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.2",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.2.02",
+      "name": "Akum. Penyusutan Peralatan",
+      "type": "ASSET",
+      "normalBalance": "CREDIT",
+      "parentCode": "1.2",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.3",
+      "name": "Aset Tak Berwujud",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "1.3.01",
+      "name": "Website & Software",
+      "type": "ASSET",
+      "normalBalance": "DEBIT",
+      "parentCode": "1.3",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "1.3.02",
+      "name": "Akum. Amortisasi",
+      "type": "ASSET",
+      "normalBalance": "CREDIT",
+      "parentCode": "1.3",
+      "isHeader": false,
+      "isPermanent": true
     },
     {
       "code": "2",
@@ -73,18 +219,131 @@
       "normalBalance": "CREDIT",
       "parentCode": "2.1",
       "isHeader": false,
-      "isPermanent": true,
-      "description": "Hutang kepada supplier"
+      "isPermanent": true
     },
     {
       "code": "2.1.02",
+      "name": "Hutang Pajak",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.03",
       "name": "Hutang PPN",
       "type": "LIABILITY",
       "normalBalance": "CREDIT",
       "parentCode": "2.1",
       "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.04",
+      "name": "Pendapatan Diterima Dimuka",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.05",
+      "name": "Kewajiban Dana Escrow",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
       "isPermanent": true,
-      "description": "PPN yang harus disetor"
+      "description": "Offset untuk Bank BNI - Escrow. Dana milik user sebelum settlement."
+    },
+    {
+      "code": "2.1.10",
+      "name": "Hutang Gaji",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.11",
+      "name": "Hutang Reimbursement Karyawan",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.12",
+      "name": "Hutang Bonus",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true
+    },
+    {
+      "code": "2.1.15",
+      "name": "Beban Yang Masih Harus Dibayar",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Accrued expenses - beban yang sudah terjadi tapi belum dibayar/ditagih"
+    },
+    {
+      "code": "2.1.20",
+      "name": "Hutang PPh 21",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh 21 karyawan yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.21",
+      "name": "Hutang PPh 23",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh 23 atas jasa yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.22",
+      "name": "Hutang PPh 4(2)",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "PPh Final atas sewa/konstruksi yang dipotong dan harus disetor"
+    },
+    {
+      "code": "2.1.23",
+      "name": "Hutang PPh 25",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Angsuran PPh Badan bulanan yang harus disetor"
+    },
+    {
+      "code": "2.1.24",
+      "name": "Hutang PPh 29",
+      "type": "LIABILITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "2.1",
+      "isHeader": false,
+      "isPermanent": true,
+      "description": "Kurang bayar PPh Badan tahunan yang harus disetor"
     },
     {
       "code": "3",
@@ -110,18 +369,34 @@
       "normalBalance": "CREDIT",
       "parentCode": "3.1",
       "isHeader": false,
-      "isPermanent": true,
-      "description": "Modal yang disetor pemilik"
+      "isPermanent": true
     },
     {
-      "code": "3.1.02",
+      "code": "3.2",
+      "name": "Laba",
+      "type": "EQUITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "3",
+      "isHeader": true,
+      "isPermanent": true
+    },
+    {
+      "code": "3.2.01",
       "name": "Laba Ditahan",
       "type": "EQUITY",
       "normalBalance": "CREDIT",
-      "parentCode": "3.1",
+      "parentCode": "3.2",
       "isHeader": false,
-      "isPermanent": true,
-      "description": "Akumulasi laba bersih"
+      "isPermanent": true
+    },
+    {
+      "code": "3.2.02",
+      "name": "Laba Berjalan",
+      "type": "EQUITY",
+      "normalBalance": "CREDIT",
+      "parentCode": "3.2",
+      "isHeader": false,
+      "isPermanent": true
     },
     {
       "code": "4",
@@ -133,7 +408,7 @@
     },
     {
       "code": "4.1",
-      "name": "Pendapatan Operasional",
+      "name": "Pendapatan Usaha",
       "type": "REVENUE",
       "normalBalance": "CREDIT",
       "parentCode": "4",
@@ -142,23 +417,57 @@
     },
     {
       "code": "4.1.01",
-      "name": "Pendapatan Jasa",
+      "name": "Pendapatan Jasa Training",
       "type": "REVENUE",
       "normalBalance": "CREDIT",
       "parentCode": "4.1",
       "isHeader": false,
-      "isPermanent": false,
-      "description": "Pendapatan dari jasa konsultasi"
+      "isPermanent": false
     },
     {
       "code": "4.1.02",
-      "name": "Pendapatan Development",
+      "name": "Pendapatan Jasa Konsultasi",
       "type": "REVENUE",
       "normalBalance": "CREDIT",
       "parentCode": "4.1",
       "isHeader": false,
-      "isPermanent": false,
-      "description": "Pendapatan dari pembuatan software"
+      "isPermanent": false
+    },
+    {
+      "code": "4.1.03",
+      "name": "Pendapatan Fee Remittance",
+      "type": "REVENUE",
+      "normalBalance": "CREDIT",
+      "parentCode": "4.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "4.1.99",
+      "name": "Pendapatan Usaha Lainnya",
+      "type": "REVENUE",
+      "normalBalance": "CREDIT",
+      "parentCode": "4.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "4.2",
+      "name": "Pendapatan Lain-lain",
+      "type": "REVENUE",
+      "normalBalance": "CREDIT",
+      "parentCode": "4",
+      "isHeader": true,
+      "isPermanent": false
+    },
+    {
+      "code": "4.2.01",
+      "name": "Pendapatan Bunga",
+      "type": "REVENUE",
+      "normalBalance": "CREDIT",
+      "parentCode": "4.2",
+      "isHeader": false,
+      "isPermanent": false
     },
     {
       "code": "5",
@@ -185,27 +494,222 @@
       "parentCode": "5.1",
       "isHeader": false,
       "isPermanent": false,
-      "description": "Gaji karyawan"
+      "description": "Termasuk bonus training dan bonus projek"
     },
     {
       "code": "5.1.02",
+      "name": "Beban BPJS Kesehatan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.03",
+      "name": "Beban BPJS Ketenagakerjaan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.04",
       "name": "Beban Sewa",
       "type": "EXPENSE",
       "normalBalance": "DEBIT",
       "parentCode": "5.1",
       "isHeader": false,
-      "isPermanent": false,
-      "description": "Sewa kantor"
+      "isPermanent": false
     },
     {
-      "code": "5.1.03",
-      "name": "Beban Server & Cloud",
+      "code": "5.1.05",
+      "name": "Beban Telekomunikasi",
       "type": "EXPENSE",
       "normalBalance": "DEBIT",
       "parentCode": "5.1",
       "isHeader": false,
       "isPermanent": false,
-      "description": "Biaya server dan layanan cloud"
+      "description": "Telepon dan internet"
+    },
+    {
+      "code": "5.1.06",
+      "name": "Beban Listrik",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.07",
+      "name": "Beban Air",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.08",
+      "name": "Beban Transportasi",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Termasuk parkir"
+    },
+    {
+      "code": "5.1.09",
+      "name": "Beban ATK",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.10",
+      "name": "Beban Perlengkapan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.11",
+      "name": "Beban Konsumsi Kantor",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.12",
+      "name": "Beban Pemeliharaan Aset",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Service peralatan, perbaikan"
+    },
+    {
+      "code": "5.1.13",
+      "name": "Beban Pajak",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.14",
+      "name": "Beban Tunjangan Kesehatan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Reimbursement biaya kesehatan karyawan sesuai SK"
+    },
+    {
+      "code": "5.1.15",
+      "name": "Beban Rekreasi Karyawan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Team building, company outing"
+    },
+    {
+      "code": "5.1.16",
+      "name": "Beban Entertainment",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Jamuan klien - wajib Daftar Nominatif"
+    },
+    {
+      "code": "5.1.17",
+      "name": "Beban Rumah Tangga Kantor",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "Kebersihan, perlengkapan kantor"
+    },
+    {
+      "code": "5.1.18",
+      "name": "Beban Penyusutan",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.19",
+      "name": "Beban Amortisasi",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.20",
+      "name": "Beban Cloud & Server",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false,
+      "description": "AWS, GCP, DigitalOcean untuk aplikasi sendiri"
+    },
+    {
+      "code": "5.1.21",
+      "name": "Beban Software & Lisensi",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.1.99",
+      "name": "Beban Operasional Lainnya",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.1",
+      "isHeader": false,
+      "isPermanent": false
+    },
+    {
+      "code": "5.2",
+      "name": "Beban Lain-lain",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5",
+      "isHeader": true,
+      "isPermanent": false
+    },
+    {
+      "code": "5.2.01",
+      "name": "Beban Bank",
+      "type": "EXPENSE",
+      "normalBalance": "DEBIT",
+      "parentCode": "5.2",
+      "isHeader": false,
+      "isPermanent": false
     }
   ]
 }

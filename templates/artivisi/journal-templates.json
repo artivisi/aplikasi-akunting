@@ -1,7 +1,7 @@
 {
-  "name": "IT Services Journal Templates",
+  "name": "Artivisi Journal Templates",
   "version": "1.0",
-  "description": "Template jurnal untuk perusahaan jasa IT (konsultasi, development, training, remittance)",
+  "description": "Template jurnal untuk PT Artivisi Intermedia - perusahaan jasa IT (konsultasi, development, training, remittance)",
   "templates": [
     {
       "name": "Pendapatan Jasa Training",
@@ -632,6 +632,306 @@
           "position": "CREDIT",
           "formula": "amount",
           "description": "Akum. Amortisasi"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Jasa Training dengan PPN",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pendapatan training dengan PPN 11% (amount = DPP + PPN)",
+      "tags": ["jasa", "ppn", "pendapatan"],
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA (total termasuk PPN)"
+        },
+        {
+          "accountCode": "4.1.01",
+          "position": "CREDIT",
+          "formula": "amount / 1.11",
+          "description": "Pendapatan Jasa Training (DPP)"
+        },
+        {
+          "accountCode": "2.1.03",
+          "position": "CREDIT",
+          "formula": "amount - (amount / 1.11)",
+          "description": "Hutang PPN Keluaran 11%"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Jasa Konsultasi dengan PPN",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pendapatan konsultasi dengan PPN 11% (amount = DPP + PPN)",
+      "tags": ["jasa", "ppn", "pendapatan"],
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Bank BCA (total termasuk PPN)"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount / 1.11",
+          "description": "Pendapatan Jasa Konsultasi (DPP)"
+        },
+        {
+          "accountCode": "2.1.03",
+          "position": "CREDIT",
+          "formula": "amount - (amount / 1.11)",
+          "description": "Hutang PPN Keluaran 11%"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Jasa dengan PPh 23",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pendapatan jasa yang dipotong PPh 23 (2%) oleh pemberi kerja. Amount = nilai bruto",
+      "tags": ["jasa", "pph23", "pajak", "pendapatan"],
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount * 0.98",
+          "description": "Bank BCA (neto setelah potong PPh 23)"
+        },
+        {
+          "accountCode": "1.1.25",
+          "position": "DEBIT",
+          "formula": "amount * 0.02",
+          "description": "Kredit pajak PPh 23 (pengurang pajak terutang)"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Pendapatan Jasa Konsultasi (bruto)"
+        }
+      ]
+    },
+    {
+      "name": "Pendapatan Jasa dengan PPN dan PPh 23",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pendapatan jasa PKP dengan PPN 11% dan dipotong PPh 23 (2% dari DPP). Amount = DPP + PPN",
+      "tags": ["jasa", "ppn", "pph23", "pajak", "pendapatan"],
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "amount - ((amount / 1.11) * 0.02)",
+          "description": "Bank BCA (DPP+PPN dikurangi PPh 23)"
+        },
+        {
+          "accountCode": "1.1.25",
+          "position": "DEBIT",
+          "formula": "(amount / 1.11) * 0.02",
+          "description": "Kredit pajak PPh 23 (2% dari DPP)"
+        },
+        {
+          "accountCode": "4.1.02",
+          "position": "CREDIT",
+          "formula": "amount / 1.11",
+          "description": "Pendapatan Jasa Konsultasi (DPP)"
+        },
+        {
+          "accountCode": "2.1.03",
+          "position": "CREDIT",
+          "formula": "amount - (amount / 1.11)",
+          "description": "Hutang PPN Keluaran 11%"
+        }
+      ]
+    },
+    {
+      "name": "Pembelian dengan PPN",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembelian barang/jasa dengan PPN Masukan 11%. Amount = DPP + PPN",
+      "tags": ["pembelian", "ppn", "pajak"],
+      "lines": [
+        {
+          "accountCode": "5.1.20",
+          "position": "DEBIT",
+          "formula": "amount / 1.11",
+          "description": "Beban Cloud & Server (DPP)"
+        },
+        {
+          "accountCode": "1.1.25",
+          "position": "DEBIT",
+          "formula": "amount - (amount / 1.11)",
+          "description": "PPN Masukan 11%"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Pembayaran Jasa dengan PPh 23",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran jasa ke vendor dengan pemotongan PPh 23 (2%). Amount = nilai bruto",
+      "tags": ["jasa", "pph23", "pajak", "beban"],
+      "lines": [
+        {
+          "accountCode": "5.1.20",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban jasa (bruto)"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount * 0.98",
+          "description": "Bank BCA (neto setelah potong PPh 23)"
+        },
+        {
+          "accountCode": "2.1.21",
+          "position": "CREDIT",
+          "formula": "amount * 0.02",
+          "description": "Hutang PPh 23 yang harus disetor"
+        }
+      ]
+    },
+    {
+      "name": "Pembayaran Sewa dengan PPh 4(2)",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran sewa tanah/bangunan dengan pemotongan PPh Final 4(2) 10%",
+      "tags": ["sewa", "pph42", "pajak", "beban"],
+      "lines": [
+        {
+          "accountCode": "5.1.04",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Sewa"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount * 0.90",
+          "description": "Bank BCA (neto setelah potong PPh 4(2))"
+        },
+        {
+          "accountCode": "2.1.22",
+          "position": "CREDIT",
+          "formula": "amount * 0.10",
+          "description": "Hutang PPh 4(2) yang harus disetor"
+        }
+      ]
+    },
+    {
+      "name": "Setor PPh 21",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Penyetoran PPh 21 karyawan ke kas negara",
+      "tags": ["pph21", "pajak", "setor"],
+      "lines": [
+        {
+          "accountCode": "2.1.20",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Pelunasan Hutang PPh 21"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Setor PPh 23",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Penyetoran PPh 23 yang telah dipotong ke kas negara",
+      "tags": ["pph23", "pajak", "setor"],
+      "lines": [
+        {
+          "accountCode": "2.1.21",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Pelunasan Hutang PPh 23"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Setor PPh 4(2)",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Penyetoran PPh 4(2) Final yang telah dipotong ke kas negara",
+      "tags": ["pph42", "pajak", "setor"],
+      "lines": [
+        {
+          "accountCode": "2.1.22",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Pelunasan Hutang PPh 4(2)"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Setor PPN",
+      "category": "PAYMENT",
+      "cashFlowCategory": "OPERATING",
+      "description": "Penyetoran PPN (Keluaran - Masukan) ke kas negara",
+      "tags": ["ppn", "pajak", "setor"],
+      "lines": [
+        {
+          "accountCode": "2.1.03",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Pelunasan Hutang PPN"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
+        }
+      ]
+    },
+    {
+      "name": "Bayar PPh 25",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Pembayaran angsuran PPh Badan bulanan",
+      "tags": ["pph25", "pajak", "angsuran"],
+      "lines": [
+        {
+          "accountCode": "5.1.13",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban Pajak"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount",
+          "description": "Bank BCA"
         }
       ]
     }
