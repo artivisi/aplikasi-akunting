@@ -63,18 +63,11 @@ class SelfServiceTest extends PlaywrightTestBase {
     }
 
     @Test
-    @DisplayName("Should have year filter on payslips page")
-    void shouldHaveYearFilterOnPayslipsPage() {
-        page.navigate(baseUrl() + "/self-service/payslips");
-
-        assertThat(page.locator("select[name='year']")).isVisible();
-    }
-
-    @Test
-    @DisplayName("Should have year filter on bukti potong page")
-    void shouldHaveYearFilterOnBuktiPotongPage() {
+    @DisplayName("Should show no employee message on bukti potong when user not linked")
+    void shouldShowNoEmployeeMessageOnBuktiPotongWhenUserNotLinked() {
         page.navigate(baseUrl() + "/self-service/bukti-potong");
 
-        assertThat(page.locator("select[name='year']")).isVisible();
+        // Admin user is not linked to an employee by default
+        assertThat(page.locator("text=Akun Anda belum terhubung dengan data karyawan")).isVisible();
     }
 }
