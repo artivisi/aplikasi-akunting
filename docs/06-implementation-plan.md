@@ -251,11 +251,13 @@
 - [x] Hard lock after tax filing
 - [x] Period close workflow
 - [x] Functional tests (9 Playwright tests)
+- [x] User manual (54-kelola-periode-fiskal.md)
 
 ### 2.8 Tax Calendar ✅
 - [x] Tax deadline configuration
 - [x] Dashboard reminders
 - [x] Monthly checklist
+- [x] User manual (33-kalender-pajak.md)
 
 ### 2.9 Backup & Restore Utility ✅
 - [x] Backup service (database + documents)
@@ -273,6 +275,7 @@
 - [x] Group by cash_flow_category from templates
 - [x] Operating/Investing/Financing sections
 - [x] PDF/Excel export
+- [x] User manual (21-laporan-bulanan.md, Skenario 4)
 
 **Phase 2 Deliverable:** Tax-compliant accounting with DJP export formats, document storage, Telegram receipt import, backup/restore, and cash flow reporting.
 
