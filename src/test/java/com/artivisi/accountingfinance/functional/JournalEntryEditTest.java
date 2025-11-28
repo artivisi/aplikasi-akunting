@@ -34,7 +34,7 @@ class JournalEntryEditTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-01-15");
+        journalFormPage.setJournalDate("2025-01-15");
         journalFormPage.setReferenceNumber("TEST-EDIT-001");
         journalFormPage.setDescription("Test Entry for Edit");
 
@@ -66,7 +66,7 @@ class JournalEntryEditTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-01-16");
+        journalFormPage.setJournalDate("2025-01-16");
         journalFormPage.setReferenceNumber("TEST-POSTED-001");
         journalFormPage.setDescription("Test Posted Entry");
 
@@ -144,7 +144,7 @@ class JournalEntryEditTest extends PlaywrightTestBase {
             journalFormPage.navigateToEdit(info.journalNumber());
             journalFormPage.waitForAlpineInit();
 
-            journalFormPage.assertJournalDateValue("2024-01-15");
+            journalFormPage.assertJournalDateValue("2025-01-15");
         }
 
         @Test

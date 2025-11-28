@@ -86,7 +86,7 @@ class AccountValidationTest extends PlaywrightTestBase {
             journalFormPage.navigate();
             journalFormPage.waitForAlpineInit();
 
-            journalFormPage.setJournalDate("2024-05-01");
+            journalFormPage.setJournalDate("2025-05-01");
             journalFormPage.setReferenceNumber("ACCT-VAL-001");
             journalFormPage.setDescription("Test for account validation");
 
@@ -151,7 +151,7 @@ class AccountValidationTest extends PlaywrightTestBase {
             journalFormPage.navigate();
             journalFormPage.waitForAlpineInit();
 
-            journalFormPage.setJournalDate("2024-05-02");
+            journalFormPage.setJournalDate("2025-05-02");
             journalFormPage.setReferenceNumber("ACCT-DEL-001");
             journalFormPage.setDescription("Test for delete validation");
 

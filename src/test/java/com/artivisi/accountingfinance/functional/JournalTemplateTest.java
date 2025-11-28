@@ -126,7 +126,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldShowPreviewWithCorrectEntries() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillAmount("10000000");
             templateExecutePage.fillDescription("Konsultasi Project XYZ");
             templateExecutePage.clickPreviewButton();
@@ -141,7 +141,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldShowBalancedTotalsInPreview() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillAmount("10000000");
             templateExecutePage.fillDescription("Konsultasi Project XYZ");
             templateExecutePage.clickPreviewButton();
@@ -160,7 +160,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldCreateJournalEntryFromTemplate() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillAmount("15000000");
             templateExecutePage.fillDescription("Konsultasi IT Implementation");
             templateExecutePage.clickPreviewButton();
@@ -176,7 +176,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldDisplayViewJournalButtonAfterExecution() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillAmount("20000000");
             templateExecutePage.fillDescription("Konsultasi Arsitektur Sistem");
             templateExecutePage.clickPreviewButton();
@@ -195,7 +195,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldShowErrorWhenAmountIsEmpty() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillDescription("Test without amount");
             templateExecutePage.clickPreviewButton();
 
@@ -207,7 +207,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         void shouldShowErrorWhenDescriptionIsEmpty() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
-            templateExecutePage.fillTransactionDate("2024-06-30");
+            templateExecutePage.fillTransactionDate("2025-06-30");
             templateExecutePage.fillAmount("10000000");
             templateExecutePage.clickPreviewButton();
 

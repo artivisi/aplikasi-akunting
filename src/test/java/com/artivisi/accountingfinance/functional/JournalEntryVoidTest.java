@@ -34,7 +34,7 @@ class JournalEntryVoidTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-04-01");
+        journalFormPage.setJournalDate("2025-04-01");
         journalFormPage.setReferenceNumber("VOID-TEST-001");
         journalFormPage.setDescription("Test Entry for Voiding");
 
@@ -63,7 +63,7 @@ class JournalEntryVoidTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-04-02");
+        journalFormPage.setJournalDate("2025-04-02");
         journalFormPage.setReferenceNumber("VOID-DRAFT-001");
         journalFormPage.setDescription("Draft Entry - Cannot Void");
 

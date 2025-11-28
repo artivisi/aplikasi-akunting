@@ -34,7 +34,7 @@ class JournalEntryViewTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-02-10");
+        journalFormPage.setJournalDate("2025-02-10");
         journalFormPage.setReferenceNumber("VIEW-TEST-001");
         journalFormPage.setDescription("Test Entry for View");
 
@@ -63,7 +63,7 @@ class JournalEntryViewTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-02-11");
+        journalFormPage.setJournalDate("2025-02-11");
         journalFormPage.setReferenceNumber("VIEW-POSTED-001");
         journalFormPage.setDescription("Test Posted Entry for View");
 
@@ -129,7 +129,7 @@ class JournalEntryViewTest extends PlaywrightTestBase {
 
             journalDetailPage.navigate(info.id());
 
-            journalDetailPage.assertJournalDateContains("2024");
+            journalDetailPage.assertJournalDateContains("2025");
         }
 
         @Test

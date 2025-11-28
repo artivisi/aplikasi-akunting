@@ -34,7 +34,7 @@ class JournalEntryPostTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-03-01");
+        journalFormPage.setJournalDate("2025-03-01");
         journalFormPage.setReferenceNumber("POST-TEST-001");
         journalFormPage.setDescription("Test Entry for Posting");
 
@@ -63,7 +63,7 @@ class JournalEntryPostTest extends PlaywrightTestBase {
         journalFormPage.navigate();
         journalFormPage.waitForAlpineInit();
 
-        journalFormPage.setJournalDate("2024-03-02");
+        journalFormPage.setJournalDate("2025-03-02");
         journalFormPage.setReferenceNumber("POST-UNBAL-001");
         journalFormPage.setDescription("Unbalanced Entry for Testing");
 
@@ -272,7 +272,7 @@ class JournalEntryPostTest extends PlaywrightTestBase {
             journalFormPage.navigate();
             journalFormPage.waitForAlpineInit();
 
-            journalFormPage.setJournalDate("2024-03-03");
+            journalFormPage.setJournalDate("2025-03-03");
             journalFormPage.setReferenceNumber("UNBAL-UI-001");
             journalFormPage.setDescription("Unbalanced Entry UI Test");
 
