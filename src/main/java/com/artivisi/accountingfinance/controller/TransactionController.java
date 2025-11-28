@@ -8,6 +8,7 @@ import com.artivisi.accountingfinance.entity.Project;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.enums.TransactionStatus;
+import com.artivisi.accountingfinance.security.Permission;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.InvoiceService;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/transactions")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('" + Permission.TRANSACTION_VIEW + "')")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -105,6 +108,7 @@ public class TransactionController {
     }
 
     @GetMapping("/new")
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_CREATE + "')")
     public String create(
             @RequestParam(required = false) UUID templateId,
             @RequestParam(required = false) UUID invoiceId,
@@ -154,6 +158,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_EDIT + "')")
     public String edit(@PathVariable UUID id, Model model) {
         Transaction transaction = transactionService.findById(id);
         if (!transaction.isDraft()) {
@@ -170,6 +175,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}/void")
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_VOID + "')")
     public String voidForm(@PathVariable UUID id, Model model) {
         Transaction transaction = transactionService.findByIdWithJournalEntries(id);
         if (!transaction.isPosted()) {
@@ -184,6 +190,7 @@ public class TransactionController {
     // HTMX Endpoints for inline actions
 
     @PostMapping("/{id}/post")
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_POST + "')")
     public String htmxPost(@PathVariable UUID id, Authentication authentication, Model model) {
         String username = authentication != null ? authentication.getName() : "system";
         Transaction posted = transactionService.post(id, username);
@@ -193,6 +200,7 @@ public class TransactionController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_DELETE + "')")
     public ResponseEntity<Void> htmxDelete(@PathVariable UUID id) {
         transactionService.delete(id);
         return ResponseEntity.ok().build();
@@ -225,6 +233,7 @@ public class TransactionController {
 
     @PostMapping("/api")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_CREATE + "')")
     public ResponseEntity<Transaction> apiCreate(@Valid @RequestBody TransactionDto dto) {
         Transaction transaction = mapDtoToEntity(dto);
         Transaction saved = transactionService.create(transaction, dto.accountMappings());
@@ -239,6 +248,7 @@ public class TransactionController {
 
     @PutMapping("/api/{id}")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_EDIT + "')")
     public ResponseEntity<Transaction> apiUpdate(@PathVariable UUID id, @Valid @RequestBody TransactionDto dto) {
         Transaction transaction = mapDtoToEntity(dto);
         return ResponseEntity.ok(transactionService.update(id, transaction));
@@ -246,6 +256,7 @@ public class TransactionController {
 
     @PostMapping("/api/{id}/post")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_POST + "')")
     public ResponseEntity<Transaction> apiPost(@PathVariable UUID id, Authentication authentication) {
         String username = authentication != null ? authentication.getName() : "system";
         return ResponseEntity.ok(transactionService.post(id, username));
@@ -253,6 +264,7 @@ public class TransactionController {
 
     @PostMapping("/api/{id}/void")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_VOID + "')")
     public ResponseEntity<Transaction> apiVoid(
             @PathVariable UUID id,
             @Valid @RequestBody VoidTransactionDto dto,
@@ -263,6 +275,7 @@ public class TransactionController {
 
     @DeleteMapping("/api/{id}")
     @ResponseBody
+    @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_DELETE + "')")
     public ResponseEntity<Void> apiDelete(@PathVariable UUID id) {
         transactionService.delete(id);
         return ResponseEntity.ok().build();

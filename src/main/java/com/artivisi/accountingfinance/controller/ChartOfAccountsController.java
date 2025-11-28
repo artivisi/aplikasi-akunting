@@ -2,9 +2,11 @@ package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.enums.AccountType;
+import com.artivisi.accountingfinance.security.Permission;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('" + Permission.ACCOUNT_VIEW + "')")
 public class ChartOfAccountsController {
 
     private final ChartOfAccountService chartOfAccountService;
@@ -33,6 +36,7 @@ public class ChartOfAccountsController {
     }
 
     @GetMapping("/new")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_CREATE + "')")
     public String create(Model model) {
         model.addAttribute("currentPage", "accounts");
         model.addAttribute("account", new ChartOfAccount());
@@ -44,6 +48,7 @@ public class ChartOfAccountsController {
     }
 
     @PostMapping("/new")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_CREATE + "')")
     public String save(@Valid @ModelAttribute("account") ChartOfAccount account,
                        BindingResult bindingResult,
                        @RequestParam(required = false) UUID parentId,
@@ -80,6 +85,7 @@ public class ChartOfAccountsController {
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_EDIT + "')")
     public String edit(@PathVariable UUID id, Model model) {
         ChartOfAccount account = chartOfAccountService.findById(id);
         model.addAttribute("currentPage", "accounts");
@@ -92,6 +98,7 @@ public class ChartOfAccountsController {
     }
 
     @PostMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_EDIT + "')")
     public String update(@PathVariable UUID id,
                          @Valid @ModelAttribute("account") ChartOfAccount account,
                          BindingResult bindingResult,
@@ -134,6 +141,7 @@ public class ChartOfAccountsController {
     }
 
     @PostMapping("/{id}/activate")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_EDIT + "')")
     public String activate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         chartOfAccountService.activate(id);
         redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil diaktifkan");
@@ -141,6 +149,7 @@ public class ChartOfAccountsController {
     }
 
     @PostMapping("/{id}/deactivate")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_EDIT + "')")
     public String deactivate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         chartOfAccountService.deactivate(id);
         redirectAttributes.addFlashAttribute("successMessage", "Akun berhasil dinonaktifkan");
@@ -148,6 +157,7 @@ public class ChartOfAccountsController {
     }
 
     @PostMapping("/{id}/delete")
+    @PreAuthorize("hasAuthority('" + Permission.ACCOUNT_DELETE + "')")
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         try {
             chartOfAccountService.delete(id);

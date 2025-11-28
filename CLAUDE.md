@@ -30,9 +30,9 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 3.3 BPJS Calculation: ✅ Complete
   - 3.4 PPh 21 Calculation: ✅ Complete
   - 3.5 Payroll Processing: ✅ Complete
-  - 3.6 Payroll Reports: ⏳ Next
-  - 3.7 User Management & RBAC: ⏳ Pending (additive permissions, EMPLOYEE role)
-  - 3.8 Employee Self-Service: ⏳ Pending (My Payslips, My Bukti Potong)
+  - 3.6 Payroll Reports: ✅ Complete
+  - 3.7 User Management & RBAC: ✅ Complete
+  - 3.8 Employee Self-Service: ⏳ Next
 - **Phase 4:** Analytics & Reconciliation (Tags, Trends, Alerts, Bank Recon)
 - **Phase 5:** Assets & Budget
 - See `docs/06-implementation-plan.md` for full plan
@@ -89,22 +89,25 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 3 (Payroll) in progress.
+Phase 3 (Payroll + RBAC) in progress.
 
-Phase 3.1-3.5 complete:
+Phase 3.1-3.7 complete:
 - Employee Management with PTKP status
 - Salary Components (17 preloaded Indonesian components)
 - BPJS Calculation (Kesehatan + Ketenagakerjaan)
 - PPh 21 Calculation (progressive rates, PTKP deduction)
 - Payroll Processing (create, calculate, approve, post workflow)
+- Payroll Reports (summary, PPh 21, BPJS, payslip PDF, Bukti Potong 1721-A1)
+- User Management & RBAC (6 roles, additive permissions, @PreAuthorize)
 
-Phase 3.5 highlights:
-- PayrollRun/PayrollDetail entities for monthly payroll
-- Integration with Transaction/Template system (domain separation)
-- Extended FormulaContext with generic variables map for external modules
-- Payroll journal template with formula variables (grossSalary, companyBpjs, netPay, totalBpjs, pph21)
-- 18 Playwright functional tests
+Phase 3.7 highlights:
+- Role enum (ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR, EMPLOYEE)
+- Permission constants with role-permission mapping
+- UserRole junction entity for many-to-many relationship
+- @PreAuthorize annotations on controllers
+- Menu visibility via Thymeleaf sec:authorize
+- 9 Playwright functional tests
 
-Next: Phase 3.6 (Payroll Reports)
+Next: Phase 3.8 (Employee Self-Service)
 
 See `docs/06-implementation-plan.md` for full plan

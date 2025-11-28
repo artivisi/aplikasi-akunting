@@ -1,8 +1,10 @@
 package com.artivisi.accountingfinance.controller;
 
+import com.artivisi.accountingfinance.security.Permission;
 import com.artivisi.accountingfinance.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import java.time.YearMonth;
 
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('" + Permission.DASHBOARD_VIEW + "')")
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -43,6 +46,7 @@ public class DashboardController {
     }
 
     @GetMapping("/login")
+    @PreAuthorize("permitAll()")
     public String login() {
         return "login";
     }

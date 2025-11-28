@@ -355,16 +355,19 @@
 - [x] Bukti Potong page with year filter and employee list
 - [x] User manual update (64-payroll-processing.md)
 
-### 3.7 User Management & Role-Based Access Control
-- [ ] Reorganize sidebar menu (group related features, add icons, collapsible sections)
-- [ ] Roles: ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR, EMPLOYEE
-- [ ] Permission entity and role-permission mapping
-- [ ] User entity enhancements (link to multiple roles)
-- [ ] User CRUD UI
-- [ ] Role assignment UI (multi-select, one user can have multiple roles)
-- [ ] @PreAuthorize annotations on controllers
-- [ ] Menu/button visibility based on permissions
-- [ ] Audit logging for permission denied and user management
+### 3.7 User Management & Role-Based Access Control ✅
+- [x] Role enum (ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR, EMPLOYEE)
+- [x] Permission constants with role-permission mapping
+- [x] UserRole junction entity (many-to-many relationship)
+- [x] User entity enhancements (roles relationship, addRole, setRoles methods)
+- [x] UserDetailsServiceImpl loads roles and builds authorities
+- [x] UserService and UserController
+- [x] User CRUD UI (list, form, detail, change-password)
+- [x] Role assignment UI (multi-select checkboxes)
+- [x] @PreAuthorize annotations on controllers
+- [x] Menu visibility based on permissions (sec:authorize)
+- [x] Functional tests (9 Playwright tests)
+- [x] User manual (70-kelola-pengguna.md)
 
 ### 3.8 Employee Self-Service
 - [ ] My Payslips page (read-only, filtered to logged-in employee)
@@ -605,6 +608,6 @@ Materialization only needed at ~500+ transactions/month sustained for several ye
 ### Production Readiness
 - [ ] Security review completed
 - [ ] Data retention policy implemented
-- [ ] User documentation ready
-- [ ] Admin can manage users
+- [x] User documentation ready
+- [x] Admin can manage users
 - [ ] Can export all data (regulatory compliance)

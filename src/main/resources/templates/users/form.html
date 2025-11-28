@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${user.id != null} ? 'Edit Pengguna' : 'Pengguna Baru'">Form Pengguna</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${user.id != null} ? 'Edit Pengguna' : 'Pengguna Baru'">Form Pengguna</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Back Link -->
+        <div>
+            <a th:href="${user.id != null} ? @{/users/{id}(id=${user.id})} : @{/users}"
+               class="text-gray-600 hover:text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali
+            </a>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <form th:action="${user.id != null} ? @{/users/{id}(id=${user.id})} : @{/users}"
+                  th:object="${user}" method="post" class="space-y-6">
+
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                        Username <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="username" name="username" th:value="${user.username}"
+                           required minlength="3" maxlength="100"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Username untuk login">
+                    <p th:if="${#fields.hasErrors('username')}" class="mt-1 text-sm text-red-600" th:errors="*{username}">Error</p>
+                </div>
+
+                <!-- Password (only for new users) -->
+                <div th:if="${user.id == null}">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Password <span class="text-red-500">*</span>
+                    </label>
+                    <input type="password" id="password" name="password"
+                           required minlength="4"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Minimal 4 karakter">
+                </div>
+
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">
+                        Nama Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="fullName" name="fullName" th:value="${user.fullName}"
+                           required maxlength="255"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Nama lengkap pengguna">
+                    <p th:if="${#fields.hasErrors('fullName')}" class="mt-1 text-sm text-red-600" th:errors="*{fullName}">Error</p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" th:value="${user.email}"
+                           maxlength="255"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="email@example.com">
+                    <p th:if="${#fields.hasErrors('email')}" class="mt-1 text-sm text-red-600" th:errors="*{email}">Error</p>
+                </div>
+
+                <!-- Active Status (only for edit) -->
+                <div th:if="${user.id != null}">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="active" th:checked="${user.active}"
+                               class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        <span class="ml-2 text-sm text-gray-700">Aktif</span>
+                    </label>
+                </div>
+
+                <!-- Roles -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Roles <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Pilih minimal satu role. Pengguna mendapat gabungan hak akses dari semua role yang dipilih.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div th:each="role : ${roles}" class="relative">
+                            <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                   th:classappend="${selectedRoles.contains(role)} ? 'border-primary-500 bg-primary-50' : 'border-gray-200'">
+                                <input type="checkbox" name="selectedRoles" th:value="${role.name()}"
+                                       th:checked="${selectedRoles.contains(role)}"
+                                       class="mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <div class="ml-3">
+                                    <span class="block text-sm font-medium text-gray-900" th:text="${role.displayName}">Role</span>
+                                    <span class="block text-xs text-gray-500" th:text="${role.description}">Description</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <a th:href="${user.id != null} ? @{/users/{id}(id=${user.id})} : @{/users}"
+                       class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Batal
+                    </a>
+                    <button type="submit" id="btn-save"
+                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

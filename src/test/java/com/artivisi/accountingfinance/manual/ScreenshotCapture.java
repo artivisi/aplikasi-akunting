@@ -138,7 +138,15 @@ public class ScreenshotCapture {
             new PageDefinition("payroll-form", "Form Payroll", "/payroll/new", true,
                     "Form untuk membuat payroll run baru", "payroll-processing"),
             new PageDefinition("payroll-detail", "Detail Payroll", "/payroll", true,
-                    "Detail payroll run dengan daftar karyawan dan perhitungan", "payroll-processing")
+                    "Detail payroll run dengan daftar karyawan dan perhitungan", "payroll-processing"),
+
+            // User Management
+            new PageDefinition("users-list", "Daftar Pengguna", "/users", true,
+                    "Daftar pengguna dengan filter dan pencarian", "kelola-pengguna"),
+            new PageDefinition("users-form", "Form Pengguna", "/users/new", true,
+                    "Form untuk menambah atau mengubah pengguna", "kelola-pengguna"),
+            new PageDefinition("users-detail", "Detail Pengguna", "/users", true,
+                    "Detail pengguna dengan role dan hak akses", "kelola-pengguna")
         );
     }
 

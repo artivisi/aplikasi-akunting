@@ -12,3 +12,13 @@ VALUES (
     NOW(),
     NOW()
 );
+
+-- Assign ADMIN role to default admin user
+INSERT INTO user_roles (id, id_user, role, created_at, created_by)
+VALUES (
+    'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'ADMIN',
+    NOW(),
+    'system'
+);

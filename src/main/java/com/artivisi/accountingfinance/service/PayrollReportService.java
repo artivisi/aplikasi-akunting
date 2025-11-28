@@ -713,16 +713,7 @@ public class PayrollReportService {
     }
 
     private java.math.BigDecimal getPtkpAmount(com.artivisi.accountingfinance.entity.PtkpStatus status) {
-        return switch (status) {
-            case TK_0 -> new java.math.BigDecimal("54000000");
-            case TK_1 -> new java.math.BigDecimal("58500000");
-            case TK_2 -> new java.math.BigDecimal("63000000");
-            case TK_3 -> new java.math.BigDecimal("67500000");
-            case K_0 -> new java.math.BigDecimal("58500000");
-            case K_1 -> new java.math.BigDecimal("63000000");
-            case K_2 -> new java.math.BigDecimal("67500000");
-            case K_3 -> new java.math.BigDecimal("72000000");
-        };
+        return status.getAnnualAmount();
     }
 
     private void addIncomeRow(PdfPTable table, String label, String value) {

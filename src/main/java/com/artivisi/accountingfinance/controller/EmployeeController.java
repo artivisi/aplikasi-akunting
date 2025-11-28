@@ -4,12 +4,14 @@ import com.artivisi.accountingfinance.entity.Employee;
 import com.artivisi.accountingfinance.entity.EmploymentStatus;
 import com.artivisi.accountingfinance.entity.EmploymentType;
 import com.artivisi.accountingfinance.entity.PtkpStatus;
+import com.artivisi.accountingfinance.security.Permission;
 import com.artivisi.accountingfinance.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +29,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/employees")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_VIEW + "')")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -57,6 +60,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/new")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_CREATE + "')")
     public String newForm(Model model) {
         Employee employee = new Employee();
         employee.setEmploymentStatus(EmploymentStatus.ACTIVE);
@@ -72,6 +76,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/new")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_CREATE + "')")
     public String create(
             @Valid @ModelAttribute("employee") Employee employee,
             BindingResult bindingResult,
@@ -109,6 +114,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_EDIT + "')")
     public String editForm(@PathVariable UUID id, Model model) {
         Employee employee = employeeService.findById(id);
         model.addAttribute("employee", employee);
@@ -117,6 +123,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_EDIT + "')")
     public String update(
             @PathVariable UUID id,
             @Valid @ModelAttribute("employee") Employee employee,
@@ -149,6 +156,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/{id}/deactivate")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_EDIT + "')")
     public String deactivate(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
@@ -159,6 +167,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/{id}/activate")
+    @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_EDIT + "')")
     public String activate(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {

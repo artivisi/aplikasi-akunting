@@ -19,6 +19,19 @@ CREATE TABLE users (
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_active ON users(active);
 
+-- User roles junction table (users can have multiple roles)
+CREATE TABLE user_roles (
+    id UUID PRIMARY KEY,
+    id_user UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_by VARCHAR(100),
+    UNIQUE(id_user, role)
+);
+
+CREATE INDEX idx_user_roles_user ON user_roles(id_user);
+CREATE INDEX idx_user_roles_role ON user_roles(role);
+
 -- Audit logs table
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY,
