@@ -611,7 +611,7 @@ Materialization only needed at ~500+ transactions/month sustained for several ye
 - [x] Support process defined
 
 ### Production Readiness
-- [ ] Security review completed
+- [x] Security review completed (OWASP Dependency-Check, SpotBugs/FindSecBugs)
 - [x] Data retention policy implemented (docs/07-data-retention-policy.md)
 - [x] User documentation ready
 - [x] Admin can manage users
