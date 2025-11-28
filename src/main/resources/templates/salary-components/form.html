@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${component.id != null} ? 'Edit Komponen Gaji' : 'Komponen Gaji Baru'">Komponen Gaji</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${component.id != null} ? 'Edit Komponen Gaji' : 'Komponen Gaji Baru'">Komponen Gaji</h1>
+
+    <div layout:fragment="content" class="max-w-2xl" th:attr="x-data=|{ isPercentage: ${component.isPercentage} }|">
+        <div class="bg-white rounded-lg shadow p-6">
+            <form th:action="${component.id != null} ? @{/salary-components/{id}(id=${component.id})} : @{/salary-components/new}"
+                  th:object="${component}"
+                  method="post" class="space-y-6">
+
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-sm text-red-600 font-medium">Terdapat kesalahan:</p>
+                    <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</li>
+                    </ul>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Code -->
+                    <div>
+                        <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Kode *</label>
+                        <input type="text" id="code" th:field="*{code}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 uppercase"
+                               th:classappend="${#fields.hasErrors('code')} ? 'border-red-500' : ''"
+                               placeholder="GAPOK" required>
+                        <p th:if="${#fields.hasErrors('code')}" th:errors="*{code}" class="mt-1 text-sm text-red-500"></p>
+                    </div>
+
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
+                        <input type="text" id="name" th:field="*{name}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                               th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''"
+                               placeholder="Gaji Pokok" required>
+                        <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-500"></p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                    <input type="text" id="description" th:field="*{description}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Deskripsi singkat komponen">
+                </div>
+
+                <!-- Component Type -->
+                <div>
+                    <label for="componentType" class="block text-sm font-medium text-gray-700 mb-1">Tipe Komponen *</label>
+                    <select id="componentType" th:field="*{componentType}"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" required>
+                        <option th:each="t : ${componentTypes}"
+                                th:value="${t.name()}"
+                                th:text="${t.displayName + ' - ' + t.description}">Type</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Pendapatan: menambah gaji | Potongan: mengurangi gaji | Kontribusi Perusahaan: beban perusahaan
+                    </p>
+                </div>
+
+                <!-- Value Type -->
+                <div class="border-t pt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-3">Jenis Nilai</p>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" th:field="*{isPercentage}" value="false"
+                                   class="text-primary-600 focus:ring-primary-500"
+                                   x-on:change="isPercentage = false">
+                            <span class="text-sm text-gray-700">Nominal Tetap</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" th:field="*{isPercentage}" value="true"
+                                   class="text-primary-600 focus:ring-primary-500"
+                                   x-on:change="isPercentage = true">
+                            <span class="text-sm text-gray-700">Persentase</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Default Amount -->
+                <div x-show="!isPercentage" x-cloak>
+                    <label for="defaultAmount" class="block text-sm font-medium text-gray-700 mb-1">Nilai Default (Rp)</label>
+                    <input type="number" id="defaultAmount" th:field="*{defaultAmount}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="5000000" step="1000">
+                    <p class="mt-1 text-xs text-gray-500">Nilai default jika tidak ditentukan per karyawan</p>
+                </div>
+
+                <!-- Default Rate (stored as percentage, e.g., 4.0 for 4%) -->
+                <div x-show="isPercentage" x-cloak>
+                    <label for="defaultRate" class="block text-sm font-medium text-gray-700 mb-1">Persentase Default (%)</label>
+                    <input type="number" id="defaultRate" th:field="*{defaultRate}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="4.00" step="0.01" min="0" max="100">
+                    <p class="mt-1 text-xs text-gray-500">Contoh: 4 untuk 4% dari gaji pokok</p>
+                </div>
+
+                <!-- Display Order -->
+                <div>
+                    <label for="displayOrder" class="block text-sm font-medium text-gray-700 mb-1">Urutan Tampil</label>
+                    <input type="number" id="displayOrder" th:field="*{displayOrder}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="10" min="0">
+                    <p class="mt-1 text-xs text-gray-500">Angka kecil ditampilkan lebih dulu</p>
+                </div>
+
+                <!-- Tax Settings -->
+                <div class="border-t pt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-3">Pengaturan Pajak</p>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" th:field="*{isTaxable}"
+                               class="rounded text-primary-600 focus:ring-primary-500">
+                        <span class="text-sm text-gray-700">Komponen ini diperhitungkan dalam pajak (PPh 21)</span>
+                    </label>
+                </div>
+
+                <!-- BPJS Category (for relevant components) -->
+                <div>
+                    <label for="bpjsCategory" class="block text-sm font-medium text-gray-700 mb-1">Kategori BPJS</label>
+                    <select id="bpjsCategory" th:field="*{bpjsCategory}"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">- Tidak Ada -</option>
+                        <option value="KESEHATAN">BPJS Kesehatan</option>
+                        <option value="JHT">BPJS JHT (Jaminan Hari Tua)</option>
+                        <option value="JKK">BPJS JKK (Jaminan Kecelakaan Kerja)</option>
+                        <option value="JKM">BPJS JKM (Jaminan Kematian)</option>
+                        <option value="JP">BPJS JP (Jaminan Pensiun)</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Pilih jika komponen ini terkait dengan BPJS</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <a th:href="${component.id != null} ? @{/salary-components/{id}(id=${component.id})} : @{/salary-components}"
+                       class="px-4 py-2 text-gray-600 hover:text-gray-900">Batal</a>
+                    <button id="btn-simpan" type="submit"
+                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

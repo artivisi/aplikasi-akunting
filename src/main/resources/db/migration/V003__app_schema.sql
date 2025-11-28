@@ -852,3 +852,53 @@ CREATE INDEX idx_employees_name ON employees(name);
 CREATE INDEX idx_employees_active ON employees(active);
 CREATE INDEX idx_employees_status ON employees(employment_status);
 CREATE INDEX idx_employees_npwp ON employees(npwp);
+
+-- ============================================
+-- Salary Components (Phase 3.2)
+-- ============================================
+
+CREATE TABLE salary_components (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    component_type VARCHAR(30) NOT NULL,
+    is_percentage BOOLEAN NOT NULL DEFAULT FALSE,
+    default_rate DECIMAL(10, 4),          -- e.g., 0.0400 for 4%
+    default_amount DECIMAL(15, 2),
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_taxable BOOLEAN NOT NULL DEFAULT TRUE,
+    bpjs_category VARCHAR(50),            -- For BPJS reporting: KESEHATAN, JHT, JKK, JKM, JP
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_component_type CHECK (component_type IN ('EARNING', 'DEDUCTION', 'COMPANY_CONTRIBUTION'))
+);
+
+CREATE INDEX idx_salary_components_code ON salary_components(code);
+CREATE INDEX idx_salary_components_type ON salary_components(component_type);
+CREATE INDEX idx_salary_components_active ON salary_components(active);
+CREATE INDEX idx_salary_components_order ON salary_components(display_order);
+
+-- Employee salary component assignments
+CREATE TABLE employee_salary_components (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+    salary_component_id UUID NOT NULL REFERENCES salary_components(id) ON DELETE CASCADE,
+    rate DECIMAL(10, 4),                  -- Override rate for this employee
+    amount DECIMAL(15, 2),                -- Override amount for this employee
+    effective_date DATE NOT NULL,
+    end_date DATE,
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uk_employee_component UNIQUE (employee_id, salary_component_id)
+);
+
+CREATE INDEX idx_esc_employee ON employee_salary_components(employee_id);
+CREATE INDEX idx_esc_component ON employee_salary_components(salary_component_id);
+CREATE INDEX idx_esc_effective_date ON employee_salary_components(effective_date);
+CREATE INDEX idx_esc_end_date ON employee_salary_components(end_date);

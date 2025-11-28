@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Komponen Gaji</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Komponen Gaji</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4 flex-wrap">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           id="search-input"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Cari komponen..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           hx-get="/salary-components"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#component-table"
+                           hx-swap="outerHTML"
+                           hx-include="[name='type'], [name='active']">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Filter Type -->
+                <select name="type"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/salary-components"
+                        hx-trigger="change"
+                        hx-target="#component-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'], [name='active']">
+                    <option value="" th:selected="${type == null}">Semua Tipe</option>
+                    <option th:each="t : ${componentTypes}"
+                            th:value="${t.name()}"
+                            th:text="${t.displayName}"
+                            th:selected="${type != null && type.name() == t.name()}">Type</option>
+                </select>
+
+                <!-- Filter Active -->
+                <select name="active"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/salary-components"
+                        hx-trigger="change"
+                        hx-target="#component-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'], [name='type']">
+                    <option value="" th:selected="${active == null}">Semua</option>
+                    <option value="true" th:selected="${active == true}">Aktif</option>
+                    <option value="false" th:selected="${active == false}">Nonaktif</option>
+                </select>
+            </div>
+
+            <a th:href="@{/salary-components/new}"
+               id="btn-new-component"
+               class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Komponen Baru
+            </a>
+        </div>
+
+        <!-- Component Table -->
+        <div class="bg-white rounded-lg shadow">
+            <th:block th:insert="~{salary-components/fragments/component-table :: table}"/>
+        </div>
+    </div>
+</body>
+</html>
