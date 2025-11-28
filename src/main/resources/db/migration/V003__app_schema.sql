@@ -800,3 +800,55 @@ CREATE TABLE tax_deadline_completions (
 
 CREATE INDEX idx_tax_completions_deadline ON tax_deadline_completions(id_tax_deadline);
 CREATE INDEX idx_tax_completions_period ON tax_deadline_completions(year, month);
+
+-- ============================================
+-- Employees (Phase 3.1)
+-- ============================================
+
+CREATE TABLE employees (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address TEXT,
+
+    -- Tax identification
+    npwp VARCHAR(20),                        -- 15-16 digits formatted: XX.XXX.XXX.X-XXX.XXX
+    nik_ktp VARCHAR(16),                     -- 16 digit NIK KTP
+
+    -- PTKP status for PPh 21 calculation
+    ptkp_status VARCHAR(10) NOT NULL DEFAULT 'TK_0',
+
+    -- Employment details
+    hire_date DATE NOT NULL,
+    resign_date DATE,
+    employment_type VARCHAR(20) NOT NULL DEFAULT 'PERMANENT',
+    employment_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    job_title VARCHAR(100),
+    department VARCHAR(100),
+
+    -- Bank account for salary payment
+    bank_name VARCHAR(100),
+    bank_account_number VARCHAR(50),
+    bank_account_name VARCHAR(255),
+
+    -- BPJS registration
+    bpjs_kesehatan_number VARCHAR(20),
+    bpjs_ketenagakerjaan_number VARCHAR(20),
+
+    notes TEXT,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_ptkp_status CHECK (ptkp_status IN ('TK_0', 'TK_1', 'TK_2', 'TK_3', 'K_0', 'K_1', 'K_2', 'K_3', 'K_I_0', 'K_I_1', 'K_I_2', 'K_I_3')),
+    CONSTRAINT chk_employment_type CHECK (employment_type IN ('PERMANENT', 'CONTRACT', 'PROBATION', 'FREELANCE')),
+    CONSTRAINT chk_employment_status CHECK (employment_status IN ('ACTIVE', 'RESIGNED', 'TERMINATED', 'RETIRED'))
+);
+
+CREATE INDEX idx_employees_employee_id ON employees(employee_id);
+CREATE INDEX idx_employees_name ON employees(name);
+CREATE INDEX idx_employees_active ON employees(active);
+CREATE INDEX idx_employees_status ON employees(employment_status);
+CREATE INDEX idx_employees_npwp ON employees(npwp);

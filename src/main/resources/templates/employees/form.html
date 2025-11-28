@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${employee.id != null} ? 'Edit Karyawan' : 'Karyawan Baru'">Karyawan</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${employee.id != null} ? 'Edit Karyawan' : 'Karyawan Baru'">Karyawan</h1>
+
+    <div layout:fragment="content" class="max-w-4xl">
+        <div class="bg-white rounded-lg shadow p-6">
+            <form th:action="${employee.id != null} ? @{/employees/{id}(id=${employee.id})} : @{/employees/new}"
+                  th:object="${employee}"
+                  method="post" class="space-y-6">
+
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-sm text-red-600 font-medium">Terdapat kesalahan:</p>
+                    <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</li>
+                    </ul>
+                </div>
+
+                <!-- Basic Information Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Dasar</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Employee ID (NIK Karyawan) -->
+                        <div>
+                            <label for="employeeId" class="block text-sm font-medium text-gray-700 mb-1">NIK Karyawan *</label>
+                            <input type="text" id="employeeId" th:field="*{employeeId}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('employeeId')} ? 'border-red-500' : ''"
+                                   placeholder="EMP001" required>
+                            <p th:if="${#fields.hasErrors('employeeId')}" th:errors="*{employeeId}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Name -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+                            <input type="text" id="name" th:field="*{name}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''"
+                                   placeholder="John Doe" required>
+                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" th:field="*{email}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('email')} ? 'border-red-500' : ''"
+                                   placeholder="john@example.com">
+                            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telepon</label>
+                            <input type="text" id="phone" th:field="*{phone}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="081234567890">
+                        </div>
+
+                        <!-- Address -->
+                        <div class="md:col-span-2">
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                            <textarea id="address" th:field="*{address}" rows="2"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                      placeholder="Alamat lengkap"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax Information Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pajak</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- NIK KTP -->
+                        <div>
+                            <label for="nikKtp" class="block text-sm font-medium text-gray-700 mb-1">NIK KTP</label>
+                            <input type="text" id="nikKtp" th:field="*{nikKtp}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('nikKtp')} ? 'border-red-500' : ''"
+                                   placeholder="3201234567890001" maxlength="16">
+                            <p th:if="${#fields.hasErrors('nikKtp')}" th:errors="*{nikKtp}" class="mt-1 text-sm text-red-500"></p>
+                            <p class="mt-1 text-xs text-gray-500">16 digit NIK dari KTP</p>
+                        </div>
+
+                        <!-- NPWP -->
+                        <div>
+                            <label for="npwp" class="block text-sm font-medium text-gray-700 mb-1">NPWP</label>
+                            <input type="text" id="npwp" th:field="*{npwp}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('npwp')} ? 'border-red-500' : ''"
+                                   placeholder="XX.XXX.XXX.X-XXX.XXX" maxlength="20">
+                            <p th:if="${#fields.hasErrors('npwp')}" th:errors="*{npwp}" class="mt-1 text-sm text-red-500"></p>
+                            <p class="mt-1 text-xs text-gray-500">Format: 15-16 digit</p>
+                        </div>
+
+                        <!-- PTKP Status -->
+                        <div>
+                            <label for="ptkpStatus" class="block text-sm font-medium text-gray-700 mb-1">Status PTKP *</label>
+                            <select id="ptkpStatus" th:field="*{ptkpStatus}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" required>
+                                <option th:each="s : ${ptkpStatuses}"
+                                        th:value="${s.name()}"
+                                        th:text="${s.displayName}">Status</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Penghasilan Tidak Kena Pajak untuk perhitungan PPh 21</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment Details Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Detail Kepegawaian</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Hire Date -->
+                        <div>
+                            <label for="hireDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai Kerja *</label>
+                            <input type="date" id="hireDate" th:field="*{hireDate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('hireDate')} ? 'border-red-500' : ''"
+                                   required>
+                            <p th:if="${#fields.hasErrors('hireDate')}" th:errors="*{hireDate}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Resign Date -->
+                        <div>
+                            <label for="resignDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Berhenti</label>
+                            <input type="date" id="resignDate" th:field="*{resignDate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+
+                        <!-- Employment Type -->
+                        <div>
+                            <label for="employmentType" class="block text-sm font-medium text-gray-700 mb-1">Tipe Kepegawaian *</label>
+                            <select id="employmentType" th:field="*{employmentType}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" required>
+                                <option th:each="t : ${employmentTypes}"
+                                        th:value="${t.name()}"
+                                        th:text="${t.displayName}">Type</option>
+                            </select>
+                        </div>
+
+                        <!-- Employment Status -->
+                        <div>
+                            <label for="employmentStatus" class="block text-sm font-medium text-gray-700 mb-1">Status Kepegawaian *</label>
+                            <select id="employmentStatus" th:field="*{employmentStatus}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" required>
+                                <option th:each="s : ${employmentStatuses}"
+                                        th:value="${s.name()}"
+                                        th:text="${s.displayName}">Status</option>
+                            </select>
+                        </div>
+
+                        <!-- Job Title -->
+                        <div>
+                            <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                            <input type="text" id="jobTitle" th:field="*{jobTitle}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="Software Developer">
+                        </div>
+
+                        <!-- Department -->
+                        <div>
+                            <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Departemen</label>
+                            <input type="text" id="department" th:field="*{department}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="IT">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Account Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Rekening Bank (untuk transfer gaji)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Bank Name -->
+                        <div>
+                            <label for="bankName" class="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
+                            <input type="text" id="bankName" th:field="*{bankName}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="BCA">
+                        </div>
+
+                        <!-- Bank Account Number -->
+                        <div>
+                            <label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">Nomor Rekening</label>
+                            <input type="text" id="bankAccountNumber" th:field="*{bankAccountNumber}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="1234567890">
+                        </div>
+
+                        <!-- Bank Account Name -->
+                        <div>
+                            <label for="bankAccountName" class="block text-sm font-medium text-gray-700 mb-1">Nama Pemilik Rekening</label>
+                            <input type="text" id="bankAccountName" th:field="*{bankAccountName}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="John Doe">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BPJS Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">BPJS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- BPJS Kesehatan -->
+                        <div>
+                            <label for="bpjsKesehatanNumber" class="block text-sm font-medium text-gray-700 mb-1">No. BPJS Kesehatan</label>
+                            <input type="text" id="bpjsKesehatanNumber" th:field="*{bpjsKesehatanNumber}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="0001234567890">
+                        </div>
+
+                        <!-- BPJS Ketenagakerjaan -->
+                        <div>
+                            <label for="bpjsKetenagakerjaanNumber" class="block text-sm font-medium text-gray-700 mb-1">No. BPJS Ketenagakerjaan</label>
+                            <input type="text" id="bpjsKetenagakerjaanNumber" th:field="*{bpjsKetenagakerjaanNumber}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="1234567890">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                    <textarea id="notes" th:field="*{notes}" rows="2"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Catatan tambahan"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <a th:href="${employee.id != null} ? @{/employees/{id}(id=${employee.id})} : @{/employees}"
+                       class="px-4 py-2 text-gray-600 hover:text-gray-900">Batal</a>
+                    <button id="btn-simpan" type="submit"
+                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Detail Karyawan</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Detail Karyawan</h1>
+
+    <div layout:fragment="content" class="space-y-6" data-testid="employee-detail">
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900" th:text="${employee.name}">John Doe</h2>
+                <p class="text-sm text-gray-500 font-mono" data-testid="employee-id" th:text="${employee.employeeId}">EMP001</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span data-testid="active-status"
+                      th:class="'px-3 py-1 text-sm font-medium rounded-full ' +
+                      (${employee.active} ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600')"
+                      th:text="${employee.active} ? 'Aktif' : 'Nonaktif'">Aktif</span>
+                <span data-testid="employment-status"
+                      th:class="'px-3 py-1 text-sm font-medium rounded-full ' +
+                      (${employee.employmentStatus.name() == 'ACTIVE'} ? 'bg-blue-100 text-blue-800' :
+                      (${employee.employmentStatus.name() == 'RESIGNED'} ? 'bg-yellow-100 text-yellow-800' :
+                      (${employee.employmentStatus.name() == 'TERMINATED'} ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-600')))"
+                      th:text="${employee.employmentStatus.displayName}">Status</span>
+            </div>
+        </div>
+
+        <!-- Basic Info Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Dasar</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Email</p>
+                    <p class="font-medium" th:text="${employee.email} ?: '-'">john@example.com</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Telepon</p>
+                    <p class="font-medium" th:text="${employee.phone} ?: '-'">081234567890</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Tanggal Bergabung</p>
+                    <p class="font-medium" th:text="${#temporals.format(employee.hireDate, 'dd MMM yyyy')}">01 Jan 2025</p>
+                </div>
+                <div th:if="${employee.address}" class="md:col-span-3">
+                    <p class="text-gray-500">Alamat</p>
+                    <p class="font-medium" th:text="${employee.address}">Alamat</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Details Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Detail Kepegawaian</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Tipe Kepegawaian</p>
+                    <p class="font-medium" th:text="${employee.employmentType.displayName}">Tetap</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Jabatan</p>
+                    <p class="font-medium" th:text="${employee.jobTitle} ?: '-'">Software Developer</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Departemen</p>
+                    <p class="font-medium" th:text="${employee.department} ?: '-'">IT</p>
+                </div>
+                <div th:if="${employee.resignDate}">
+                    <p class="text-gray-500">Tanggal Berhenti</p>
+                    <p class="font-medium" th:text="${#temporals.format(employee.resignDate, 'dd MMM yyyy')}">31 Dec 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Info Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pajak</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Status PTKP</p>
+                    <p class="font-medium" th:text="${employee.ptkpStatus.displayName}">TK/0 - Tidak Kawin tanpa tanggungan</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">PTKP Tahunan</p>
+                    <p class="font-medium" th:text="${#numbers.formatDecimal(employee.ptkpStatus.annualAmount, 0, 'COMMA', 0, 'POINT')}">54.000.000</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">NIK KTP</p>
+                    <p class="font-medium font-mono" th:text="${employee.nikKtp} ?: '-'">3201234567890001</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">NPWP</p>
+                    <p class="font-medium font-mono" th:text="${employee.npwp} ?: '-'">XX.XXX.XXX.X-XXX.XXX</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Account Card -->
+        <div class="bg-white rounded-lg shadow p-6" th:if="${employee.bankName != null || employee.bankAccountNumber != null}">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Rekening Bank</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Bank</p>
+                    <p class="font-medium" th:text="${employee.bankName} ?: '-'">BCA</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Nomor Rekening</p>
+                    <p class="font-medium font-mono" th:text="${employee.bankAccountNumber} ?: '-'">1234567890</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Nama Pemilik</p>
+                    <p class="font-medium" th:text="${employee.bankAccountName} ?: '-'">John Doe</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BPJS Card -->
+        <div class="bg-white rounded-lg shadow p-6" th:if="${employee.bpjsKesehatanNumber != null || employee.bpjsKetenagakerjaanNumber != null}">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">BPJS</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">BPJS Kesehatan</p>
+                    <p class="font-medium font-mono" th:text="${employee.bpjsKesehatanNumber} ?: '-'">0001234567890</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">BPJS Ketenagakerjaan</p>
+                    <p class="font-medium font-mono" th:text="${employee.bpjsKetenagakerjaanNumber} ?: '-'">1234567890</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="bg-white rounded-lg shadow p-6" th:if="${employee.notes}">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Catatan</h3>
+            <p class="text-sm text-gray-700" th:text="${employee.notes}">Catatan</p>
+        </div>
+
+        <!-- Audit Info -->
+        <div class="text-xs text-gray-400">
+            Dibuat: <span th:text="${#temporals.format(employee.createdAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</span> |
+            Diperbarui: <span th:text="${#temporals.format(employee.updatedAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <a th:href="@{/employees}" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                &larr; Kembali ke Daftar
+            </a>
+            <div class="flex items-center gap-2">
+                <a th:href="@{/employees/{id}/edit(id=${employee.id})}"
+                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Edit
+                </a>
+                <form th:if="${employee.active}"
+                      th:action="@{/employees/{id}/deactivate(id=${employee.id})}"
+                      method="post" class="inline"
+                      onsubmit="return confirm('Nonaktifkan karyawan ini?')">
+                    <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                        Nonaktifkan
+                    </button>
+                </form>
+                <form th:unless="${employee.active}"
+                      th:action="@{/employees/{id}/activate(id=${employee.id})}"
+                      method="post" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                        Aktifkan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
