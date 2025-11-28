@@ -24,7 +24,10 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.13 Deployment & Operations: ✅ Complete
 - **Phase 2:** ✅ Complete (Tax Compliance + Cash Flow)
   - 2.0-2.10: All complete (Refactoring, Documents, Telegram, Tax, Reports, Fiscal Periods, Tax Calendar, Backup/Restore, Cash Flow Statement)
-- **Phase 3:** Payroll (PPh 21, BPJS)
+- **Phase 3:** 🚧 In Progress (Payroll)
+  - 3.1 Employee Management: ✅ Complete
+  - 3.2 Salary Components: ⏳ Next
+  - 3.3-3.6: BPJS, PPh 21, Payroll Processing, Reports
 - **Phase 4:** Reconciliation & Analytics (Bank/Marketplace, Tags, Trends, Alerts, RBAC)
 - **Phase 5:** Assets & Budget
 - See `docs/06-implementation-plan.md` for full plan
@@ -81,17 +84,15 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 1 (Core Accounting MVP) and Phase 2 (Tax Compliance + Cash Flow) are complete.
+Phase 3 (Payroll) in progress.
 
-Phase 2 features:
-- Document attachments, Telegram receipt import
-- Tax accounts/templates (PPN, PPh 21/23/4(2)/25)
-- Tax reports (PPN Summary, PPh23 Withholding, Tax Summary)
-- Fiscal period management
-- Tax calendar with reminders
-- Backup & Restore utility
-- Cash Flow Statement report
+Phase 3.1 Employee Management complete:
+- Employee entity with PTKP status, employment details, bank account, BPJS numbers
+- Employee CRUD UI (list with search/filters, form, detail view)
+- 13 Indonesian PTKP tax status codes with annual amounts
+- NPWP format and uniqueness validation
+- 10 Playwright functional tests
 
-Next: Phase 3 (Payroll - PPh 21, BPJS)
+Next: Phase 3.2 (Salary Components)
 
 See `docs/06-implementation-plan.md` for full plan

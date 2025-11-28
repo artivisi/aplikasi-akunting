@@ -14,7 +14,7 @@
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
-| **3** | Payroll | ⏳ Not Started |
+| **3** | Payroll | 🚧 In Progress |
 | **4** | Reconciliation & Analytics | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |
 | **6+** | Other Industries, Advanced Features | ⏳ Not Started |
@@ -285,11 +285,12 @@
 
 **Goal:** Full payroll with PPh 21 and BPJS
 
-### 3.1 Employee Management
-- [ ] Employee entity
-- [ ] Employee CRUD UI
-- [ ] PTKP status configuration
-- [ ] NPWP validation
+### 3.1 Employee Management ✅
+- [x] Employee entity (with PTKP status, employment details, bank account, BPJS numbers)
+- [x] Employee CRUD UI (list with search/filters, form, detail view)
+- [x] PTKP status configuration (13 Indonesian tax status codes with annual amounts)
+- [x] NPWP validation (format and uniqueness)
+- [x] Functional tests (10 Playwright tests)
 
 ### 3.2 Salary Components
 - [ ] Salary component entity
