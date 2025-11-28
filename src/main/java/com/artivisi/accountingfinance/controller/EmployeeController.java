@@ -4,6 +4,8 @@ import com.artivisi.accountingfinance.entity.Employee;
 import com.artivisi.accountingfinance.entity.EmploymentStatus;
 import com.artivisi.accountingfinance.entity.EmploymentType;
 import com.artivisi.accountingfinance.entity.PtkpStatus;
+import com.artivisi.accountingfinance.entity.User;
+import com.artivisi.accountingfinance.repository.UserRepository;
 import com.artivisi.accountingfinance.security.Permission;
 import com.artivisi.accountingfinance.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -33,6 +36,7 @@ import java.util.UUID;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public String list(
@@ -181,6 +185,7 @@ public class EmployeeController {
         model.addAttribute("ptkpStatuses", PtkpStatus.values());
         model.addAttribute("employmentTypes", EmploymentType.values());
         model.addAttribute("employmentStatuses", EmploymentStatus.values());
+        model.addAttribute("users", userRepository.findByActiveTrue());
         model.addAttribute("currentPage", "employees");
     }
 }

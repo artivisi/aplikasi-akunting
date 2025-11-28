@@ -180,7 +180,35 @@
                         Amortisasi
                     </a>
 
-                    <!-- Divider -->
+                    <!-- Self-Service Section -->
+                    <div sec:authorize="hasAuthority('OWN_PAYSLIP_VIEW') or hasAuthority('OWN_PROFILE_VIEW')" class="border-t border-primary-600 my-4"></div>
+
+                    <a sec:authorize="hasAuthority('OWN_PAYSLIP_VIEW')" id="nav-my-payslips" th:href="@{/self-service/payslips}"
+                       th:classappend="${#strings.equals(currentPage, 'my-payslips')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                       class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Slip Gaji Saya
+                    </a>
+                    <a sec:authorize="hasAuthority('OWN_PAYSLIP_VIEW')" id="nav-my-bukti-potong" th:href="@{/self-service/bukti-potong}"
+                       th:classappend="${#strings.equals(currentPage, 'my-bukti-potong')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                       class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                        </svg>
+                        Bukti Potong Saya
+                    </a>
+                    <a sec:authorize="hasAuthority('OWN_PROFILE_VIEW')" id="nav-my-profile" th:href="@{/self-service/profile}"
+                       th:classappend="${#strings.equals(currentPage, 'my-profile')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                       class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Profil Saya
+                    </a>
+
+                    <!-- Admin Section Divider -->
                     <div class="border-t border-primary-600 my-4"></div>
 
                     <a id="nav-import" th:href="@{/import}"

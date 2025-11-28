@@ -14,7 +14,7 @@
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
-| **3** | Payroll | 🚧 In Progress |
+| **3** | Payroll + RBAC + Self-Service | ✅ Complete |
 | **4** | Reconciliation & Analytics | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |
 | **6+** | Other Industries, Advanced Features | ⏳ Not Started |
@@ -369,11 +369,16 @@
 - [x] Functional tests (9 Playwright tests)
 - [x] User manual (70-kelola-pengguna.md)
 
-### 3.8 Employee Self-Service
-- [ ] My Payslips page (read-only, filtered to logged-in employee)
-- [ ] My Bukti Potong PPh 21 page (download PDF)
-- [ ] My Profile page (view/edit limited fields)
-- [ ] Link Employee entity to User entity
+### 3.8 Employee Self-Service ✅
+- [x] Link Employee entity to User entity (id_user column)
+- [x] SelfServiceController with @PreAuthorize
+- [x] My Payslips page (list with year filter, download PDF)
+- [x] My Bukti Potong PPh 21 page (download 1721-A1 PDF)
+- [x] My Profile page (view and edit limited fields)
+- [x] Sidebar menu for self-service (sec:authorize)
+- [x] Employee form user dropdown
+- [x] Functional tests (7 Playwright tests)
+- [x] User manual (71-layanan-mandiri.md)
 
 **Permission model:** Additive permissions (not role switching).
 - User can have multiple roles (e.g., ACCOUNTANT + EMPLOYEE)
@@ -392,7 +397,7 @@
 
 Additive is ~3x simpler. Role switching only needed for strict audit trails or compliance requirements.
 
-**Phase 3 Deliverable:** Complete payroll system with tax compliance, role-based access control, and employee self-service.
+**Phase 3 Deliverable:** ✅ Complete payroll system with tax compliance, role-based access control, and employee self-service.
 
 ---
 

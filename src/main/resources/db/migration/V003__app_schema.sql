@@ -813,6 +813,9 @@ CREATE TABLE employees (
     phone VARCHAR(50),
     address TEXT,
 
+    -- Link to user account for self-service access
+    id_user UUID REFERENCES users(id),
+
     -- Tax identification
     npwp VARCHAR(20),                        -- 15-16 digits formatted: XX.XXX.XXX.X-XXX.XXX
     nik_ktp VARCHAR(16),                     -- 16 digit NIK KTP
@@ -852,6 +855,7 @@ CREATE INDEX idx_employees_name ON employees(name);
 CREATE INDEX idx_employees_active ON employees(active);
 CREATE INDEX idx_employees_status ON employees(employment_status);
 CREATE INDEX idx_employees_npwp ON employees(npwp);
+CREATE INDEX idx_employees_user ON employees(id_user);
 
 -- ============================================
 -- Salary Components (Phase 3.2)

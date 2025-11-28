@@ -50,6 +50,11 @@
                     <p class="text-gray-500">Alamat</p>
                     <p class="font-medium" th:text="${employee.address}">Alamat</p>
                 </div>
+                <div class="md:col-span-3">
+                    <p class="text-gray-500">Akun Pengguna (Self-Service)</p>
+                    <p class="font-medium" th:if="${employee.user != null}" th:text="${employee.user.username + ' (' + employee.user.fullName + ')'}">username</p>
+                    <p class="font-medium text-gray-400" th:if="${employee.user == null}">Tidak dikaitkan</p>
+                </div>
             </div>
         </div>
 

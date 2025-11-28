@@ -2,6 +2,7 @@ package com.artivisi.accountingfinance.repository;
 
 import com.artivisi.accountingfinance.entity.Employee;
 import com.artivisi.accountingfinance.entity.EmploymentStatus;
+import com.artivisi.accountingfinance.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -57,4 +58,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     @Query("SELECT e FROM Employee e WHERE e.npwp = :npwp AND e.id != :excludeId")
     Optional<Employee> findByNpwpExcludingId(@Param("npwp") String npwp, @Param("excludeId") UUID excludeId);
+
+    Optional<Employee> findByUser(User user);
+
+    Optional<Employee> findByUserId(UUID userId);
 }

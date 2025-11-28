@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Bukti Potong PPh 21</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Bukti Potong PPh 21</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- No Employee Linked -->
+        <div th:if="${noEmployee}" class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
+            <p>Akun Anda belum terhubung dengan data karyawan. Silakan hubungi administrator.</p>
+        </div>
+
+        <div th:unless="${noEmployee}">
+            <!-- Employee Info -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-purple-100 rounded-full p-3">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold" th:text="${employee.name}">Nama Karyawan</p>
+                        <p class="text-sm text-gray-500">
+                            NPWP: <span th:text="${employee.npwp ?: 'Tidak ada'}">00.000.000.0-000.000</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year Filter -->
+            <div class="flex items-center space-x-4">
+                <label class="text-sm font-medium text-gray-700">Tahun:</label>
+                <form th:action="@{/self-service/bukti-potong}" method="get" class="flex items-center space-x-2">
+                    <select name="year" class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm"
+                            onchange="this.form.submit()">
+                        <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+                                th:selected="${y == selectedYear}">2025</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Bukti Potong Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div th:if="${hasPayrollData}">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Bukti Potong 1721-A1 Tahun <span th:text="${selectedYear}">2025</span>
+                            </h3>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Formulir bukti pemotongan PPh Pasal 21 bagi Pegawai Tetap
+                            </p>
+                        </div>
+                        <a th:href="@{/self-service/bukti-potong/{year}/pdf(year=${selectedYear})}"
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Download PDF
+                        </a>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <strong>Catatan:</strong> Bukti potong ini digunakan untuk melaporkan SPT Tahunan PPh Orang Pribadi.
+                            Pastikan data NPWP dan NIK sudah benar sebelum mengunduh.
+                        </p>
+                    </div>
+                </div>
+
+                <div th:unless="${hasPayrollData}" class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p>Tidak ada data payroll untuk tahun <span th:text="${selectedYear}">2025</span></p>
+                    <p class="text-sm mt-2">Bukti potong akan tersedia setelah ada data payroll yang di-posting.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

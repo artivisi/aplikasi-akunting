@@ -146,7 +146,15 @@ public class ScreenshotCapture {
             new PageDefinition("users-form", "Form Pengguna", "/users/new", true,
                     "Form untuk menambah atau mengubah pengguna", "kelola-pengguna"),
             new PageDefinition("users-detail", "Detail Pengguna", "/users", true,
-                    "Detail pengguna dengan role dan hak akses", "kelola-pengguna")
+                    "Detail pengguna dengan role dan hak akses", "kelola-pengguna"),
+
+            // Self-Service
+            new PageDefinition("self-service-payslips", "Slip Gaji Saya", "/self-service/payslips", true,
+                    "Daftar slip gaji karyawan", "layanan-mandiri"),
+            new PageDefinition("self-service-bukti-potong", "Bukti Potong Saya", "/self-service/bukti-potong", true,
+                    "Bukti potong PPh 21 (1721-A1)", "layanan-mandiri"),
+            new PageDefinition("self-service-profile", "Profil Saya", "/self-service/profile", true,
+                    "Informasi profil karyawan", "layanan-mandiri")
         );
     }
 

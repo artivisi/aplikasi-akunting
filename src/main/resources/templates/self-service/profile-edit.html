@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Edit Profil</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Edit Profil</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
+            <p class="text-sm">Anda hanya dapat mengubah informasi kontak dan rekening bank. Untuk mengubah data lain, silakan hubungi administrator.</p>
+        </div>
+
+        <form th:action="@{/self-service/profile/edit}" method="post" class="space-y-6">
+            <!-- Contact Info -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Kontak</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                        <input type="text" id="phone" name="phone" th:value="${employee.phone}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="08123456789">
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <textarea id="address" name="address" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Masukkan alamat lengkap" th:text="${employee.address}"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Info -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Rekening Bank</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="bankName" class="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
+                        <input type="text" id="bankName" name="bankName" th:value="${employee.bankName}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="BCA, BNI, Mandiri, dll">
+                    </div>
+                    <div>
+                        <label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">Nomor Rekening</label>
+                        <input type="text" id="bankAccountNumber" name="bankAccountNumber" th:value="${employee.bankAccountNumber}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="1234567890">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="bankAccountName" class="block text-sm font-medium text-gray-700 mb-1">Nama Pemilik Rekening</label>
+                        <input type="text" id="bankAccountName" name="bankAccountName" th:value="${employee.bankAccountName}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Nama sesuai buku tabungan">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex space-x-4">
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Simpan Perubahan
+                </button>
+                <a th:href="@{/self-service/profile}"
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
