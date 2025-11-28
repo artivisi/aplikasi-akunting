@@ -176,6 +176,7 @@ Margin Laba              37.5%           40%           2.5%        -
 
 ## Lihat Juga
 
+- [Kelola Periode Fiskal](54-kelola-periode-fiskal.md) - Tutup buku dan kelola periode
 - [Laporan Bulanan](21-laporan-bulanan.md) - Laporan per bulan
 - [Laporan Pajak](32-laporan-pajak.md) - Detail laporan untuk pajak
 - [Jadwal Amortisasi](53-jadwal-amortisasi.md) - Pastikan amortisasi sudah berjalan

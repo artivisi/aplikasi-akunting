@@ -64,6 +64,7 @@ Setiap bab dalam panduan ini mengikuti struktur yang sama:
 - [Transaksi PPN](30-transaksi-ppn.md) - Penjualan/pembelian dengan PPN
 - [Transaksi PPh](31-transaksi-pph.md) - Potong PPh 23, PPh 21
 - [Laporan Pajak](32-laporan-pajak.md) - Cetak laporan untuk SPT
+- [Kalender Pajak](33-kalender-pajak.md) - Tracking deadline pajak
 
 ### Bagian IV: Manajemen Proyek
 - [Setup Proyek](40-setup-proyek.md) - Buat proyek baru
@@ -76,6 +77,7 @@ Setiap bab dalam panduan ini mengikuti struktur yang sama:
 - [Kelola Template](51-kelola-template.md) - Buat dan edit template jurnal
 - [Kelola Klien](52-kelola-klien.md) - Data klien
 - [Jadwal Amortisasi](53-jadwal-amortisasi.md) - Beban dibayar dimuka
+- [Kelola Periode Fiskal](54-kelola-periode-fiskal.md) - Tutup buku bulanan
 
 ### Lampiran
 - [Glosarium](90-glosarium.md) - Istilah-istilah akuntansi
