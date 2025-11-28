@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Arus Kas</title>
+    <style>
+        @page { size: A4; margin: 12mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 9pt; line-height: 1.4; color: #1f2937; background: white; }
+        .container { max-width: 210mm; margin: 0 auto; padding: 6mm; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5mm; padding-bottom: 3mm; border-bottom: 2px solid #4f46e5; }
+        .company-info { flex: 1; }
+        .company-logo { max-height: 45px; max-width: 160px; margin-bottom: 2mm; }
+        .company-name { font-size: 13pt; font-weight: 700; color: #1f2937; }
+        .company-details { font-size: 8pt; color: #6b7280; line-height: 1.5; margin-top: 1mm; }
+        .report-title-section { text-align: right; }
+        .report-title { font-size: 15pt; font-weight: 700; color: #4f46e5; }
+        .report-subtitle { font-size: 8pt; color: #6b7280; margin-top: 1mm; }
+        .report-period { font-size: 9pt; color: #374151; margin-top: 2mm; font-weight: 500; }
+
+        /* Section Headers */
+        .section-header { font-size: 9pt; font-weight: 700; padding: 2mm 0; margin: 3mm 0 2mm 0; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid; }
+        .section-header.operating { color: #059669; border-color: #6ee7b7; }
+        .section-header.investing { color: #2563eb; border-color: #93c5fd; }
+        .section-header.financing { color: #7c3aed; border-color: #c4b5fd; }
+
+        /* Items */
+        .item-row { display: flex; justify-content: space-between; padding: 1.5mm 2mm; border-bottom: 1px solid #f3f4f6; }
+        .item-row:hover { background: #f9fafb; }
+        .item-name { font-size: 9pt; color: #374151; }
+        .item-value { font-size: 9pt; font-family: 'Consolas', monospace; }
+        .item-value.positive { color: #059669; }
+        .item-value.negative { color: #dc2626; }
+
+        /* Totals */
+        .total-row { display: flex; justify-content: space-between; padding: 2.5mm 3mm; margin-top: 2mm; border-radius: 4px; font-weight: 700; font-size: 9pt; }
+        .total-row.operating { background: #d1fae5; color: #065f46; }
+        .total-row.investing { background: #dbeafe; color: #1e40af; }
+        .total-row.financing { background: #ede9fe; color: #5b21b6; }
+
+        /* Summary Box */
+        .summary-box { margin-top: 5mm; padding: 4mm; border-radius: 6px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; text-align: center; }
+        .summary-label { font-size: 9pt; opacity: 0.9; }
+        .summary-title { font-size: 11pt; font-weight: 700; margin-top: 1mm; }
+        .summary-value { font-size: 18pt; font-weight: 700; font-family: 'Consolas', monospace; margin-top: 2mm; }
+
+        /* Summary Table */
+        .summary-table { margin-top: 4mm; border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .summary-row { display: flex; justify-content: space-between; padding: 2mm 3mm; border-bottom: 1px solid #e5e7eb; }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-row.header { background: #f9fafb; font-weight: 600; font-size: 8pt; text-transform: uppercase; color: #6b7280; }
+        .summary-row.highlight { background: #f9fafb; font-weight: 600; }
+
+        /* Reconciliation */
+        .reconciliation { margin-top: 4mm; padding: 3mm; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; font-size: 8pt; color: #1e40af; }
+        .reconciliation-title { font-weight: 600; margin-bottom: 1mm; }
+
+        /* Footer */
+        .footer { margin-top: 6mm; padding-top: 3mm; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 7pt; color: #9ca3af; }
+
+        /* Print Controls */
+        .print-controls { position: fixed; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 1000; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; }
+        .btn-print { background: #4f46e5; color: white; }
+        .btn-back { background: #f3f4f6; color: #374151; }
+
+        @media print {
+            .print-controls { display: none; }
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls">
+        <a th:href="@{/reports/cash-flow(startDate=${startDate}, endDate=${endDate})}" class="btn btn-back">Kembali</a>
+        <button onclick="window.print()" class="btn btn-print">Cetak</button>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-info">
+                <img th:if="${company.companyLogoPath != null and !company.companyLogoPath.isEmpty()}"
+                     th:src="@{${company.companyLogoPath}}" alt="Logo" class="company-logo">
+                <img th:unless="${company.companyLogoPath != null and !company.companyLogoPath.isEmpty()}"
+                     th:src="@{/img/logo-artivisi.svg}" alt="Logo" class="company-logo">
+                <div class="company-name" th:text="${company.companyName}">Nama Perusahaan</div>
+                <div class="company-details">
+                    <span th:if="${company.companyAddress}" th:text="${company.companyAddress}">Alamat</span><br th:if="${company.companyAddress}">
+                    <span th:if="${company.companyPhone}">Tel: [[${company.companyPhone}]]</span>
+                    <span th:if="${company.companyPhone != null and company.companyEmail != null}"> | </span>
+                    <span th:if="${company.companyEmail}" th:text="${company.companyEmail}">email</span><br th:if="${company.companyPhone != null or company.companyEmail != null}">
+                    <span th:if="${company.taxId}">NPWP: [[${company.taxId}]]</span>
+                </div>
+            </div>
+            <div class="report-title-section">
+                <div class="report-title">ARUS KAS</div>
+                <div class="report-subtitle">Laporan Arus Kas / Cash Flow Statement</div>
+                <div class="report-period" th:text="'Periode: ' + ${#temporals.format(startDate, 'd MMMM yyyy')} + ' - ' + ${#temporals.format(endDate, 'd MMMM yyyy')}">Periode</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- OPERATING -->
+            <div class="section-header operating">Arus Kas dari Aktivitas Operasi</div>
+            <div class="items">
+                <th:block th:if="${report != null and !report.operatingItems.isEmpty()}">
+                    <div th:each="item : ${report.operatingItems}" class="item-row">
+                        <span class="item-name" th:text="${item.description}">Deskripsi</span>
+                        <span class="item-value"
+                              th:classappend="${item.amount >= 0} ? 'positive' : 'negative'"
+                              th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                    </div>
+                </th:block>
+                <div th:if="${report == null or report.operatingItems.isEmpty()}" class="item-row">
+                    <span class="item-name" style="color: #9ca3af;">Tidak ada transaksi</span>
+                    <span class="item-value">-</span>
+                </div>
+            </div>
+            <div th:if="${report != null}" class="total-row operating">
+                <span>Arus Kas Bersih dari Operasi</span>
+                <span th:text="${report.operatingTotal >= 0} ? ${#numbers.formatDecimal(report.operatingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.operatingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+            </div>
+
+            <!-- INVESTING -->
+            <div class="section-header investing">Arus Kas dari Aktivitas Investasi</div>
+            <div class="items">
+                <th:block th:if="${report != null and !report.investingItems.isEmpty()}">
+                    <div th:each="item : ${report.investingItems}" class="item-row">
+                        <span class="item-name" th:text="${item.description}">Deskripsi</span>
+                        <span class="item-value"
+                              th:classappend="${item.amount >= 0} ? 'positive' : 'negative'"
+                              th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                    </div>
+                </th:block>
+                <div th:if="${report == null or report.investingItems.isEmpty()}" class="item-row">
+                    <span class="item-name" style="color: #9ca3af;">Tidak ada transaksi</span>
+                    <span class="item-value">-</span>
+                </div>
+            </div>
+            <div th:if="${report != null}" class="total-row investing">
+                <span>Arus Kas Bersih dari Investasi</span>
+                <span th:text="${report.investingTotal >= 0} ? ${#numbers.formatDecimal(report.investingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.investingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+            </div>
+
+            <!-- FINANCING -->
+            <div class="section-header financing">Arus Kas dari Aktivitas Pendanaan</div>
+            <div class="items">
+                <th:block th:if="${report != null and !report.financingItems.isEmpty()}">
+                    <div th:each="item : ${report.financingItems}" class="item-row">
+                        <span class="item-name" th:text="${item.description}">Deskripsi</span>
+                        <span class="item-value"
+                              th:classappend="${item.amount >= 0} ? 'positive' : 'negative'"
+                              th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                    </div>
+                </th:block>
+                <div th:if="${report == null or report.financingItems.isEmpty()}" class="item-row">
+                    <span class="item-name" style="color: #9ca3af;">Tidak ada transaksi</span>
+                    <span class="item-value">-</span>
+                </div>
+            </div>
+            <div th:if="${report != null}" class="total-row financing">
+                <span>Arus Kas Bersih dari Pendanaan</span>
+                <span th:text="${report.financingTotal >= 0} ? ${#numbers.formatDecimal(report.financingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.financingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+            </div>
+
+            <!-- Summary Box -->
+            <div th:if="${report != null}" class="summary-box">
+                <div class="summary-label">Ending Cash Balance</div>
+                <div class="summary-title">SALDO KAS AKHIR PERIODE</div>
+                <div class="summary-value" th:text="'Rp ' + ${#numbers.formatDecimal(report.endingCashBalance, 1, 'POINT', 0, 'COMMA')}">Rp 0</div>
+            </div>
+
+            <!-- Summary Table -->
+            <div th:if="${report != null}" class="summary-table">
+                <div class="summary-row header">
+                    <span>Ringkasan</span>
+                    <span>Jumlah</span>
+                </div>
+                <div class="summary-row">
+                    <span>Arus Kas dari Operasi</span>
+                    <span style="font-family: monospace;" th:text="${report.operatingTotal >= 0} ? ${#numbers.formatDecimal(report.operatingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.operatingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Arus Kas dari Investasi</span>
+                    <span style="font-family: monospace;" th:text="${report.investingTotal >= 0} ? ${#numbers.formatDecimal(report.investingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.investingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Arus Kas dari Pendanaan</span>
+                    <span style="font-family: monospace;" th:text="${report.financingTotal >= 0} ? ${#numbers.formatDecimal(report.financingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.financingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                </div>
+                <div class="summary-row highlight">
+                    <span>Kenaikan/(Penurunan) Bersih Kas</span>
+                    <span style="font-family: monospace;" th:text="${report.netCashChange >= 0} ? ${#numbers.formatDecimal(report.netCashChange, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.netCashChange.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Saldo Kas Awal</span>
+                    <span style="font-family: monospace;" th:text="${#numbers.formatDecimal(report.beginningCashBalance, 1, 'POINT', 0, 'COMMA')}">0</span>
+                </div>
+                <div class="summary-row highlight">
+                    <span>Saldo Kas Akhir</span>
+                    <span style="font-family: monospace;" th:text="${#numbers.formatDecimal(report.endingCashBalance, 1, 'POINT', 0, 'COMMA')}">0</span>
+                </div>
+            </div>
+
+            <!-- Reconciliation -->
+            <div th:if="${report != null and not #lists.isEmpty(report.cashAccountBalances)}" class="reconciliation">
+                <div class="reconciliation-title">Rekonsiliasi dengan Neraca:</div>
+                <span th:each="acc, iterStat : ${report.cashAccountBalances}">
+                    <span th:text="${acc.accountName}">Kas</span>: Rp <span th:text="${#numbers.formatDecimal(acc.balance, 1, 'POINT', 0, 'COMMA')}">0</span>
+                    <span th:if="${!iterStat.last}"> + </span>
+                </span>
+                = <strong>Rp <span th:text="${#numbers.formatDecimal(report.endingCashBalance, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span th:text="'Dicetak: ' + ${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy HH:mm')}">Dicetak: 01 Jan 2025</span>
+            <span th:text="${company.companyName}">Nama Perusahaan</span>
+        </div>
+    </div>
+</body>
+</html>

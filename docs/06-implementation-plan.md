@@ -13,7 +13,7 @@
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
-| **2** | Tax Compliance + Cash Flow | 🚧 In Progress (2.0-2.7, 2.9 done) |
+| **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll | ⏳ Not Started |
 | **4** | Reconciliation & Analytics | ⏳ Not Started |
 | **5** | Assets & Budget | ⏳ Not Started |
@@ -252,10 +252,10 @@
 - [x] Period close workflow
 - [x] Functional tests (9 Playwright tests)
 
-### 2.8 Tax Calendar
-- [ ] Tax deadline configuration
-- [ ] Dashboard reminders
-- [ ] Monthly checklist
+### 2.8 Tax Calendar ✅
+- [x] Tax deadline configuration
+- [x] Dashboard reminders
+- [x] Monthly checklist
 
 ### 2.9 Backup & Restore Utility ✅
 - [x] Backup service (database + documents)
@@ -268,11 +268,11 @@
 - [x] Remote sync (rsync, optional)
 - [x] Notifications (webhook, optional)
 
-### 2.10 Cash Flow Statement
-- [ ] Cash flow report generation
-- [ ] Group by cash_flow_category from templates
-- [ ] Operating/Investing/Financing sections
-- [ ] PDF/Excel export
+### 2.10 Cash Flow Statement ✅
+- [x] Cash flow report generation
+- [x] Group by cash_flow_category from templates
+- [x] Operating/Investing/Financing sections
+- [x] PDF/Excel export
 
 **Phase 2 Deliverable:** Tax-compliant accounting with DJP export formats, document storage, Telegram receipt import, backup/restore, and cash flow reporting.
 

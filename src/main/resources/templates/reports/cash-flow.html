@@ -22,15 +22,15 @@
 
             <!-- Filter Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-                <form action="#" method="get" class="flex flex-wrap items-end gap-4">
+                <form th:action="@{/reports/cash-flow}" method="get" class="flex flex-wrap items-end gap-4">
                     <div class="flex-1 min-w-[150px]">
                         <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
-                        <input type="date" id="startDate" name="startDate" value="2025-11-01"
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
                     </div>
                     <div class="flex-1 min-w-[150px]">
                         <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
-                        <input type="date" id="endDate" name="endDate" value="2025-11-30"
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
                     </div>
                     <div>
@@ -48,27 +48,42 @@
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-lg font-bold text-gray-900">LAPORAN ARUS KAS</h2>
+                            <h2 id="report-title" class="text-lg font-bold text-gray-900">LAPORAN ARUS KAS</h2>
                             <p class="text-sm text-gray-600">Cash Flow Statement</p>
-                            <p class="text-sm text-gray-500 mt-1">Periode: 1 - 30 November 2025</p>
+                            <p id="report-period" class="text-sm text-gray-500 mt-1"
+                               th:text="'Periode: ' + ${#temporals.format(startDate, 'd MMMM yyyy')} + ' - ' + ${#temporals.format(endDate, 'd MMMM yyyy')}">
+                                Periode: 1 - 30 November 2025
+                            </p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="btn-print" type="button" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <a id="btn-export-pdf" th:href="@{/reports/cash-flow/export/pdf(startDate=${startDate}, endDate=${endDate})}"
+                               class="px-3 py-1.5 text-xs font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    PDF
+                                </span>
+                            </a>
+                            <a id="btn-export-excel" th:href="@{/reports/cash-flow/export/excel(startDate=${startDate}, endDate=${endDate})}"
+                               class="px-3 py-1.5 text-xs font-medium text-green-700 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Excel
+                                </span>
+                            </a>
+                            <a id="btn-print" th:href="@{/reports/cash-flow/print(startDate=${startDate}, endDate=${endDate})}"
+                               target="_blank"
+                               class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                 <span class="flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                                     </svg>
                                     Cetak
                                 </span>
-                            </button>
-                            <button id="btn-export" type="button" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    Ekspor
-                                </span>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -84,30 +99,30 @@
                             Arus Kas dari Aktivitas Operasi
                         </h3>
                         <div class="space-y-2">
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Penerimaan dari Pelanggan</span>
-                                <span class="text-sm font-mono text-green-600">142.500.000</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Pembayaran kepada Pemasok</span>
-                                <span class="text-sm font-mono text-red-600">(15.200.000)</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Pembayaran Gaji Karyawan</span>
-                                <span class="text-sm font-mono text-red-600">(25.000.000)</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Pembayaran Beban Operasional</span>
-                                <span class="text-sm font-mono text-red-600">(19.700.000)</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Penerimaan Bunga Bank</span>
-                                <span class="text-sm font-mono text-green-600">250.000</span>
-                            </div>
+                            <th:block th:if="${#lists.isEmpty(report.operatingItems)}">
+                                <div class="flex justify-between items-center py-2 px-2 text-gray-500 italic">
+                                    <span class="text-sm">Tidak ada transaksi</span>
+                                    <span class="text-sm font-mono">-</span>
+                                </div>
+                            </th:block>
+                            <th:block th:each="item : ${report.operatingItems}">
+                                <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
+                                    <span class="text-sm text-gray-700" th:text="${item.description}">Deskripsi</span>
+                                    <span class="text-sm font-mono"
+                                          th:classappend="${item.amount >= 0} ? 'text-green-600' : 'text-red-600'"
+                                          th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                        0
+                                    </span>
+                                </div>
+                            </th:block>
                         </div>
                         <div class="flex justify-between items-center py-3 mt-2 border-t border-gray-200 bg-green-50 px-3 rounded">
                             <span class="text-sm font-semibold text-green-800">Arus Kas Bersih dari Operasi</span>
-                            <span class="text-sm font-mono font-semibold text-green-800">82.850.000</span>
+                            <span id="operating-total" class="text-sm font-mono font-semibold"
+                                  th:classappend="${report.operatingTotal >= 0} ? 'text-green-800' : 'text-red-600'"
+                                  th:text="${report.operatingTotal >= 0} ? ${#numbers.formatDecimal(report.operatingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.operatingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                0
+                            </span>
                         </div>
                     </div>
 
@@ -120,18 +135,30 @@
                             Arus Kas dari Aktivitas Investasi
                         </h3>
                         <div class="space-y-2">
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Pembelian Peralatan Komputer</span>
-                                <span class="text-sm font-mono text-red-600">(5.000.000)</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Penjualan Peralatan Lama</span>
-                                <span class="text-sm font-mono text-green-600">500.000</span>
-                            </div>
+                            <th:block th:if="${#lists.isEmpty(report.investingItems)}">
+                                <div class="flex justify-between items-center py-2 px-2 text-gray-500 italic">
+                                    <span class="text-sm">Tidak ada transaksi</span>
+                                    <span class="text-sm font-mono">-</span>
+                                </div>
+                            </th:block>
+                            <th:block th:each="item : ${report.investingItems}">
+                                <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
+                                    <span class="text-sm text-gray-700" th:text="${item.description}">Deskripsi</span>
+                                    <span class="text-sm font-mono"
+                                          th:classappend="${item.amount >= 0} ? 'text-green-600' : 'text-red-600'"
+                                          th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                        0
+                                    </span>
+                                </div>
+                            </th:block>
                         </div>
                         <div class="flex justify-between items-center py-3 mt-2 border-t border-gray-200 bg-blue-50 px-3 rounded">
                             <span class="text-sm font-semibold text-blue-800">Arus Kas Bersih dari Investasi</span>
-                            <span class="text-sm font-mono font-semibold text-red-600">(4.500.000)</span>
+                            <span id="investing-total" class="text-sm font-mono font-semibold"
+                                  th:classappend="${report.investingTotal >= 0} ? 'text-blue-800' : 'text-red-600'"
+                                  th:text="${report.investingTotal >= 0} ? ${#numbers.formatDecimal(report.investingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.investingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                0
+                            </span>
                         </div>
                     </div>
 
@@ -144,18 +171,30 @@
                             Arus Kas dari Aktivitas Pendanaan
                         </h3>
                         <div class="space-y-2">
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Penerimaan Setoran Modal</span>
-                                <span class="text-sm font-mono text-green-600">-</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
-                                <span class="text-sm text-gray-700">Pembayaran Prive/Dividen</span>
-                                <span class="text-sm font-mono text-red-600">(10.000.000)</span>
-                            </div>
+                            <th:block th:if="${#lists.isEmpty(report.financingItems)}">
+                                <div class="flex justify-between items-center py-2 px-2 text-gray-500 italic">
+                                    <span class="text-sm">Tidak ada transaksi</span>
+                                    <span class="text-sm font-mono">-</span>
+                                </div>
+                            </th:block>
+                            <th:block th:each="item : ${report.financingItems}">
+                                <div class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
+                                    <span class="text-sm text-gray-700" th:text="${item.description}">Deskripsi</span>
+                                    <span class="text-sm font-mono"
+                                          th:classappend="${item.amount >= 0} ? 'text-green-600' : 'text-red-600'"
+                                          th:text="${item.amount >= 0} ? ${#numbers.formatDecimal(item.amount, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(item.amount.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                        0
+                                    </span>
+                                </div>
+                            </th:block>
                         </div>
                         <div class="flex justify-between items-center py-3 mt-2 border-t border-gray-200 bg-purple-50 px-3 rounded">
                             <span class="text-sm font-semibold text-purple-800">Arus Kas Bersih dari Pendanaan</span>
-                            <span class="text-sm font-mono font-semibold text-red-600">(10.000.000)</span>
+                            <span id="financing-total" class="text-sm font-mono font-semibold"
+                                  th:classappend="${report.financingTotal >= 0} ? 'text-purple-800' : 'text-red-600'"
+                                  th:text="${report.financingTotal >= 0} ? ${#numbers.formatDecimal(report.financingTotal, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.financingTotal.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                0
+                            </span>
                         </div>
                     </div>
 
@@ -163,30 +202,46 @@
                     <div class="border-t-2 border-gray-300 pt-4 space-y-3">
                         <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
                             <span class="text-sm font-medium text-gray-700">Kenaikan/(Penurunan) Bersih Kas</span>
-                            <span class="text-sm font-mono font-medium text-green-600">68.350.000</span>
+                            <span id="net-cash-change" class="text-sm font-mono font-medium"
+                                  th:classappend="${report.netCashChange >= 0} ? 'text-green-600' : 'text-red-600'"
+                                  th:text="${report.netCashChange >= 0} ? ${#numbers.formatDecimal(report.netCashChange, 1, 'POINT', 0, 'COMMA')} : '(' + ${#numbers.formatDecimal(report.netCashChange.abs(), 1, 'POINT', 0, 'COMMA')} + ')'">
+                                0
+                            </span>
                         </div>
                         <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
                             <span class="text-sm font-medium text-gray-700">Saldo Kas Awal Periode</span>
-                            <span class="text-sm font-mono font-medium">107.250.000</span>
+                            <span id="beginning-balance" class="text-sm font-mono font-medium"
+                                  th:text="${#numbers.formatDecimal(report.beginningCashBalance, 1, 'POINT', 0, 'COMMA')}">
+                                0
+                            </span>
                         </div>
                         <div class="flex justify-between items-center py-4 px-4 bg-accent-100 rounded-lg border-2 border-accent-300">
                             <div>
                                 <span class="text-base font-bold text-accent-900">SALDO KAS AKHIR PERIODE</span>
                                 <p class="text-xs text-accent-700 mt-0.5">Ending Cash Balance</p>
                             </div>
-                            <span class="text-xl font-mono font-bold text-accent-900">Rp 175.600.000</span>
+                            <span id="ending-balance" class="text-xl font-mono font-bold text-accent-900"
+                                  th:text="'Rp ' + ${#numbers.formatDecimal(report.endingCashBalance, 1, 'POINT', 0, 'COMMA')}">
+                                Rp 0
+                            </span>
                         </div>
                     </div>
 
                     <!-- Reconciliation Note -->
-                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div th:if="${not #lists.isEmpty(report.cashAccountBalances)}" class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div class="flex items-start">
                             <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <div class="text-xs text-blue-800">
                                 <p class="font-medium">Rekonsiliasi dengan Neraca:</p>
-                                <p class="mt-1">Kas: Rp 5.000.000 + Bank BCA: Rp 125.400.000 + Bank BNI: Rp 45.200.000 = <strong>Rp 175.600.000</strong></p>
+                                <p class="mt-1">
+                                    <th:block th:each="acc, iterStat : ${report.cashAccountBalances}">
+                                        <span th:text="${acc.accountName}">Kas</span>: Rp <span th:text="${#numbers.formatDecimal(acc.balance, 1, 'POINT', 0, 'COMMA')}">0</span>
+                                        <span th:if="${!iterStat.last}"> + </span>
+                                    </th:block>
+                                    = <strong>Rp <span th:text="${#numbers.formatDecimal(report.endingCashBalance, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -10,13 +10,14 @@ Gunakan panduan ini ketika Anda:
 
 ## Konsep yang Perlu Dipahami
 
-Ada tiga laporan keuangan utama:
+Ada empat laporan keuangan utama:
 
 | Laporan | Fungsi | Tipe |
 |---------|--------|------|
 | **Neraca Saldo** | Daftar saldo semua akun | Titik waktu |
 | **Neraca** | Posisi keuangan (aset, kewajiban, ekuitas) | Titik waktu |
 | **Laba Rugi** | Pendapatan vs beban | Periode |
+| **Arus Kas** | Aliran kas masuk dan keluar | Periode |
 
 **Titik waktu** = kondisi pada tanggal tertentu
 **Periode** = akumulasi selama rentang waktu
@@ -134,7 +135,65 @@ Total Ekuitas                Rp 135.000.000
 TOTAL KEWAJIBAN + EKUITAS    Rp 155.000.000
 ```
 
-## Skenario 4: Bandingkan Laba Rugi Bulan Ini vs Bulan Lalu
+## Skenario 4: Cetak Laporan Arus Kas
+
+**Situasi**: Anda ingin mengetahui dari mana uang masuk dan ke mana uang keluar selama bulan ini.
+
+**Langkah-langkah**:
+
+1. Klik menu **Laporan** di sidebar
+2. Pilih **Arus Kas**
+3. Pilih periode:
+   - **Tanggal Awal**: 1 November 2025
+   - **Tanggal Akhir**: 30 November 2025
+4. Klik **Tampilkan**
+5. Review laporan yang terbagi dalam tiga bagian:
+   - **Aktivitas Operasi**: Kas dari kegiatan utama bisnis
+   - **Aktivitas Investasi**: Kas dari pembelian/penjualan aset
+   - **Aktivitas Pendanaan**: Kas dari modal/pinjaman
+
+**Memahami Arus Kas**:
+
+```
+ARUS KAS DARI AKTIVITAS OPERASI
+─────────────────────────────────────────
+Penerimaan Jasa                Rp 50.000.000
+Pembayaran Gaji               (Rp 15.000.000)
+Pembayaran Sewa               (Rp  5.000.000)
+Pembayaran Operasional        (Rp  5.000.000)
+─────────────────────────────────────────
+Arus Kas Bersih dari Operasi   Rp 25.000.000
+
+ARUS KAS DARI AKTIVITAS INVESTASI
+─────────────────────────────────────────
+Pembelian Peralatan           (Rp 10.000.000)
+─────────────────────────────────────────
+Arus Kas Bersih dari Investasi (Rp 10.000.000)
+
+ARUS KAS DARI AKTIVITAS PENDANAAN
+─────────────────────────────────────────
+Setoran Modal                  Rp 20.000.000
+─────────────────────────────────────────
+Arus Kas Bersih dari Pendanaan Rp 20.000.000
+
+RINGKASAN
+─────────────────────────────────────────
+Kenaikan Bersih Kas            Rp 35.000.000
+Saldo Kas Awal                 Rp 45.000.000
+SALDO KAS AKHIR                Rp 80.000.000
+```
+
+**Rekonsiliasi dengan Neraca**:
+
+Laporan arus kas menampilkan rekonsiliasi saldo kas akhir dengan total saldo akun kas/bank di neraca. Keduanya harus sama.
+
+**Cara Ekspor**:
+
+1. Klik tombol **PDF** untuk dokumentasi resmi
+2. Klik tombol **Excel** untuk analisis lebih lanjut
+3. Klik tombol **Cetak** untuk print langsung
+
+## Skenario 5: Bandingkan Performa Bulan Ini vs Bulan Lalu
 
 **Situasi**: Anda ingin menganalisis tren performa bisnis.
 
@@ -156,23 +215,25 @@ TOTAL KEWAJIBAN + EKUITAS    Rp 155.000.000
 3. Warna hijau = naik, merah = turun
 4. Persentase perubahan ditampilkan otomatis
 
-## Skenario 5: Siapkan Laporan untuk Manajemen
+## Skenario 6: Siapkan Laporan untuk Manajemen
 
 **Situasi**: Anda perlu menyiapkan laporan bulanan untuk meeting dengan direktur.
 
 **Langkah-langkah**:
 
-1. Cetak ketiga laporan untuk periode yang sama:
+1. Cetak keempat laporan untuk periode yang sama:
    - Neraca Saldo → untuk validasi
    - Laba Rugi → untuk performa
    - Neraca → untuk posisi keuangan
+   - Arus Kas → untuk aliran kas
 2. Ekspor semua ke PDF
 3. Siapkan ringkasan:
    - Highlight pendapatan dan laba
    - Jelaskan perubahan signifikan dari bulan lalu
    - Identifikasi tren yang perlu diperhatikan
+   - Jelaskan posisi kas dan pergerakannya
 
-## Skenario 6: Persiapan Laporan Pajak Bulanan
+## Skenario 7: Persiapan Laporan Pajak Bulanan
 
 **Situasi**: Akhir bulan, Anda perlu data untuk SPT Masa PPN dan PPh.
 

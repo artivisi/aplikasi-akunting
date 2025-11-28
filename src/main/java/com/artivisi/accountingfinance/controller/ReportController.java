@@ -109,6 +109,7 @@ public class ReportController {
 
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
+        model.addAttribute("report", reportService.generateCashFlowStatement(start, end));
 
         return "reports/cash-flow";
     }
@@ -226,6 +227,39 @@ public class ReportController {
         byte[] excelBytes = reportExportService.exportIncomeStatementToExcel(report);
 
         String filename = "laporan-laba-rugi-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + ".xlsx";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
+    }
+
+    // Cash Flow Exports
+    @GetMapping("/cash-flow/export/pdf")
+    public ResponseEntity<byte[]> exportCashFlowToPdf(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate) {
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+        ReportService.CashFlowReport report = reportService.generateCashFlowStatement(start, end);
+        byte[] pdfBytes = reportExportService.exportCashFlowToPdf(report);
+
+        String filename = "laporan-arus-kas-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + ".pdf";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/cash-flow/export/excel")
+    public ResponseEntity<byte[]> exportCashFlowToExcel(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate) {
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+        ReportService.CashFlowReport report = reportService.generateCashFlowStatement(start, end);
+        byte[] excelBytes = reportExportService.exportCashFlowToExcel(report);
+
+        String filename = "laporan-arus-kas-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + ".xlsx";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
@@ -372,6 +406,23 @@ public class ReportController {
         model.addAttribute("company", company);
 
         return "reports/income-statement-print";
+    }
+
+    @GetMapping("/cash-flow/print")
+    public String printCashFlow(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate end = endDate != null ? endDate : LocalDate.now();
+        CompanyConfig company = companyConfigService.getConfig();
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("report", reportService.generateCashFlowStatement(start, end));
+        model.addAttribute("company", company);
+
+        return "reports/cash-flow-print";
     }
 
     // ==================== TAX REPORTS ====================

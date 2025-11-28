@@ -383,11 +383,154 @@ public class ReportExportService {
         }
     }
 
+    // ==================== CASH FLOW STATEMENT ====================
+
+    public byte[] exportCashFlowToPdf(ReportService.CashFlowReport report) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            addReportHeader(document, "LAPORAN ARUS KAS", "Cash Flow Statement",
+                    "Periode " + report.startDate().format(DATE_FORMAT) + " - " + report.endDate().format(DATE_FORMAT));
+
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{70, 30});
+            table.setSpacingBefore(20);
+
+            // OPERATING ACTIVITIES
+            addSectionHeader(table, "ARUS KAS DARI AKTIVITAS OPERASI");
+            for (ReportService.CashFlowItem item : report.operatingItems()) {
+                addTableCell(table, "  " + item.description(), Element.ALIGN_LEFT);
+                addTableCell(table, formatCashFlowNumber(item.amount()), Element.ALIGN_RIGHT);
+            }
+            addSubtotalRow(table, "Arus Kas Bersih dari Operasi", formatCashFlowNumber(report.operatingTotal()));
+
+            // INVESTING ACTIVITIES
+            addSectionHeader(table, "ARUS KAS DARI AKTIVITAS INVESTASI");
+            for (ReportService.CashFlowItem item : report.investingItems()) {
+                addTableCell(table, "  " + item.description(), Element.ALIGN_LEFT);
+                addTableCell(table, formatCashFlowNumber(item.amount()), Element.ALIGN_RIGHT);
+            }
+            addSubtotalRow(table, "Arus Kas Bersih dari Investasi", formatCashFlowNumber(report.investingTotal()));
+
+            // FINANCING ACTIVITIES
+            addSectionHeader(table, "ARUS KAS DARI AKTIVITAS PENDANAAN");
+            for (ReportService.CashFlowItem item : report.financingItems()) {
+                addTableCell(table, "  " + item.description(), Element.ALIGN_LEFT);
+                addTableCell(table, formatCashFlowNumber(item.amount()), Element.ALIGN_RIGHT);
+            }
+            addSubtotalRow(table, "Arus Kas Bersih dari Pendanaan", formatCashFlowNumber(report.financingTotal()));
+
+            // SUMMARY
+            addTableCell(table, "", Element.ALIGN_LEFT);
+            addTableCell(table, "", Element.ALIGN_RIGHT);
+            addSubtotalRow(table, "Kenaikan/(Penurunan) Bersih Kas", formatCashFlowNumber(report.netCashChange()));
+            addSubtotalRow(table, "Saldo Kas Awal Periode", formatNumber(report.beginningCashBalance()));
+            addTotalRow(table, "SALDO KAS AKHIR PERIODE", formatNumber(report.endingCashBalance()), null);
+
+            document.add(table);
+            document.close();
+
+            return baos.toByteArray();
+        } catch (DocumentException | IOException e) {
+            log.error("Error generating Cash Flow PDF", e);
+            throw new RuntimeException("Failed to generate PDF: " + e.getMessage());
+        }
+    }
+
+    public byte[] exportCashFlowToExcel(ReportService.CashFlowReport report) {
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Laporan Arus Kas");
+            int rowNum = 0;
+
+            rowNum = addExcelHeader(workbook, sheet, rowNum, "LAPORAN ARUS KAS",
+                    "Periode " + report.startDate().format(DATE_FORMAT) + " - " + report.endDate().format(DATE_FORMAT), 2);
+
+            CellStyle sectionStyle = createSectionStyle(workbook);
+            CellStyle textStyle = createTextStyle(workbook);
+            CellStyle numberStyle = createNumberStyle(workbook);
+            CellStyle totalStyle = createTotalStyle(workbook);
+
+            // OPERATING ACTIVITIES
+            Row operatingHeader = sheet.createRow(rowNum++);
+            createCell(operatingHeader, 0, "ARUS KAS DARI AKTIVITAS OPERASI", sectionStyle);
+            for (ReportService.CashFlowItem item : report.operatingItems()) {
+                Row row = sheet.createRow(rowNum++);
+                createCell(row, 0, "  " + item.description(), textStyle);
+                createNumericCell(row, 1, item.amount(), numberStyle);
+            }
+            Row operatingTotal = sheet.createRow(rowNum++);
+            createCell(operatingTotal, 0, "Arus Kas Bersih dari Operasi", totalStyle);
+            createNumericCell(operatingTotal, 1, report.operatingTotal(), totalStyle);
+            rowNum++;
+
+            // INVESTING ACTIVITIES
+            Row investingHeader = sheet.createRow(rowNum++);
+            createCell(investingHeader, 0, "ARUS KAS DARI AKTIVITAS INVESTASI", sectionStyle);
+            for (ReportService.CashFlowItem item : report.investingItems()) {
+                Row row = sheet.createRow(rowNum++);
+                createCell(row, 0, "  " + item.description(), textStyle);
+                createNumericCell(row, 1, item.amount(), numberStyle);
+            }
+            Row investingTotal = sheet.createRow(rowNum++);
+            createCell(investingTotal, 0, "Arus Kas Bersih dari Investasi", totalStyle);
+            createNumericCell(investingTotal, 1, report.investingTotal(), totalStyle);
+            rowNum++;
+
+            // FINANCING ACTIVITIES
+            Row financingHeader = sheet.createRow(rowNum++);
+            createCell(financingHeader, 0, "ARUS KAS DARI AKTIVITAS PENDANAAN", sectionStyle);
+            for (ReportService.CashFlowItem item : report.financingItems()) {
+                Row row = sheet.createRow(rowNum++);
+                createCell(row, 0, "  " + item.description(), textStyle);
+                createNumericCell(row, 1, item.amount(), numberStyle);
+            }
+            Row financingTotal = sheet.createRow(rowNum++);
+            createCell(financingTotal, 0, "Arus Kas Bersih dari Pendanaan", totalStyle);
+            createNumericCell(financingTotal, 1, report.financingTotal(), totalStyle);
+            rowNum++;
+
+            // SUMMARY
+            Row netChangeRow = sheet.createRow(rowNum++);
+            createCell(netChangeRow, 0, "Kenaikan/(Penurunan) Bersih Kas", totalStyle);
+            createNumericCell(netChangeRow, 1, report.netCashChange(), totalStyle);
+
+            Row beginningRow = sheet.createRow(rowNum++);
+            createCell(beginningRow, 0, "Saldo Kas Awal Periode", textStyle);
+            createNumericCell(beginningRow, 1, report.beginningCashBalance(), numberStyle);
+
+            Row endingRow = sheet.createRow(rowNum);
+            createCell(endingRow, 0, "SALDO KAS AKHIR PERIODE", totalStyle);
+            createNumericCell(endingRow, 1, report.endingCashBalance(), totalStyle);
+
+            autoSizeColumns(sheet, 2);
+            workbook.write(baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            log.error("Error generating Cash Flow Excel", e);
+            throw new RuntimeException("Failed to generate Excel: " + e.getMessage());
+        }
+    }
+
     // ==================== HELPER METHODS ====================
 
     private String formatNumber(BigDecimal value) {
         if (value == null || value.compareTo(BigDecimal.ZERO) == 0) {
             return "-";
+        }
+        return NUMBER_FORMAT.format(value);
+    }
+
+    private String formatCashFlowNumber(BigDecimal value) {
+        if (value == null || value.compareTo(BigDecimal.ZERO) == 0) {
+            return "-";
+        }
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            return "(" + NUMBER_FORMAT.format(value.abs()) + ")";
         }
         return NUMBER_FORMAT.format(value);
     }

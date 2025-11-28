@@ -22,11 +22,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 1.11 User Manual: ✅ Complete
   - 1.12 Data Import: ✅ Complete
   - 1.13 Deployment & Operations: ✅ Complete
-- **Phase 2:** Tax Compliance + Cash Flow 🚧 In Progress
-  - 2.0-2.7: ✅ Complete (Refactoring, Documents, Telegram, Tax, Reports, Fiscal Periods)
-  - 2.8 Tax Calendar: ⏳ Next
-  - 2.9 Backup & Restore: ✅ Complete
-  - 2.10 Cash Flow Statement: ⏳ Pending
+- **Phase 2:** ✅ Complete (Tax Compliance + Cash Flow)
+  - 2.0-2.10: All complete (Refactoring, Documents, Telegram, Tax, Reports, Fiscal Periods, Tax Calendar, Backup/Restore, Cash Flow Statement)
 - **Phase 3:** Payroll (PPh 21, BPJS)
 - **Phase 4:** Reconciliation & Analytics (Bank/Marketplace, Tags, Trends, Alerts, RBAC)
 - **Phase 5:** Assets & Budget
@@ -84,17 +81,17 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 1 (Core Accounting MVP) is complete. All features implemented:
-- COA, Journal Entries, Reports, Templates, Transactions
-- Formula Support, Template Enhancements, HTMX Optimization
-- Amortization Schedules, Project Tracking, Dashboard KPIs
-- User Manual (14 chapters with automated screenshots)
-- Data Import (COA & Templates from JSON/Excel)
-- Deployment & Operations (Pulumi, Ansible, Backup/Restore)
+Phase 1 (Core Accounting MVP) and Phase 2 (Tax Compliance + Cash Flow) are complete.
 
-Phase 2 (Tax Compliance + Cash Flow) in progress:
-- 2.0-2.7: Complete (Documents, Telegram, Tax Templates, Reports, Fiscal Periods)
-- 2.9: Backup & Restore complete
-- Next: 2.8 Tax Calendar, then 2.10 Cash Flow Statement
+Phase 2 features:
+- Document attachments, Telegram receipt import
+- Tax accounts/templates (PPN, PPh 21/23/4(2)/25)
+- Tax reports (PPN Summary, PPh23 Withholding, Tax Summary)
+- Fiscal period management
+- Tax calendar with reminders
+- Backup & Restore utility
+- Cash Flow Statement report
+
+Next: Phase 3 (Payroll - PPh 21, BPJS)
 
 See `docs/06-implementation-plan.md` for full plan

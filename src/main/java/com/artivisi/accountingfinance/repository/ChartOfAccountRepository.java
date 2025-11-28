@@ -43,4 +43,6 @@ public interface ChartOfAccountRepository extends JpaRepository<ChartOfAccount, 
     List<ChartOfAccount> findByAccountTypeIn(@Param("types") List<AccountType> types);
 
     long countByParentId(UUID parentId);
+
+    List<ChartOfAccount> findByAccountCodeIn(List<String> accountCodes);
 }
