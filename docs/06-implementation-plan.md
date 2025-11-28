@@ -291,12 +291,18 @@
 - [x] PTKP status configuration (13 Indonesian tax status codes with annual amounts)
 - [x] NPWP validation (format and uniqueness)
 - [x] Functional tests (10 Playwright tests)
+- [x] User manual (60-kelola-karyawan.md)
 
-### 3.2 Salary Components
-- [ ] Salary component entity
-- [ ] Component types (gaji pokok, tunjangan, BPJS, etc.)
-- [ ] Preloaded component templates for IT Services
-- [ ] Employee salary configuration UI
+### 3.2 Salary Components ✅
+- [x] SalaryComponent entity (code, name, type, isPercentage, defaultRate/defaultAmount, displayOrder, isTaxable, bpjsCategory)
+- [x] SalaryComponentType enum (EARNING, DEDUCTION, COMPANY_CONTRIBUTION)
+- [x] Component CRUD UI (list with search/type filter, form, detail view)
+- [x] Activate/deactivate workflow (system components protected)
+- [x] Preloaded 17 Indonesian salary components (GAPOK, Tunjangan, BPJS rates, PPh 21)
+- [x] EmployeeSalaryComponent entity (employee-specific component values)
+- [x] Percentage stored as entered (e.g., 4.0 for 4%), Java handles calculation
+- [x] Functional tests (11 Playwright tests)
+- [x] User manual (61-komponen-gaji.md)
 
 ### 3.3 BPJS Calculation
 - [ ] BPJS Kesehatan rates (4% + 1%)

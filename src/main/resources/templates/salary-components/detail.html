@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Detail Komponen Gaji</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Detail Komponen Gaji</h1>
+
+    <div layout:fragment="content" class="space-y-6 max-w-2xl" data-testid="component-detail">
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900" data-testid="component-name" th:text="${component.name}">Gaji Pokok</h2>
+                <p class="text-sm text-gray-500 font-mono" data-testid="component-code" th:text="${component.code}">GAPOK</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span data-testid="component-type"
+                      th:class="'px-3 py-1 text-sm font-medium rounded-full ' +
+                      (${component.componentType.name() == 'EARNING'} ? 'bg-green-100 text-green-800' :
+                      (${component.componentType.name() == 'DEDUCTION'} ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'))"
+                      th:text="${component.componentType.displayName}">Pendapatan</span>
+                <span data-testid="active-status"
+                      th:class="'px-3 py-1 text-sm font-medium rounded-full ' +
+                      (${component.active} ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600')"
+                      th:text="${component.active} ? 'Aktif' : 'Nonaktif'">Aktif</span>
+            </div>
+        </div>
+
+        <!-- Basic Info Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Dasar</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Kode</p>
+                    <p class="font-medium font-mono" th:text="${component.code}">GAPOK</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Nama</p>
+                    <p class="font-medium" th:text="${component.name}">Gaji Pokok</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Tipe Komponen</p>
+                    <p class="font-medium" th:text="${component.componentType.displayName + ' - ' + component.componentType.description}">Pendapatan - Komponen yang menambah gaji</p>
+                </div>
+                <div th:if="${component.description}">
+                    <p class="text-gray-500">Deskripsi</p>
+                    <p class="font-medium" th:text="${component.description}">Deskripsi komponen</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Value Settings Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Nilai</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Jenis Nilai</p>
+                    <p class="font-medium" data-testid="value-type" th:text="${component.isPercentage} ? 'Persentase' : 'Nominal Tetap'">Nominal Tetap</p>
+                </div>
+                <div th:if="${component.isPercentage}">
+                    <p class="text-gray-500">Persentase Default</p>
+                    <p class="font-medium" data-testid="default-rate" th:text="${component.defaultRate != null ? #numbers.formatDecimal(component.defaultRate, 0, 'COMMA', 2, 'POINT') + '%' : '-'}">4.00%</p>
+                </div>
+                <div th:unless="${component.isPercentage}">
+                    <p class="text-gray-500">Nilai Default</p>
+                    <p class="font-medium" data-testid="default-amount" th:text="${component.defaultAmount != null ? 'Rp ' + #numbers.formatDecimal(component.defaultAmount, 0, 'COMMA', 0, 'POINT') : '-'}">Rp 5.000.000</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Urutan Tampil</p>
+                    <p class="font-medium" th:text="${component.displayOrder}">10</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax & BPJS Settings Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Pajak & BPJS</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Diperhitungkan Pajak</p>
+                    <p class="font-medium" data-testid="is-taxable">
+                        <span th:if="${component.isTaxable}" class="text-green-600">Ya (PPh 21)</span>
+                        <span th:unless="${component.isTaxable}" class="text-gray-500">Tidak</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Kategori BPJS</p>
+                    <p class="font-medium" data-testid="bpjs-category" th:text="${component.bpjsCategory} ?: '-'">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Component Warning -->
+        <div th:if="${component.isSystem}" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span class="text-sm text-yellow-700">Ini adalah komponen sistem yang tidak dapat diubah atau dinonaktifkan.</span>
+            </div>
+        </div>
+
+        <!-- Audit Info -->
+        <div class="text-xs text-gray-400">
+            Dibuat: <span th:text="${#temporals.format(component.createdAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</span> |
+            Diperbarui: <span th:text="${#temporals.format(component.updatedAt, 'dd MMM yyyy HH:mm')}">01 Jan 2025 10:00</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <a th:href="@{/salary-components}" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                &larr; Kembali ke Daftar
+            </a>
+            <div class="flex items-center gap-2">
+                <a th:unless="${component.isSystem}"
+                   th:href="@{/salary-components/{id}/edit(id=${component.id})}"
+                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Edit
+                </a>
+                <form th:if="${component.active && !component.isSystem}"
+                      th:action="@{/salary-components/{id}/deactivate(id=${component.id})}"
+                      method="post" class="inline"
+                      onsubmit="return confirm('Nonaktifkan komponen ini?')">
+                    <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                        Nonaktifkan
+                    </button>
+                </form>
+                <form th:if="${!component.active && !component.isSystem}"
+                      th:action="@{/salary-components/{id}/activate(id=${component.id})}"
+                      method="post" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                        Aktifkan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

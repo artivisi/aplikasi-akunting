@@ -227,3 +227,41 @@ INSERT INTO tax_deadlines (id, name, deadline_type, due_day, use_last_day_of_mon
 ('f0000000-0000-0000-0000-000000000006', 'Lapor SPT PPh 21', 'SPT_PPH_21', 20, FALSE, 'Pelaporan SPT Masa PPh 21. Jatuh tempo tanggal 20 bulan berikutnya.', 7, TRUE),
 ('f0000000-0000-0000-0000-000000000007', 'Lapor SPT PPh 23', 'SPT_PPH_23', 20, FALSE, 'Pelaporan SPT Masa PPh 23 (e-Bupot Unifikasi). Jatuh tempo tanggal 20 bulan berikutnya.', 7, TRUE),
 ('f0000000-0000-0000-0000-000000000008', 'Lapor SPT PPN', 'SPT_PPN', 31, TRUE, 'Pelaporan SPT Masa PPN (e-Faktur). Jatuh tempo akhir bulan berikutnya.', 7, TRUE);
+
+-- ============================================
+-- Salary Components - Indonesian Payroll
+-- ============================================
+-- BPJS rates based on 2024 regulations:
+-- - BPJS Kesehatan: 5% (4% company, 1% employee) of salary
+-- - BPJS JHT: 5.7% (3.7% company, 2% employee) of salary
+-- - BPJS JKK: 0.24% - 1.74% (company only) based on risk level
+-- - BPJS JKM: 0.3% (company only) of salary
+-- - BPJS JP: 3% (2% company, 1% employee) of salary, max ceiling 10.042.300
+
+-- EARNINGS (Pendapatan)
+INSERT INTO salary_components (id, code, name, description, component_type, is_percentage, default_rate, default_amount, is_system, display_order, is_taxable, bpjs_category, active) VALUES
+('c0000000-0000-0000-0000-000000000001', 'GAPOK', 'Gaji Pokok', 'Gaji pokok bulanan karyawan', 'EARNING', FALSE, NULL, NULL, TRUE, 10, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000002', 'TJ-TRANS', 'Tunjangan Transportasi', 'Tunjangan transportasi bulanan', 'EARNING', FALSE, NULL, 500000, FALSE, 20, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000003', 'TJ-MAKAN', 'Tunjangan Makan', 'Tunjangan makan bulanan', 'EARNING', FALSE, NULL, 500000, FALSE, 30, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000004', 'TJ-POSISI', 'Tunjangan Jabatan', 'Tunjangan berdasarkan posisi/jabatan', 'EARNING', FALSE, NULL, NULL, FALSE, 40, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000005', 'LEMBUR', 'Uang Lembur', 'Pembayaran lembur sesuai perhitungan', 'EARNING', FALSE, NULL, NULL, FALSE, 50, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000006', 'BONUS', 'Bonus', 'Bonus kinerja atau prestasi', 'EARNING', FALSE, NULL, NULL, FALSE, 60, TRUE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000007', 'THR', 'Tunjangan Hari Raya', 'THR sesuai ketentuan pemerintah', 'EARNING', FALSE, NULL, NULL, FALSE, 70, TRUE, NULL, TRUE);
+
+-- COMPANY CONTRIBUTIONS (Kontribusi Perusahaan)
+-- default_rate stores percentage as entered (e.g., 4.0 for 4%), calculation divides by 100 in Java
+INSERT INTO salary_components (id, code, name, description, component_type, is_percentage, default_rate, default_amount, is_system, display_order, is_taxable, bpjs_category, active) VALUES
+('c0000000-0000-0000-0000-000000000011', 'BPJS-KES-P', 'BPJS Kesehatan (Perusahaan)', 'Iuran BPJS Kesehatan ditanggung perusahaan (4%)', 'COMPANY_CONTRIBUTION', TRUE, 4.0, NULL, TRUE, 110, FALSE, 'KESEHATAN', TRUE),
+('c0000000-0000-0000-0000-000000000012', 'BPJS-JHT-P', 'BPJS JHT (Perusahaan)', 'Iuran BPJS Jaminan Hari Tua ditanggung perusahaan (3.7%)', 'COMPANY_CONTRIBUTION', TRUE, 3.7, NULL, TRUE, 120, FALSE, 'JHT', TRUE),
+('c0000000-0000-0000-0000-000000000013', 'BPJS-JKK', 'BPJS JKK', 'Iuran BPJS Jaminan Kecelakaan Kerja (0.24% - risk level I)', 'COMPANY_CONTRIBUTION', TRUE, 0.24, NULL, TRUE, 130, FALSE, 'JKK', TRUE),
+('c0000000-0000-0000-0000-000000000014', 'BPJS-JKM', 'BPJS JKM', 'Iuran BPJS Jaminan Kematian (0.3%)', 'COMPANY_CONTRIBUTION', TRUE, 0.3, NULL, TRUE, 140, FALSE, 'JKM', TRUE),
+('c0000000-0000-0000-0000-000000000015', 'BPJS-JP-P', 'BPJS JP (Perusahaan)', 'Iuran BPJS Jaminan Pensiun ditanggung perusahaan (2%)', 'COMPANY_CONTRIBUTION', TRUE, 2.0, NULL, TRUE, 150, FALSE, 'JP', TRUE);
+
+-- DEDUCTIONS (Potongan)
+-- default_rate stores percentage as entered (e.g., 1.0 for 1%), calculation divides by 100 in Java
+INSERT INTO salary_components (id, code, name, description, component_type, is_percentage, default_rate, default_amount, is_system, display_order, is_taxable, bpjs_category, active) VALUES
+('c0000000-0000-0000-0000-000000000021', 'BPJS-KES-K', 'BPJS Kesehatan (Karyawan)', 'Iuran BPJS Kesehatan ditanggung karyawan (1%)', 'DEDUCTION', TRUE, 1.0, NULL, TRUE, 210, FALSE, 'KESEHATAN', TRUE),
+('c0000000-0000-0000-0000-000000000022', 'BPJS-JHT-K', 'BPJS JHT (Karyawan)', 'Iuran BPJS Jaminan Hari Tua ditanggung karyawan (2%)', 'DEDUCTION', TRUE, 2.0, NULL, TRUE, 220, FALSE, 'JHT', TRUE),
+('c0000000-0000-0000-0000-000000000023', 'BPJS-JP-K', 'BPJS JP (Karyawan)', 'Iuran BPJS Jaminan Pensiun ditanggung karyawan (1%)', 'DEDUCTION', TRUE, 1.0, NULL, TRUE, 230, FALSE, 'JP', TRUE),
+('c0000000-0000-0000-0000-000000000024', 'PPH21', 'PPh Pasal 21', 'Pajak Penghasilan Pasal 21', 'DEDUCTION', FALSE, NULL, NULL, TRUE, 240, FALSE, NULL, TRUE),
+('c0000000-0000-0000-0000-000000000025', 'POT-LAIN', 'Potongan Lain-lain', 'Potongan lainnya (pinjaman, dll)', 'DEDUCTION', FALSE, NULL, NULL, FALSE, 250, FALSE, NULL, TRUE);
