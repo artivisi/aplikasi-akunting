@@ -32,7 +32,9 @@ jobs:
           cache: maven
 
       - name: Run OWASP Dependency-Check
-        run: ./mvnw dependency-check:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -DfailBuildOnCVSS=7 -DsuppressionFile=dependency-check-suppressions.xml
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: ./mvnw dependency-check:check -DfailBuildOnCVSS=7 -DsuppressionFile=dependency-check-suppressions.xml
         continue-on-error: true
 
       - name: Upload Dependency-Check report
