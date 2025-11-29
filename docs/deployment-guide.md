@@ -213,9 +213,11 @@ cp inventory.ini.example inventory.ini
 ansible-playbook -i inventory.ini site.yml
 
 # 6. Configure Google Drive OAuth (ONLY if using Google Drive backup)
-ssh root@YOUR_SERVER
-sudo -u accounting rclone authorize "drive"
-# Follow browser authentication flow and paste token back into group_vars/all.yml
+# On your LOCAL machine (not the server):
+rclone authorize "drive"
+# Copy the token JSON and add to group_vars/all.yml:
+# backup_gdrive_token: '{"access_token":"...","refresh_token":"...","expiry":"..."}'
+# Then re-run: ansible-playbook -i inventory.ini site.yml
 
 # 7. Build and deploy application (includes automated verification)
 ./mvnw clean package -DskipTests
@@ -309,21 +311,80 @@ The `deploy.yml` playbook automatically:
 
 ### 6. Configure Google Drive OAuth (Only if using Google Drive backup)
 
-**Important**: OAuth setup must happen after `site.yml` but before `deploy.yml` if using Google Drive backup.
+**Important**: OAuth setup is required if `backup_gdrive_enabled: true` in `group_vars/all.yml`. Complete this after `site.yml` but before `deploy.yml`.
+
+**Problem**: The server is headless (no GUI/browser), so OAuth authorization must be done from your local machine.
+
+#### Option 1: Authorize on Local Machine (Recommended)
+
+This is the easiest method - authorize on your local machine and paste the token into Ansible configuration:
 
 ```bash
-# This step is ONLY needed if backup_gdrive_enabled: true in group_vars/all.yml
+# On your LOCAL machine (laptop/desktop with browser)
+# Install rclone if not already installed
+# macOS: brew install rclone
+# Linux: apt install rclone
+# Windows: Download from rclone.org
+
+# Run authorization
+rclone authorize "drive"
+
+# This will:
+# 1. Open your browser automatically
+# 2. Ask you to log in to Google
+# 3. Grant rclone access to Google Drive
+# 4. Display a token JSON in the terminal
+
+# Example output:
+# Paste the following into your remote machine --->
+# {"access_token":"ya29.a0AfB_xxx","token_type":"Bearer","refresh_token":"1//0gxxx","expiry":"2025-11-29T21:40:48Z"}
+# <---End paste
+```
+
+Copy the entire token JSON (including the curly braces), then add it to your Ansible configuration:
+
+```yaml
+# deploy/ansible/group_vars/all.yml
+backup_gdrive_enabled: true
+backup_gdrive_token: '{"access_token":"ya29.a0AfB_xxx","token_type":"Bearer","refresh_token":"1//0gxxx","expiry":"2025-11-29T21:40:48Z"}'
+backup_gdrive_folder: "accounting-backup"
+backup_gdrive_retention_months: 12
+```
+
+**Important**: Keep the single quotes around the token JSON!
+
+Then re-run the deployment to configure Google Drive backup:
+
+```bash
+ansible-playbook -i inventory.ini site.yml
+```
+
+The token includes a refresh token, so it will automatically renew when it expires. No manual intervention needed.
+
+#### Option 2: SSH Port Forwarding (Advanced)
+
+If you prefer to authorize directly from the server:
+
+```bash
+# On your LOCAL machine, create SSH tunnel
+ssh -L 53682:127.0.0.1:53682 root@akunting.artivisi.id
+
+# Keep this terminal open, then open ANOTHER terminal and SSH to server:
 ssh root@akunting.artivisi.id
 
-# Run OAuth authorization (rclone and infrastructure already set up by site.yml)
-sudo -u accounting rclone authorize "drive"
+# On server, run authorization
+sudo -u accounting bash -c '
+  export RCLONE_CONFIG=/opt/accounting-finance/.config/rclone/rclone.conf
+  rclone authorize "drive"
+'
 
-# Follow browser authentication flow:
-# 1. rclone will provide a URL
-# 2. Open URL in browser and authorize Google Drive access
-# 3. Copy the token back to the terminal
-# 4. Edit group_vars/all.yml and add:
-# backup_gdrive_token: '{"access_token":"...","refresh_token":"...","expiry":"..."}'
+# The command will display a URL like:
+# http://127.0.0.1:53682/auth?state=xxx
+
+# On your LOCAL machine, open this URL in your browser
+# Complete the OAuth flow
+# The token will appear in the server terminal
+# Copy it and add to group_vars/all.yml as shown above
 ```
 
 ### 7. Deploy and Verify Complete System
