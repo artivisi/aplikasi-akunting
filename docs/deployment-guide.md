@@ -200,14 +200,14 @@ cp inventory.ini.example inventory.ini
 # 5. Run Ansible for server setup
 ansible-playbook -i inventory.ini site.yml
 
-# 6. Build and deploy application
+# 6. Configure Google Drive OAuth (ONLY if using Google Drive backup)
+ssh root@YOUR_SERVER
+sudo -u accounting rclone authorize "drive"
+# Follow browser authentication flow and paste token back into group_vars/all.yml
+
+# 7. Build and deploy application (includes automated verification)
 ./mvnw clean package -DskipTests
 ansible-playbook -i inventory.ini deploy.yml
-
-# 7. Configure rclone for remote backups (on server)
-ssh root@YOUR_SERVER
-sudo -u accounting rclone config
-# Follow prompts for B2 and/or Google Drive setup
 ```
 
 ## Deployment Steps (Detailed)
@@ -295,43 +295,51 @@ The `deploy.yml` playbook automatically:
 - Creates/configures admin user with secure credentials
 - Performs health check (HTTP 200 on /login)
 
-### 6. Configure rclone (for B2/Google Drive backup)
+### 6. Configure Google Drive OAuth (Only if using Google Drive backup)
 
-SSH into the server:
+**Important**: OAuth setup must happen after `site.yml` but before `deploy.yml` if using Google Drive backup.
+
 ```bash
+# This step is ONLY needed if backup_gdrive_enabled: true in group_vars/all.yml
 ssh root@akunting.artivisi.id
+
+# Run OAuth authorization (rclone and infrastructure already set up by site.yml)
+sudo -u accounting rclone authorize "drive"
+
+# Follow browser authentication flow:
+# 1. rclone will provide a URL
+# 2. Open URL in browser and authorize Google Drive access
+# 3. Copy the token back to the terminal
+# 4. Edit group_vars/all.yml and add:
+# backup_gdrive_token: '{"access_token":"...","refresh_token":"...","expiry":"..."}'
 ```
 
-Configure rclone as the app user:
+### 7. Deploy and Verify Complete System
+
+Run the complete deployment with automated verification:
+
 ```bash
-sudo -u accounting rclone config
+# Deploy application (includes comprehensive verification)
+./mvnw clean package -DskipTests
+ansible-playbook -i inventory.ini deploy.yml
 ```
 
-**For Backblaze B2:**
-```
-n) New remote
-name> b2
-Storage> b2
-account> YOUR_B2_ACCOUNT_ID
-key> YOUR_B2_APPLICATION_KEY
-```
+**What gets verified automatically:**
+- ✅ **Local backup**: Test backup runs successfully
+- ✅ **B2 upload**: Encrypted backup uploaded to Backblaze (if enabled)
+- ✅ **Google Drive**: Encrypted archive uploaded to Google Drive (if OAuth configured)
+- ✅ **Telegram bot**: Bot token validation and test message (if enabled)
+- ✅ **Google Cloud Vision**: OCR credentials validation (if enabled)
+- ✅ **Encryption keys**: Backup encryption key generated and secured
 
-**For Google Drive:**
-```
-n) New remote
-name> gdrive
-Storage> drive
-scope> drive.file
-# Follow OAuth flow (requires browser)
-```
+**Deployment Order Summary:**
+1. **`site.yml`** → Sets up infrastructure including rclone and backup scripts
+2. **OAuth setup** → Only if using Google Drive (manual one-time step)
+3. **`deploy.yml`** → Deploys app and runs verification tests
 
-Test the connections:
-```bash
-sudo -u accounting rclone ls b2:YOUR_BUCKET_NAME
-sudo -u accounting rclone ls gdrive:
-```
+**Backblaze B2 requires no manual setup** - just configure credentials in `group_vars/all.yml`.
 
-### 7. Import Initial Data
+### 8. Import Initial Data
 
 Import COA and journal templates:
 ```bash
@@ -347,125 +355,58 @@ curl -X POST https://akunting.artivisi.id/api/import/templates \
 
 Or import via the web UI: **Pengaturan > Import Data**
 
-## Post-Deployment Verification Checklist
+## Post-Deployment Verification (Automatic)
 
-Run these commands on the server to verify deployment:
+**Ansible provides automated verification** during deployment. No manual verification needed - the playbook displays comprehensive status reports:
 
-```bash
-# SSH into server
-ssh root@akunting.artivisi.id
+### Automated Verification Report
+
+When `deploy.yml` completes, you'll see:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ BACKUP VERIFICATION COMPLETE                                     │
+├──────────────────────────────────────────────────────────────────┤
+│ Local backup:    ✓ accounting-finance_20251129_020000.tar.gz  │
+│ B2 upload:       ✓ Verified                                     │
+│ Google Drive:    ✓ Verified                                     │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### Application
+And if enabled:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ TELEGRAM VERIFICATION                                            │
+├──────────────────────────────────────────────────────────────────┤
+│ Bot token:       ✓ Valid (@YourBotUsername)                    │
+│ Test message:    ✓ Sent to chat 123456789                      │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Optional Manual Verification (for debugging)
+
+If you need to verify manually after deployment:
 
 ```bash
+# Quick application health check
+curl -f https://akunting.artivisi.id/login
+
 # Check service status
-systemctl status accounting-finance
-# Expected: active (running)
+ssh root@akunting.artivisi.id "systemctl status accounting-finance"
 
-# Check application is listening
-curl -s -o /dev/null -w "%{http_code}" http://localhost:10000/login
-# Expected: 200
-
-# Check logs for errors
-tail -20 /var/log/accounting-finance/app.log
-# Expected: no ERROR lines
-```
-
-### Database
-
-```bash
-# Check PostgreSQL status
-systemctl status postgresql
-# Expected: active (running)
-
-# Test database connection
-sudo -u postgres psql -d accountingdb -c "SELECT count(*) FROM users;"
-# Expected: count = 1 (admin user)
-```
-
-### Nginx & SSL
-
-```bash
-# Check Nginx status
-systemctl status nginx
-# Expected: active (running)
-
-# Check SSL certificate
-echo | openssl s_client -servername akunting.artivisi.id \
-  -connect akunting.artivisi.id:443 2>/dev/null | \
-  openssl x509 -noout -dates
-# Expected: notAfter date > 30 days from now
-
-# Check HTTPS access
-curl -s -o /dev/null -w "%{http_code}" https://akunting.artivisi.id/login
-# Expected: 200
-```
-
-### Backup
-
-```bash
-# Check backup config exists
-cat /opt/accounting-finance/backup.conf
-# Expected: shows configuration
-
-# Check encryption key exists
-ls -la /opt/accounting-finance/.backup-key
-# Expected: file exists, permissions 600
-
-# Run manual backup test
-sudo -u accounting /opt/accounting-finance/scripts/backup.sh
-# Expected: completes without error
-
-# Check backup was created
-ls -la /opt/accounting-finance/backup/
-# Expected: .tar.gz file exists
-
-# Check backup log
-tail -10 /var/log/accounting-finance/backup.log
-# Expected: "Backup completed" message
-```
-
-### Remote Backup (if enabled)
-
-```bash
-# Test B2 connection
-sudo -u accounting rclone ls b2:YOUR_BUCKET/
-# Expected: lists files (or empty if first run)
-
-# Test Google Drive connection
-sudo -u accounting rclone ls gdrive:accounting-backup/
-# Expected: lists files (or empty if first run)
-
-# Run manual B2 upload test
-sudo -u accounting /opt/accounting-finance/scripts/backup-b2.sh
-# Expected: completes without error
-
-# Run manual Google Drive upload test
-sudo -u accounting /opt/accounting-finance/scripts/backup-gdrive.sh
-# Expected: completes without error
-```
-
-### Cron Jobs
-
-```bash
-# Check cron jobs are scheduled
-crontab -u accounting -l
-# Expected: shows backup schedules (02:00, 03:00, 04:00)
+# Check recent backups
+ssh root@akunting.artivisi.id "ls -la /opt/accounting-finance/backup/"
 ```
 
 ### Final Verification Checklist
 
-| Check | Command | Expected |
-|-------|---------|----------|
-| App running | `systemctl status accounting-finance` | active (running) |
-| Login page | `curl https://YOUR_DOMAIN/login` | HTTP 200 |
-| Admin login | Browser: login with admin credentials | Dashboard loads |
-| SSL valid | Check browser padlock | No warnings |
-| Backup key saved | Check password manager | Key stored |
-| Local backup | `ls /opt/.../backup/*.tar.gz` | File exists |
-| B2 upload | `rclone ls b2:bucket/` | File exists |
-| GDrive upload | `rclone ls gdrive:folder/` | File exists |
+| Check | Method | Expected |
+|-------|--------|----------|
+| App running | Browser: `https://YOUR_DOMAIN/login` | Login page loads |
+| Admin login | Login with configured credentials | Dashboard appears |
+| SSL valid | Browser padlock icon | No warnings |
+| Backup automation | Check deployment output | ✅ All verification checks pass |
 
 ## Directory Structure
 
