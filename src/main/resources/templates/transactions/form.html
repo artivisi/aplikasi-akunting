@@ -154,7 +154,7 @@
                                     <input type="text" id="amount" name="amountDisplay"
                                            x-model="amount"
                                            :value="formatCurrency(amount)"
-                                           @input="amount = parseCurrency($event.target.value)"
+                                           @input="amount = parseCurrency($event.target.value); $dispatch('amount-changed')"
                                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-right font-mono"
                                            placeholder="0"
                                            required>
@@ -258,60 +258,27 @@
                                 <div class="col-span-3 text-right">Kredit</div>
                             </div>
 
-                            <!-- Journal Lines from Template -->
-                            <div class="divide-y divide-gray-100" th:if="${selectedTemplate != null and selectedTemplate.lines != null}">
-                                <div th:each="line : ${selectedTemplate.lines}" class="grid grid-cols-12 gap-4 px-4 py-3 items-center">
-                                    <div class="col-span-1 text-sm text-gray-600 font-mono" th:text="${line.account?.accountCode}">1.1.01</div>
-                                    <div class="col-span-5 text-sm text-gray-800" th:text="${line.account?.accountName}">Account Name</div>
-                                    <div class="col-span-3 text-right text-sm font-mono"
-                                         th:classappend="${line.position.name() == 'DEBIT'} ? 'text-gray-900' : 'text-gray-400'">
-                                        <span th:if="${line.position.name() == 'DEBIT'}">Rp <span x-text="formatCurrency(amount)">0</span></span>
-                                        <span th:unless="${line.position.name() == 'DEBIT'}">-</span>
-                                    </div>
-                                    <div class="col-span-3 text-right text-sm font-mono"
-                                         th:classappend="${line.position.name() == 'CREDIT'} ? 'text-gray-900' : 'text-gray-400'">
-                                        <span th:if="${line.position.name() == 'CREDIT'}">Rp <span x-text="formatCurrency(amount)">0</span></span>
-                                        <span th:unless="${line.position.name() == 'CREDIT'}">-</span>
-                                    </div>
+                            <!-- Journal Lines from Template - Dynamic Preview -->
+                            <div id="preview-content" 
+                                 th:if="${selectedTemplate != null}"
+                                 hx-get="/transactions/preview"
+                                 th:hx-vals="${'{&quot;templateId&quot;: &quot;' + selectedTemplate.id + '&quot;}'}"
+                                 hx-trigger="load, amount-changed from:body"
+                                 hx-include="[name='amount']">
+                                <div class="p-8 text-center text-gray-500">
+                                    <div class="animate-pulse">Memuat preview...</div>
                                 </div>
                             </div>
 
                             <!-- Journal Lines for Edit Mode -->
-                            <div class="divide-y divide-gray-100" th:if="${isEdit and transaction != null and transaction.journalTemplate != null and transaction.journalTemplate.lines != null}">
-                                <div th:each="line : ${transaction.journalTemplate.lines}" class="grid grid-cols-12 gap-4 px-4 py-3 items-center">
-                                    <div class="col-span-1 text-sm text-gray-600 font-mono" th:text="${line.account?.accountCode}">1.1.01</div>
-                                    <div class="col-span-5 text-sm text-gray-800" th:text="${line.account?.accountName}">Account Name</div>
-                                    <div class="col-span-3 text-right text-sm font-mono"
-                                         th:classappend="${line.position.name() == 'DEBIT'} ? 'text-gray-900' : 'text-gray-400'">
-                                        <span th:if="${line.position.name() == 'DEBIT'}">Rp <span x-text="formatCurrency(amount)">0</span></span>
-                                        <span th:unless="${line.position.name() == 'DEBIT'}">-</span>
-                                    </div>
-                                    <div class="col-span-3 text-right text-sm font-mono"
-                                         th:classappend="${line.position.name() == 'CREDIT'} ? 'text-gray-900' : 'text-gray-400'">
-                                        <span th:if="${line.position.name() == 'CREDIT'}">Rp <span x-text="formatCurrency(amount)">0</span></span>
-                                        <span th:unless="${line.position.name() == 'CREDIT'}">-</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Journal Totals -->
-                            <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-t border-gray-200">
-                                <div class="col-span-6 text-sm font-semibold text-gray-700">Total</div>
-                                <div class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
-                                    Rp <span x-text="formatCurrency(amount)">0</span>
-                                </div>
-                                <div class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
-                                    Rp <span x-text="formatCurrency(amount)">0</span>
-                                </div>
-                            </div>
-
-                            <!-- Balance Check -->
-                            <div class="px-4 py-2 bg-accent-50 border-t border-accent-200">
-                                <div class="flex items-center text-xs text-accent-700">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Jurnal Balance (Debit = Kredit)
+                            <div id="preview-content" 
+                                 th:if="${isEdit and transaction != null and transaction.journalTemplate != null}"
+                                 hx-get="/transactions/preview"
+                                 th:hx-vals="${'{&quot;templateId&quot;: &quot;' + transaction.journalTemplate.id + '&quot;}'}"
+                                 hx-trigger="load, amount-changed from:body"
+                                 hx-include="[name='amount']">
+                                <div class="p-8 text-center text-gray-500">
+                                    <div class="animate-pulse">Memuat preview...</div>
                                 </div>
                             </div>
                         </div>

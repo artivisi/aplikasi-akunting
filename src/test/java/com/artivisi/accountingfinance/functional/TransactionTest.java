@@ -411,4 +411,91 @@ class TransactionTest extends PlaywrightTestBase {
             transactionListPage.assertPageLoaded();
         }
     }
+
+    @Nested
+    @DisplayName("1.5.12 Formula Preview Calculation")
+    class FormulaPreviewTests {
+
+        /**
+         * Test template "Penjualan Jasa dengan PPN" from V903__formula_test_templates.sql
+         * Formulas:
+         * - Bank (Debit): amount (full amount)
+         * - Pendapatan (Credit): amount / 1.11 (DPP)
+         * - PPN Keluaran (Credit): amount - (amount / 1.11) (PPN 11%)
+         */
+        private static final String TEST_TEMPLATE_ID = "f0000000-0000-0000-0000-000000000011";
+
+        @Test
+        @DisplayName("Should show correct calculated amounts in preview for complex formulas")
+        void shouldShowCorrectCalculatedAmountsInPreview() {
+            // Use test template with PPN formulas from V903__formula_test_templates.sql
+            transactionFormPage.navigate(TEST_TEMPLATE_ID);
+            
+            // Input amount: 11,100,000 (includes PPN 11%)
+            transactionFormPage.fillAmount("11100000");
+            
+            // Wait for preview to load via HTMX
+            page.waitForTimeout(1000);
+            
+            // Verify preview shows calculated amounts, not just the input amount
+            // Expected calculations for 11,100,000:
+            // - Bank (Debit) = 11,100,000 (full amount)
+            // - Pendapatan (Credit) = 11,100,000 / 1.11 = 10,000,000 (DPP)
+            // - PPN Keluaran (Credit) = 11,100,000 - 10,000,000 = 1,100,000 (PPN 11%)
+            
+            // Get all debit and credit amounts from preview
+            var previewLines = page.locator("#preview-content .grid.grid-cols-12").all();
+            assertThat(previewLines).hasSizeGreaterThanOrEqualTo(3);
+            
+            // Verify that amounts are different (not all showing 11,100,000)
+            String firstDebitAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(1) .col-span-3:nth-child(3)").innerText();
+            String firstCreditAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(2) .col-span-3:nth-child(4)").innerText();
+            String secondCreditAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(3) .col-span-3:nth-child(4)").innerText();
+            
+            // First line (Bank Debit) should show 11,100,000 (full amount)
+            assertThat(firstDebitAmount).contains("11.100.000");
+            
+            // Second line (Pendapatan Credit) should show 10,000,000 (DPP - not the same as input)
+            assertThat(firstCreditAmount).contains("10.000.000");
+            assertThat(firstCreditAmount).doesNotContain("11.100.000");
+            
+            // Third line (PPN Keluaran Credit) should show 1,100,000 (PPN - not the same as input)
+            assertThat(secondCreditAmount).contains("1.100.000");
+            assertThat(secondCreditAmount).doesNotContain("11.100.000");
+        }
+
+        @Test
+        @DisplayName("Should update preview when amount changes")
+        void shouldUpdatePreviewWhenAmountChanges() {
+            transactionFormPage.navigate(TEST_TEMPLATE_ID);
+            
+            // Input first amount: 5,550,000
+            transactionFormPage.fillAmount("5550000");
+            page.waitForTimeout(1000);
+            
+            // Get first calculated values
+            String firstBankAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(1) .col-span-3:nth-child(3)").innerText();
+            String firstRevenueAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(2) .col-span-3:nth-child(4)").innerText();
+            
+            // Should show calculated amounts for 5.55M
+            assertThat(firstBankAmount).contains("5.550.000");
+            assertThat(firstRevenueAmount).contains("5.000.000"); // 5.55M / 1.11
+            
+            // Change amount to 22,200,000
+            transactionFormPage.fillAmount("22200000");
+            page.waitForTimeout(1000);
+            
+            // Get second calculated values
+            String secondBankAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(1) .col-span-3:nth-child(3)").innerText();
+            String secondRevenueAmount = page.locator("#preview-content .grid.grid-cols-12:nth-child(2) .col-span-3:nth-child(4)").innerText();
+            
+            // Should show new calculated amounts for 22.2M
+            assertThat(secondBankAmount).contains("22.200.000");
+            assertThat(secondRevenueAmount).contains("20.000.000"); // 22.2M / 1.11
+            
+            // Values should be different (preview updated)
+            assertThat(firstBankAmount).isNotEqualTo(secondBankAmount);
+            assertThat(firstRevenueAmount).isNotEqualTo(secondRevenueAmount);
+        }
+    }
 }

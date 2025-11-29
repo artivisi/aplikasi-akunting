@@ -13,10 +13,13 @@ import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.InvoiceService;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
 import com.artivisi.accountingfinance.service.ProjectService;
+import com.artivisi.accountingfinance.service.TemplateExecutionEngine;
 import com.artivisi.accountingfinance.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+
+import java.math.BigDecimal;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +54,7 @@ public class TransactionController {
     private final ChartOfAccountService chartOfAccountService;
     private final ProjectService projectService;
     private final InvoiceService invoiceService;
+    private final TemplateExecutionEngine templateExecutionEngine;
 
     @GetMapping
     public String list(
@@ -229,6 +233,28 @@ public class TransactionController {
     @ResponseBody
     public ResponseEntity<Transaction> apiGet(@PathVariable UUID id) {
         return ResponseEntity.ok(transactionService.findByIdWithJournalEntries(id));
+    }
+
+    @GetMapping("/preview")
+    public String preview(
+            @RequestParam UUID templateId,
+            @RequestParam BigDecimal amount,
+            Model model) {
+        JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
+        
+        var context = new TemplateExecutionEngine.ExecutionContext(
+                java.time.LocalDate.now(),
+                amount,
+                "Preview"
+        );
+        
+        var previewResult = templateExecutionEngine.preview(template, context);
+        
+        model.addAttribute("entries", previewResult.entries());
+        model.addAttribute("totalDebit", previewResult.totalDebit());
+        model.addAttribute("totalCredit", previewResult.totalCredit());
+        
+        return "fragments/transaction-preview";
     }
 
     @PostMapping("/api")
