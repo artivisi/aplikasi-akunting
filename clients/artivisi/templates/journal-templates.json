@@ -210,26 +210,6 @@
       ]
     },
     {
-      "name": "Bayar Hutang Gaji",
-      "category": "PAYMENT",
-      "cashFlowCategory": "OPERATING",
-      "description": "Pembayaran hutang gaji yang sudah diakrual",
-      "lines": [
-        {
-          "accountCode": "2.1.10",
-          "position": "DEBIT",
-          "formula": "amount",
-          "description": "Hutang Gaji"
-        },
-        {
-          "accountCode": "1.1.02",
-          "position": "CREDIT",
-          "formula": "amount",
-          "description": "Bank BCA"
-        }
-      ]
-    },
-    {
       "name": "Bayar BPJS",
       "category": "EXPENSE",
       "cashFlowCategory": "OPERATING",
