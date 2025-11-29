@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>org.telegram</groupId>
 			<artifactId>telegrambots-client</artifactId>
-			<version>8.0.0</version>
+			<version>9.2.0</version>
 		</dependency>
 
 		<dependency>
@@ -259,9 +259,12 @@
 						<format>JSON</format>
 					</formats>
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+					<suppressionFile>dependency-check-suppressions.xml</suppressionFile>
 				</configuration>
 			</plugin>
-			<!-- SpotBugs with FindSecBugs for static security analysis -->
+			<!-- SpotBugs with FindSecBugs for static security analysis
+			     NOTE: Disabled until Java 25 support available (BCEL 6.11+)
+			     Track: https://github.com/spotbugs/spotbugs/issues/3564 -->
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>

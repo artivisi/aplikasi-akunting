@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+    False positive: CVE-2019-10044 affects Telegram Desktop/mobile apps
+    (IDN homograph attack in URL display), not the Java TelegramBots library.
+    The CPE telegram:telegram incorrectly matches the Java bot library.
+    Reference: https://nvd.nist.gov/vuln/detail/CVE-2019-10044
+    -->
+    <suppress>
+        <notes>False positive - CVE affects Telegram Desktop app, not Java bot library</notes>
+        <packageUrl regex="true">^pkg:maven/org\.telegram/telegrambots.*$</packageUrl>
+        <cve>CVE-2019-10044</cve>
+    </suppress>
+</suppressions>
