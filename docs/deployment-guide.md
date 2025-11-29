@@ -64,6 +64,7 @@ Prepare these credentials before starting:
 | **Domain Name** | Registrar (Niagahoster, etc) | akunting.artivisi.id | Point A record to VPS IP |
 | **SSH Key** | `ssh-keygen -t ed25519` | ~/.ssh/id_ed25519.pub | For passwordless SSH |
 | **Database Password** | Generate: `openssl rand -base64 24` | `K7xH2mN9pQ3wR5tY8uI0` | Strong, random |
+| **Admin Username** | Your choice (NOT 'admin') | `johndoe` | Unique, non-guessable |
 | **Admin Password** | Your choice | `MySecureP@ss123` | For web login |
 | **SSL Email** | Your email | admin@artivisi.com | For Let's Encrypt notifications |
 | **B2 Account ID** | Backblaze B2 Console | `0012345678abcdef` | Optional: for remote backup |
@@ -217,8 +218,11 @@ app_domain: akunting.artivisi.id
 # Database (use strong passwords)
 db_password: "<STRONG_PASSWORD>"
 
-# Admin user
+# Admin user (do NOT use 'admin' as username)
+admin_username: "<UNIQUE_USERNAME>"
 admin_password_plain: "<ADMIN_PASSWORD>"
+admin_full_name: "Your Name"
+admin_email: "your@email.com"
 
 # SSL
 ssl_enabled: true

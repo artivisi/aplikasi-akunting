@@ -12,8 +12,12 @@ db_user: accounting
 db_password: "CHANGE_THIS_DB_PASSWORD"
 
 # Admin User Configuration
-# This password will be converted to bcrypt hash during deployment
+# SECURITY: Do NOT use common usernames like 'admin', 'administrator', 'root'
+# Use a unique username to prevent enumeration attacks
+admin_username: "CHANGE_THIS_USERNAME"
 admin_password_plain: "CHANGE_THIS_ADMIN_PASSWORD"
+admin_full_name: "System Administrator"
+admin_email: "admin@example.com"
 
 # Java Configuration
 java_version: "25"

@@ -9,6 +9,16 @@
         msg: "db_password is not set or uses default value"
       when: db_password is not defined or db_password == 'CHANGE_THIS_DB_PASSWORD'
 
+    - name: Validate admin_username is set
+      ansible.builtin.fail:
+        msg: "admin_username is not set or uses default value"
+      when: admin_username is not defined or admin_username == 'CHANGE_THIS_USERNAME'
+
+    - name: Reject common admin usernames (security)
+      ansible.builtin.fail:
+        msg: "admin_username '{{ admin_username }}' is a common username susceptible to enumeration attacks. Use a unique username."
+      when: admin_username | lower in ['admin', 'administrator', 'root', 'superuser', 'sysadmin', 'user', 'test']
+
     - name: Validate admin_password_plain is set
       ansible.builtin.fail:
         msg: "admin_password_plain is not set or uses default value"
@@ -42,7 +52,7 @@
           ╚══════════════════════════════════════════════════════════════════╝
 
           Application URL: https://{{ app_domain }}
-          Admin Login:     admin / {{ admin_password_plain }}
+          Admin Login:     {{ admin_username }} / {{ admin_password_plain }}
 
           ┌──────────────────────────────────────────────────────────────────┐
           │ SERVICES                                                         │

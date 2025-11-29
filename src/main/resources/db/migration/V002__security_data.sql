@@ -1,6 +1,7 @@
 -- V002: Security Data
 -- Insert default admin user with bcrypt-hashed credential
--- IMPORTANT: Change this after first deployment
+-- NOTE: This default admin is DELETED and replaced by Ansible deployment
+--       with configurable credentials to prevent enumeration attacks
 
 INSERT INTO users (id, username, password, full_name, email, active, created_at, updated_at)
 VALUES (
