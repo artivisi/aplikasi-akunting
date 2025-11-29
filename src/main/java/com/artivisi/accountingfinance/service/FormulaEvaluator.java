@@ -3,6 +3,10 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.dto.FormulaContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.PropertyAccessor;
+import org.springframework.expression.TypedValue;
+import org.springframework.expression.AccessException;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.expression.spel.SpelParseException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -13,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Unified formula evaluation service using SpEL.
@@ -62,8 +67,9 @@ public class FormulaEvaluator {
         }
 
         try {
+            // Use custom PropertyAccessor to expose variables map as properties
             SimpleEvaluationContext evalContext = SimpleEvaluationContext
-                    .forReadOnlyDataBinding()
+                    .forPropertyAccessors(new MapPropertyAccessor())
                     .withRootObject(context)
                     .build();
 
@@ -75,6 +81,54 @@ public class FormulaEvaluator {
             throw new IllegalArgumentException("Invalid formula syntax: " + formula + " - " + e.getMessage(), e);
         } catch (SpelEvaluationException e) {
             throw new IllegalArgumentException("Formula evaluation error: " + formula + " - " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Custom PropertyAccessor that allows SpEL to access both FormulaContext fields
+     * and variables from the Map as direct properties.
+     */
+    private static class MapPropertyAccessor implements PropertyAccessor {
+        
+        @Override
+        public Class<?>[] getSpecificTargetClasses() {
+            return new Class<?>[] { FormulaContext.class };
+        }
+        
+        @Override
+        public boolean canRead(EvaluationContext context, Object target, String name) {
+            if (!(target instanceof FormulaContext)) {
+                return false;
+            }
+            FormulaContext formulaContext = (FormulaContext) target;
+            // Can read "amount" or any variable in the map
+            return "amount".equals(name) || formulaContext.variables().containsKey(name);
+        }
+        
+        @Override
+        public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
+            FormulaContext formulaContext = (FormulaContext) target;
+            
+            if ("amount".equals(name)) {
+                return new TypedValue(formulaContext.amount());
+            }
+            
+            BigDecimal value = formulaContext.variables().get(name);
+            if (value != null) {
+                return new TypedValue(value);
+            }
+            
+            throw new AccessException("Property '" + name + "' not found in FormulaContext");
+        }
+        
+        @Override
+        public boolean canWrite(EvaluationContext context, Object target, String name) {
+            return false; // Read-only
+        }
+        
+        @Override
+        public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
+            throw new AccessException("FormulaContext is read-only");
         }
     }
 
@@ -115,6 +169,11 @@ public class FormulaEvaluator {
             return errors;
         }
 
+        // Simple identifiers are assumed to be valid variables (will be provided at runtime)
+        if (isSimpleIdentifier(trimmed)) {
+            return errors;
+        }
+
         // Try to parse the expression
         try {
             parser.parseExpression(trimmed);
@@ -123,26 +182,9 @@ public class FormulaEvaluator {
             return errors;
         }
 
-        // Try to evaluate with sample data
-        try {
-            FormulaContext sampleContext = FormulaContext.of(10_000_000L);
-            SimpleEvaluationContext evalContext = SimpleEvaluationContext
-                    .forReadOnlyDataBinding()
-                    .withRootObject(sampleContext)
-                    .build();
-
-            Expression expression = parser.parseExpression(trimmed);
-            Object result = expression.getValue(evalContext);
-
-            // Check result is numeric
-            if (result == null) {
-                errors.add("Formula returned null result");
-            } else if (!(result instanceof Number)) {
-                errors.add("Formula must return a numeric value, got: " + result.getClass().getSimpleName());
-            }
-        } catch (SpelEvaluationException e) {
-            errors.add("Evaluation error: " + e.getMessage());
-        }
+        // For complex expressions, we cannot validate without knowing all variables at import time.
+        // Instead, we only check for syntax errors above. Runtime evaluation will catch
+        // missing variables when the template is actually used with real data.
 
         return errors;
     }

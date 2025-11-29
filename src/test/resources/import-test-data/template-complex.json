@@ -1,0 +1,137 @@
+{
+  "name": "Complex Template Import Test",
+  "version": "1.0",
+  "description": "Complex journal templates with dynamic variables and formulas",
+  "templates": [
+    {
+      "name": "Test Payroll Template",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template with payroll variables: grossSalary, companyBpjs, netPay, totalBpjs, pph21",
+      "templateType": "SIMPLE",
+      "tags": ["test", "payroll", "complex"],
+      "lines": [
+        {
+          "accountCode": "5.1.01",
+          "position": "DEBIT",
+          "formula": "grossSalary",
+          "description": "Beban gaji karyawan (gross)"
+        },
+        {
+          "accountCode": "5.1.02",
+          "position": "DEBIT",
+          "formula": "companyBpjs * 0.8",
+          "description": "Beban BPJS Kesehatan perusahaan"
+        },
+        {
+          "accountCode": "5.1.03",
+          "position": "DEBIT",
+          "formula": "companyBpjs * 0.2",
+          "description": "Beban BPJS Ketenagakerjaan perusahaan"
+        },
+        {
+          "accountCode": "2.1.07",
+          "position": "CREDIT",
+          "formula": "netPay",
+          "description": "Hutang gaji karyawan (net pay)"
+        },
+        {
+          "accountCode": "2.1.08",
+          "position": "CREDIT",
+          "formula": "totalBpjs",
+          "description": "Hutang BPJS (perusahaan + karyawan)"
+        },
+        {
+          "accountCode": "2.1.20",
+          "position": "CREDIT",
+          "formula": "pph21",
+          "description": "Hutang PPh 21"
+        }
+      ]
+    },
+    {
+      "name": "Test Fee Template",
+      "category": "INCOME",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template with fee variable and percentage calculation",
+      "templateType": "SIMPLE",
+      "tags": ["test", "fee", "complex"],
+      "lines": [
+        {
+          "accountCode": "1.1.02",
+          "position": "DEBIT",
+          "formula": "fee",
+          "description": "Terima fee"
+        },
+        {
+          "accountCode": "2.1.03",
+          "position": "CREDIT",
+          "formula": "fee * 0.11",
+          "description": "PPN Keluaran 11%"
+        },
+        {
+          "accountCode": "4.1.01",
+          "position": "CREDIT",
+          "formula": "fee * 0.89",
+          "description": "Pendapatan jasa (DPP)"
+        }
+      ]
+    },
+    {
+      "name": "Test Conditional Formula",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template with conditional formula for PPh 23",
+      "templateType": "SIMPLE",
+      "tags": ["test", "conditional"],
+      "lines": [
+        {
+          "accountCode": "5.1.05",
+          "position": "DEBIT",
+          "formula": "amount",
+          "description": "Beban jasa profesional"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "amount - (amount > 2000000 ? amount * 0.02 : 0)",
+          "description": "Pembayaran ke vendor"
+        },
+        {
+          "accountCode": "2.1.21",
+          "position": "CREDIT",
+          "formula": "amount > 2000000 ? amount * 0.02 : 0",
+          "description": "PPh 23 (2% jika > 2jt)"
+        }
+      ]
+    },
+    {
+      "name": "Test Multiple Variables",
+      "category": "EXPENSE",
+      "cashFlowCategory": "OPERATING",
+      "description": "Template with multiple custom variables",
+      "templateType": "SIMPLE",
+      "tags": ["test", "variables"],
+      "lines": [
+        {
+          "accountCode": "5.1.01",
+          "position": "DEBIT",
+          "formula": "principal + interest",
+          "description": "Total beban"
+        },
+        {
+          "accountCode": "5.2.01",
+          "position": "DEBIT",
+          "formula": "adminFee",
+          "description": "Biaya admin"
+        },
+        {
+          "accountCode": "1.1.02",
+          "position": "CREDIT",
+          "formula": "principal + interest + adminFee",
+          "description": "Total pembayaran"
+        }
+      ]
+    }
+  ]
+}
