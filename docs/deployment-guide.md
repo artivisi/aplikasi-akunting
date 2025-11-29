@@ -1,6 +1,27 @@
 # Deployment Guide
 
-Complete guide for deploying the accounting application to production.
+Complete guide for deploying the accounting application to production using **Ansible automation**.
+
+## 🚀 Quick Deployment Summary
+
+The Ansible scripts provide **complete automated deployment** covering:
+- ✅ **Server provisioning**: VPS setup, security hardening, dependencies
+- ✅ **Application deployment**: JAR upload, service management, health checks
+- ✅ **Integration setup**: Database, Nginx reverse proxy, SSL certificates
+- ✅ **Automated backup**: Local + cloud backup with 3-2-1 strategy
+- ✅ **Monitoring**: Logs, service status, SSL renewal
+
+## 🎯 Two-Step Deployment Process
+
+1. **Infrastructure Setup** (`site.yml`):
+   - One-time server preparation
+   - Creates all infrastructure components
+
+2. **Application Deploy** (`deploy.yml`):
+   - Deploys JAR file and configures admin user
+   - Used for subsequent application updates
+
+Both steps use Ansible automation - no manual server configuration required.
 
 ## Architecture Overview
 
@@ -176,12 +197,12 @@ cp inventory.ini.example inventory.ini
 # Edit group_vars/all.yml with your passwords and domain
 # Edit inventory.ini with your server IP
 
-# 5. Run Ansible
+# 5. Run Ansible for server setup
 ansible-playbook -i inventory.ini site.yml
 
-# 6. Upload application JAR
-scp target/accounting-finance-*.jar root@YOUR_SERVER:/opt/accounting-finance/app.jar
-ssh root@YOUR_SERVER "systemctl restart accounting-finance"
+# 6. Build and deploy application
+./mvnw clean package -DskipTests
+ansible-playbook -i inventory.ini deploy.yml
 
 # 7. Configure rclone for remote backups (on server)
 ssh root@YOUR_SERVER
@@ -246,7 +267,7 @@ Edit `inventory.ini`:
 akunting.artivisi.id ansible_user=root
 ```
 
-### 4. Run Ansible Playbook
+### 4. Run Ansible Server Setup
 
 ```bash
 ansible-playbook -i inventory.ini site.yml
@@ -256,17 +277,23 @@ This installs and configures:
 - Java 25
 - PostgreSQL 16
 - Nginx with SSL
-- Application as systemd service
-- Backup cron jobs
+- Application infrastructure (user, directories, systemd service)
+- Backup scripts and cron jobs
 
 ### 5. Deploy Application
 
-Build and upload the JAR:
+Build and deploy using Ansible:
 ```bash
 ./mvnw clean package -DskipTests
-scp target/accounting-finance-*.jar root@akunting.artivisi.id:/opt/accounting-finance/app.jar
-ssh root@akunting.artivisi.id "systemctl restart accounting-finance"
+ansible-playbook -i inventory.ini deploy.yml
 ```
+
+The `deploy.yml` playbook automatically:
+- Builds and validates the JAR file
+- Uploads JAR to server (`/opt/accounting-finance/app.jar`)
+- Restarts the application service
+- Creates/configures admin user with secure credentials
+- Performs health check (HTTP 200 on /login)
 
 ### 6. Configure rclone (for B2/Google Drive backup)
 
@@ -1183,9 +1210,29 @@ flowchart LR
     MERGE --> PULL --> FLYWAY --> RESTART
 ```
 
-### Option 1: Manual Deploy Script (Recommended for Small Teams)
+### Option 1: Ansible Deployment (Recommended)
 
-Simple script for manual deployments after testing locally.
+**Use the built-in `deploy.yml` playbook for automated deployments:**
+
+```bash
+# Build application
+./mvnw clean package -DskipTests
+
+# Deploy using Ansible
+ansible-playbook -i inventory.ini deploy.yml
+```
+
+**Advantages of Ansible deployment:**
+- ✅ Automated JAR upload and service management
+- ✅ Built-in health checks and rollback capability
+- ✅ Secure admin user creation with bcrypt password hashing
+- ✅ Validation of JAR file before deployment
+- ✅ Proper service restart and startup monitoring
+- ✅ Consistent deployment process across environments
+
+**Manual Deploy Script (Alternative)**
+
+For small teams that prefer manual scripts after testing locally.
 
 **On your local machine**, create `deploy.sh`:
 
