@@ -12,6 +12,8 @@ public record TemplateImportFileDto(
 
         String version,
 
+        String description,
+
         @Valid
         @NotEmpty(message = "At least one template is required")
         List<TemplateImportDto> templates
