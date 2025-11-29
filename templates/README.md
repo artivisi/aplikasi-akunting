@@ -1,24 +1,36 @@
 # Template Packages
 
-Kumpulan template Chart of Accounts (COA) dan Journal Templates untuk berbagai jenis perusahaan.
+Kumpulan template Chart of Accounts (COA) dan Journal Templates untuk berbagai jenis industri.
 
-## Available Packages
-
-| Package | Version | Description |
-|---------|---------|-------------|
-| `artivisi` | 2.0 | PT Artivisi Intermedia - perusahaan jasa IT (konsultasi, development, training, remittance) |
-
-## Package Structure
-
-Setiap package harus memiliki struktur folder sebagai berikut:
+## Structure
 
 ```
 templates/
-├── README.md                    # File ini
-└── [company-name]/
-    ├── coa.json                 # Chart of Accounts
-    └── journal-templates.json   # Journal Templates
+├── README.md              # Schema documentation (this file)
+└── [industry]/            # Industry-specific templates
+    ├── coa.json
+    └── journal-templates.json
+
+clients/
+└── [client-name]/         # Client-specific templates
+    └── templates/
+        ├── coa.json
+        └── journal-templates.json
 ```
+
+## Available Templates
+
+### Industry Templates (Generic)
+
+| Industry | Version | Description |
+|----------|---------|-------------|
+| (none yet) | - | Coming soon: photography, online-seller |
+
+### Client Templates
+
+| Client | Location | Description |
+|--------|----------|-------------|
+| Artivisi | `clients/artivisi/templates/` | IT services (v2.1) |
 
 ## File Schemas
 
@@ -186,19 +198,7 @@ companyBpjs * 0.2         # 20% dari BPJS perusahaan (Ketenagakerjaan)
 | `4.x` | PENDAPATAN | 4.1.01 Pendapatan Jasa |
 | `5.x` | BEBAN | 5.1.01 Beban Gaji |
 
-## Changelog
+## Notes
 
-### artivisi v2.0 (2025-11-28)
-
-**COA:**
-- Added `2.1.13` Hutang BPJS - untuk payroll processing
-
-**Journal Templates:**
-- Added `Post Gaji Bulanan` - payroll posting dengan formula variables
-- Added `Bayar Hutang Gaji` - pembayaran hutang gaji ke karyawan
-- Added `Bayar Hutang BPJS` - penyetoran BPJS
-
-### artivisi v1.0 (Initial)
-
-- Initial release dengan COA untuk perusahaan jasa IT
-- 47 templates termasuk tax-related templates (PPN, PPh 21, PPh 23, PPh 4(2))
+- Client-specific changelogs are in their respective `clients/[client]/README.md` files
+- Industry templates will have changelogs in this file when added

@@ -34,6 +34,7 @@ telegram_bot_enabled: false
 # telegram_bot_username: "YourBotUsername"
 # telegram_webhook_url: "https://akunting.artivisi.id/api/telegram/webhook"
 # telegram_webhook_secret: "your-webhook-secret"
+# telegram_admin_chat_id: "123456789"  # Your Telegram user ID for deployment notifications
 
 # Google Cloud Vision Configuration (optional - for receipt OCR)
 google_cloud_vision_enabled: false
@@ -45,13 +46,30 @@ backup_cron_hour: "2"
 backup_cron_minute: "0"
 backup_retention_count: 7
 
-# Remote Backup (optional)
+# Remote Backup via rsync (optional)
 backup_remote_enabled: false
 # backup_remote_user: "backup"
 # backup_remote_host: "backup.example.com"
 # backup_remote_path: "/backups/accounting"
 # backup_remote_cron_hour: "3"
 # backup_remote_cron_minute: "0"
+
+# Backblaze B2 Backup (optional - weekly encrypted backup)
+backup_b2_enabled: false
+# backup_b2_account_id: "your-b2-account-id"
+# backup_b2_application_key: "your-b2-application-key"
+# backup_b2_bucket: "your-b2-bucket-name"
+# backup_b2_retention_weeks: 4
+# backup_b2_cron_hour: "3"
+# backup_b2_cron_minute: "0"
+
+# Google Drive Archive (optional - monthly encrypted archive)
+backup_gdrive_enabled: false
+# backup_gdrive_token: '{"access_token":"...","token_type":"Bearer","refresh_token":"...","expiry":"..."}'
+# backup_gdrive_folder: "accounting-backup"
+# backup_gdrive_retention_months: 12
+# backup_gdrive_cron_hour: "4"
+# backup_gdrive_cron_minute: "0"
 
 # Backup Notification (optional - webhook URL)
 backup_notification_enabled: false
