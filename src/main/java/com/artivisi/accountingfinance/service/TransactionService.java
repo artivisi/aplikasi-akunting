@@ -124,19 +124,20 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction update(UUID id, @Valid Transaction transactionData) {
-        Transaction existing = findById(id);
-
+    public Transaction update(@Valid Transaction existing, Transaction transactionData) {
         if (!existing.isDraft()) {
             throw new IllegalStateException("Only draft transactions can be edited");
         }
 
+        // Update only the editable fields, preserve system-generated fields like transactionNumber
+        // The existing entity already has transactionNumber from database, we don't touch it
         existing.setTransactionDate(transactionData.getTransactionDate());
         existing.setAmount(transactionData.getAmount());
         existing.setDescription(transactionData.getDescription());
         existing.setReferenceNumber(transactionData.getReferenceNumber());
         existing.setNotes(transactionData.getNotes());
 
+        // Validation happens when saving the existing entity which has all required fields
         return transactionRepository.save(existing);
     }
 
