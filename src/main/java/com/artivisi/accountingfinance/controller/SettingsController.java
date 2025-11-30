@@ -9,6 +9,7 @@ import com.artivisi.accountingfinance.repository.UserRepository;
 import com.artivisi.accountingfinance.service.CompanyBankAccountService;
 import com.artivisi.accountingfinance.service.CompanyConfigService;
 import com.artivisi.accountingfinance.service.TelegramBotService;
+import com.artivisi.accountingfinance.service.VersionInfoService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class SettingsController {
     private final TelegramBotService telegramBotService;
     private final TelegramUserLinkRepository telegramLinkRepository;
     private final UserRepository userRepository;
+    private final VersionInfoService versionInfoService;
 
     // ==================== Company Settings ====================
 
@@ -251,5 +253,18 @@ public class SettingsController {
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun Telegram berhasil diputus");
         return "redirect:/settings/telegram";
+    }
+
+    // ==================== About ====================
+
+    @GetMapping("/about")
+    public String about(Model model) {
+        model.addAttribute("gitCommitId", versionInfoService.getGitCommitId());
+        model.addAttribute("gitCommitShort", versionInfoService.getGitCommitShort());
+        model.addAttribute("gitTag", versionInfoService.getGitTag());
+        model.addAttribute("gitBranch", versionInfoService.getGitBranch());
+        model.addAttribute("gitCommitDate", versionInfoService.getGitCommitDate());
+        model.addAttribute(ATTR_CURRENT_PAGE, "settings");
+        return "settings/about";
     }
 }

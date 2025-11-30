@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <title>Tentang Aplikasi</title>
+</head>
+<body>
+<div layout:fragment="content" id="about-page-content">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Tentang Aplikasi</h1>
+            <p class="mt-2 text-gray-600">Informasi versi dan detail aplikasi</p>
+        </div>
+
+        <!-- Application Info Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center mb-4">
+                <svg class="w-12 h-12 text-primary-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Aplikasi Akunting</h2>
+                    <p class="text-gray-600">Aplikasi pembukuan untuk UMKM dan perusahaan kecil</p>
+                </div>
+            </div>
+
+            <div class="mt-6 border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Fitur Utama</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Pembukuan double-entry sesuai standar akuntansi</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Laporan keuangan lengkap (Neraca, Laba Rugi, Arus Kas)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Manajemen proyek dan tracking profitabilitas</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Perhitungan pajak PPh dan PPN</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Penggajian karyawan dengan BPJS dan PPh 21</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Version Information Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6" id="version-info">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Versi</h3>
+            
+            <div class="space-y-4">
+                <!-- Git Commit -->
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-32">
+                        <span class="text-sm font-medium text-gray-700">Git Commit:</span>
+                    </div>
+                    <div class="flex-1">
+                        <code id="commit-id" class="text-sm bg-gray-100 px-2 py-1 rounded font-mono text-gray-800" th:text="${commitId}">unknown</code>
+                    </div>
+                </div>
+
+                <!-- Git Tag (if available) -->
+                <div class="flex items-start" th:if="${gitTag != null}">
+                    <div class="flex-shrink-0 w-32">
+                        <span class="text-sm font-medium text-gray-700">Version Tag:</span>
+                    </div>
+                    <div class="flex-1">
+                        <span id="git-tag" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800" th:text="${gitTag}">v1.0.0</span>
+                    </div>
+                </div>
+
+                <!-- Build Info -->
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-32">
+                        <span class="text-sm font-medium text-gray-700">Framework:</span>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-sm text-gray-600">Spring Boot 4.0</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-32">
+                        <span class="text-sm font-medium text-gray-700">Java Version:</span>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-sm text-gray-600">Java 25</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="mt-6 flex gap-4">
+            <a th:href="@{/settings}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali ke Pengaturan
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
