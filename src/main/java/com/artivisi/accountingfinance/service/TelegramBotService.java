@@ -56,8 +56,13 @@ public class TelegramBotService {
         this.documentService = documentService;
         this.telegramApiClient = telegramApiClient;
 
+        log.info("TelegramBotService constructor - enabled: {}, apiClient: {}", 
+                config.isEnabled(), telegramApiClient != null ? "present" : "null");
+        
         if (config.isEnabled() && telegramApiClient != null) {
             log.info("Telegram bot initialized: @{}", config.getUsername());
+        } else if (config.isEnabled() && telegramApiClient == null) {
+            log.warn("Telegram is enabled but TelegramApiClient bean is not available. Check telegram.enabled property.");
         }
     }
 

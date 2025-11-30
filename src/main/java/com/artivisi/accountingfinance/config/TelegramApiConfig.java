@@ -12,7 +12,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
  * Configuration for Telegram Bot API HTTP client using Spring's HTTP Interface.
  */
 @Configuration
-@ConditionalOnProperty(prefix = "telegram", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "telegram.bot", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class TelegramApiConfig {
 
     private final TelegramConfig telegramConfig;
