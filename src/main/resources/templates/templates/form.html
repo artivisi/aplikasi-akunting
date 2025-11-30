@@ -29,7 +29,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-semibold text-blue-800">Menduplikat dari: Pendapatan Jasa Konsultasi</h3>
+                        <h3 class="text-sm font-semibold text-blue-800" th:text="'Menduplikat dari: ' + ${sourceTemplate?.templateName}">Menduplikat dari: Template</h3>
                         <p class="text-xs text-blue-600 mt-0.5">Silakan ubah nama dan konfigurasi sesuai kebutuhan</p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                 </label>
                                 <input type="text" id="templateName" name="templateName"
                                        x-model="templateName"
-                                       th:value="${isEdit || isDuplicate} ? 'Pendapatan Jasa Konsultasi' : ''"
+                                       th:value="${template?.templateName} ?: ${sourceTemplate?.templateName}"
                                        placeholder="Contoh: Pendapatan Jasa Konsultasi, Bayar Tagihan Listrik"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                        required>
@@ -136,7 +136,7 @@
                                 <textarea id="description" name="description" rows="2"
                                           placeholder="Penjelasan tentang penggunaan template ini..."
                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm resize-none"
-                                ><th:block th:if="${isEdit || isDuplicate}">Template untuk mencatat pendapatan dari jasa konsultasi IT</th:block></textarea>
+                                          th:text="${template?.description} ?: ${sourceTemplate?.description}"></textarea>
                             </div>
                         </div>
                     </div>
@@ -192,25 +192,34 @@
                             <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="col-span-3">Akun</div>
                                 <div class="col-span-2 text-center">Posisi</div>
-                                <div class="col-span-3">Formula</div>
+                                <div class="col-span-2">Formula</div>
                                 <div class="col-span-2 text-right">Preview</div>
+                                <div class="col-span-1 text-center">?</div>
                                 <div class="col-span-2 text-center">Aksi</div>
                             </div>
 
                             <!-- Journal Lines -->
                             <template x-for="(line, index) in journalLines" :key="line.id">
-                                <div class="grid grid-cols-12 gap-2 px-4 py-3 border-t border-gray-100 items-center">
+                                <div class="grid grid-cols-12 gap-2 px-4 py-3 border-t border-gray-100 items-start">
                                     <!-- Account Selection -->
                                     <div class="col-span-3">
                                         <select x-model="line.accountId"
                                                 :id="'line-account-' + index"
                                                 :name="'lines[' + index + '].accountId'"
+                                                @change="line.isDynamic = (line.accountId === '')"
                                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                                            <option value="">Pilih akun</option>
+                                            <option value="">[ Pilih saat transaksi ]</option>
                                             <option th:each="account : ${accounts}"
                                                     th:value="${account.id}"
                                                     th:text="${account.accountCode + ' - ' + account.accountName}">Account</option>
                                         </select>
+                                        <!-- Account Hint (shown when account is not selected) -->
+                                        <input x-show="!line.accountId || line.accountId === ''" 
+                                               type="text" 
+                                               x-model="line.accountHint"
+                                               :name="'lines[' + index + '].accountHint'"
+                                               placeholder="Hint: Bank/Kas, Akun Beban, dll"
+                                               class="w-full px-2 py-1 text-xs border border-blue-300 rounded mt-1 bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <input type="hidden" :name="'lines[' + index + '].lineOrder'" :value="index + 1">
                                     </div>
 
@@ -234,7 +243,7 @@
                                     </div>
 
                                     <!-- Formula Input -->
-                                    <div class="col-span-3">
+                                    <div class="col-span-2">
                                         <input type="text" x-model="line.formula"
                                                @input="updateLinePreview(index)"
                                                :name="'lines[' + index + '].formula'"
@@ -256,6 +265,15 @@
                                         <template x-if="!line.previewLoading && !line.previewError && !line.previewResult">
                                             <span class="text-xs text-gray-400">-</span>
                                         </template>
+                                    </div>
+
+                                    <!-- Dynamic Indicator -->
+                                    <div class="col-span-1 flex justify-center">
+                                        <span x-show="!line.accountId || line.accountId === ''" 
+                                              class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs"
+                                              title="Akun dipilih saat input transaksi">
+                                            ?
+                                        </span>
                                     </div>
 
                                     <!-- Actions -->
@@ -366,8 +384,10 @@
                         </a>
                         <div class="flex items-center space-x-3">
                             <!-- Preview Button -->
-                            <button type="button"
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <button type="button" @click="showPreview()"
+                                    :disabled="!isValidForPreview()"
+                                    :class="!isValidForPreview() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg transition-colors">
                                 <span class="flex items-center">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -500,6 +520,7 @@
                                 accountId: /*[[${line.account?.id ?: ''}]]*/ '',
                                 position: /*[[${line.position?.name() ?: 'DEBIT'}]]*/ 'DEBIT',
                                 formula: /*[[${line.formula ?: 'amount'}]]*/ 'amount',
+                                accountHint: /*[[${line.accountHint ?: ''}]]*/ '',
                                 previewResult: null,
                                 previewError: null,
                                 previewLoading: false
@@ -507,8 +528,8 @@
                             /*[/]*/
                         ];
 
-                        // Remove trailing empty object if no lines exist
-                        this.journalLines = templateLines.filter(line => line.accountId !== '');
+                        // Filter out empty placeholder objects
+                        this.journalLines = templateLines.filter(line => line.id && (line.accountId || line.formula));
 
                         if (this.journalLines.length > 0) {
                             this.nextLineId = this.journalLines.length + 1;
@@ -525,8 +546,8 @@
 
                 addDefaultLines() {
                     this.journalLines = [
-                        { id: 1, accountId: '', position: 'DEBIT', formula: 'amount', previewResult: null, previewError: null, previewLoading: false },
-                        { id: 2, accountId: '', position: 'CREDIT', formula: 'amount', previewResult: null, previewError: null, previewLoading: false }
+                        { id: 1, accountId: '', position: 'DEBIT', formula: 'amount', accountHint: '', previewResult: null, previewError: null, previewLoading: false },
+                        { id: 2, accountId: '', position: 'CREDIT', formula: 'amount', accountHint: '', previewResult: null, previewError: null, previewLoading: false }
                     ];
                     this.nextLineId = 3;
                     // Initial preview
@@ -539,6 +560,7 @@
                         accountId: '',
                         position: 'DEBIT',
                         formula: 'amount',
+                        accountHint: '',
                         previewResult: null,
                         previewError: null,
                         previewLoading: false
@@ -584,6 +606,199 @@
                         'FINANCING': 'Pendanaan'
                     };
                     return labels[cf] || cf;
+                },
+
+                isValidForPreview() {
+                    // Check if all required fields are filled
+                    if (!this.templateName || !this.category || !this.cashFlowCategory) {
+                        return false;
+                    }
+                    // Check if there's at least one debit and one credit line
+                    const hasDebit = this.journalLines.some(l => l.position === 'DEBIT' && l.accountId);
+                    const hasCredit = this.journalLines.some(l => l.position === 'CREDIT' && l.accountId);
+                    return hasDebit && hasCredit;
+                },
+
+                async showPreview() {
+                    if (!this.isValidForPreview()) {
+                        alert('Mohon lengkapi semua field yang diperlukan');
+                        return;
+                    }
+
+                    const amount = this.parsePreviewAmount();
+                    if (amount === 0) {
+                        alert('Mohon masukkan jumlah preview yang valid');
+                        return;
+                    }
+
+                    // Show loading state
+                    const previewBtn = document.querySelector('button[type="button"][\\@click*="showPreview"]');
+                    const originalHTML = previewBtn?.innerHTML;
+                    if (previewBtn) {
+                        previewBtn.disabled = true;
+                        previewBtn.innerHTML = '<span class="flex items-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Memuat...</span>';
+                    }
+
+                    try {
+                        // Build preview request
+                        const previewData = {
+                            transactionDate: new Date().toISOString().split('T')[0],
+                            amount: amount,
+                            description: 'Preview: ' + this.templateName
+                        };
+
+                        // Create temporary template data
+                        const templateData = {
+                            templateName: this.templateName,
+                            category: this.category,
+                            cashFlowCategory: this.cashFlowCategory,
+                            templateType: this.templateType,
+                            description: document.getElementById('description').value,
+                            active: true,
+                            isFavorite: false,
+                            lines: this.journalLines.map((line, index) => ({
+                                accountId: line.accountId,
+                                position: line.position,
+                                formula: line.formula,
+                                lineOrder: index + 1,
+                                description: ''
+                            }))
+                        };
+
+                        // First, create temporary template via API
+                        const createResponse = await fetch('/templates/api', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(templateData)
+                        });
+
+                        if (!createResponse.ok) {
+                            throw new Error('Gagal membuat preview template');
+                        }
+
+                        const createdTemplate = await createResponse.json();
+
+                        // Then get preview using the created template
+                        const previewResponse = await fetch(`/templates/api/${createdTemplate.id}/preview`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(previewData)
+                        });
+
+                        if (!previewResponse.ok) {
+                            throw new Error('Gagal mendapatkan preview');
+                        }
+
+                        const previewResult = await previewResponse.json();
+
+                        // Clean up temporary template
+                        await fetch(`/templates/api/${createdTemplate.id}`, {
+                            method: 'DELETE'
+                        });
+
+                        // Display preview result
+                        this.displayPreviewResult(previewResult);
+
+                    } catch (error) {
+                        console.error('Preview error:', error);
+                        alert('Gagal menampilkan preview: ' + error.message);
+                    } finally {
+                        // Restore button state
+                        if (previewBtn && originalHTML) {
+                            previewBtn.disabled = false;
+                            previewBtn.innerHTML = originalHTML;
+                        }
+                    }
+                },
+
+                displayPreviewResult(result) {
+                    if (!result.valid) {
+                        alert('Preview gagal: ' + (result.errors?.join(', ') || 'Unknown error'));
+                        return;
+                    }
+
+                    // Format the preview data as a table
+                    const lines = result.journalEntryLines || [];
+                    let html = `
+                        <div class="fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.5)">
+                            <div class="flex items-center justify-center min-h-screen px-4">
+                                <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-900">Preview Template: ${this.templateName}</h3>
+                                        <button onclick="this.closest('[style*=\\'fixed\\']').remove()" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="mb-4 text-sm text-gray-600">
+                                        <p>Jumlah: <span class="font-mono font-semibold">Rp ${this.previewAmount}</span></p>
+                                    </div>
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Akun</th>
+                                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Debit</th>
+                                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kredit</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-100">
+                    `;
+
+                    let totalDebit = 0;
+                    let totalCredit = 0;
+
+                    lines.forEach(line => {
+                        const accountName = line.accountCode + ' - ' + line.accountName;
+                        const debit = line.position === 'DEBIT' ? line.amount : 0;
+                        const credit = line.position === 'CREDIT' ? line.amount : 0;
+                        totalDebit += debit;
+                        totalCredit += credit;
+
+                        html += `
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-900">${accountName}</td>
+                                <td class="px-4 py-2 text-sm text-right font-mono">${debit > 0 ? this.formatNumber(debit) : '-'}</td>
+                                <td class="px-4 py-2 text-sm text-right font-mono">${credit > 0 ? this.formatNumber(credit) : '-'}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                                            </tbody>
+                                            <tfoot class="bg-gray-50 font-semibold">
+                                                <tr>
+                                                    <td class="px-4 py-2 text-sm text-gray-900">Total</td>
+                                                    <td class="px-4 py-2 text-sm text-right font-mono text-gray-900">${this.formatNumber(totalDebit)}</td>
+                                                    <td class="px-4 py-2 text-sm text-right font-mono text-gray-900">${this.formatNumber(totalCredit)}</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div class="mt-4 flex items-center ${totalDebit === totalCredit ? 'text-green-600' : 'text-red-600'}">
+                                        ${totalDebit === totalCredit 
+                                            ? '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span class="text-sm font-medium">Jurnal seimbang</span>' 
+                                            : '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span class="text-sm font-medium">Jurnal tidak seimbang! Debit: ' + this.formatNumber(totalDebit) + ', Kredit: ' + this.formatNumber(totalCredit) + '</span>'}
+                                    </div>
+                                    <div class="mt-6 flex justify-end">
+                                        <button onclick="this.closest('[style*=\\'fixed\\']').remove()" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+                                            Tutup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Append to body
+                    const div = document.createElement('div');
+                    div.innerHTML = html;
+                    document.body.appendChild(div.firstElementChild);
+                },
+
+                formatNumber(num) {
+                    return new Intl.NumberFormat('id-ID').format(num);
                 }
             };
         }

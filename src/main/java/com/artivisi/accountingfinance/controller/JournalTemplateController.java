@@ -388,10 +388,14 @@ public class JournalTemplateController {
                 line.setFormula(lineDto.formula());
                 line.setLineOrder(lineDto.lineOrder() != null ? lineDto.lineOrder() : order++);
                 line.setDescription(lineDto.description());
+                line.setAccountHint(lineDto.accountHint());
 
-                ChartOfAccount account = new ChartOfAccount();
-                account.setId(lineDto.accountId());
-                line.setAccount(account);
+                // Only set account if accountId is provided (nullable for dynamic selection)
+                if (lineDto.accountId() != null) {
+                    ChartOfAccount account = new ChartOfAccount();
+                    account.setId(lineDto.accountId());
+                    line.setAccount(account);
+                }
 
                 template.addLine(line);
             }

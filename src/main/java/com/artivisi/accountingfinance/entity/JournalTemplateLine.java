@@ -45,10 +45,13 @@ public class JournalTemplateLine {
     private JournalTemplate journalTemplate;
 
     @JsonIgnore
-    @NotNull(message = "Account is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_account", nullable = false)
+    @JoinColumn(name = "id_account", nullable = true)
     private ChartOfAccount account;
+
+    @Size(max = 100, message = "Account hint must not exceed 100 characters")
+    @Column(name = "account_hint", length = 100)
+    private String accountHint;
 
     @NotNull(message = "Position is required")
     @Enumerated(EnumType.STRING)

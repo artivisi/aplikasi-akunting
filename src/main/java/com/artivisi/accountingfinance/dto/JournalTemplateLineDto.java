@@ -10,8 +10,7 @@ import java.util.UUID;
 public record JournalTemplateLineDto(
         UUID id,
 
-        @NotNull(message = "Account is required")
-        UUID accountId,
+        UUID accountId,  // Nullable - when null, user selects account during transaction
 
         @NotNull(message = "Position is required")
         JournalPosition position,
@@ -22,5 +21,8 @@ public record JournalTemplateLineDto(
 
         Integer lineOrder,
 
-        String description
+        String description,
+
+        @Size(max = 100, message = "Account hint must not exceed 100 characters")
+        String accountHint  // Hint for account selection (e.g., "Bank/Kas", "Akun Beban")
 ) {}

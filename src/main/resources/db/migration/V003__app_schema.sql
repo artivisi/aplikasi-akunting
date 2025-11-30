@@ -109,11 +109,12 @@ CREATE INDEX idx_jt_is_favorite ON journal_templates(is_favorite);
 CREATE TABLE journal_template_lines (
     id UUID PRIMARY KEY,
     id_journal_template UUID NOT NULL REFERENCES journal_templates(id) ON DELETE CASCADE,
-    id_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    id_account UUID REFERENCES chart_of_accounts(id),
     position VARCHAR(10) NOT NULL,
     formula VARCHAR(255) NOT NULL DEFAULT 'amount',
     line_order INTEGER NOT NULL,
     description TEXT,
+    account_hint VARCHAR(100),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP,
