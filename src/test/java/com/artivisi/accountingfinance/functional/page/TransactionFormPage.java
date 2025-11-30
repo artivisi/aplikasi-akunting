@@ -2,6 +2,8 @@ package com.artivisi.accountingfinance.functional.page;
 
 import com.microsoft.playwright.Page;
 
+import java.nio.file.Path;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class TransactionFormPage {
@@ -119,5 +121,56 @@ public class TransactionFormPage {
 
     public String getDescriptionValue() {
         return page.inputValue(DESCRIPTION);
+    }
+
+    // Document upload methods
+    public void assertDocumentSectionVisible() {
+        // Wait for HTMX to load the document section
+        page.waitForSelector("#document-section", 
+            new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(10000));
+        assertThat(page.locator("#document-section")).isVisible();
+    }
+
+    public void uploadDocument(Path filePath) {
+        String filename = filePath.getFileName().toString();
+        
+        // Wait for document section to be loaded via HTMX (may be swapped after previous upload)
+        page.waitForSelector("#document-list-container",
+            new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(10000));
+        
+        // Wait for network to be idle after any previous HTMX swap
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.NETWORKIDLE);
+        
+        // Wait for file input to be attached (gets re-attached after each HTMX swap)
+        page.locator("input[name='file']").waitFor(
+            new com.microsoft.playwright.Locator.WaitForOptions()
+                .setState(com.microsoft.playwright.options.WaitForSelectorState.ATTACHED)
+                .setTimeout(10000));
+        
+        // Small delay to ensure DOM is stable
+        page.waitForTimeout(500);
+        
+        // Set file input - HTMX will auto-submit on change event
+        page.setInputFiles("input[name='file']", filePath);
+        
+        // Dispatch change event to trigger HTMX
+        page.locator("input[name='file']").dispatchEvent("change");
+        
+        // Wait for the filename to appear in the document list
+        page.locator("#document-list-container >> text=" + filename)
+            .waitFor(new com.microsoft.playwright.Locator.WaitForOptions().setTimeout(15000));
+        page.waitForLoadState();
+        
+        // Wait for network idle to ensure HTMX swap is complete and new form is ready
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.NETWORKIDLE);
+        page.waitForTimeout(500);
+    }
+
+    public void assertDocumentVisible(String filename) {
+        assertThat(page.locator("text=" + filename)).isVisible();
+    }
+
+    public int getDocumentCount() {
+        return page.locator("#document-list-container .flex.items-center.justify-between").count();
     }
 }

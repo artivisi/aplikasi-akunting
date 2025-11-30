@@ -284,21 +284,36 @@
                         </div>
                     </div>
 
-                    <!-- Document Attachment Section (Phase 2 placeholder) -->
-                    <div class="p-6 border-b border-gray-200">
+                    <!-- Document Attachment Section -->
+                    <div id="document-section" th:if="${isEdit and transaction != null}" class="p-6 border-b border-gray-200">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-semibold text-gray-900">Lampiran Dokumen</h2>
-                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                                Coming Soon
-                            </span>
+                            <span class="text-xs text-gray-500">Nota, kwitansi, invoice, atau bukti pembayaran</span>
                         </div>
 
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        <!-- HTMX-loaded document list -->
+                        <div id="document-list-container"
+                             th:hx-get="@{/documents/transaction/{id}(id=${transaction.id})}"
+                             hx-trigger="load"
+                             hx-swap="outerHTML">
+                            <div class="text-center py-8 text-gray-500">
+                                <div class="animate-pulse">Memuat dokumen...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Placeholder for New Transaction -->
+                    <div id="document-placeholder" th:unless="${isEdit and transaction != null}" class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Lampiran Dokumen</h2>
+                        </div>
+
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                            <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <p class="mt-2 text-sm text-gray-500">Fitur upload dokumen akan tersedia di fase berikutnya</p>
-                            <p class="text-xs text-gray-400 mt-1">Sementara simpan bukti transaksi di folder eksternal</p>
+                            <p class="mt-2 text-sm text-gray-600">Simpan transaksi terlebih dahulu untuk mengunggah dokumen</p>
+                            <p class="text-xs text-gray-500 mt-1">Dokumen dapat ditambahkan setelah transaksi tersimpan</p>
                         </div>
                     </div>
 
