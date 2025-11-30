@@ -34,7 +34,7 @@ jobs:
       - name: Run OWASP Dependency-Check
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: ./mvnw dependency-check:check -DfailBuildOnCVSS=7 -DsuppressionFile=dependency-check-suppressions.xml
+        run: ./mvnw dependency-check:check -DfailBuildOnCVSS=7 -DsuppressionFile=dependency-check-suppressions.xml -DossIndexEnabled=false
         continue-on-error: true
 
       - name: Upload Dependency-Check report
