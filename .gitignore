@@ -38,4 +38,6 @@ node/
 src/main/frontend/node_modules/
 src/main/frontend/node/
 
+# Application Data
 db-accounting
+data
