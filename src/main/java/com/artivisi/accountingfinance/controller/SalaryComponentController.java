@@ -25,6 +25,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/salary-components")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SALARY_COMPONENT_VIEW + "')")
 public class SalaryComponentController {
 
     private final SalaryComponentService salaryComponentService;

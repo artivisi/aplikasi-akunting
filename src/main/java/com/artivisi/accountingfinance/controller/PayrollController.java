@@ -32,6 +32,7 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/payroll")
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.PAYROLL_VIEW + "')")
 public class PayrollController {
 
     private static final String ATTR_CURRENT_PAGE = "currentPage";

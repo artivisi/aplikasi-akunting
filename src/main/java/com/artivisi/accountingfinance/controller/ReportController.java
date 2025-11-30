@@ -26,6 +26,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/reports")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.REPORT_VIEW + "')")
 public class ReportController {
 
     private final ReportService reportService;

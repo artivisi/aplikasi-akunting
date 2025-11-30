@@ -33,6 +33,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/amortization")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.AMORTIZATION_VIEW + "')")
 public class AmortizationController {
 
     private final AmortizationScheduleService scheduleService;

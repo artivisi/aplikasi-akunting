@@ -24,6 +24,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/clients")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.CLIENT_VIEW + "')")
 public class ClientController {
 
     private final ClientService clientService;

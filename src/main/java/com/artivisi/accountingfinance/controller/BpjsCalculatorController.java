@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/bpjs-calculator")
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.CALCULATOR_USE + "')")
 public class BpjsCalculatorController {
 
     private final BpjsCalculationService bpjsCalculationService;

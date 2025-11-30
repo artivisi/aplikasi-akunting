@@ -37,6 +37,7 @@ import static java.util.Objects.requireNonNullElse;
 @Controller
 @RequestMapping("/journals")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.JOURNAL_VIEW + "')")
 public class JournalEntryController {
 
     private final JournalEntryService journalEntryService;

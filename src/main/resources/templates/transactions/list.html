@@ -84,7 +84,7 @@
             </form>
 
             <!-- Action Button -->
-            <div x-data="{ open: false }" class="relative">
+            <div sec:authorize="hasAuthority('TRANSACTION_CREATE')" x-data="{ open: false }" class="relative">
                 <button id="btn-transaksi-baru" @click="open = !open" @click.outside="open = false"
                         class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

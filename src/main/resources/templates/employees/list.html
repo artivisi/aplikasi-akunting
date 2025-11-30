@@ -60,7 +60,7 @@
                 </select>
             </div>
 
-            <a th:href="@{/employees/new}"
+            <a sec:authorize="hasAuthority('EMPLOYEE_CREATE')" th:href="@{/employees/new}"
                id="btn-new-employee"
                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

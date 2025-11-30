@@ -23,6 +23,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/tax-calendar")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.TAX_CALENDAR_VIEW + "')")
 public class TaxCalendarController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";

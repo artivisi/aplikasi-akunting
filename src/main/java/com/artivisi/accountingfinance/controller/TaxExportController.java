@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 @RequestMapping("/reports/tax-export")
 @RequiredArgsConstructor
 @Slf4j
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.TAX_EXPORT + "')")
 public class TaxExportController {
 
     private final CoretaxExportService coretaxExportService;

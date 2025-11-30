@@ -28,6 +28,7 @@ import java.io.IOException;
 @RequestMapping("/import")
 @RequiredArgsConstructor
 @Slf4j
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.DATA_IMPORT + "')")
 public class DataImportController {
 
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";

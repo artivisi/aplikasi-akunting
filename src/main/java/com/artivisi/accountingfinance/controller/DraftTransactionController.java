@@ -27,6 +27,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/drafts")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.DRAFT_VIEW + "')")
 public class DraftTransactionController {
 
     private final DraftTransactionService draftService;

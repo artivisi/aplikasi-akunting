@@ -69,7 +69,7 @@
                 <!-- Actions -->
                 <div class="col-span-2 flex justify-center space-x-1">
                     <!-- Edit -->
-                    <a th:id="'btn-edit-' + ${#strings.replace(account.accountCode, '.', '-')}"
+                    <a sec:authorize="hasAuthority('ACCOUNT_EDIT')" th:id="'btn-edit-' + ${#strings.replace(account.accountCode, '.', '-')}"
                        th:href="@{/accounts/{id}/edit(id=${account.id})}"
                        class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                        title="Edit">
@@ -79,7 +79,7 @@
                     </a>
 
                     <!-- Activate/Deactivate -->
-                    <form th:if="${account.active}" th:action="@{/accounts/{id}/deactivate(id=${account.id})}" method="post" class="inline">
+                    <form sec:authorize="hasAuthority('ACCOUNT_EDIT')" th:if="${account.active}" th:action="@{/accounts/{id}/deactivate(id=${account.id})}" method="post" class="inline">
                         <button th:id="'btn-deactivate-' + ${#strings.replace(account.accountCode, '.', '-')}"
                                 type="submit"
                                 class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
@@ -90,7 +90,7 @@
                             </svg>
                         </button>
                     </form>
-                    <form th:if="${!account.active}" th:action="@{/accounts/{id}/activate(id=${account.id})}" method="post" class="inline">
+                    <form sec:authorize="hasAuthority('ACCOUNT_EDIT')" th:if="${!account.active}" th:action="@{/accounts/{id}/activate(id=${account.id})}" method="post" class="inline">
                         <button th:id="'btn-activate-' + ${#strings.replace(account.accountCode, '.', '-')}"
                                 type="submit"
                                 class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
@@ -102,7 +102,7 @@
                     </form>
 
                     <!-- Delete (only if no children) -->
-                    <form th:if="${#lists.isEmpty(account.children)}"
+                    <form sec:authorize="hasAuthority('ACCOUNT_DELETE')" th:if="${#lists.isEmpty(account.children)}"
                           th:action="@{/accounts/{id}/delete(id=${account.id})}"
                           method="post"
                           class="inline">

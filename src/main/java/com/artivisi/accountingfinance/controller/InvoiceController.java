@@ -31,6 +31,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/invoices")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.INVOICE_VIEW + "')")
 public class InvoiceController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";

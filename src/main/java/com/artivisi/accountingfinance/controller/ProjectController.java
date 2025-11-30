@@ -26,6 +26,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/projects")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.PROJECT_VIEW + "')")
 public class ProjectController {
 
     private final ProjectService projectService;

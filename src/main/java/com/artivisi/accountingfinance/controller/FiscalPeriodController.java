@@ -23,6 +23,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/fiscal-periods")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.FISCAL_PERIOD_VIEW + "')")
 public class FiscalPeriodController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";

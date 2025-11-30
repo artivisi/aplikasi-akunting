@@ -32,6 +32,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/settings")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_VIEW + "')")
 public class SettingsController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
@@ -59,6 +60,7 @@ public class SettingsController {
     }
 
     @PostMapping("/company")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String updateCompany(
             @Valid @ModelAttribute("config") CompanyConfig config,
             BindingResult bindingResult,
@@ -103,6 +105,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/new")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String createBankAccount(
             @Valid @ModelAttribute("bankAccount") CompanyBankAccount bankAccount,
             BindingResult bindingResult,
@@ -134,6 +137,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String updateBankAccount(
             @PathVariable UUID id,
             @Valid @ModelAttribute("bankAccount") CompanyBankAccount bankAccount,
@@ -160,6 +164,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/{id}/set-default")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String setDefaultBankAccount(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
@@ -170,6 +175,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/{id}/deactivate")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String deactivateBankAccount(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
@@ -180,6 +186,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/{id}/activate")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String activateBankAccount(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
@@ -190,6 +197,7 @@ public class SettingsController {
     }
 
     @PostMapping("/bank-accounts/{id}/delete")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String deleteBankAccount(
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
@@ -217,6 +225,7 @@ public class SettingsController {
     }
 
     @PostMapping("/telegram/generate-code")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String generateTelegramCode(
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
@@ -233,6 +242,7 @@ public class SettingsController {
     }
 
     @PostMapping("/telegram/unlink")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SETTINGS_EDIT + "')")
     public String unlinkTelegram(
             Authentication authentication,
             RedirectAttributes redirectAttributes) {

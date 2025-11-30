@@ -60,7 +60,7 @@
                 </select>
             </div>
 
-            <a th:href="@{/salary-components/new}"
+            <a sec:authorize="hasAuthority('SALARY_COMPONENT_MANAGE')" th:href="@{/salary-components/new}"
                id="btn-new-component"
                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

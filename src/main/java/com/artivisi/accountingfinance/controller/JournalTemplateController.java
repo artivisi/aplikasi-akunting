@@ -44,6 +44,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/templates")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.TEMPLATE_VIEW + "')")
 public class JournalTemplateController {
 
     private final JournalTemplateService journalTemplateService;

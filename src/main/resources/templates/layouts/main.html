@@ -35,7 +35,7 @@
 
                 <!-- Navigation -->
                 <nav id="sidebar-nav" class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                    <a id="nav-dashboard" th:href="@{/dashboard}"
+                    <a sec:authorize="hasAuthority('DASHBOARD_VIEW')" id="nav-dashboard" th:href="@{/dashboard}"
                        th:classappend="${#strings.equals(currentPage, 'dashboard')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
                         </svg>
                         Dashboard
                     </a>
-                    <a id="nav-transaksi" th:href="@{/transactions}"
+                    <a sec:authorize="hasAuthority('TRANSACTION_VIEW')" id="nav-transaksi" th:href="@{/transactions}"
                        th:classappend="${#strings.equals(currentPage, 'transactions')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
                         </svg>
                         Transaksi
                     </a>
-                    <a id="nav-drafts" th:href="@{/drafts}"
+                    <a sec:authorize="hasAuthority('DRAFT_VIEW')" id="nav-drafts" th:href="@{/drafts}"
                        th:classappend="${#strings.equals(currentPage, 'drafts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
                         </svg>
                         Draft Struk
                     </a>
-                    <a id="nav-jurnal" th:href="@{/journals}"
+                    <a sec:authorize="hasAuthority('JOURNAL_VIEW')" id="nav-jurnal" th:href="@{/journals}"
                        th:classappend="${#strings.equals(currentPage, 'journals')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@
                         </svg>
                         Buku Besar
                     </a>
-                    <a id="nav-laporan" th:href="@{/reports}"
+                    <a sec:authorize="hasAuthority('REPORT_VIEW')" id="nav-laporan" th:href="@{/reports}"
                        th:classappend="${#strings.equals(currentPage, 'reports')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +75,7 @@
                         </svg>
                         Laporan
                     </a>
-                    <a id="nav-tax-export" th:href="@{/reports/tax-export}"
+                    <a sec:authorize="hasAuthority('TAX_EXPORT')" id="nav-tax-export" th:href="@{/reports/tax-export}"
                        th:classappend="${#strings.equals(currentPage, 'tax-export')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +83,7 @@
                         </svg>
                         Export Pajak
                     </a>
-                    <a id="nav-tax-calendar" th:href="@{/tax-calendar}"
+                    <a sec:authorize="hasAuthority('TAX_CALENDAR_VIEW')" id="nav-tax-calendar" th:href="@{/tax-calendar}"
                        th:classappend="${#strings.equals(currentPage, 'tax-calendar')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@
                         </svg>
                         Kalender Pajak
                     </a>
-                    <a id="nav-akun" th:href="@{/accounts}"
+                    <a sec:authorize="hasAuthority('ACCOUNT_VIEW')" id="nav-akun" th:href="@{/accounts}"
                        th:classappend="${#strings.equals(currentPage, 'accounts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@
                         </svg>
                         Akun
                     </a>
-                    <a id="nav-template" th:href="@{/templates}"
+                    <a sec:authorize="hasAuthority('TEMPLATE_VIEW')" id="nav-template" th:href="@{/templates}"
                        th:classappend="${#strings.equals(currentPage, 'templates')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@
                         </svg>
                         Template
                     </a>
-                    <a id="nav-clients" th:href="@{/clients}"
+                    <a sec:authorize="hasAuthority('CLIENT_VIEW')" id="nav-clients" th:href="@{/clients}"
                        th:classappend="${#strings.equals(currentPage, 'clients')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +115,7 @@
                         </svg>
                         Klien
                     </a>
-                    <a id="nav-employees" th:href="@{/employees}"
+                    <a sec:authorize="hasAuthority('EMPLOYEE_VIEW')" id="nav-employees" th:href="@{/employees}"
                        th:classappend="${#strings.equals(currentPage, 'employees')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@
                         </svg>
                         Karyawan
                     </a>
-                    <a id="nav-salary-components" th:href="@{/salary-components}"
+                    <a sec:authorize="hasAuthority('SALARY_COMPONENT_VIEW')" id="nav-salary-components" th:href="@{/salary-components}"
                        th:classappend="${#strings.equals(currentPage, 'salary-components')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@
                         </svg>
                         Komponen Gaji
                     </a>
-                    <a id="nav-bpjs-calculator" th:href="@{/bpjs-calculator}"
+                    <a sec:authorize="hasAuthority('CALCULATOR_USE')" id="nav-bpjs-calculator" th:href="@{/bpjs-calculator}"
                        th:classappend="${#strings.equals(currentPage, 'bpjs-calculator')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@
                         </svg>
                         Kalkulator BPJS
                     </a>
-                    <a id="nav-pph21-calculator" th:href="@{/pph21-calculator}"
+                    <a sec:authorize="hasAuthority('CALCULATOR_USE')" id="nav-pph21-calculator" th:href="@{/pph21-calculator}"
                        th:classappend="${#strings.equals(currentPage, 'pph21-calculator')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@
                         </svg>
                         Kalkulator PPh 21
                     </a>
-                    <a id="nav-payroll" th:href="@{/payroll}"
+                    <a sec:authorize="hasAuthority('PAYROLL_VIEW')" id="nav-payroll" th:href="@{/payroll}"
                        th:classappend="${#strings.equals(currentPage, 'payroll')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +155,7 @@
                         </svg>
                         Payroll
                     </a>
-                    <a id="nav-projects" th:href="@{/projects}"
+                    <a sec:authorize="hasAuthority('PROJECT_VIEW')" id="nav-projects" th:href="@{/projects}"
                        th:classappend="${#strings.equals(currentPage, 'projects')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@
                         </svg>
                         Proyek
                     </a>
-                    <a id="nav-invoices" th:href="@{/invoices}"
+                    <a sec:authorize="hasAuthority('INVOICE_VIEW')" id="nav-invoices" th:href="@{/invoices}"
                        th:classappend="${#strings.equals(currentPage, 'invoices')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,7 +171,7 @@
                         </svg>
                         Invoice
                     </a>
-                    <a id="nav-amortization" th:href="@{/amortization}"
+                    <a sec:authorize="hasAuthority('AMORTIZATION_VIEW')" id="nav-amortization" th:href="@{/amortization}"
                        th:classappend="${#strings.equals(currentPage, 'amortization')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@
                     <!-- Admin Section Divider -->
                     <div class="border-t border-primary-600 my-4"></div>
 
-                    <a id="nav-import" th:href="@{/import}"
+                    <a sec:authorize="hasAuthority('DATA_IMPORT')" id="nav-import" th:href="@{/import}"
                        th:classappend="${#strings.equals(currentPage, 'import')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +227,7 @@
                         </svg>
                         Pengguna
                     </a>
-                    <a id="nav-settings" th:href="@{/settings}"
+                    <a sec:authorize="hasAuthority('SETTINGS_VIEW')" id="nav-settings" th:href="@{/settings}"
                        th:classappend="${#strings.equals(currentPage, 'settings')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,7 +271,7 @@
 
                 <!-- Navigation (same as desktop) -->
                 <nav id="mobile-sidebar-nav" class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                    <a id="mobile-nav-dashboard" th:href="@{/dashboard}"
+                    <a sec:authorize="hasAuthority('DASHBOARD_VIEW')" id="mobile-nav-dashboard" th:href="@{/dashboard}"
                        th:classappend="${#strings.equals(currentPage, 'dashboard')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@
                         </svg>
                         Dashboard
                     </a>
-                    <a id="mobile-nav-transaksi" th:href="@{/transactions}"
+                    <a sec:authorize="hasAuthority('TRANSACTION_VIEW')" id="mobile-nav-transaksi" th:href="@{/transactions}"
                        th:classappend="${#strings.equals(currentPage, 'transactions')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@
                         </svg>
                         Transaksi
                     </a>
-                    <a id="mobile-nav-drafts" th:href="@{/drafts}"
+                    <a sec:authorize="hasAuthority('DRAFT_VIEW')" id="mobile-nav-drafts" th:href="@{/drafts}"
                        th:classappend="${#strings.equals(currentPage, 'drafts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +295,7 @@
                         </svg>
                         Draft Struk
                     </a>
-                    <a id="mobile-nav-jurnal" th:href="@{/journals}"
+                    <a sec:authorize="hasAuthority('JOURNAL_VIEW')" id="mobile-nav-jurnal" th:href="@{/journals}"
                        th:classappend="${#strings.equals(currentPage, 'journals')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +303,7 @@
                         </svg>
                         Buku Besar
                     </a>
-                    <a id="mobile-nav-laporan" th:href="@{/reports}"
+                    <a sec:authorize="hasAuthority('REPORT_VIEW')" id="mobile-nav-laporan" th:href="@{/reports}"
                        th:classappend="${#strings.equals(currentPage, 'reports')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,7 +311,7 @@
                         </svg>
                         Laporan
                     </a>
-                    <a id="mobile-nav-tax-export" th:href="@{/reports/tax-export}"
+                    <a sec:authorize="hasAuthority('TAX_EXPORT')" id="mobile-nav-tax-export" th:href="@{/reports/tax-export}"
                        th:classappend="${#strings.equals(currentPage, 'tax-export')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,7 +319,7 @@
                         </svg>
                         Export Pajak
                     </a>
-                    <a id="mobile-nav-akun" th:href="@{/accounts}"
+                    <a sec:authorize="hasAuthority('ACCOUNT_VIEW')" id="mobile-nav-akun" th:href="@{/accounts}"
                        th:classappend="${#strings.equals(currentPage, 'accounts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +327,7 @@
                         </svg>
                         Akun
                     </a>
-                    <a id="mobile-nav-template" th:href="@{/templates}"
+                    <a sec:authorize="hasAuthority('TEMPLATE_VIEW')" id="mobile-nav-template" th:href="@{/templates}"
                        th:classappend="${#strings.equals(currentPage, 'templates')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,7 +335,7 @@
                         </svg>
                         Template
                     </a>
-                    <a id="mobile-nav-clients" th:href="@{/clients}"
+                    <a sec:authorize="hasAuthority('CLIENT_VIEW')" id="mobile-nav-clients" th:href="@{/clients}"
                        th:classappend="${#strings.equals(currentPage, 'clients')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,7 +343,7 @@
                         </svg>
                         Klien
                     </a>
-                    <a id="mobile-nav-employees" th:href="@{/employees}"
+                    <a sec:authorize="hasAuthority('EMPLOYEE_VIEW')" id="mobile-nav-employees" th:href="@{/employees}"
                        th:classappend="${#strings.equals(currentPage, 'employees')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,7 +351,7 @@
                         </svg>
                         Karyawan
                     </a>
-                    <a id="mobile-nav-salary-components" th:href="@{/salary-components}"
+                    <a sec:authorize="hasAuthority('SALARY_COMPONENT_VIEW')" id="mobile-nav-salary-components" th:href="@{/salary-components}"
                        th:classappend="${#strings.equals(currentPage, 'salary-components')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +359,7 @@
                         </svg>
                         Komponen Gaji
                     </a>
-                    <a id="mobile-nav-bpjs-calculator" th:href="@{/bpjs-calculator}"
+                    <a sec:authorize="hasAuthority('CALCULATOR_USE')" id="mobile-nav-bpjs-calculator" th:href="@{/bpjs-calculator}"
                        th:classappend="${#strings.equals(currentPage, 'bpjs-calculator')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,7 +367,7 @@
                         </svg>
                         Kalkulator BPJS
                     </a>
-                    <a id="mobile-nav-pph21-calculator" th:href="@{/pph21-calculator}"
+                    <a sec:authorize="hasAuthority('CALCULATOR_USE')" id="mobile-nav-pph21-calculator" th:href="@{/pph21-calculator}"
                        th:classappend="${#strings.equals(currentPage, 'pph21-calculator')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,7 +375,7 @@
                         </svg>
                         Kalkulator PPh 21
                     </a>
-                    <a id="mobile-nav-payroll" th:href="@{/payroll}"
+                    <a sec:authorize="hasAuthority('PAYROLL_VIEW')" id="mobile-nav-payroll" th:href="@{/payroll}"
                        th:classappend="${#strings.equals(currentPage, 'payroll')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -383,7 +383,7 @@
                         </svg>
                         Payroll
                     </a>
-                    <a id="mobile-nav-projects" th:href="@{/projects}"
+                    <a sec:authorize="hasAuthority('PROJECT_VIEW')" id="mobile-nav-projects" th:href="@{/projects}"
                        th:classappend="${#strings.equals(currentPage, 'projects')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +391,7 @@
                         </svg>
                         Proyek
                     </a>
-                    <a id="mobile-nav-invoices" th:href="@{/invoices}"
+                    <a sec:authorize="hasAuthority('INVOICE_VIEW')" id="mobile-nav-invoices" th:href="@{/invoices}"
                        th:classappend="${#strings.equals(currentPage, 'invoices')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,7 +399,7 @@
                         </svg>
                         Invoice
                     </a>
-                    <a id="mobile-nav-amortization" th:href="@{/amortization}"
+                    <a sec:authorize="hasAuthority('AMORTIZATION_VIEW')" id="mobile-nav-amortization" th:href="@{/amortization}"
                        th:classappend="${#strings.equals(currentPage, 'amortization')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,7 +411,7 @@
                     <!-- Divider -->
                     <div class="border-t border-primary-600 my-4"></div>
 
-                    <a id="mobile-nav-import" th:href="@{/import}"
+                    <a sec:authorize="hasAuthority('DATA_IMPORT')" id="mobile-nav-import" th:href="@{/import}"
                        th:classappend="${#strings.equals(currentPage, 'import')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -427,7 +427,7 @@
                         </svg>
                         Pengguna
                     </a>
-                    <a id="mobile-nav-settings" th:href="@{/settings}"
+                    <a sec:authorize="hasAuthority('SETTINGS_VIEW')" id="mobile-nav-settings" th:href="@{/settings}"
                        th:classappend="${#strings.equals(currentPage, 'settings')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                        class="flex items-center px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
