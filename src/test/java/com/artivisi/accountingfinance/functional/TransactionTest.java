@@ -498,4 +498,138 @@ class TransactionTest extends PlaywrightTestBase {
             assertThat(firstRevenueAmount).isNotEqualTo(secondRevenueAmount);
         }
     }
+
+    @Nested
+    @DisplayName("1.5.13 Document Upload")
+    class DocumentUploadTests {
+
+        @Test
+        @DisplayName("Should upload document in transaction form and display it in detail page")
+        void shouldUploadDocumentAndDisplayInDetailPage() {
+            // Navigate to transaction form
+            transactionFormPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            
+            // Fill transaction details
+            transactionFormPage.fillAmount("15000000");
+            transactionFormPage.fillDescription("Test Transaction with Document " + System.currentTimeMillis());
+            transactionFormPage.fillReferenceNumber("INV-DOC-001");
+            
+            // Save as draft first - document upload requires saved transaction with ID
+            transactionFormPage.clickSaveDraft();
+            
+            // Verify we're on detail page now
+            transactionDetailPage.assertPageLoaded();
+            transactionDetailPage.assertDraftStatus();
+            
+            // Get transaction ID to edit
+            String transactionId = page.url().split("/transactions/")[1];
+            
+            // Navigate back to edit mode
+            transactionFormPage.navigateToEdit(transactionId);
+            
+            // Verify document section is visible (will wait for HTMX to load it)
+            transactionFormPage.assertDocumentSectionVisible();
+            
+            // Upload a test document
+            java.nio.file.Path testFile = java.nio.file.Paths.get("src/test/resources/testdata/test-document.pdf");
+            transactionFormPage.uploadDocument(testFile);
+            
+            // Verify document appears in the form
+            transactionFormPage.assertDocumentVisible("test-document.pdf");
+            assertThat(transactionFormPage.getDocumentCount()).isEqualTo(1);
+            
+            // Navigate to detail page to verify document persisted
+            transactionDetailPage.navigate(transactionId);
+            
+            // Verify document is visible in detail page
+            transactionDetailPage.assertDocumentSectionVisible();
+            transactionDetailPage.assertDocumentVisible("test-document.pdf");
+            assertThat(transactionDetailPage.getDocumentCount()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("Should upload multiple documents")
+        void shouldUploadMultipleDocuments() {
+            // Navigate to transaction form
+            transactionFormPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            
+            // Fill transaction details
+            transactionFormPage.fillAmount("20000000");
+            transactionFormPage.fillDescription("Test Transaction with Multiple Documents " + System.currentTimeMillis());
+            
+            // Save as draft first - document upload requires saved transaction with ID
+            transactionFormPage.clickSaveDraft();
+            
+            // Get transaction ID
+            transactionDetailPage.assertPageLoaded();
+            String transactionId = page.url().split("/transactions/")[1];
+            
+            // Navigate back to edit mode
+            transactionFormPage.navigateToEdit(transactionId);
+            
+            // Upload first document
+            java.nio.file.Path testFile = java.nio.file.Paths.get("src/test/resources/testdata/test-document.pdf");
+            transactionFormPage.uploadDocument(testFile);
+            transactionFormPage.assertDocumentVisible("test-document.pdf");
+            
+            // Upload second document
+            java.nio.file.Path secondTestFile = java.nio.file.Paths.get("src/test/resources/testdata/test-receipt.pdf");
+            transactionFormPage.uploadDocument(secondTestFile);
+            transactionFormPage.assertDocumentVisible("test-receipt.pdf");
+            
+            // Verify both documents are present
+            assertThat(transactionFormPage.getDocumentCount()).isEqualTo(2);
+            
+            // Verify documents are visible in detail page
+            transactionDetailPage.navigate(transactionId);
+            transactionDetailPage.assertDocumentVisible("test-document.pdf");
+            transactionDetailPage.assertDocumentVisible("test-receipt.pdf");
+            assertThat(transactionDetailPage.getDocumentCount()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("Should persist document after posting transaction")
+        void shouldPersistDocumentAfterPosting() {
+            // Create transaction
+            transactionFormPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            transactionFormPage.fillAmount("25000000");
+            transactionFormPage.fillDescription("Test Posted Transaction with Document " + System.currentTimeMillis());
+            
+            // Save as draft first
+            transactionFormPage.clickSaveDraft();
+            
+            // Get transaction ID
+            transactionDetailPage.assertPageLoaded();
+            String transactionId = page.url().split("/transactions/")[1];
+            
+            // Navigate back to edit mode
+            transactionFormPage.navigateToEdit(transactionId);
+            
+            // Upload document
+            java.nio.file.Path testFile = java.nio.file.Paths.get("src/test/resources/testdata/test-document.pdf");
+            transactionFormPage.uploadDocument(testFile);
+            transactionFormPage.assertDocumentVisible("test-document.pdf");
+            
+            // Navigate to detail page to verify upload succeeded
+            transactionDetailPage.navigate(transactionId);
+            transactionDetailPage.assertPageLoaded();
+            transactionDetailPage.assertDraftStatus();
+            
+            // Verify document is visible in detail page
+            transactionDetailPage.assertDocumentSectionVisible();
+            transactionDetailPage.assertDocumentVisible("test-document.pdf");
+            assertThat(transactionDetailPage.getDocumentCount()).isEqualTo(1);
+            
+            // Post the transaction
+            transactionDetailPage.clickPostButton();
+            
+            // Wait for post to complete and verify status changes
+            page.waitForTimeout(2000); // Give time for HTMX post to complete
+            transactionDetailPage.assertPostedStatus();
+            
+            // Verify document still visible after posting
+            transactionDetailPage.assertDocumentVisible("test-document.pdf");
+            assertThat(transactionDetailPage.getDocumentCount()).isEqualTo(1);
+        }
+    }
 }
