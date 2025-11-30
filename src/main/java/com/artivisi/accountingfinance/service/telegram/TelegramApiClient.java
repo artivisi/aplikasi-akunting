@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.service.telegram;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.GetExchange;
@@ -25,6 +26,7 @@ public interface TelegramApiClient {
     byte[] downloadFile(@PathVariable String token, @PathVariable String filePath);
 
     // Request/Response DTOs
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     record SendMessageRequest(
         Long chat_id,
         String text,

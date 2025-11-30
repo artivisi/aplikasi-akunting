@@ -596,7 +596,7 @@ CREATE INDEX idx_documents_uploaded_at ON documents(uploaded_at);
 CREATE TABLE telegram_user_links (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_user UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    telegram_user_id BIGINT NOT NULL UNIQUE,
+    telegram_user_id BIGINT UNIQUE,
     telegram_username VARCHAR(100),
     telegram_first_name VARCHAR(255),
     verification_code VARCHAR(10),

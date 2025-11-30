@@ -86,8 +86,10 @@ public class TelegramBotService {
 
         // Check if user is linked
         Optional<TelegramUserLink> linkOpt = telegramLinkRepository.findByTelegramUserIdAndIsActiveTrue(userId);
+        log.info("User link status: {}", linkOpt.isPresent() ? "linked" : "not linked");
 
         if (message.hasText()) {
+            log.info("Processing text message: {}", message.getText());
             String text = message.getText();
 
             if (text.startsWith("/start")) {
@@ -102,7 +104,10 @@ public class TelegramBotService {
                 sendMessage(chatId, "Kirim foto struk untuk diproses, atau ketik /help untuk bantuan.");
             }
         } else if (message.hasPhoto()) {
+            log.info("Processing photo message with {} photos", message.getPhoto().size());
             handlePhotoMessage(chatId, userId, username, message.getPhoto(), message.getMessageId(), linkOpt);
+        } else {
+            log.info("Ignoring message - no text or photo");
         }
     }
 
@@ -210,7 +215,7 @@ public class TelegramBotService {
                 • GoPay
                 • BYOND/BSI
                 • Struk umum lainnya
-                """);
+                """, true); // Use Markdown for formatted help
     }
 
     private void handlePhotoMessage(Long chatId, Long userId, String username,
@@ -300,14 +305,22 @@ public class TelegramBotService {
             sb.append("Buka aplikasi untuk input manual.");
         }
 
-        sendMessage(chatId, sb.toString());
+        sendMessage(chatId, sb.toString(), true); // Use Markdown for formatted result
     }
 
     private void sendMessage(Long chatId, String text) {
+        sendMessage(chatId, text, false);
+    }
+
+    private void sendMessage(Long chatId, String text, boolean useMarkdown) {
         if (telegramApiClient == null) return;
 
         try {
-            var request = new TelegramApiClient.SendMessageRequest(chatId, text, "Markdown");
+            var request = new TelegramApiClient.SendMessageRequest(
+                chatId, 
+                text, 
+                useMarkdown ? "Markdown" : null
+            );
             var response = telegramApiClient.sendMessage(request);
             
             if (!Boolean.TRUE.equals(response.ok())) {

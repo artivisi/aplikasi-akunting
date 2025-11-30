@@ -16,6 +16,21 @@ Fitur **Telegram Receipt** memungkinkan Anda:
 
 Ini memudahkan pencatatan karena Anda bisa langsung foto struk dari lokasi, lalu proses di kantor kemudian.
 
+### Penting: Setiap Pengguna Harus Link Sendiri
+
+**Setiap orang** yang ingin mengirim struk via Telegram harus menghubungkan akun Telegram mereka dengan akun aplikasi mereka:
+
+- **Office Manager** (user A) → Link Telegram-nya → Struk masuk atas nama user A
+- **Accountant** (user B) → Link Telegram-nya → Struk masuk atas nama user B  
+- **Boss** (user C) → Link Telegram-nya → Struk masuk atas nama user C
+
+**Alasan**:
+- **Keamanan**: Hanya user yang ter-autorisasi bisa mencatat transaksi
+- **Audit**: Sistem mencatat siapa yang mengirim struk
+- **Permissions**: Setiap user punya hak akses yang berbeda
+
+Jika seseorang belum link dan mengirim struk, bot akan membalas: *"Akun belum terhubung. Ketik /start untuk mulai."*
+
 ## Skenario 1: Setup Telegram Bot (Sekali Saja)
 
 **Situasi**: Pertama kali menggunakan fitur Telegram Receipt.

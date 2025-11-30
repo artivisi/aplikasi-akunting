@@ -37,8 +37,7 @@ public class TelegramUserLink {
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 
-    @NotNull(message = "Telegram user ID is required")
-    @Column(name = "telegram_user_id", nullable = false, unique = true)
+    @Column(name = "telegram_user_id", unique = true)
     private Long telegramUserId;
 
     @Size(max = 100, message = "Telegram username must not exceed 100 characters")
