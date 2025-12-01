@@ -25,9 +25,9 @@ public class TaxExportPage {
     private static final String BUPOT_COUNT = ".bg-yellow-100";
 
     // Download buttons
-    private static final String BTN_DOWNLOAD_FAKTUR_KELUARAN = "a[href*='efaktur-keluaran']";
-    private static final String BTN_DOWNLOAD_FAKTUR_MASUKAN = "a[href*='efaktur-masukan']";
-    private static final String BTN_DOWNLOAD_BUPOT = "a[href*='bupot-unifikasi']";
+    private static final String BTN_DOWNLOAD_FAKTUR_KELUARAN = "#btn-download-efaktur-keluaran";
+    private static final String BTN_DOWNLOAD_FAKTUR_MASUKAN = "#btn-download-efaktur-masukan";
+    private static final String BTN_DOWNLOAD_BUPOT = "#btn-download-bupot-unifikasi";
 
     public TaxExportPage(Page page, String baseUrl) {
         this.page = page;

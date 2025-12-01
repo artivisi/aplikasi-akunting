@@ -228,12 +228,14 @@
                                         <input type="hidden" :name="'lines[' + index + '].position'" :value="line.position">
                                         <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden">
                                             <button type="button"
+                                                    :id="'btn-debit-' + index"
                                                     @click="line.position = 'DEBIT'"
                                                     :class="line.position === 'DEBIT' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                                                     class="px-2 py-1 text-xs font-medium transition-colors">
                                                 D
                                             </button>
                                             <button type="button"
+                                                    :id="'btn-credit-' + index"
                                                     @click="line.position = 'CREDIT'"
                                                     :class="line.position === 'CREDIT' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                                                     class="px-2 py-1 text-xs font-medium border-l border-gray-300 transition-colors">
@@ -656,13 +658,15 @@
                             description: document.getElementById('description').value,
                             active: true,
                             isFavorite: false,
-                            lines: this.journalLines.map((line, index) => ({
-                                accountId: line.accountId,
-                                position: line.position,
-                                formula: line.formula,
-                                lineOrder: index + 1,
-                                description: ''
-                            }))
+                            lines: this.journalLines
+                                .filter(line => line.accountId) // Only include lines with accounts
+                                .map((line, index) => ({
+                                    accountId: line.accountId,
+                                    position: line.position,
+                                    formula: line.formula,
+                                    lineOrder: index + 1,
+                                    description: ''
+                                }))
                         };
 
                         // First, create temporary template via API
@@ -718,21 +722,24 @@
                     }
 
                     // Format the preview data as a table
-                    const lines = result.journalEntryLines || [];
+                    const lines = result.entries || [];
+                    const templateName = this.templateName;
+                    const previewAmount = this.previewAmount;
+                    
                     let html = `
-                        <div class="fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.5)">
+                        <div class="fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.5)" id="previewModal">
                             <div class="flex items-center justify-center min-h-screen px-4">
                                 <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full p-6">
                                     <div class="flex items-center justify-between mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-900">Preview Template: ${this.templateName}</h3>
-                                        <button onclick="this.closest('[style*=\\'fixed\\']').remove()" class="text-gray-400 hover:text-gray-600">
+                                        <h3 class="text-lg font-semibold text-gray-900">Preview Template: ${templateName}</h3>
+                                        <button type="button" onclick="document.getElementById('previewModal').remove()" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </button>
                                     </div>
                                     <div class="mb-4 text-sm text-gray-600">
-                                        <p>Jumlah: <span class="font-mono font-semibold">Rp ${this.previewAmount}</span></p>
+                                        <p>Jumlah: <span class="font-mono font-semibold">Rp ${previewAmount}</span></p>
                                     </div>
                                     <div class="border border-gray-200 rounded-lg overflow-hidden">
                                         <table class="min-w-full divide-y divide-gray-200">
@@ -750,9 +757,9 @@
                     let totalCredit = 0;
 
                     lines.forEach(line => {
-                        const accountName = line.accountCode + ' - ' + line.accountName;
-                        const debit = line.position === 'DEBIT' ? line.amount : 0;
-                        const credit = line.position === 'CREDIT' ? line.amount : 0;
+                        const accountName = (line.accountCode || '?') + ' - ' + (line.accountName || 'Akun tidak tersedia');
+                        const debit = line.debitAmount || 0;
+                        const credit = line.creditAmount || 0;
                         totalDebit += debit;
                         totalCredit += credit;
 
@@ -782,7 +789,7 @@
                                             : '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span class="text-sm font-medium">Jurnal tidak seimbang! Debit: ' + this.formatNumber(totalDebit) + ', Kredit: ' + this.formatNumber(totalCredit) + '</span>'}
                                     </div>
                                     <div class="mt-6 flex justify-end">
-                                        <button onclick="this.closest('[style*=\\'fixed\\']').remove()" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+                                        <button type="button" onclick="document.getElementById('previewModal').remove()" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
                                             Tutup
                                         </button>
                                     </div>

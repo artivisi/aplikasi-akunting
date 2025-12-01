@@ -35,7 +35,7 @@ public interface JournalTemplateRepository extends JpaRepository<JournalTemplate
            "ORDER BY t.templateName")
     List<JournalTemplate> findByOptionalCategory(@Param("category") TemplateCategory category);
 
-    @Query("SELECT t FROM JournalTemplate t LEFT JOIN FETCH t.lines WHERE t.id = :id")
+    @Query("SELECT t FROM JournalTemplate t LEFT JOIN FETCH t.lines l LEFT JOIN FETCH l.account WHERE t.id = :id")
     java.util.Optional<JournalTemplate> findByIdWithLines(@Param("id") UUID id);
 
     boolean existsByTemplateName(String templateName);

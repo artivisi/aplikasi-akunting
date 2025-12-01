@@ -89,7 +89,8 @@
                     <span class="font-medium">Total PPN:</span>
                     <span th:text="${#numbers.formatDecimal(stats.totalPPNKeluaran(), 0, 'COMMA', 0, 'POINT')}">0</span>
                 </div>
-                <a th:href="@{/reports/tax-export/efaktur-keluaran(startMonth=${startMonth}, endMonth=${endMonth})}"
+                <a id="btn-download-efaktur-keluaran"
+                   th:href="@{/reports/tax-export/efaktur-keluaran(startMonth=${startMonth}, endMonth=${endMonth})}"
                    class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                    th:classappend="${stats.fakturKeluaranCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +116,8 @@
                     <span class="font-medium">Total PPN:</span>
                     <span th:text="${#numbers.formatDecimal(stats.totalPPNMasukan(), 0, 'COMMA', 0, 'POINT')}">0</span>
                 </div>
-                <a th:href="@{/reports/tax-export/efaktur-masukan(startMonth=${startMonth}, endMonth=${endMonth})}"
+                <a id="btn-download-efaktur-masukan"
+                   th:href="@{/reports/tax-export/efaktur-masukan(startMonth=${startMonth}, endMonth=${endMonth})}"
                    class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                    th:classappend="${stats.fakturMasukanCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +143,8 @@
                     <span class="font-medium">Total PPh:</span>
                     <span th:text="${#numbers.formatDecimal(stats.totalPPh(), 0, 'COMMA', 0, 'POINT')}">0</span>
                 </div>
-                <a th:href="@{/reports/tax-export/bupot-unifikasi(startMonth=${startMonth}, endMonth=${endMonth})}"
+                <a id="btn-download-bupot-unifikasi"
+                   th:href="@{/reports/tax-export/bupot-unifikasi(startMonth=${startMonth}, endMonth=${endMonth})}"
                    class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                    th:classappend="${stats.bupotUnifikasiCount() == 0} ? 'opacity-50 pointer-events-none' : ''">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.time.YearMonth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,6 +29,17 @@ class TaxExportTest extends PlaywrightTestBase {
         loginPage.navigate().loginAsAdmin();
     }
 
+    /**
+     * Get the month where test data exists.
+     * Test data uses CURRENT_DATE - INTERVAL '2-5 days', so if today is December 1,
+     * the data is from November 26-29.
+     */
+    private YearMonth getTestDataMonth() {
+        // Get the date 5 days ago (oldest test data record)
+        var fiveDaysAgo = java.time.LocalDate.now().minusDays(5);
+        return YearMonth.from(fiveDaysAgo);
+    }
+
     @Nested
     @DisplayName("9.1 Page Navigation")
     class PageNavigationTests {
@@ -35,7 +47,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display tax export page title")
         void shouldDisplayTaxExportPageTitle() {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             taxExportPage.assertPageTitleVisible();
             taxExportPage.assertPageTitleText("Export Data Pajak untuk Coretax");
@@ -44,7 +56,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display start month selector")
         void shouldDisplayStartMonthSelector() {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             taxExportPage.assertStartMonthVisible();
         }
@@ -52,7 +64,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display end month selector")
         void shouldDisplayEndMonthSelector() {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             taxExportPage.assertEndMonthVisible();
         }
@@ -60,7 +72,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display submit button")
         void shouldDisplaySubmitButton() {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             taxExportPage.assertSubmitButtonVisible();
         }
@@ -74,7 +86,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @DisplayName("Should display faktur keluaran count")
         void shouldDisplayFakturKeluaranCount() {
             // Test data has 2 PPN_KELUARAN records
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             String countText = taxExportPage.getFakturKeluaranCountText();
             assertThat(countText).contains("faktur");
@@ -84,7 +96,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @DisplayName("Should display faktur masukan count")
         void shouldDisplayFakturMasukanCount() {
             // Test data has 1 PPN_MASUKAN record
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             String countText = taxExportPage.getFakturMasukanCountText();
             assertThat(countText).contains("faktur");
@@ -94,7 +106,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @DisplayName("Should display bupot count")
         void shouldDisplayBupotCount() {
             // Test data has 1 PPH_23 record
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             String countText = taxExportPage.getBupotCountText();
             assertThat(countText).contains("bupot");
@@ -108,7 +120,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should download e-Faktur Keluaran Excel file")
         void shouldDownloadEFakturKeluaranExcel() throws Exception {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             byte[] excelData = taxExportPage.downloadFakturKeluaran();
 
@@ -127,7 +139,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should have correct data in e-Faktur Keluaran Excel")
         void shouldHaveCorrectDataInEFakturKeluaranExcel() throws Exception {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             byte[] excelData = taxExportPage.downloadFakturKeluaran();
 
@@ -152,7 +164,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should download e-Faktur Masukan Excel file")
         void shouldDownloadEFakturMasukanExcel() throws Exception {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             byte[] excelData = taxExportPage.downloadFakturMasukan();
 
@@ -172,7 +184,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should download Bupot Unifikasi Excel file")
         void shouldDownloadBupotUnifikasiExcel() throws Exception {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             byte[] excelData = taxExportPage.downloadBupot();
 
@@ -187,7 +199,7 @@ class TaxExportTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should have correct data in Bupot Unifikasi Excel")
         void shouldHaveCorrectDataInBupotUnifikasiExcel() throws Exception {
-            taxExportPage.navigate();
+            taxExportPage.navigateWithMonth(getTestDataMonth());
 
             byte[] excelData = taxExportPage.downloadBupot();
 

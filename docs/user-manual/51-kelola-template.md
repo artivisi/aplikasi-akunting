@@ -68,14 +68,19 @@ Template jurnal adalah pola pencatatan transaksi yang sudah dikonfigurasi. Manfa
    - **Tipe Template**: `Sederhana`
 4. Konfigurasi baris jurnal:
 
-| Posisi | Akun | Formula |
-|--------|------|---------|
-| Debit | Beban Transportasi | `amount` |
-| Kredit | (Akun Sumber) | `amount` |
+| Posisi | Akun | Formula | Hint (opsional) |
+|--------|------|---------|-----------------|
+| Debit | Beban Transportasi | `amount` | - |
+| Kredit | **[ Pilih saat transaksi ]** | `amount` | `Bank/Kas` |
 
 5. Klik **Simpan Template**
 
-**Hasil**: Template siap digunakan. Saat membuat transaksi, user tinggal pilih akun sumber (Kas Kecil atau Bank) dan masukkan jumlah.
+**Hasil**: 
+- Template siap digunakan
+- Saat membuat transaksi, user akan diminta memilih akun sumber (Kas Kecil, Bank BCA, dll)
+- Hint "Bank/Kas" membantu user memahami jenis akun yang harus dipilih
+
+**Catatan**: Akun dengan indikator **?** (tanda tanya biru) berarti akun akan dipilih saat input transaksi.
 
 ## Skenario 3: Buat Template dengan PPN
 
@@ -91,13 +96,18 @@ Template jurnal adalah pola pencatatan transaksi yang sudah dikonfigurasi. Manfa
    - **Tag**: `PPN`
 4. Konfigurasi baris jurnal:
 
-| Posisi | Akun | Formula | Keterangan |
-|--------|------|---------|------------|
-| Debit | Perlengkapan Kantor | `amount / 1.11` | DPP |
-| Debit | PPN Masukan | `amount * 0.11 / 1.11` | PPN |
-| Kredit | (Akun Sumber) | `amount` | Total bayar |
+| Posisi | Akun | Formula | Hint | Keterangan |
+|--------|------|---------|------|------------|
+| Debit | **[ Pilih saat transaksi ]** | `amount / 1.11` | `Akun Beban` | DPP |
+| Debit | PPN Masukan | `amount * 0.11 / 1.11` | - | PPN |
+| Kredit | **[ Pilih saat transaksi ]** | `amount` | `Bank/Kas` | Total bayar |
 
 5. Klik **Simpan Template**
+
+**Keuntungan Dynamic Account**:
+- Satu template bisa digunakan untuk berbagai jenis pembelian
+- User pilih akun beban yang sesuai (Perlengkapan, Supplies, Aset, dll) saat transaksi
+- User pilih akun pembayaran yang digunakan (Bank BCA, Kas, dll)
 
 **Formula yang Digunakan**:
 - `amount / 1.11` = menghitung DPP dari nilai inklusif
@@ -118,13 +128,17 @@ Template jurnal adalah pola pencatatan transaksi yang sudah dikonfigurasi. Manfa
    - **Tag**: `PPh23`
 4. Konfigurasi baris jurnal:
 
-| Posisi | Akun | Formula | Keterangan |
-|--------|------|---------|------------|
-| Debit | Beban Jasa Profesional | `amount` | Nilai bruto |
-| Kredit | (Akun Sumber) | `amount * 0.98` | Nett (setelah potong) |
-| Kredit | Hutang PPh 23 | `amount * 0.02` | PPh dipotong |
+| Posisi | Akun | Formula | Hint | Keterangan |
+|--------|------|---------|------|------------|
+| Debit | **[ Pilih saat transaksi ]** | `amount` | `Akun Beban` | Nilai bruto |
+| Kredit | **[ Pilih saat transaksi ]** | `amount * 0.98` | `Bank/Kas` | Nett (setelah potong) |
+| Kredit | Hutang PPh 23 | `amount * 0.02` | - | PPh dipotong |
 
 5. Klik **Simpan Template**
+
+**Penggunaan**:
+- Saat transaksi, pilih akun beban sesuai jenis jasa (Jasa Profesional, Jasa Konsultan, dll)
+- Pilih akun bank yang digunakan untuk pembayaran
 
 ## Skenario 5: Template dengan PPh Kondisional (Threshold)
 
@@ -135,11 +149,11 @@ Template jurnal adalah pola pencatatan transaksi yang sudah dikonfigurasi. Manfa
 1. Buat template seperti Skenario 4
 2. Ubah formula PPh menjadi kondisional:
 
-| Posisi | Akun | Formula |
-|--------|------|---------|
-| Debit | Beban Jasa | `amount` |
-| Kredit | (Akun Sumber) | `amount > 2000000 ? amount * 0.98 : amount` |
-| Kredit | Hutang PPh 23 | `amount > 2000000 ? amount * 0.02 : 0` |
+| Posisi | Akun | Formula | Hint |
+|--------|------|---------|------|
+| Debit | **[ Pilih saat transaksi ]** | `amount` | `Akun Beban` |
+| Kredit | **[ Pilih saat transaksi ]** | `amount > 2000000 ? amount * 0.98 : amount` | `Bank/Kas` |
+| Kredit | Hutang PPh 23 | `amount > 2000000 ? amount * 0.02 : 0` | - |
 
 **Format Formula Kondisional**:
 ```
@@ -150,33 +164,132 @@ kondisi ? nilai_jika_benar : nilai_jika_salah
 - Jika amount = 3.000.000 → PPh = 60.000 (2%)
 - Jika amount = 1.500.000 → PPh = 0
 
-## Skenario 6: Test Formula Sebelum Simpan
+## Skenario 6: Akun Dinamis vs Akun Tetap
+
+**Situasi**: Anda perlu memahami kapan menggunakan akun tetap dan kapan menggunakan akun dinamis.
+
+### Akun Tetap
+
+**Kapan Digunakan**:
+- Akun yang selalu sama untuk setiap transaksi
+- Contoh: PPN Masukan, Hutang PPh 23, Pendapatan Jasa Konsultasi
+
+**Cara Setting**:
+- Pilih akun dari dropdown
+- Kode akun akan ditampilkan di preview
+
+**Tampilan**:
+- Detail template menampilkan kode dan nama akun
+- Tidak ada indikator khusus
+
+### Akun Dinamis (?)
+
+**Kapan Digunakan**:
+- Akun yang bervariasi tergantung transaksi
+- Contoh: Bank yang digunakan, Jenis beban, Akun kas
+
+**Cara Setting**:
+1. Pilih **[ Pilih saat transaksi ]** dari dropdown akun
+2. Opsional: Isi field **Hint** yang muncul
+   - Contoh hint: "Bank/Kas", "Akun Beban", "Akun Aset"
+3. Indikator **?** biru akan muncul di sebelah baris
+
+**Keuntungan**:
+- **Fleksibel** - Satu template untuk berbagai akun
+- **Efisien** - Tidak perlu buat template terpisah untuk setiap bank
+- **User-friendly** - Hint membantu user memilih akun yang tepat
+
+**Penggunaan Saat Transaksi**:
+- Dropdown akun akan muncul saat buat transaksi
+- User memilih akun spesifik yang digunakan
+- Preview jurnal langsung update sesuai pilihan
+
+**Contoh Kasus**:
+
+| Template | Akun Tetap | Akun Dinamis |
+|----------|-----------|--------------|
+| Beban Listrik | Beban Listrik | Bank yang digunakan |
+| Pendapatan Jasa | Pendapatan Jasa | Bank penerima |
+| Pembelian + PPN | PPN Masukan | Akun beban, Bank pembayaran |
+
+## Skenario 7: Menggunakan Template dengan Akun Dinamis
+
+**Situasi**: Anda membuat transaksi menggunakan template dengan akun dinamis.
+
+**Langkah-langkah**:
+
+1. Buka menu **Transaksi** → **Transaksi Baru**
+2. Pilih template yang memiliki akun dinamis (?)
+3. Isi form transaksi:
+   - **Tanggal**: Pilih tanggal
+   - **Jumlah**: Masukkan nilai
+   - **Keterangan**: Isi keterangan
+4. **Pilih Akun Dinamis** - Dropdown akan muncul untuk setiap akun dinamis:
+   - Dropdown menampilkan hint sebagai placeholder
+   - Contoh: "Bank/Kas" → Pilih "Bank BCA" atau "Kas Kecil"
+5. Klik **Preview** untuk lihat jurnal yang akan dibuat
+6. Klik **Simpan & Posting**
+
+**Contoh Visual**:
+
+```
+Template: Beban Parkir
+══════════════════════════════════════
+
+Informasi Transaksi
+────────────────────
+Tanggal: 01 Dec 2025
+Jumlah:  Rp 50.000
+Keterangan: Parkir Meeting Client
+
+Pilih Akun
+────────────────────
+□ Akun Sumber (Bank/Kas)
+  ├─ Kas Kecil ✓
+  ├─ Bank BCA
+  └─ Bank Mandiri
+
+Preview Jurnal
+────────────────────
+Beban Transportasi (Dr)  Rp 50.000
+Kas Kecil (Cr)           Rp 50.000
+                         ─────────
+Total                    Rp 50.000 ✓
+```
+
+## Skenario 8: Test Formula dan Preview Template
 
 **Situasi**: Anda ingin memastikan formula sudah benar sebelum menyimpan template.
 
 **Langkah-langkah**:
 
 1. Di form template, setelah memasukkan formula
-2. Klik tombol **Coba Formula**
-3. Masukkan nilai contoh: `10000000`
-4. Lihat hasil perhitungan:
+2. Masukkan nilai preview di kolom **Preview dengan**: `10000000`
+3. Kolom **Preview** di setiap baris akan menampilkan hasil perhitungan
+4. Klik tombol **Preview** untuk melihat modal lengkap:
 
 ```
 Input: Rp 10.000.000
 
 Hasil Perhitungan:
 ─────────────────────────────────
-Beban Jasa Profesional (Dr)  Rp 10.000.000
-Bank BCA (Cr)                Rp  9.800.000
+? - Akun Beban (Dr)          Rp 10.000.000
+? - Bank/Kas (Cr)            Rp  9.800.000
 Hutang PPh 23 (Cr)           Rp    200.000
 ─────────────────────────────────
 Total Debit                  Rp 10.000.000
 Total Kredit                 Rp 10.000.000 ✓
+Jurnal seimbang
 ```
+
+**Catatan**: 
+- Akun dinamis ditampilkan dengan **?** dan hint-nya
+- Preview membantu validasi formula sebelum simpan
+- Total harus seimbang (debit = kredit)
 
 5. Jika sudah benar, klik **Simpan Template**
 
-## Skenario 7: Duplikat Template yang Ada
+## Skenario 9: Duplikat Template yang Ada
 
 **Situasi**: Anda ingin membuat variasi dari template yang sudah ada.
 
@@ -190,7 +303,7 @@ Total Kredit                 Rp 10.000.000 ✓
 6. Ubah akun beban jika perlu
 7. Klik **Simpan Template**
 
-## Skenario 8: Edit Template yang Ada
+## Skenario 10: Edit Template yang Ada
 
 **Situasi**: Tarif PPN berubah dari 11% menjadi 12%.
 
@@ -207,7 +320,7 @@ Total Kredit                 Rp 10.000.000 ✓
 
 **Catatan**: Perubahan hanya berlaku untuk transaksi baru. Transaksi yang sudah ada tidak berubah.
 
-## Skenario 9: Nonaktifkan Template
+## Skenario 11: Nonaktifkan Template
 
 **Situasi**: Ada template yang tidak lagi digunakan.
 
@@ -223,6 +336,24 @@ Total Kredit                 Rp 10.000.000 ✓
 **Efek**:
 - Template tidak muncul saat buat transaksi baru
 - Transaksi historis tetap ada
+
+## FAQ
+
+### Berapa banyak akun dinamis yang bisa ada dalam satu template?
+
+Tidak ada batasan. Anda bisa membuat template dengan semua akun dinamis, semua akun tetap, atau kombinasi keduanya.
+
+### Apakah akun dinamis mempengaruhi performa?
+
+Tidak. Akun dinamis hanya mempengaruhi tampilan form transaksi, tidak mempengaruhi performa sistem.
+
+### Bisa tidak mengubah akun tetap menjadi dinamis di template yang sudah ada?
+
+Bisa. Edit template, ubah akun dari pilihan spesifik menjadi **[ Pilih saat transaksi ]**, dan tambahkan hint jika perlu.
+
+### Apakah transaksi lama terpengaruh jika template diubah?
+
+Tidak. Perubahan template hanya berlaku untuk transaksi baru. Transaksi yang sudah dibuat tetap menggunakan konfigurasi template saat transaksi dibuat.
 
 ## Referensi Formula
 

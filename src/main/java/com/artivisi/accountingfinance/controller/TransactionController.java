@@ -262,8 +262,10 @@ public class TransactionController {
         var previewResult = templateExecutionEngine.preview(template, context);
         
         // Apply account mappings for template lines with null accounts
+        java.util.List<TemplateExecutionEngine.PreviewEntry> entries = previewResult.entries();
         if (accountMapping != null && !accountMapping.isEmpty()) {
-            // Match entries to template lines by order
+            // Match entries to template lines by order and create new entries with mapped accounts
+            java.util.List<TemplateExecutionEngine.PreviewEntry> mappedEntries = new java.util.ArrayList<>();
             for (int i = 0; i < Math.min(template.getLines().size(), previewResult.entries().size()); i++) {
                 var templateLine = template.getLines().get(i);
                 var entry = previewResult.entries().get(i);
@@ -273,13 +275,22 @@ public class TransactionController {
                     String mappedAccountId = accountMapping.get(templateLine.getId().toString());
                     if (mappedAccountId != null && !mappedAccountId.isEmpty()) {
                         ChartOfAccount mappedAccount = chartOfAccountService.findById(UUID.fromString(mappedAccountId));
-                        entry.setAccount(mappedAccount);
+                        // Create new PreviewEntry with mapped account
+                        entry = new TemplateExecutionEngine.PreviewEntry(
+                            mappedAccount.getAccountCode(),
+                            mappedAccount.getAccountName(),
+                            entry.description(),
+                            entry.debitAmount(),
+                            entry.creditAmount()
+                        );
                     }
                 }
+                mappedEntries.add(entry);
             }
+            entries = mappedEntries;
         }
         
-        model.addAttribute("entries", previewResult.entries());
+        model.addAttribute("entries", entries);
         model.addAttribute("totalDebit", previewResult.totalDebit());
         model.addAttribute("totalCredit", previewResult.totalCredit());
         

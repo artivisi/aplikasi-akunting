@@ -86,7 +86,7 @@
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-                        <div>
+                        <div id="template-category">
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</p>
                             <p class="mt-1">
                                 <span th:classappend="${template.category.name() == 'INCOME'} ? 'bg-green-100 text-green-800' :
@@ -159,6 +159,7 @@
                                 <div class="flex items-center">
                                     <!-- Dynamic Account Indicator (?) -->
                                     <span th:if="${line.account == null}"
+                                          th:id="'dynamic-account-indicator-' + ${lineStat.index}"
                                           class="w-8 h-8 rounded bg-blue-50 flex items-center justify-center mr-2">
                                         <span class="text-xs font-mono text-blue-600 font-bold">?</span>
                                     </span>
@@ -181,7 +182,8 @@
                                 </div>
                             </div>
                             <div class="col-span-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium"
+                                <span th:id="'position-badge-' + ${lineStat.index}"
+                                      class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium"
                                       th:classappend="${line.position.name() == 'DEBIT'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                                       th:text="${line.position.name() == 'DEBIT'} ? 'Debit' : 'Kredit'">
                                     Position
@@ -199,16 +201,16 @@
 
 
                     <!-- Balance Summary -->
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div id="balance-summary" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <div class="flex items-center justify-between text-sm">
-                            <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-4" th:with="debitCount=${#aggregates.sum(template.lines.![position.name() eq 'DEBIT' ? 1 : 0])}, creditCount=${#aggregates.sum(template.lines.![position.name() eq 'CREDIT' ? 1 : 0])}">
                                 <span class="text-gray-600">Total baris: <span class="font-medium text-gray-900" th:text="${template.lines.size()}">0</span></span>
                                 <span class="text-gray-400">|</span>
-                                <span class="text-gray-600">Debit: <span class="font-medium text-gray-900" th:text="${template.lines.stream().filter(l -> l.position.name() == 'DEBIT').count()}">0</span></span>
-                                <span class="text-gray-600">Kredit: <span class="font-medium text-gray-900" th:text="${template.lines.stream().filter(l -> l.position.name() == 'CREDIT').count()}">0</span></span>
+                                <span id="debit-count" class="text-gray-600">Debit: <span class="font-medium text-gray-900" th:text="${debitCount}">0</span></span>
+                                <span id="credit-count" class="text-gray-600">Kredit: <span class="font-medium text-gray-900" th:text="${creditCount}">0</span></span>
                             </div>
-                            <div class="flex items-center text-xs">
-                                <span th:if="${template.lines.stream().filter(l -> l.position.name() == 'DEBIT').count() > 0 and template.lines.stream().filter(l -> l.position.name() == 'CREDIT').count() > 0}" 
+                            <div class="flex items-center text-xs" th:with="debitCount=${#aggregates.sum(template.lines.![position.name() eq 'DEBIT' ? 1 : 0])}, creditCount=${#aggregates.sum(template.lines.![position.name() eq 'CREDIT' ? 1 : 0])}">
+                                <span th:if="${debitCount > 0 and creditCount > 0}" 
                                       class="flex items-center text-accent-700">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

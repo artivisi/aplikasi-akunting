@@ -55,6 +55,9 @@ public class TemplateExecutionEngine {
         }
 
         List<JournalEntry> entries = buildJournalEntries(template, context);
+        List<PreviewEntry> previewEntries = entries.stream()
+                .map(PreviewEntry::from)
+                .toList();
 
         BigDecimal totalDebit = entries.stream()
                 .map(JournalEntry::getDebitAmount)
@@ -64,7 +67,7 @@ public class TemplateExecutionEngine {
                 .map(JournalEntry::getCreditAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new PreviewResult(true, List.of(), entries, totalDebit, totalCredit);
+        return new PreviewResult(true, List.of(), previewEntries, totalDebit, totalCredit);
     }
 
     /**
@@ -165,10 +168,28 @@ public class TemplateExecutionEngine {
             List<JournalEntry> entries
     ) {}
 
+    public record PreviewEntry(
+            String accountCode,
+            String accountName,
+            String description,
+            BigDecimal debitAmount,
+            BigDecimal creditAmount
+    ) {
+        public static PreviewEntry from(JournalEntry entry) {
+            return new PreviewEntry(
+                    entry.getAccount() != null ? entry.getAccount().getAccountCode() : null,
+                    entry.getAccount() != null ? entry.getAccount().getAccountName() : null,
+                    entry.getDescription(),
+                    entry.getDebitAmount(),
+                    entry.getCreditAmount()
+            );
+        }
+    }
+
     public record PreviewResult(
             boolean valid,
             List<String> errors,
-            List<JournalEntry> entries,
+            List<PreviewEntry> entries,
             BigDecimal totalDebit,
             BigDecimal totalCredit
     ) {}

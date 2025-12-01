@@ -57,6 +57,8 @@ public class TemplateFormPage {
     }
 
     public void selectCategory(String category) {
+        // Wait for Alpine.js to fully populate the select options
+        page.waitForTimeout(500);
         page.locator(CATEGORY_SELECT).selectOption(category);
     }
 
@@ -79,10 +81,9 @@ public class TemplateFormPage {
     }
 
     public void setPositionForLine(int lineIndex, String position) {
-        // Click the position button (DEBIT or CREDIT)
-        String buttonText = position.equals("DEBIT") ? "Debit" : "Kredit";
-        // Use the x-for template index to find the correct row
-        page.locator("button:has-text('" + buttonText + "')").nth(lineIndex).click();
+        // Click the position button (DEBIT or CREDIT) using ID
+        String buttonId = position.equals("DEBIT") ? "#btn-debit-" + lineIndex : "#btn-credit-" + lineIndex;
+        page.locator(buttonId).click();
     }
 
     public void fillFormulaForLine(int lineIndex, String formula) {
