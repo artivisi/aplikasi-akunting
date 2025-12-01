@@ -143,7 +143,7 @@
                 <div id="section-aksi-cepat" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex-shrink-0">
                     <h2 class="text-sm font-semibold text-gray-900 mb-3">Aksi Cepat</h2>
                     <div class="flex gap-2">
-                        <a href="#" class="flex-1 flex flex-col items-center p-2 rounded-lg bg-primary-50 hover:bg-primary-100 transition-colors">
+                        <a th:href="@{/transactions/new}" class="flex-1 flex flex-col items-center p-2 rounded-lg bg-primary-50 hover:bg-primary-100 transition-colors">
                             <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -151,7 +151,7 @@
                             </div>
                             <span class="mt-1 text-xs font-medium text-primary-700">Transaksi</span>
                         </a>
-                        <a href="#" class="flex-1 flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a th:href="@{/reports}" class="flex-1 flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -159,7 +159,7 @@
                             </div>
                             <span class="mt-1 text-xs font-medium text-gray-700">Laporan</span>
                         </a>
-                        <a href="#" class="flex-1 flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a th:href="@{/reports/tax-export}" class="flex-1 flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
