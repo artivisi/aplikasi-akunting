@@ -397,6 +397,100 @@
 
 Additive is ~3x simpler. Role switching only needed for strict audit trails or compliance requirements.
 
+### 3.9 Full Data Export/Import ⏳
+
+**Goal:** Complete data portability for semi-production workflow (export → reset DB → import).
+
+**Current gap:** DataExportService only exports 11 of 34 entities. Missing: JournalTemplate, CompanyConfig, SalaryComponent, EmployeeSalaryComponent, FiscalPeriod, TaxDeadline, CompanyBankAccount, MerchantMapping, User/UserRole, and 12 others.
+
+#### Export Format
+- **Container:** ZIP archive
+- **Content:** CSV files with numbered prefix for import order
+- **Encoding:** UTF-8, RFC 4180 CSV escaping
+- **References:** Natural keys (codes, not UUIDs)
+
+#### Import Order (filename prefix determines sequence)
+```
+01_company_config.csv
+02_chart_of_accounts.csv
+03_salary_components.csv
+04_journal_templates.csv
+05_journal_template_lines.csv
+06_journal_template_tags.csv
+07_clients.csv
+08_projects.csv
+09_project_milestones.csv
+10_project_payment_terms.csv
+11_fiscal_periods.csv
+12_tax_deadlines.csv
+13_company_bank_accounts.csv
+14_merchant_mappings.csv
+15_employees.csv
+16_employee_salary_components.csv
+17_invoices.csv
+18_transactions.csv
+19_transaction_account_mappings.csv
+20_journal_entries.csv
+21_payroll_runs.csv
+22_payroll_details.csv
+23_amortization_schedules.csv
+24_amortization_entries.csv
+25_tax_transaction_details.csv
+26_tax_deadline_completions.csv
+27_draft_transactions.csv
+28_users.csv
+29_user_roles.csv
+30_user_template_preferences.csv
+31_telegram_user_links.csv
+32_audit_logs.csv
+33_transaction_sequences.csv
+documents/
+  index.csv
+  {files...}
+MANIFEST.md
+```
+
+#### Import Behavior: Full Replace
+Import **clears all existing data** and replaces 100% with exported file content:
+1. Truncate all tables (reverse dependency order)
+2. Load CSVs in filename order
+3. No merge with existing data
+
+#### Import Strategy: Map Pre-load
+Pre-load reference entities into Maps before processing dependent CSVs to avoid N+1 queries:
+
+```java
+Map<String, ChartOfAccount> accountMap;      // for journal entries, template lines
+Map<String, Client> clientMap;               // for projects, invoices
+Map<String, Project> projectMap;             // for transactions, invoices
+Map<String, JournalTemplate> templateMap;    // for transactions
+Map<String, Employee> employeeMap;           // for payroll details
+Map<String, SalaryComponent> componentMap;   // for employee salary components
+```
+
+Estimated import duration (moderate dataset): ~3-5 seconds.
+
+#### Implementation Tasks
+- [ ] Enhance DataExportService: add all 34 entities with numbered CSV filenames
+- [ ] Create DataImportService: parse CSVs in filename order, create entities
+- [ ] Pre-load reference entities into Maps before processing dependent CSVs
+- [ ] Handle passwords (import bcrypt hashes as-is)
+- [ ] Resolve references via natural keys (new UUIDs generated on import)
+- [ ] Import controller and UI (`/settings/import`)
+- [ ] Validation preview before import
+- [ ] Functional test: full round-trip verification
+  1. Start from seed migration (base COA, templates, admin user)
+  2. Modify seed data (edit COA names, update template lines)
+  3. Add custom data (new accounts, new templates, company config)
+  4. Create transactions (income, expense, with journal entries)
+  5. Add payroll data (employee, payroll run)
+  6. Export all data
+  7. Import exported data (truncates all tables, replaces with export)
+  8. Verify: modified seed data reflects edits
+  9. Verify: custom accounts and templates present
+  10. Verify: transactions and journal entries intact
+  11. Verify: payroll data restored
+
 **Phase 3 Deliverable:** ✅ Complete payroll system with tax compliance, role-based access control, and employee self-service.
 
 ---
