@@ -1,640 +1,1214 @@
 package com.artivisi.accountingfinance.service;
 
-import com.artivisi.accountingfinance.dto.dataimport.COAImportDto;
-import com.artivisi.accountingfinance.dto.dataimport.COAImportFileDto;
-import com.artivisi.accountingfinance.dto.dataimport.ImportError;
-import com.artivisi.accountingfinance.dto.dataimport.ImportPreview;
-import com.artivisi.accountingfinance.dto.dataimport.ImportResult;
-import com.artivisi.accountingfinance.dto.dataimport.TemplateImportDto;
-import com.artivisi.accountingfinance.dto.dataimport.TemplateImportFileDto;
-import com.artivisi.accountingfinance.dto.dataimport.TemplateLineImportDto;
-import com.artivisi.accountingfinance.entity.ChartOfAccount;
-import com.artivisi.accountingfinance.entity.JournalTemplate;
-import com.artivisi.accountingfinance.entity.JournalTemplateLine;
-import com.artivisi.accountingfinance.enums.AccountType;
-import com.artivisi.accountingfinance.enums.CashFlowCategory;
-import com.artivisi.accountingfinance.enums.JournalPosition;
-import com.artivisi.accountingfinance.enums.NormalBalance;
-import com.artivisi.accountingfinance.enums.TemplateCategory;
-import com.artivisi.accountingfinance.enums.TemplateType;
-import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
-import com.artivisi.accountingfinance.repository.JournalEntryRepository;
-import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
-import com.artivisi.accountingfinance.repository.TransactionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.artivisi.accountingfinance.entity.*;
+import com.artivisi.accountingfinance.enums.*;
+import com.artivisi.accountingfinance.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+/**
+ * Service for importing all data from a ZIP archive exported by DataExportService.
+ * Implements full replace: truncates all tables then loads from CSV files.
+ * Uses Map pre-load strategy for O(1) reference lookups.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class DataImportService {
 
-    private final ChartOfAccountRepository chartOfAccountRepository;
-    private final JournalTemplateRepository journalTemplateRepository;
+    private final EntityManager entityManager;
+    private final DocumentStorageService documentStorageService;
+
+    // Core repositories
+    private final ChartOfAccountRepository accountRepository;
     private final JournalEntryRepository journalEntryRepository;
     private final TransactionRepository transactionRepository;
-    private final FormulaEvaluator formulaEvaluator;
-    private final jakarta.persistence.EntityManager entityManager;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ClientRepository clientRepository;
+    private final ProjectRepository projectRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final EmployeeRepository employeeRepository;
+    private final PayrollRunRepository payrollRunRepository;
+    private final PayrollDetailRepository payrollDetailRepository;
+    private final DocumentRepository documentRepository;
+    private final AuditLogRepository auditLogRepository;
+    private final CompanyConfigRepository companyConfigRepository;
 
-    // ========================= COA Import =========================
+    // Additional repositories
+    private final JournalTemplateRepository templateRepository;
+    private final JournalTemplateLineRepository templateLineRepository;
+    private final JournalTemplateTagRepository templateTagRepository;
+    private final SalaryComponentRepository salaryComponentRepository;
+    private final EmployeeSalaryComponentRepository employeeSalaryComponentRepository;
+    private final FiscalPeriodRepository fiscalPeriodRepository;
+    private final TaxDeadlineRepository taxDeadlineRepository;
+    private final TaxDeadlineCompletionRepository taxDeadlineCompletionRepository;
+    private final CompanyBankAccountRepository bankAccountRepository;
+    private final MerchantMappingRepository merchantMappingRepository;
+    private final ProjectMilestoneRepository milestoneRepository;
+    private final ProjectPaymentTermRepository paymentTermRepository;
+    private final AmortizationScheduleRepository amortizationScheduleRepository;
+    private final AmortizationEntryRepository amortizationEntryRepository;
+    private final TaxTransactionDetailRepository taxTransactionDetailRepository;
+    private final DraftTransactionRepository draftTransactionRepository;
+    private final UserRepository userRepository;
+    private final UserTemplatePreferenceRepository userTemplatePreferenceRepository;
+    private final TelegramUserLinkRepository telegramUserLinkRepository;
+    private final TransactionSequenceRepository transactionSequenceRepository;
 
-    public COAImportFileDto parseCOAJsonFile(MultipartFile file) throws IOException {
-        return objectMapper.readValue(file.getInputStream(), COAImportFileDto.class);
-    }
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public COAImportFileDto parseCOAExcelFile(MultipartFile file) throws IOException {
-        List<COAImportDto> accounts = new ArrayList<>();
+    // Reference maps for O(1) lookups (populated during import)
+    private Map<String, ChartOfAccount> accountMap;
+    private Map<String, JournalTemplate> templateMap;
+    private Map<String, Client> clientMap;
+    private Map<String, Project> projectMap;
+    private Map<String, Employee> employeeMap;
+    private Map<String, SalaryComponent> salaryComponentMap;
+    private Map<String, User> userMap;
+    private Map<String, PayrollRun> payrollRunMap;
+    private Map<String, Transaction> transactionMap;
+    private Map<String, AmortizationSchedule> amortizationScheduleMap;
+    private Map<TaxDeadlineType, TaxDeadline> taxDeadlineMap;
+    private Map<String, ProjectMilestone> milestoneMap;
 
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(is)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            int rowNum = 0;
-
-            for (Row row : sheet) {
-                if (rowNum == 0) {
-                    rowNum++;
-                    continue; // Skip header row
-                }
-
-                String code = getCellStringValue(row.getCell(0));
-                if (code == null || code.isBlank()) {
-                    continue; // Skip empty rows
-                }
-
-                String name = getCellStringValue(row.getCell(1));
-                String type = getCellStringValue(row.getCell(2));
-                String normalBalance = getCellStringValue(row.getCell(3));
-                String parentCode = getCellStringValue(row.getCell(4));
-                Boolean isHeader = getCellBooleanValue(row.getCell(5));
-                Boolean isPermanent = getCellBooleanValue(row.getCell(6));
-                String description = getCellStringValue(row.getCell(7));
-
-                accounts.add(new COAImportDto(
-                        code, name, type, normalBalance, parentCode,
-                        isHeader, isPermanent, description
-                ));
-                rowNum++;
-            }
-        }
-
-        return new COAImportFileDto(
-                file.getOriginalFilename(),
-                "1.0",
-                "Imported from Excel",
-                accounts
-        );
-    }
-
-    public ImportPreview previewCOA(COAImportFileDto importFile) {
-        List<ImportError> errors = validateCOAStructure(importFile.accounts());
-
-        int existingCount = 0;
-        int newCount = 0;
-        List<String> sampleRecords = new ArrayList<>();
-
-        for (int i = 0; i < importFile.accounts().size(); i++) {
-            COAImportDto account = importFile.accounts().get(i);
-            boolean exists = chartOfAccountRepository.existsByAccountCode(account.code());
-
-            if (exists) {
-                existingCount++;
-            } else {
-                newCount++;
-            }
-
-            if (i < 5) {
-                sampleRecords.add(account.code() + " - " + account.name());
-            }
-        }
-
-        return ImportPreview.forCOA(
-                importFile.name(),
-                importFile.version(),
-                importFile.accounts().size(),
-                newCount,
-                existingCount,
-                sampleRecords,
-                errors
-        );
-    }
-
+    /**
+     * Import all data from a ZIP archive.
+     * This is a full replace operation - all existing data will be deleted.
+     */
     @Transactional
-    public ImportResult importCOA(COAImportFileDto importFile, boolean clearExisting) {
-        // Validate structure first
-        List<ImportError> errors = validateCOAStructure(importFile.accounts());
-        if (!errors.isEmpty()) {
-            return ImportResult.failed(errors, importFile.accounts().size());
+    public ImportResult importAllData(byte[] zipData) throws IOException {
+        log.info("Starting full data import");
+        long startTime = System.currentTimeMillis();
+
+        // Extract ZIP contents
+        Map<String, String> csvFiles = new HashMap<>();
+        Map<String, byte[]> documentFiles = new HashMap<>();
+        extractZip(zipData, csvFiles, documentFiles);
+
+        // Truncate all tables in reverse dependency order
+        truncateAllTables();
+
+        // Initialize reference maps
+        initializeMaps();
+
+        // Import in filename order (dependency order)
+        int totalRecords = 0;
+        List<String> sortedFiles = csvFiles.keySet().stream().sorted().toList();
+
+        for (String filename : sortedFiles) {
+            String content = csvFiles.get(filename);
+            int count = importCsvFile(filename, content);
+            totalRecords += count;
+            log.info("Imported {} records from {}", count, filename);
         }
 
-        // Clear existing if requested (this also clears templates)
-        if (clearExisting) {
-            clearAllData();
+        // Import document files
+        int documentCount = importDocumentFiles(documentFiles);
+        log.info("Imported {} document files", documentCount);
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("Full data import completed in {}ms, {} total records", duration, totalRecords);
+
+        return new ImportResult(totalRecords, documentCount, duration);
+    }
+
+    private void extractZip(byte[] zipData, Map<String, String> csvFiles, Map<String, byte[]> documentFiles) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) continue;
+
+                String name = entry.getName();
+                byte[] content = zis.readAllBytes();
+
+                if (name.endsWith(".csv") && !name.startsWith("documents/")) {
+                    csvFiles.put(name, new String(content, StandardCharsets.UTF_8));
+                } else if (name.startsWith("documents/") && !name.equals("documents/index.csv")) {
+                    documentFiles.put(name.substring("documents/".length()), content);
+                } else if (name.equals("documents/index.csv")) {
+                    csvFiles.put(name, new String(content, StandardCharsets.UTF_8));
+                }
+                zis.closeEntry();
+            }
         }
+    }
 
-        // Import accounts in order (parents first)
-        List<COAImportDto> sortedAccounts = sortByHierarchy(importFile.accounts());
+    private void truncateAllTables() {
+        log.info("Truncating all tables");
 
-        int successCount = 0;
-        List<ImportError> importErrors = new ArrayList<>();
-        Map<String, ChartOfAccount> importedAccounts = new HashMap<>();
+        // Disable FK checks, truncate in reverse dependency order, re-enable
+        entityManager.createNativeQuery("SET session_replication_role = 'replica'").executeUpdate();
 
-        for (int i = 0; i < sortedAccounts.size(); i++) {
-            COAImportDto dto = sortedAccounts.get(i);
+        // Reverse dependency order (children first)
+        String[] tables = {
+            "telegram_user_links", "user_template_preferences", "user_roles",
+            "audit_logs", "transaction_sequences",
+            "draft_transactions", "tax_deadline_completions", "tax_transaction_details",
+            "amortization_entries", "amortization_schedules",
+            "payroll_details", "payroll_runs",
+            "journal_entries", "transaction_account_mappings", "transactions",
+            "invoices", "documents",
+            "employee_salary_components", "employees",
+            "merchant_mappings", "company_bank_accounts",
+            "tax_deadlines", "fiscal_periods",
+            "project_payment_terms", "project_milestones", "projects",
+            "clients",
+            "journal_template_tags", "journal_template_lines", "journal_templates",
+            "salary_components", "chart_of_accounts", "company_config", "users"
+        };
 
+        for (String table : tables) {
             try {
-                ChartOfAccount account = convertCOAToEntity(dto, importedAccounts);
-                ChartOfAccount saved = chartOfAccountRepository.save(account);
-                importedAccounts.put(dto.code(), saved);
-                successCount++;
+                entityManager.createNativeQuery("TRUNCATE TABLE " + table + " CASCADE").executeUpdate();
             } catch (Exception e) {
-                log.error("Error importing account {}: {}", dto.code(), e.getMessage());
-                importErrors.add(new ImportError(i + 1, dto.code(), e.getMessage()));
+                log.warn("Could not truncate {}: {}", table, e.getMessage());
             }
         }
 
-        if (importErrors.isEmpty()) {
-            return ImportResult.success(importFile.accounts().size(), successCount);
-        } else if (successCount > 0) {
-            return ImportResult.partial(importFile.accounts().size(), successCount, importErrors);
-        } else {
-            return ImportResult.failed(importErrors, importFile.accounts().size());
-        }
-    }
-
-    // ========================= Template Import =========================
-
-    public TemplateImportFileDto parseTemplateJsonFile(MultipartFile file) throws IOException {
-        return objectMapper.readValue(file.getInputStream(), TemplateImportFileDto.class);
-    }
-
-    public ImportPreview previewTemplate(TemplateImportFileDto importFile) {
-        List<ImportError> errors = validateTemplateStructure(importFile.templates());
-
-        int existingCount = 0;
-        int newCount = 0;
-        List<String> sampleRecords = new ArrayList<>();
-
-        for (int i = 0; i < importFile.templates().size(); i++) {
-            TemplateImportDto template = importFile.templates().get(i);
-            boolean exists = journalTemplateRepository.existsByTemplateName(template.name());
-
-            if (exists) {
-                existingCount++;
-            } else {
-                newCount++;
-            }
-
-            if (i < 5) {
-                sampleRecords.add(template.name() + " (" + template.category() + ")");
-            }
-        }
-
-        return ImportPreview.forTemplate(
-                importFile.name(),
-                importFile.version(),
-                importFile.templates().size(),
-                newCount,
-                existingCount,
-                sampleRecords,
-                errors
-        );
-    }
-
-    @Transactional
-    public ImportResult importTemplate(TemplateImportFileDto importFile, boolean clearExisting) {
-        // Validate structure first
-        List<ImportError> errors = validateTemplateStructure(importFile.templates());
-        if (!errors.isEmpty()) {
-            return ImportResult.failed(errors, importFile.templates().size());
-        }
-
-        // Clear existing if requested
-        if (clearExisting) {
-            clearAllTemplates();
-        }
-
-        int successCount = 0;
-        List<ImportError> importErrors = new ArrayList<>();
-
-        for (int i = 0; i < importFile.templates().size(); i++) {
-            TemplateImportDto dto = importFile.templates().get(i);
-
-            try {
-                JournalTemplate template = convertTemplateToEntity(dto);
-                journalTemplateRepository.save(template);
-                successCount++;
-            } catch (Exception e) {
-                log.error("Error importing template {}: {}", dto.name(), e.getMessage());
-                importErrors.add(new ImportError(i + 1, dto.name(), e.getMessage()));
-            }
-        }
-
-        if (importErrors.isEmpty()) {
-            log.info("Successfully imported {} templates", successCount);
-            return ImportResult.success(importFile.templates().size(), successCount);
-        } else if (successCount > 0) {
-            log.info("Partially imported {} of {} templates", successCount, importFile.templates().size());
-            return ImportResult.partial(importFile.templates().size(), successCount, importErrors);
-        } else {
-            log.error("Failed to import templates: {} errors", importErrors.size());
-            return ImportResult.failed(importErrors, importFile.templates().size());
-        }
-    }
-
-    // ========================= Clear Operations =========================
-
-    @Transactional
-    public void clearAllData() {
-        // Check if any journal entries exist
-        long journalEntryCount = journalEntryRepository.count();
-        if (journalEntryCount > 0) {
-            throw new IllegalStateException(
-                    "Tidak dapat menghapus data: terdapat " + journalEntryCount + " jurnal yang sudah dibuat");
-        }
-
-        // Clear templates first (they reference accounts)
-        clearAllTemplates();
-
-        // Then clear accounts
-        chartOfAccountRepository.deleteAll();
+        entityManager.createNativeQuery("SET session_replication_role = 'origin'").executeUpdate();
         entityManager.flush();
-        entityManager.clear();
-        log.info("Cleared all chart of accounts");
     }
 
-    @Transactional
-    public void clearAllTemplates() {
-        // Check if any transactions reference templates
-        List<JournalTemplate> templates = journalTemplateRepository.findAll();
-        for (JournalTemplate template : templates) {
-            if (transactionRepository.existsByJournalTemplateId(template.getId())) {
-                throw new IllegalStateException(
-                        "Tidak dapat menghapus template: template '" + template.getTemplateName() +
-                        "' digunakan oleh transaksi");
-            }
+    private void initializeMaps() {
+        accountMap = new HashMap<>();
+        templateMap = new HashMap<>();
+        clientMap = new HashMap<>();
+        projectMap = new HashMap<>();
+        employeeMap = new HashMap<>();
+        salaryComponentMap = new HashMap<>();
+        userMap = new HashMap<>();
+        payrollRunMap = new HashMap<>();
+        transactionMap = new HashMap<>();
+        amortizationScheduleMap = new HashMap<>();
+        taxDeadlineMap = new HashMap<>();
+        milestoneMap = new HashMap<>();
+    }
+
+    private int importCsvFile(String filename, String content) {
+        try {
+            return switch (filename) {
+                case "01_company_config.csv" -> importCompanyConfig(content);
+                case "02_chart_of_accounts.csv" -> importChartOfAccounts(content);
+                case "03_salary_components.csv" -> importSalaryComponents(content);
+                case "04_journal_templates.csv" -> importJournalTemplates(content);
+                case "05_journal_template_lines.csv" -> importJournalTemplateLines(content);
+                case "06_journal_template_tags.csv" -> importJournalTemplateTags(content);
+                case "07_clients.csv" -> importClients(content);
+                case "08_projects.csv" -> importProjects(content);
+                case "09_project_milestones.csv" -> importProjectMilestones(content);
+                case "10_project_payment_terms.csv" -> importProjectPaymentTerms(content);
+                case "11_fiscal_periods.csv" -> importFiscalPeriods(content);
+                case "12_tax_deadlines.csv" -> importTaxDeadlines(content);
+                case "13_company_bank_accounts.csv" -> importCompanyBankAccounts(content);
+                case "14_merchant_mappings.csv" -> importMerchantMappings(content);
+                case "15_employees.csv" -> importEmployees(content);
+                case "16_employee_salary_components.csv" -> importEmployeeSalaryComponents(content);
+                case "17_invoices.csv" -> importInvoices(content);
+                case "18_transactions.csv" -> importTransactions(content);
+                case "19_transaction_account_mappings.csv" -> importTransactionAccountMappings(content);
+                case "20_journal_entries.csv" -> importJournalEntries(content);
+                case "21_payroll_runs.csv" -> importPayrollRuns(content);
+                case "22_payroll_details.csv" -> importPayrollDetails(content);
+                case "23_amortization_schedules.csv" -> importAmortizationSchedules(content);
+                case "24_amortization_entries.csv" -> importAmortizationEntries(content);
+                case "25_tax_transaction_details.csv" -> importTaxTransactionDetails(content);
+                case "26_tax_deadline_completions.csv" -> importTaxDeadlineCompletions(content);
+                case "27_draft_transactions.csv" -> importDraftTransactions(content);
+                case "28_users.csv" -> importUsers(content);
+                case "29_user_roles.csv" -> importUserRoles(content);
+                case "30_user_template_preferences.csv" -> importUserTemplatePreferences(content);
+                case "31_telegram_user_links.csv" -> importTelegramUserLinks(content);
+                case "32_audit_logs.csv" -> importAuditLogs(content);
+                case "33_transaction_sequences.csv" -> importTransactionSequences(content);
+                case "documents/index.csv" -> 0; // Handled separately
+                default -> {
+                    if (!filename.equals("MANIFEST.md")) {
+                        log.warn("Unknown file in import: {}", filename);
+                    }
+                    yield 0;
+                }
+            };
+        } catch (Exception e) {
+            log.error("Error importing file {}: {}", filename, e.getMessage(), e);
+            throw new RuntimeException("Failed to import " + filename + ": " + e.getMessage(), e);
         }
-
-        // Delete all templates (cascade will handle lines and tags)
-        journalTemplateRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-        log.info("Cleared all journal templates");
     }
 
-    public boolean canClearData() {
-        return journalEntryRepository.count() == 0 && canClearTemplates();
-    }
+    // ============================================
+    // CSV Parsing Utilities
+    // ============================================
+    private List<String[]> parseCsv(String content) {
+        List<String[]> rows = new ArrayList<>();
+        List<String> currentRow = new ArrayList<>();
+        StringBuilder field = new StringBuilder();
+        boolean inQuotes = false;
+        boolean isFirstRow = true;
 
-    public boolean canClearTemplates() {
-        List<JournalTemplate> templates = journalTemplateRepository.findAll();
-        for (JournalTemplate template : templates) {
-            if (transactionRepository.existsByJournalTemplateId(template.getId())) {
-                return false;
-            }
-        }
-        return true;
-    }
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
 
-    // ========================= COA Validation =========================
-
-    private List<ImportError> validateCOAStructure(List<COAImportDto> accounts) {
-        List<ImportError> errors = new ArrayList<>();
-        Set<String> codes = new HashSet<>();
-        Set<String> parentCodes = new HashSet<>();
-
-        // Collect all codes and parent codes
-        for (COAImportDto account : accounts) {
-            codes.add(account.code());
-            if (account.parentCode() != null && !account.parentCode().isBlank()) {
-                parentCodes.add(account.parentCode());
-            }
-        }
-
-        for (int i = 0; i < accounts.size(); i++) {
-            COAImportDto account = accounts.get(i);
-            int lineNum = i + 1;
-
-            // Validate required fields
-            if (account.code() == null || account.code().isBlank()) {
-                errors.add(new ImportError(lineNum, "code", "Kode akun harus diisi"));
-            }
-            if (account.name() == null || account.name().isBlank()) {
-                errors.add(new ImportError(lineNum, "name", "Nama akun harus diisi"));
-            }
-
-            // Validate account type
-            if (account.type() != null) {
-                try {
-                    AccountType.valueOf(account.type().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add(new ImportError(lineNum, "type", account.type(),
-                            "Tipe akun tidak valid: " + account.type() +
-                            ". Harus salah satu dari: ASSET, LIABILITY, EQUITY, REVENUE, EXPENSE"));
+            if (inQuotes) {
+                if (c == '"') {
+                    if (i + 1 < content.length() && content.charAt(i + 1) == '"') {
+                        // Escaped quote
+                        field.append('"');
+                        i++;
+                    } else {
+                        // End of quoted field
+                        inQuotes = false;
+                    }
+                } else {
+                    // Any char including newlines inside quotes
+                    field.append(c);
                 }
-            }
-
-            // Validate normal balance
-            if (account.normalBalance() != null) {
-                try {
-                    NormalBalance.valueOf(account.normalBalance().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add(new ImportError(lineNum, "normalBalance", account.normalBalance(),
-                            "Saldo normal tidak valid: " + account.normalBalance() +
-                            ". Harus salah satu dari: DEBIT, CREDIT"));
-                }
-            }
-
-            // Validate parent reference - only check within file for clean import
-            if (account.parentCode() != null && !account.parentCode().isBlank()) {
-                if (!codes.contains(account.parentCode())) {
-                    errors.add(new ImportError(lineNum, "parentCode", account.parentCode(),
-                            "Parent akun tidak ditemukan dalam file: " + account.parentCode()));
-                }
-            }
-
-            // Check for duplicate codes within file
-            long duplicateCount = accounts.stream()
-                    .filter(a -> a.code() != null && a.code().equals(account.code()))
-                    .count();
-            if (duplicateCount > 1) {
-                errors.add(new ImportError(lineNum, "code", account.code(),
-                        "Kode akun duplikat dalam file: " + account.code()));
-            }
-        }
-
-        return errors;
-    }
-
-    // ========================= Template Validation =========================
-
-    private List<ImportError> validateTemplateStructure(List<TemplateImportDto> templates) {
-        List<ImportError> errors = new ArrayList<>();
-        Set<String> templateNames = new HashSet<>();
-
-        for (int i = 0; i < templates.size(); i++) {
-            TemplateImportDto template = templates.get(i);
-            int lineNum = i + 1;
-
-            // Validate required fields
-            if (template.name() == null || template.name().isBlank()) {
-                errors.add(new ImportError(lineNum, "name", "Nama template harus diisi"));
-            }
-
-            // Validate template category
-            if (template.category() != null) {
-                try {
-                    TemplateCategory.valueOf(template.category().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add(new ImportError(lineNum, "category", template.category(),
-                            "Kategori template tidak valid: " + template.category() +
-                            ". Harus salah satu dari: INCOME, EXPENSE, PAYMENT, RECEIPT, TRANSFER"));
-                }
-            }
-
-            // Validate cash flow category
-            if (template.cashFlowCategory() != null) {
-                try {
-                    CashFlowCategory.valueOf(template.cashFlowCategory().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add(new ImportError(lineNum, "cashFlowCategory", template.cashFlowCategory(),
-                            "Kategori arus kas tidak valid: " + template.cashFlowCategory() +
-                            ". Harus salah satu dari: OPERATING, INVESTING, FINANCING"));
-                }
-            }
-
-            // Validate template type if present
-            if (template.templateType() != null) {
-                try {
-                    TemplateType.valueOf(template.templateType().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add(new ImportError(lineNum, "templateType", template.templateType(),
-                            "Tipe template tidak valid: " + template.templateType() +
-                            ". Harus salah satu dari: SIMPLE, DETAILED"));
-                }
-            }
-
-            // Check for duplicate names within file
-            if (template.name() != null && !template.name().isBlank()) {
-                if (templateNames.contains(template.name())) {
-                    errors.add(new ImportError(lineNum, "name", template.name(),
-                            "Nama template duplikat dalam file: " + template.name()));
-                }
-                templateNames.add(template.name());
-            }
-
-            // Validate lines
-            if (template.lines() == null || template.lines().size() < 2) {
-                errors.add(new ImportError(lineNum, "lines", "Template harus memiliki minimal 2 baris"));
             } else {
-                boolean hasDebit = false;
-                boolean hasCredit = false;
-
-                for (int j = 0; j < template.lines().size(); j++) {
-                    TemplateLineImportDto line = template.lines().get(j);
-
-                    // Validate account code exists
-                    if (line.accountCode() == null || line.accountCode().isBlank()) {
-                        errors.add(new ImportError(lineNum, "lines[" + j + "].accountCode",
-                                "Kode akun baris " + (j + 1) + " harus diisi"));
-                    } else if (!chartOfAccountRepository.existsByAccountCode(line.accountCode())) {
-                        errors.add(new ImportError(lineNum, "lines[" + j + "].accountCode", line.accountCode(),
-                                "Kode akun tidak ditemukan: " + line.accountCode()));
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == ',') {
+                    currentRow.add(field.toString());
+                    field = new StringBuilder();
+                } else if (c == '\n' || c == '\r') {
+                    // Handle both \n and \r\n
+                    if (c == '\r' && i + 1 < content.length() && content.charAt(i + 1) == '\n') {
+                        i++; // Skip the \n in \r\n
                     }
+                    // End of row
+                    currentRow.add(field.toString());
+                    field = new StringBuilder();
 
-                    // Validate position
-                    if (line.position() != null) {
-                        try {
-                            JournalPosition position = JournalPosition.valueOf(line.position().toUpperCase());
-                            if (position == JournalPosition.DEBIT) {
-                                hasDebit = true;
-                            } else {
-                                hasCredit = true;
-                            }
-                        } catch (IllegalArgumentException e) {
-                            errors.add(new ImportError(lineNum, "lines[" + j + "].position", line.position(),
-                                    "Posisi tidak valid: " + line.position() +
-                                    ". Harus salah satu dari: DEBIT, CREDIT"));
-                        }
+                    if (isFirstRow) {
+                        // Skip header row
+                        isFirstRow = false;
+                    } else if (!currentRow.isEmpty() && !currentRow.stream().allMatch(String::isEmpty)) {
+                        rows.add(currentRow.toArray(new String[0]));
                     }
-
-                    // Validate formula
-                    if (line.formula() != null && !line.formula().isBlank()) {
-                        List<String> formulaErrors = formulaEvaluator.validate(line.formula());
-                        if (!formulaErrors.isEmpty()) {
-                            errors.add(new ImportError(lineNum, "lines[" + j + "].formula", line.formula(),
-                                    "Formula tidak valid: " + String.join(", ", formulaErrors)));
-                        }
-                    }
-                }
-
-                if (!hasDebit || !hasCredit) {
-                    errors.add(new ImportError(lineNum, "lines",
-                            "Template harus memiliki minimal satu baris debit dan satu baris kredit"));
+                    currentRow = new ArrayList<>();
+                } else {
+                    field.append(c);
                 }
             }
         }
 
-        return errors;
-    }
-
-    // ========================= Conversion Helpers =========================
-
-    private List<COAImportDto> sortByHierarchy(List<COAImportDto> accounts) {
-        List<COAImportDto> sorted = new ArrayList<>();
-        Set<String> processed = new HashSet<>();
-
-        // First, add all accounts without parents (root accounts)
-        for (COAImportDto account : accounts) {
-            if (account.parentCode() == null || account.parentCode().isBlank()) {
-                sorted.add(account);
-                processed.add(account.code());
+        // Don't forget the last row if file doesn't end with newline
+        if (!currentRow.isEmpty() || field.length() > 0) {
+            currentRow.add(field.toString());
+            if (!isFirstRow && !currentRow.stream().allMatch(String::isEmpty)) {
+                rows.add(currentRow.toArray(new String[0]));
             }
         }
 
-        // Then, iteratively add accounts whose parents are already processed
-        int maxIterations = accounts.size();
-        int iteration = 0;
-        while (sorted.size() < accounts.size() && iteration < maxIterations) {
-            for (COAImportDto account : accounts) {
-                if (!processed.contains(account.code())) {
-                    if (account.parentCode() != null && processed.contains(account.parentCode())) {
-                        sorted.add(account);
-                        processed.add(account.code());
-                    }
+        return rows;
+    }
+
+    private String getField(String[] row, int index) {
+        if (index >= row.length) return "";
+        return row[index];
+    }
+
+    private BigDecimal parseBigDecimal(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return new BigDecimal(value);
+    }
+
+    private Integer parseInteger(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return Integer.parseInt(value);
+    }
+
+    private Long parseLong(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return Long.parseLong(value);
+    }
+
+    private Boolean parseBoolean(String value) {
+        if (value == null || value.isEmpty()) return false;
+        return Boolean.parseBoolean(value);
+    }
+
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return LocalDate.parse(value, DATE_FORMATTER);
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return LocalDateTime.parse(value, DATETIME_FORMATTER);
+    }
+
+    private Double parseDouble(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return Double.parseDouble(value);
+    }
+
+    // ============================================
+    // Import Methods
+    // ============================================
+
+    private int importCompanyConfig(String content) {
+        List<String[]> rows = parseCsv(content);
+        if (rows.isEmpty()) return 0;
+
+        String[] row = rows.get(0);
+        CompanyConfig config = new CompanyConfig();
+        config.setCompanyName(getField(row, 0));
+        config.setCompanyAddress(getField(row, 1));
+        config.setCompanyPhone(getField(row, 2));
+        config.setCompanyEmail(getField(row, 3));
+        config.setTaxId(getField(row, 4));
+        config.setNpwp(getField(row, 5));
+        config.setNitku(getField(row, 6));
+        config.setFiscalYearStartMonth(parseInteger(getField(row, 7)));
+        config.setCurrencyCode(getField(row, 8));
+        config.setSigningOfficerName(getField(row, 9));
+        config.setSigningOfficerTitle(getField(row, 10));
+
+        companyConfigRepository.save(config);
+        return 1;
+    }
+
+    private int importChartOfAccounts(String content) {
+        List<String[]> rows = parseCsv(content);
+        List<ChartOfAccount> accounts = new ArrayList<>();
+        Map<String, String> parentCodes = new HashMap<>();
+
+        // First pass: create all accounts without parents
+        // CSV columns: account_code,account_name,account_type,parent_code,normal_balance,active,created_at
+        for (String[] row : rows) {
+            ChartOfAccount account = new ChartOfAccount();
+            account.setAccountCode(getField(row, 0));
+            account.setAccountName(getField(row, 1));
+            account.setAccountType(AccountType.valueOf(getField(row, 2)));
+            parentCodes.put(getField(row, 0), getField(row, 3));
+            account.setNormalBalance(NormalBalance.valueOf(getField(row, 4)));
+            account.setActive(parseBoolean(getField(row, 5)));
+            // column 6 = created_at (ignored, auto-generated)
+            accounts.add(account);
+        }
+
+        // Save all accounts first
+        accountRepository.saveAll(accounts);
+        accountRepository.flush();
+
+        // Reload into map
+        for (ChartOfAccount a : accountRepository.findAll()) {
+            accountMap.put(a.getAccountCode(), a);
+        }
+
+        // Second pass: set parents
+        for (ChartOfAccount account : accounts) {
+            String parentCode = parentCodes.get(account.getAccountCode());
+            if (parentCode != null && !parentCode.isEmpty()) {
+                ChartOfAccount parent = accountMap.get(parentCode);
+                if (parent != null) {
+                    account.setParent(parent);
                 }
             }
-            iteration++;
         }
+        accountRepository.saveAll(accounts);
 
-        // Add any remaining (orphaned) accounts
-        for (COAImportDto account : accounts) {
-            if (!processed.contains(account.code())) {
-                sorted.add(account);
-            }
-        }
-
-        return sorted;
+        return accounts.size();
     }
 
-    private ChartOfAccount convertCOAToEntity(COAImportDto dto, Map<String, ChartOfAccount> importedAccounts) {
-        ChartOfAccount account = new ChartOfAccount();
-        account.setAccountCode(dto.code());
-        account.setAccountName(dto.name());
-        account.setAccountType(AccountType.valueOf(dto.type().toUpperCase()));
-        account.setNormalBalance(NormalBalance.valueOf(dto.normalBalance().toUpperCase()));
-        account.setIsHeader(dto.isHeader() != null ? dto.isHeader() : false);
-        account.setPermanent(dto.isPermanent() != null ? dto.isPermanent() : true);
-        account.setDescription(dto.description());
-        account.setActive(true);
+    private int importSalaryComponents(String content) {
+        List<String[]> rows = parseCsv(content);
 
-        // Set parent
-        if (dto.parentCode() != null && !dto.parentCode().isBlank()) {
-            ChartOfAccount parent = importedAccounts.get(dto.parentCode());
-            if (parent != null) {
-                account.setParent(parent);
-                account.setLevel(parent.getLevel() + 1);
-                // Inherit account type from parent
-                account.setAccountType(parent.getAccountType());
-                account.setNormalBalance(parent.getNormalBalance());
-            } else {
-                account.setLevel(1);
-            }
-        } else {
-            account.setLevel(1);
+        for (String[] row : rows) {
+            SalaryComponent sc = new SalaryComponent();
+            sc.setCode(getField(row, 0));
+            sc.setName(getField(row, 1));
+            sc.setDescription(getField(row, 2));
+            sc.setComponentType(SalaryComponentType.valueOf(getField(row, 3)));
+            sc.setIsPercentage(parseBoolean(getField(row, 4)));
+            sc.setDefaultRate(parseBigDecimal(getField(row, 5)));
+            sc.setDefaultAmount(parseBigDecimal(getField(row, 6)));
+            sc.setIsSystem(parseBoolean(getField(row, 7)));
+            sc.setDisplayOrder(parseInteger(getField(row, 8)));
+            sc.setActive(parseBoolean(getField(row, 9)));
+            sc.setIsTaxable(parseBoolean(getField(row, 10)));
+            sc.setBpjsCategory(getField(row, 11));
+
+            salaryComponentRepository.save(sc);
+            salaryComponentMap.put(sc.getCode(), sc);
         }
-
-        return account;
+        return rows.size();
     }
 
-    private JournalTemplate convertTemplateToEntity(TemplateImportDto dto) {
-        JournalTemplate template = new JournalTemplate();
-        template.setTemplateName(dto.name());
-        template.setCategory(TemplateCategory.valueOf(dto.category().toUpperCase()));
-        template.setCashFlowCategory(CashFlowCategory.valueOf(dto.cashFlowCategory().toUpperCase()));
-        template.setTemplateType(dto.templateType() != null ?
-                TemplateType.valueOf(dto.templateType().toUpperCase()) : TemplateType.SIMPLE);
-        template.setDescription(dto.description());
-        template.setIsFavorite(false);
-        template.setIsSystem(false);
-        template.setActive(true);
-        template.setVersion(1);
-        template.setUsageCount(0);
+    private int importJournalTemplates(String content) {
+        List<String[]> rows = parseCsv(content);
 
-        // Add lines
-        int lineOrder = 1;
-        for (TemplateLineImportDto lineDto : dto.lines()) {
+        for (String[] row : rows) {
+            JournalTemplate t = new JournalTemplate();
+            t.setTemplateName(getField(row, 0));
+            t.setCategory(TemplateCategory.valueOf(getField(row, 1)));
+            t.setCashFlowCategory(CashFlowCategory.valueOf(getField(row, 2)));
+            t.setTemplateType(TemplateType.valueOf(getField(row, 3)));
+            t.setDescription(getField(row, 4));
+            t.setIsFavorite(parseBoolean(getField(row, 5)));
+            t.setIsSystem(parseBoolean(getField(row, 6)));
+            t.setActive(parseBoolean(getField(row, 7)));
+            t.setVersion(parseInteger(getField(row, 8)));
+            t.setUsageCount(parseInteger(getField(row, 9)));
+            t.setLastUsedAt(parseDateTime(getField(row, 10)));
+
+            templateRepository.save(t);
+            templateMap.put(t.getTemplateName(), t);
+        }
+        return rows.size();
+    }
+
+    private int importJournalTemplateLines(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String templateName = getField(row, 0);
+            JournalTemplate template = templateMap.get(templateName);
+            if (template == null) {
+                log.warn("Template not found for line: {}", templateName);
+                continue;
+            }
+
             JournalTemplateLine line = new JournalTemplateLine();
+            line.setJournalTemplate(template);
+            line.setLineOrder(parseInteger(getField(row, 1)));
 
-            ChartOfAccount account = chartOfAccountRepository.findByAccountCode(lineDto.accountCode())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Akun tidak ditemukan: " + lineDto.accountCode()));
-            line.setAccount(account);
-            line.setPosition(JournalPosition.valueOf(lineDto.position().toUpperCase()));
-            line.setFormula(lineDto.formula() != null ? lineDto.formula() : "amount");
-            line.setDescription(lineDto.description());
-            line.setLineOrder(lineOrder++);
+            String accountCode = getField(row, 2);
+            if (!accountCode.isEmpty()) {
+                line.setAccount(accountMap.get(accountCode));
+            }
+            line.setAccountHint(getField(row, 3));
+            line.setPosition(JournalPosition.valueOf(getField(row, 4)));
+            line.setFormula(getField(row, 5));
+            line.setDescription(getField(row, 6));
 
-            template.addLine(line);
+            templateLineRepository.save(line);
+        }
+        return rows.size();
+    }
+
+    private int importJournalTemplateTags(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String templateName = getField(row, 0);
+            JournalTemplate template = templateMap.get(templateName);
+            if (template == null) continue;
+
+            JournalTemplateTag tag = new JournalTemplateTag(template, getField(row, 1));
+            templateTagRepository.save(tag);
+        }
+        return rows.size();
+    }
+
+    private int importClients(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: code,name,contact_person,email,phone,address,npwp,nik,nitku,active,created_at
+        for (String[] row : rows) {
+            Client c = new Client();
+            c.setCode(getField(row, 0));
+            c.setName(getField(row, 1));
+            c.setContactPerson(getField(row, 2));
+            c.setEmail(getField(row, 3));
+            c.setPhone(getField(row, 4));
+            c.setAddress(getField(row, 5));
+            c.setNpwp(getField(row, 6));
+            c.setNik(getField(row, 7));
+            c.setNitku(getField(row, 8));
+            c.setActive(parseBoolean(getField(row, 9)));
+            // column 10 = created_at (ignored, auto-generated)
+
+            clientRepository.save(c);
+            clientMap.put(c.getCode(), c);
+        }
+        return rows.size();
+    }
+
+    private int importProjects(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: code,name,client_code,status,start_date,end_date,budget_amount,contract_value,description,created_at
+        for (String[] row : rows) {
+            Project p = new Project();
+            p.setCode(getField(row, 0));
+            p.setName(getField(row, 1));
+
+            String clientCode = getField(row, 2);
+            if (!clientCode.isEmpty()) {
+                p.setClient(clientMap.get(clientCode));
+            }
+            p.setStatus(ProjectStatus.valueOf(getField(row, 3)));
+            p.setStartDate(parseDate(getField(row, 4)));
+            p.setEndDate(parseDate(getField(row, 5)));
+            p.setBudgetAmount(parseBigDecimal(getField(row, 6)));
+            p.setContractValue(parseBigDecimal(getField(row, 7)));
+            p.setDescription(getField(row, 8));
+            // column 9 = created_at (ignored, auto-generated)
+
+            projectRepository.save(p);
+            projectMap.put(p.getCode(), p);
+        }
+        return rows.size();
+    }
+
+    private int importProjectMilestones(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String projectCode = getField(row, 0);
+            Project project = projectMap.get(projectCode);
+            if (project == null) continue;
+
+            ProjectMilestone m = new ProjectMilestone();
+            m.setProject(project);
+            m.setSequence(parseInteger(getField(row, 1)));
+            m.setName(getField(row, 2));
+            m.setDescription(getField(row, 3));
+            m.setStatus(MilestoneStatus.valueOf(getField(row, 4)));
+            m.setWeightPercent(parseInteger(getField(row, 5)));
+            m.setTargetDate(parseDate(getField(row, 6)));
+            m.setActualDate(parseDate(getField(row, 7)));
+
+            milestoneRepository.save(m);
+            milestoneMap.put(projectCode + "_" + m.getSequence(), m);
+        }
+        return rows.size();
+    }
+
+    private int importProjectPaymentTerms(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String projectCode = getField(row, 0);
+            Project project = projectMap.get(projectCode);
+            if (project == null) continue;
+
+            ProjectPaymentTerm pt = new ProjectPaymentTerm();
+            pt.setProject(project);
+            pt.setSequence(parseInteger(getField(row, 1)));
+
+            String milestoneSeq = getField(row, 2);
+            if (!milestoneSeq.isEmpty()) {
+                pt.setMilestone(milestoneMap.get(projectCode + "_" + milestoneSeq));
+            }
+
+            String templateName = getField(row, 3);
+            if (!templateName.isEmpty()) {
+                pt.setTemplate(templateMap.get(templateName));
+            }
+
+            pt.setName(getField(row, 4));
+            // is_percentage is derived - skip field 5
+            pt.setPercentage(parseBigDecimal(getField(row, 6)));
+            pt.setAmount(parseBigDecimal(getField(row, 7)));
+            pt.setDueTrigger(PaymentTrigger.valueOf(getField(row, 8)));
+            pt.setAutoPost(parseBoolean(getField(row, 9)));
+
+            paymentTermRepository.save(pt);
+        }
+        return rows.size();
+    }
+
+    private int importFiscalPeriods(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            FiscalPeriod fp = new FiscalPeriod();
+            fp.setYear(parseInteger(getField(row, 0)));
+            fp.setMonth(parseInteger(getField(row, 1)));
+            fp.setStatus(FiscalPeriodStatus.valueOf(getField(row, 2)));
+            fp.setMonthClosedAt(parseDateTime(getField(row, 3)));
+            fp.setMonthClosedBy(getField(row, 4));
+            fp.setTaxFiledAt(parseDateTime(getField(row, 5)));
+            fp.setTaxFiledBy(getField(row, 6));
+
+            fiscalPeriodRepository.save(fp);
+        }
+        return rows.size();
+    }
+
+    private int importTaxDeadlines(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: deadline_type,name,description,due_day,use_last_day_of_month,reminder_days_before,active
+        for (String[] row : rows) {
+            TaxDeadline td = new TaxDeadline();
+            TaxDeadlineType type = TaxDeadlineType.valueOf(getField(row, 0));
+            td.setDeadlineType(type);
+            td.setName(getField(row, 1));
+            td.setDescription(getField(row, 2));
+            td.setDueDay(parseInteger(getField(row, 3)));
+            td.setUseLastDayOfMonth(parseBoolean(getField(row, 4)));
+            td.setReminderDaysBefore(parseInteger(getField(row, 5)));
+            td.setActive(parseBoolean(getField(row, 6)));
+
+            taxDeadlineRepository.save(td);
+            taxDeadlineMap.put(type, td);
+        }
+        return rows.size();
+    }
+
+    private int importCompanyBankAccounts(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            CompanyBankAccount ba = new CompanyBankAccount();
+            ba.setBankName(getField(row, 0));
+            ba.setAccountNumber(getField(row, 1));
+            ba.setAccountName(getField(row, 2));
+            ba.setBankBranch(getField(row, 3));
+            ba.setIsDefault(parseBoolean(getField(row, 4)));
+            ba.setActive(parseBoolean(getField(row, 5)));
+
+            bankAccountRepository.save(ba);
+        }
+        return rows.size();
+    }
+
+    private int importMerchantMappings(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            MerchantMapping mm = new MerchantMapping();
+            mm.setMerchantPattern(getField(row, 0));
+            mm.setMatchType(MerchantMapping.MatchType.valueOf(getField(row, 1)));
+
+            String templateName = getField(row, 2);
+            if (!templateName.isEmpty()) {
+                mm.setTemplate(templateMap.get(templateName));
+            }
+            mm.setDefaultDescription(getField(row, 3));
+            mm.setMatchCount(parseInteger(getField(row, 4)));
+            mm.setLastUsedAt(parseDateTime(getField(row, 5)));
+
+            merchantMappingRepository.save(mm);
+        }
+        return rows.size();
+    }
+
+    private int importEmployees(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            Employee e = new Employee();
+            e.setEmployeeId(getField(row, 0));
+            e.setName(getField(row, 1));
+            e.setEmail(getField(row, 2));
+            e.setNikKtp(getField(row, 3));
+            e.setNpwp(getField(row, 4));
+            e.setPtkpStatus(PtkpStatus.valueOf(getField(row, 5)));
+            e.setJobTitle(getField(row, 6));
+            e.setDepartment(getField(row, 7));
+            e.setEmploymentType(EmploymentType.valueOf(getField(row, 8)));
+            e.setHireDate(parseDate(getField(row, 9)));
+            e.setResignDate(parseDate(getField(row, 10)));
+            e.setBankName(getField(row, 11));
+            e.setBankAccountNumber(getField(row, 12));
+            e.setBpjsKesehatanNumber(getField(row, 13));
+            e.setBpjsKetenagakerjaanNumber(getField(row, 14));
+            e.setEmploymentStatus(EmploymentStatus.valueOf(getField(row, 15)));
+
+            String username = getField(row, 16);
+            if (!username.isEmpty()) {
+                e.setUser(userMap.get(username));
+            }
+
+            employeeRepository.save(e);
+            employeeMap.put(e.getEmployeeId(), e);
+        }
+        return rows.size();
+    }
+
+    private int importEmployeeSalaryComponents(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String employeeId = getField(row, 0);
+            String componentCode = getField(row, 1);
+
+            Employee emp = employeeMap.get(employeeId);
+            SalaryComponent comp = salaryComponentMap.get(componentCode);
+            if (emp == null || comp == null) continue;
+
+            EmployeeSalaryComponent esc = new EmployeeSalaryComponent();
+            esc.setEmployee(emp);
+            esc.setSalaryComponent(comp);
+            esc.setRate(parseBigDecimal(getField(row, 2)));
+            esc.setAmount(parseBigDecimal(getField(row, 3)));
+            esc.setEffectiveDate(parseDate(getField(row, 4)));
+            esc.setEndDate(parseDate(getField(row, 5)));
+
+            employeeSalaryComponentRepository.save(esc);
+        }
+        return rows.size();
+    }
+
+    private int importInvoices(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: invoice_number,invoice_date,due_date,client_code,project_code,status,amount,notes,created_at
+        for (String[] row : rows) {
+            Invoice inv = new Invoice();
+            inv.setInvoiceNumber(getField(row, 0));
+            inv.setInvoiceDate(parseDate(getField(row, 1)));
+            inv.setDueDate(parseDate(getField(row, 2)));
+
+            String clientCode = getField(row, 3);
+            if (!clientCode.isEmpty()) {
+                inv.setClient(clientMap.get(clientCode));
+            }
+            String projectCode = getField(row, 4);
+            if (!projectCode.isEmpty()) {
+                inv.setProject(projectMap.get(projectCode));
+            }
+            String statusStr = getField(row, 5);
+            if (!statusStr.isEmpty()) {
+                inv.setStatus(InvoiceStatus.valueOf(statusStr));
+            }
+            inv.setAmount(parseBigDecimal(getField(row, 6)));
+            inv.setNotes(getField(row, 7));
+            // column 8 = created_at (ignored, auto-generated)
+
+            invoiceRepository.save(inv);
+        }
+        return rows.size();
+    }
+
+    private int importTransactions(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: transaction_number,transaction_date,template_name,project_code,amount,description,
+        //   reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
+        for (String[] row : rows) {
+            Transaction t = new Transaction();
+            t.setTransactionNumber(getField(row, 0));
+            t.setTransactionDate(parseDate(getField(row, 1)));
+
+            String templateName = getField(row, 2);
+            if (!templateName.isEmpty()) {
+                t.setJournalTemplate(templateMap.get(templateName));
+            }
+            String projectCode = getField(row, 3);
+            if (!projectCode.isEmpty()) {
+                t.setProject(projectMap.get(projectCode));
+            }
+            t.setAmount(parseBigDecimal(getField(row, 4)));
+            t.setDescription(getField(row, 5));
+            t.setReferenceNumber(getField(row, 6));
+            t.setNotes(getField(row, 7));
+            t.setStatus(TransactionStatus.valueOf(getField(row, 8)));
+
+            String voidReason = getField(row, 9);
+            if (!voidReason.isEmpty()) {
+                t.setVoidReason(VoidReason.valueOf(voidReason));
+            }
+            t.setVoidNotes(getField(row, 10));
+            t.setVoidedAt(parseDateTime(getField(row, 11)));
+            t.setVoidedBy(getField(row, 12));
+            t.setPostedAt(parseDateTime(getField(row, 13)));
+            t.setPostedBy(getField(row, 14));
+            // column 15 = created_at (ignored, auto-generated)
+
+            transactionRepository.save(t);
+            transactionMap.put(t.getTransactionNumber(), t);
+        }
+        return rows.size();
+    }
+
+    private int importTransactionAccountMappings(String content) {
+        List<String[]> rows = parseCsv(content);
+        // Need to get template lines by template + line_order
+        Map<String, JournalTemplateLine> lineMap = new HashMap<>();
+        for (JournalTemplateLine line : templateLineRepository.findAll()) {
+            String key = line.getJournalTemplate().getTemplateName() + "_" + line.getLineOrder();
+            lineMap.put(key, line);
         }
 
-        // Add tags
-        if (dto.tags() != null) {
-            for (String tag : dto.tags()) {
-                template.addTag(tag);
+        for (String[] row : rows) {
+            String txNumber = getField(row, 0);
+            Transaction tx = transactionMap.get(txNumber);
+            if (tx == null) continue;
+
+            String templateName = getField(row, 1);
+            Integer lineOrder = parseInteger(getField(row, 2));
+            String lineKey = templateName + "_" + lineOrder;
+            JournalTemplateLine line = lineMap.get(lineKey);
+
+            String accountCode = getField(row, 3);
+            ChartOfAccount account = accountMap.get(accountCode);
+
+            if (line != null && account != null) {
+                TransactionAccountMapping tam = new TransactionAccountMapping();
+                tam.setTransaction(tx);
+                tam.setTemplateLine(line);
+                tam.setAccount(account);
+                tam.setAmount(parseBigDecimal(getField(row, 4)));
+                entityManager.persist(tam);
             }
         }
-
-        return template;
+        entityManager.flush();
+        return rows.size();
     }
 
-    // ========================= Excel Helpers =========================
+    private int importJournalEntries(String content) {
+        List<String[]> rows = parseCsv(content);
 
-    private String getCellStringValue(Cell cell) {
-        if (cell == null) {
-            return null;
+        for (String[] row : rows) {
+            JournalEntry je = new JournalEntry();
+            je.setJournalNumber(getField(row, 0));
+            je.setJournalDate(parseDate(getField(row, 1)));
+
+            String txNumber = getField(row, 2);
+            if (!txNumber.isEmpty()) {
+                je.setTransaction(transactionMap.get(txNumber));
+            }
+            je.setDescription(getField(row, 3));
+            je.setStatus(JournalEntryStatus.valueOf(getField(row, 4)));
+
+            String accountCode = getField(row, 5);
+            if (!accountCode.isEmpty()) {
+                je.setAccount(accountMap.get(accountCode));
+            }
+            je.setDebitAmount(parseBigDecimal(getField(row, 6)));
+            je.setCreditAmount(parseBigDecimal(getField(row, 7)));
+            je.setPostedAt(parseDateTime(getField(row, 8)));
+            je.setVoidedAt(parseDateTime(getField(row, 9)));
+            je.setVoidReason(getField(row, 10));
+
+            journalEntryRepository.save(je);
         }
-        if (cell.getCellType() == CellType.STRING) {
-            return cell.getStringCellValue().trim();
-        } else if (cell.getCellType() == CellType.NUMERIC) {
-            return String.valueOf((long) cell.getNumericCellValue());
-        }
-        return null;
+        return rows.size();
     }
 
-    private Boolean getCellBooleanValue(Cell cell) {
-        if (cell == null) {
-            return false;
+    private int importPayrollRuns(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: payroll_period,period_start,period_end,status,total_gross,total_deductions,total_net_pay,
+        //   total_company_bpjs,total_pph21,employee_count,notes,posted_at,cancelled_at,cancel_reason,created_at
+        for (String[] row : rows) {
+            PayrollRun pr = new PayrollRun();
+            pr.setPayrollPeriod(getField(row, 0));
+            pr.setPeriodStart(parseDate(getField(row, 1)));
+            pr.setPeriodEnd(parseDate(getField(row, 2)));
+            pr.setStatus(PayrollStatus.valueOf(getField(row, 3)));
+            pr.setTotalGross(parseBigDecimal(getField(row, 4)));
+            pr.setTotalDeductions(parseBigDecimal(getField(row, 5)));
+            pr.setTotalNetPay(parseBigDecimal(getField(row, 6)));
+            pr.setTotalCompanyBpjs(parseBigDecimal(getField(row, 7)));
+            pr.setTotalPph21(parseBigDecimal(getField(row, 8)));
+            pr.setEmployeeCount(parseInteger(getField(row, 9)));
+            pr.setNotes(getField(row, 10));
+            pr.setPostedAt(parseDateTime(getField(row, 11)));
+            pr.setCancelledAt(parseDateTime(getField(row, 12)));
+            pr.setCancelReason(getField(row, 13));
+            // column 14 = created_at (ignored, auto-generated)
+
+            payrollRunRepository.save(pr);
+            payrollRunMap.put(pr.getPayrollPeriod(), pr);
         }
-        if (cell.getCellType() == CellType.BOOLEAN) {
-            return cell.getBooleanCellValue();
-        } else if (cell.getCellType() == CellType.STRING) {
-            String value = cell.getStringCellValue().trim().toLowerCase();
-            return "true".equals(value) || "yes".equals(value) || "1".equals(value) || "ya".equals(value);
-        } else if (cell.getCellType() == CellType.NUMERIC) {
-            return cell.getNumericCellValue() == 1;
-        }
-        return false;
+        return rows.size();
     }
+
+    private int importPayrollDetails(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String period = getField(row, 0);
+            PayrollRun run = payrollRunMap.get(period);
+            String employeeId = getField(row, 1);
+            Employee emp = employeeMap.get(employeeId);
+            if (run == null || emp == null) continue;
+
+            PayrollDetail pd = new PayrollDetail();
+            pd.setPayrollRun(run);
+            pd.setEmployee(emp);
+            pd.setGrossSalary(parseBigDecimal(getField(row, 2)));
+            pd.setTotalDeductions(parseBigDecimal(getField(row, 3)));
+            pd.setNetPay(parseBigDecimal(getField(row, 4)));
+            pd.setBpjsKesEmployee(parseBigDecimal(getField(row, 5)));
+            pd.setBpjsKesCompany(parseBigDecimal(getField(row, 6)));
+            pd.setBpjsJhtEmployee(parseBigDecimal(getField(row, 7)));
+            pd.setBpjsJhtCompany(parseBigDecimal(getField(row, 8)));
+            pd.setBpjsJpEmployee(parseBigDecimal(getField(row, 9)));
+            pd.setBpjsJpCompany(parseBigDecimal(getField(row, 10)));
+            pd.setBpjsJkk(parseBigDecimal(getField(row, 11)));
+            pd.setBpjsJkm(parseBigDecimal(getField(row, 12)));
+            pd.setPph21(parseBigDecimal(getField(row, 13)));
+
+            payrollDetailRepository.save(pd);
+        }
+        return rows.size();
+    }
+
+    private int importAmortizationSchedules(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            AmortizationSchedule as = new AmortizationSchedule();
+            as.setCode(getField(row, 0));
+            as.setName(getField(row, 1));
+            as.setScheduleType(ScheduleType.valueOf(getField(row, 2)));
+
+            String sourceCode = getField(row, 3);
+            if (!sourceCode.isEmpty()) {
+                as.setSourceAccount(accountMap.get(sourceCode));
+            }
+            String targetCode = getField(row, 4);
+            if (!targetCode.isEmpty()) {
+                as.setTargetAccount(accountMap.get(targetCode));
+            }
+            as.setTotalAmount(parseBigDecimal(getField(row, 5)));
+            as.setTotalPeriods(parseInteger(getField(row, 6)));
+            as.setPeriodAmount(parseBigDecimal(getField(row, 7)));
+            as.setStartDate(parseDate(getField(row, 8)));
+            as.setStatus(ScheduleStatus.valueOf(getField(row, 9)));
+            as.setAutoPost(parseBoolean(getField(row, 10)));
+            as.setCompletedPeriods(parseInteger(getField(row, 11)));
+            as.setAmortizedAmount(parseBigDecimal(getField(row, 12)));
+
+            amortizationScheduleRepository.save(as);
+            amortizationScheduleMap.put(as.getCode(), as);
+        }
+        return rows.size();
+    }
+
+    private int importAmortizationEntries(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String scheduleCode = getField(row, 0);
+            AmortizationSchedule schedule = amortizationScheduleMap.get(scheduleCode);
+            if (schedule == null) continue;
+
+            AmortizationEntry ae = new AmortizationEntry();
+            ae.setSchedule(schedule);
+            ae.setPeriodNumber(parseInteger(getField(row, 1)));
+            ae.setPeriodStart(parseDate(getField(row, 2)));
+            ae.setPeriodEnd(parseDate(getField(row, 3)));
+            ae.setAmount(parseBigDecimal(getField(row, 4)));
+            ae.setStatus(AmortizationEntryStatus.valueOf(getField(row, 5)));
+            ae.setJournalNumber(getField(row, 6));
+            ae.setPostedAt(parseDateTime(getField(row, 7)));
+
+            amortizationEntryRepository.save(ae);
+        }
+        return rows.size();
+    }
+
+    private int importTaxTransactionDetails(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String txNumber = getField(row, 0);
+            Transaction tx = transactionMap.get(txNumber);
+            if (tx == null) continue;
+
+            TaxTransactionDetail ttd = new TaxTransactionDetail();
+            ttd.setTransaction(tx);
+            ttd.setTaxType(TaxType.valueOf(getField(row, 1)));
+            ttd.setCounterpartyName(getField(row, 2));
+            ttd.setCounterpartyNpwp(getField(row, 3));
+            ttd.setCounterpartyNik(getField(row, 4));
+            ttd.setCounterpartyNitku(getField(row, 5));
+            ttd.setTaxObjectCode(getField(row, 6));
+            ttd.setDpp(parseBigDecimal(getField(row, 7)));
+            ttd.setTaxAmount(parseBigDecimal(getField(row, 8)));
+            ttd.setFakturNumber(getField(row, 9));
+            ttd.setFakturDate(parseDate(getField(row, 10)));
+
+            taxTransactionDetailRepository.save(ttd);
+        }
+        return rows.size();
+    }
+
+    private int importTaxDeadlineCompletions(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            TaxDeadlineType type = TaxDeadlineType.valueOf(getField(row, 0));
+            TaxDeadline deadline = taxDeadlineMap.get(type);
+            if (deadline == null) continue;
+
+            TaxDeadlineCompletion tdc = new TaxDeadlineCompletion();
+            tdc.setTaxDeadline(deadline);
+            tdc.setYear(parseInteger(getField(row, 1)));
+            tdc.setMonth(parseInteger(getField(row, 2)));
+            tdc.setCompletedDate(parseDate(getField(row, 3)));
+            tdc.setCompletedBy(getField(row, 4));
+            tdc.setReferenceNumber(getField(row, 5));
+            tdc.setNotes(getField(row, 6));
+
+            taxDeadlineCompletionRepository.save(tdc);
+        }
+        return rows.size();
+    }
+
+    private int importDraftTransactions(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            DraftTransaction dt = new DraftTransaction();
+            dt.setSource(DraftTransaction.Source.valueOf(getField(row, 0)));
+            dt.setStatus(DraftTransaction.Status.valueOf(getField(row, 1)));
+            dt.setMerchantName(getField(row, 2));
+            dt.setTransactionDate(parseDate(getField(row, 3)));
+            dt.setAmount(parseBigDecimal(getField(row, 4)));
+
+            String templateName = getField(row, 5);
+            if (!templateName.isEmpty()) {
+                dt.setSuggestedTemplate(templateMap.get(templateName));
+            }
+            dt.setMerchantConfidence(parseBigDecimal(getField(row, 6)));
+            dt.setDateConfidence(parseBigDecimal(getField(row, 7)));
+            dt.setAmountConfidence(parseBigDecimal(getField(row, 8)));
+            dt.setRawOcrText(getField(row, 9));
+            dt.setProcessedAt(parseDateTime(getField(row, 10)));
+            dt.setProcessedBy(getField(row, 11));
+            dt.setRejectionReason(getField(row, 12));
+
+            draftTransactionRepository.save(dt);
+        }
+        return rows.size();
+    }
+
+    private int importUsers(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: username,password,full_name,email,active,created_at
+        for (String[] row : rows) {
+            User u = new User();
+            u.setUsername(getField(row, 0));
+            u.setPassword(getField(row, 1)); // bcrypt hash preserved
+            u.setFullName(getField(row, 2));
+            u.setEmail(getField(row, 3));
+            u.setActive(parseBoolean(getField(row, 4)));
+            // column 5 = created_at (ignored, auto-generated)
+
+            userRepository.save(u);
+            userMap.put(u.getUsername(), u);
+        }
+        return rows.size();
+    }
+
+    private int importUserRoles(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: username,role,created_by,created_at
+        for (String[] row : rows) {
+            String username = getField(row, 0);
+            User user = userMap.get(username);
+            if (user == null) continue;
+
+            Role role = Role.valueOf(getField(row, 1));
+            String createdBy = getField(row, 2);
+            // column 3 = created_at (ignored, auto-generated)
+            user.addRole(role, createdBy);
+        }
+        userRepository.saveAll(userMap.values());
+        return rows.size();
+    }
+
+    private int importUserTemplatePreferences(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            String username = getField(row, 0);
+            String templateName = getField(row, 1);
+            User user = userMap.get(username);
+            JournalTemplate template = templateMap.get(templateName);
+            if (user == null || template == null) continue;
+
+            UserTemplatePreference utp = new UserTemplatePreference();
+            utp.setUser(user);
+            utp.setJournalTemplate(template);
+            utp.setIsFavorite(parseBoolean(getField(row, 2)));
+            utp.setUseCount(parseInteger(getField(row, 3)));
+            utp.setLastUsedAt(parseDateTime(getField(row, 4)));
+
+            userTemplatePreferenceRepository.save(utp);
+        }
+        return rows.size();
+    }
+
+    private int importTelegramUserLinks(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            TelegramUserLink tul = new TelegramUserLink();
+            tul.setTelegramUserId(parseLong(getField(row, 0)));
+            tul.setTelegramUsername(getField(row, 1));
+
+            String username = getField(row, 2);
+            if (!username.isEmpty()) {
+                tul.setUser(userMap.get(username));
+            }
+            tul.setIsActive(parseBoolean(getField(row, 3)));
+            tul.setLinkedAt(parseDateTime(getField(row, 4)));
+
+            telegramUserLinkRepository.save(tul);
+        }
+        return rows.size();
+    }
+
+    private int importAuditLogs(String content) {
+        List<String[]> rows = parseCsv(content);
+
+        for (String[] row : rows) {
+            AuditLog auditLog = new AuditLog();
+            String username = getField(row, 1);
+            if (!username.isEmpty()) {
+                auditLog.setUser(userMap.get(username));
+            }
+            auditLog.setAction(getField(row, 2));
+            auditLog.setEntityType(getField(row, 3));
+            String entityId = getField(row, 4);
+            if (!entityId.isEmpty()) {
+                auditLog.setEntityId(UUID.fromString(entityId));
+            }
+            auditLog.setIpAddress(getField(row, 5));
+
+            auditLogRepository.save(auditLog);
+        }
+        return rows.size();
+    }
+
+    private int importTransactionSequences(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: sequence_type,prefix,year,last_number
+        for (String[] row : rows) {
+            TransactionSequence ts = new TransactionSequence();
+            ts.setSequenceType(getField(row, 0));
+            ts.setPrefix(getField(row, 1));
+            ts.setYear(parseInteger(getField(row, 2)));
+            ts.setLastNumber(parseInteger(getField(row, 3)));
+
+            transactionSequenceRepository.save(ts);
+        }
+        return rows.size();
+    }
+
+    private int importDocumentFiles(Map<String, byte[]> documentFiles) throws IOException {
+        int count = 0;
+        Path rootLocation = documentStorageService.getRootLocation();
+
+        for (Map.Entry<String, byte[]> entry : documentFiles.entrySet()) {
+            String storagePath = entry.getKey();
+            byte[] content = entry.getValue();
+
+            Path targetPath = rootLocation.resolve(storagePath);
+            Files.createDirectories(targetPath.getParent());
+            Files.write(targetPath, content);
+            count++;
+        }
+        return count;
+    }
+
+    // Result record
+    public record ImportResult(int totalRecords, int documentCount, long durationMs) {}
 }

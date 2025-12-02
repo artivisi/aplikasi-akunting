@@ -35,8 +35,11 @@ public class JournalEntryService {
     }
 
     public JournalEntry findByJournalNumber(String journalNumber) {
-        return journalEntryRepository.findByJournalNumber(journalNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Journal entry not found with number: " + journalNumber));
+        List<JournalEntry> entries = journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+        if (entries.isEmpty()) {
+            throw new EntityNotFoundException("Journal entry not found with number: " + journalNumber);
+        }
+        return entries.get(0);
     }
 
     public List<JournalEntry> findByTransactionId(UUID transactionId) {

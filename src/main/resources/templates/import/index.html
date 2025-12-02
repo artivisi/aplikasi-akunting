@@ -9,7 +9,7 @@
 <body>
     <h1 layout:fragment="page-title" id="page-title">Import Data</h1>
 
-    <div layout:fragment="content" class="max-w-4xl mx-auto">
+    <div layout:fragment="content" class="max-w-2xl mx-auto">
         <!-- Success Message -->
         <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
             <span th:text="${successMessage}">Success message</span>
@@ -20,101 +20,76 @@
             <span th:text="${errorMessage}">Error message</span>
         </div>
 
-        <!-- Import Options -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- COA Import Card -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Bagan Akun (COA)</h2>
-                        <p class="text-sm text-gray-500">Import daftar akun dari file JSON atau Excel</p>
-                    </div>
+        <!-- Import Form -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
                 </div>
-                <div class="space-y-3">
-                    <a th:href="@{/import/coa}" class="block w-full px-4 py-2 bg-blue-600 text-white text-center font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                        Import Bagan Akun
-                    </a>
-                    <a th:href="@{/import/download/coa-sample}" class="block w-full px-4 py-2 border border-gray-300 text-gray-700 text-center font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                        Download Template JSON
-                    </a>
-                    <form th:if="${canClearAccounts}" th:action="@{/import/coa/clear}" method="post" class="mt-2"
-                          onsubmit="return confirm('PERINGATAN: Semua bagan akun akan dihapus. Lanjutkan?');">
-                        <button type="submit" class="w-full px-4 py-2 border border-red-300 text-red-700 text-center font-medium rounded-lg hover:bg-red-50 transition-colors">
-                            Hapus Semua Akun
-                        </button>
-                    </form>
-                    <p th:unless="${canClearAccounts}" class="text-xs text-gray-500 text-center">
-                        * Tidak dapat menghapus akun karena sudah ada jurnal
-                    </p>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Import Data Lengkap</h2>
+                    <p class="text-sm text-gray-500">Upload file ZIP hasil ekspor untuk mengganti seluruh data</p>
                 </div>
             </div>
 
-            <!-- Template Import Card -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+            <form th:action="@{/settings/import}" method="post" enctype="multipart/form-data" class="space-y-4">
+                <div>
+                    <label for="file" class="block text-sm font-medium text-gray-700 mb-1">File ZIP</label>
+                    <input type="file" id="file" name="file" accept=".zip"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                           required>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Template Jurnal</h2>
-                        <p class="text-sm text-gray-500">Import template transaksi dari file JSON</p>
+                        <div class="text-sm text-yellow-700">
+                            <p class="font-medium">Peringatan</p>
+                            <p>Import akan menghapus SELURUH data yang ada dan menggantinya dengan data dari file. Pastikan Anda sudah mengekspor data terlebih dahulu sebagai backup.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-3">
-                    <a th:href="@{/import/templates}" class="block w-full px-4 py-2 bg-green-600 text-white text-center font-medium rounded-lg hover:bg-green-700 transition-colors">
-                        Import Template
-                    </a>
-                    <a th:href="@{/import/download/template-sample}" class="block w-full px-4 py-2 border border-gray-300 text-gray-700 text-center font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                        Download Template JSON
-                    </a>
-                    <form th:if="${canClearTemplates}" th:action="@{/import/templates/clear}" method="post" class="mt-2"
-                          onsubmit="return confirm('PERINGATAN: Semua template jurnal akan dihapus. Lanjutkan?');">
-                        <button type="submit" class="w-full px-4 py-2 border border-red-300 text-red-700 text-center font-medium rounded-lg hover:bg-red-50 transition-colors">
-                            Hapus Semua Template
-                        </button>
-                    </form>
-                    <p th:unless="${canClearTemplates}" class="text-xs text-gray-500 text-center">
-                        * Tidak dapat menghapus template karena sudah ada transaksi
-                    </p>
-                </div>
-            </div>
+
+                <button type="submit"
+                        class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        onclick="return confirm('PERINGATAN: Seluruh data akan dihapus dan diganti dengan data dari file. Lanjutkan?');">
+                    Import Data
+                </button>
+            </form>
         </div>
 
         <!-- Info Section -->
         <div class="mt-8 bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Petunjuk Import</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Petunjuk</h3>
             <div class="space-y-4 text-sm text-gray-600">
                 <div>
                     <h4 class="font-medium text-gray-900">Format File</h4>
-                    <ul class="list-disc list-inside mt-1 space-y-1">
-                        <li>Bagan Akun: JSON atau Excel (XLSX)</li>
-                        <li>Template Jurnal: JSON</li>
-                    </ul>
+                    <p class="mt-1">File ZIP yang dihasilkan dari menu Ekspor Data. File berisi CSV untuk semua entitas dan folder dokumen.</p>
                 </div>
                 <div>
                     <h4 class="font-medium text-gray-900">Proses Import</h4>
                     <ol class="list-decimal list-inside mt-1 space-y-1">
-                        <li>Upload file</li>
-                        <li>Preview data dan validasi</li>
-                        <li>Konfirmasi import</li>
-                        <li>Lihat hasil import</li>
+                        <li>Semua tabel akan dikosongkan (truncate)</li>
+                        <li>Data dari CSV diimpor sesuai urutan dependensi</li>
+                        <li>File dokumen dikembalikan ke folder storage</li>
                     </ol>
                 </div>
                 <div>
-                    <h4 class="font-medium text-gray-900">Opsi Import</h4>
-                    <ul class="list-disc list-inside mt-1 space-y-1">
-                        <li><strong>Lewati yang sudah ada:</strong> Data dengan kode/nama yang sama akan dilewati</li>
-                        <li><strong>Hapus sebelum import:</strong> Menghapus semua data sebelum import (hanya jika belum ada transaksi)</li>
-                    </ul>
+                    <h4 class="font-medium text-gray-900">Data yang Diimpor</h4>
+                    <p class="mt-1">Pengaturan perusahaan, bagan akun, template jurnal, klien, proyek, karyawan, transaksi, jurnal, dokumen, dan data lainnya.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Link to Export -->
+        <div class="mt-4 text-center">
+            <a th:href="@{/settings/export}" class="text-blue-600 hover:text-blue-800 text-sm">
+                &larr; Kembali ke halaman Ekspor
+            </a>
         </div>
     </div>
 </body>
