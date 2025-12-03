@@ -15,11 +15,13 @@
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
-| **4** | Fixed Assets | ⏳ Not Started |
+| **4** | Fixed Assets | ⏳ In Progress |
 | **5** | Inventory & Production | ⏳ Not Started |
-| **6** | Budget, Analytics & Reconciliation | ⏳ Not Started |
-| **7** | API for Multi-Industry Integration | ⏳ Not Started |
-| **8+** | Other Industries, Advanced Features | ⏳ Not Started |
+| **6** | API Foundation | ⏳ Not Started |
+| **7** | Online Seller Support | ⏳ Not Started |
+| **8** | Bank Reconciliation | ⏳ Not Started |
+| **9** | Analytics & Insights | ⏳ Not Started |
+| **10+** | Budget, Advanced Features | ⏳ Not Started |
 
 ---
 
@@ -520,87 +522,13 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 6: Budget, Analytics & Reconciliation
+## Phase 6: API Foundation
 
-**Goal:** Budget management, transaction tagging, analytics, and bank reconciliation
-
-### 6.1 Budget Setup
-- [ ] Budget entity
-- [ ] Budget per account per period
-- [ ] Budget CRUD UI
-- [ ] Copy from previous period
-
-### 6.2 Budget Reports
-- [ ] Budget vs Actual report
-- [ ] Variance analysis
-- [ ] Over-budget highlighting
-- [ ] PDF/Excel export
-
-### 6.3 Transaction Tags
-- [ ] Tag type entity (user-defined: "Client", "Channel", "Category")
-- [ ] Tag entity (values per type)
-- [ ] Tag type CRUD UI
-- [ ] Tag CRUD UI
-- [ ] Multi-tag per transaction (journal entry)
-- [ ] Tag filters in transaction list
-- [ ] Tag-based reports (summary by tag)
-
-### 6.4 Trend Analysis
-- [ ] Revenue trend chart (12 months)
-- [ ] Expense trend by category (12 months)
-- [ ] Profit margin trend (12 months)
-- [ ] Cash flow trend (12 months)
-- [ ] Comparison: current period vs previous period
-- [ ] Comparison: current period vs same period last year
-
-### 6.5 Smart Alerts
-- [ ] Project cost overrun alert
-- [ ] Project margin drop alert
-- [ ] Overdue receivables alert
-- [ ] Payment collection slowdown alert
-- [ ] Expense spike alert
-- [ ] Cash low warning
-- [ ] Client concentration risk alert
-- [ ] Alert threshold settings per type
-- [ ] Enable/disable individual alerts
-- [ ] Alert delivery: Dashboard notification, Email (optional)
-- [ ] Alert history and acknowledgment
-
-### 6.6 Bank Reconciliation
-- [ ] Bank parser config entity
-- [ ] ConfigurableBankStatementParser class
-- [ ] Column name matching with fallback
-- [ ] Preload configs (BCA, BNI, BSI, CIMB)
-- [ ] Admin UI for parser config
-- [ ] Bank reconciliation entity
-- [ ] Statement items entity
-- [ ] CSV upload and parsing
-- [ ] Auto-matching (exact date + amount)
-- [ ] Fuzzy matching (±1 day)
-- [ ] Manual matching UI
-- [ ] Create missing transactions from statement
-- [ ] Reconciliation report
-
-**Value analysis (manual reconciliation time per month):**
-- 20-30 transactions: 5-10 min (easy, no automation needed)
-- 50-100 transactions: 15-30 min (manageable)
-- 200-300 transactions: 1-2 hours (tedious, automation helpful)
-- 500+ transactions: 3+ hours (automation essential)
-
-**For typical small IT services (30-80 tx/month):** Manual reconciliation takes ~15 min/month.
-Bank reconciliation feature becomes valuable at ~150+ transactions/month or with multiple bank accounts.
-
-**Phase 6 Deliverable:** Budget management, transaction tagging, trend analysis, smart alerts, and bank reconciliation.
-
----
-
-## Phase 7: API for Multi-Industry Integration
-
-**Goal:** Expose REST API for domain-specific applications to record transactions
+**Goal:** Expose REST API for external integrations, mobile apps, and domain-specific applications
 
 **Strategy document:** `docs/08-multi-industry-expansion-strategy.md`
 
-### 7.1 API Foundation ⏳
+### 6.1 API Core
 - [ ] Transaction entity: add `idempotency_key` column (unique, nullable)
 - [ ] ApiKey entity (hashed key, name, permissions, created_at, last_used_at, active)
 - [ ] ApiKeyService (generate, validate, revoke)
@@ -620,7 +548,7 @@ Bank reconciliation feature becomes valuable at ~150+ transactions/month or with
 - [ ] Integration tests for all API endpoints
 - [ ] User manual: API documentation
 
-### 7.2 API Enhancements ⏳
+### 6.2 API Enhancements
 - [ ] ReportApiController (`/api/reports`)
   - [ ] GET /api/reports/trial-balance
   - [ ] GET /api/reports/balance-sheet
@@ -631,33 +559,150 @@ Bank reconciliation feature becomes valuable at ~150+ transactions/month or with
 - [ ] API audit logging (request/response, latency, errors)
 - [ ] API versioning header (Accept-Version or URL prefix)
 
-### 7.3 API Management UI ⏳
+### 6.3 API Management UI
 - [ ] API Keys list page (`/settings/api-keys`)
 - [ ] Generate new API key (show once, then hashed)
 - [ ] Revoke API key
 - [ ] View API key usage statistics
 - [ ] Permission scopes (read-only, read-write, admin)
 
-**Phase 7 Deliverable:** REST API enabling domain-specific applications (grant management, inventory, POS, etc.) to integrate with core accounting.
+**Phase 6 Deliverable:** REST API enabling external integrations, mobile apps, and domain-specific applications (grant management, POS, etc.).
 
 ---
 
-## Phase 8+: Future Enhancements
+## Phase 7: Online Seller Support
 
-### Additional Industry Templates
-- [ ] Photography COA and journal templates
-- [ ] Online Seller COA and journal templates
-- [ ] General Freelancer COA and journal templates
-- [ ] Industry-specific salary component templates
+**Goal:** Support online sellers with marketplace reconciliation and seller-specific features
 
-### Marketplace Reconciliation
+**Target users:** Tokopedia, Shopee, Bukalapak, Lazada sellers
+
+### 7.1 Marketplace Reconciliation
 - [ ] Marketplace parser config entity
 - [ ] ConfigurableMarketplaceParser class
 - [ ] Preload configs (Tokopedia, Shopee, Bukalapak, Lazada)
-- [ ] Settlement upload and parsing
-- [ ] Order matching
-- [ ] Fee expense auto-creation
+- [ ] Settlement report upload and parsing
+- [ ] Order matching (marketplace order ID ↔ transaction)
+- [ ] Fee extraction (platform fee, payment fee, promo subsidy)
+- [ ] Auto-create fee expense transactions
+- [ ] Reconciliation status tracking (matched, unmatched, discrepancy)
 - [ ] Marketplace reconciliation report
+- [ ] Functional tests
+- [ ] User manual
+
+### 7.2 Shipping Cost Tracking
+- [ ] Shipping entity (order_id, courier, cost, status)
+- [ ] Link shipping to sales transaction
+- [ ] Shipping cost report (by courier, by period)
+- [ ] COD handling (cash on delivery reconciliation)
+
+### 7.3 Seller Dashboard
+- [ ] GMV (Gross Merchandise Value) per marketplace
+- [ ] Platform fees summary
+- [ ] Net profit per marketplace
+- [ ] Top selling products (requires inventory module)
+- [ ] Marketplace comparison chart
+
+**Phase 7 Deliverable:** Marketplace settlement reconciliation, fee tracking, and seller-specific dashboard.
+
+---
+
+## Phase 8: Bank Reconciliation
+
+**Goal:** Automate bank statement matching with recorded transactions
+
+### 8.1 Bank Statement Import
+- [ ] Bank parser config entity
+- [ ] ConfigurableBankStatementParser class
+- [ ] Column name matching with fallback
+- [ ] Preload configs (BCA, BNI, Mandiri, BSI, CIMB)
+- [ ] Admin UI for parser config
+- [ ] CSV/Excel upload and parsing
+- [ ] Statement item entity (date, description, amount, balance)
+
+### 8.2 Transaction Matching
+- [ ] Bank reconciliation entity (period, status, bank account)
+- [ ] Auto-matching rules:
+  - [ ] Exact match (date + amount)
+  - [ ] Fuzzy match (±1 day, same amount)
+  - [ ] Description keyword matching
+- [ ] Manual matching UI (drag-and-drop or checkbox)
+- [ ] Create missing transactions from unmatched statement items
+- [ ] Mark as "bank only" or "book only" for discrepancies
+
+### 8.3 Reconciliation Reports
+- [ ] Reconciliation summary (matched, unmatched, discrepancies)
+- [ ] Bank reconciliation statement (book balance → bank balance)
+- [ ] Outstanding items list
+- [ ] PDF/Excel export
+
+**Value analysis (manual reconciliation time per month):**
+- 20-30 transactions: 5-10 min (easy, no automation needed)
+- 50-100 transactions: 15-30 min (manageable)
+- 200-300 transactions: 1-2 hours (tedious, automation helpful)
+- 500+ transactions: 3+ hours (automation essential)
+
+**Phase 8 Deliverable:** Bank statement import, auto-matching, manual matching UI, and reconciliation reports.
+
+---
+
+## Phase 9: Analytics & Insights
+
+**Goal:** Provide trend analysis, smart alerts, and flexible transaction tagging
+
+### 9.1 Trend Analysis
+- [ ] Revenue trend chart (12 months)
+- [ ] Expense trend by category (12 months)
+- [ ] Profit margin trend (12 months)
+- [ ] Cash flow trend (12 months)
+- [ ] Comparison: current period vs previous period
+- [ ] Comparison: current period vs same period last year
+- [ ] Chart library integration (Chart.js or similar)
+
+### 9.2 Smart Alerts
+- [ ] Alert entity (type, threshold, enabled, last_triggered)
+- [ ] Alert types:
+  - [ ] Cash low warning
+  - [ ] Overdue receivables
+  - [ ] Expense spike (vs average)
+  - [ ] Project cost overrun
+  - [ ] Project margin drop
+  - [ ] Payment collection slowdown
+  - [ ] Client concentration risk
+- [ ] Alert threshold settings per type
+- [ ] Enable/disable individual alerts
+- [ ] Dashboard notification display
+- [ ] Email notification (optional)
+- [ ] Alert history and acknowledgment
+
+### 9.3 Transaction Tags
+- [ ] Tag type entity (user-defined: "Channel", "Campaign", "Category")
+- [ ] Tag entity (values per type)
+- [ ] Tag type CRUD UI
+- [ ] Tag CRUD UI
+- [ ] Multi-tag per transaction (journal entry)
+- [ ] Tag filters in transaction list
+- [ ] Tag-based reports (summary by tag)
+
+**Phase 9 Deliverable:** Trend charts, configurable alerts, and flexible transaction tagging.
+
+---
+
+## Phase 10+: Future Enhancements
+
+### Budget Management
+- [ ] Budget entity (account, period, amount)
+- [ ] Budget per account per period
+- [ ] Budget CRUD UI
+- [ ] Copy from previous period
+- [ ] Budget vs Actual report
+- [ ] Variance analysis
+- [ ] Over-budget highlighting
+- [ ] PDF/Excel export
+
+### Additional Industry Templates
+- [ ] Photography COA and journal templates
+- [ ] General Freelancer COA and journal templates
+- [ ] Industry-specific salary component templates
 
 ### Account Balances (Materialized) - Performance Optimization
 
