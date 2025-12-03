@@ -452,6 +452,22 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Phase 4 Deliverable:** Fixed asset management with depreciation and disposal.
 
+### 4.4 Depreciation Report (Tax Attachment)
+- [ ] Laporan Penyusutan for SPT Tahunan (Lampiran Khusus 1A format)
+- [ ] Columns: Nama Aset, Tgl Perolehan, Harga Perolehan, Masa Manfaat, Metode, Penyusutan Tahun Ini, Akum. Penyusutan, Nilai Buku
+- [ ] Filter by year
+- [ ] PDF/Excel export
+- [ ] Functional tests
+
+### 4.5 Fiscal Year Closing
+- [ ] Year-end closing service (auto-generate closing entries)
+- [ ] Close Revenue accounts (4.x) to Laba Berjalan (3.2.02)
+- [ ] Close Expense accounts (5.x) to Laba Berjalan (3.2.02)
+- [ ] Close Laba Berjalan to Laba Ditahan (3.2.01)
+- [ ] Prevent duplicate closing for same year
+- [ ] Closing entries UI (preview, execute, reverse if needed)
+- [ ] Functional tests
+
 ---
 
 ## Phase 5: Inventory & Production
