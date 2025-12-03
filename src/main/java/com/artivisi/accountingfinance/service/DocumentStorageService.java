@@ -67,7 +67,12 @@ public class DocumentStorageService {
         Path targetDirectory = rootLocation.resolve(subPath);
         Files.createDirectories(targetDirectory);
 
-        Path targetPath = targetDirectory.resolve(storedFilename);
+        Path targetPath = targetDirectory.resolve(storedFilename).normalize();
+
+        // Prevent path traversal attacks
+        if (!targetPath.startsWith(rootLocation)) {
+            throw new SecurityException("Access denied: path traversal attempt detected");
+        }
 
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -174,6 +179,7 @@ public class DocumentStorageService {
 
     /**
      * Get file extension including the dot.
+     * Validates the extension to prevent path traversal attacks.
      */
     private String getExtension(String filename) {
         if (filename == null) {
@@ -181,7 +187,12 @@ public class DocumentStorageService {
         }
         int lastDot = filename.lastIndexOf('.');
         if (lastDot > 0) {
-            return filename.substring(lastDot);
+            String extension = filename.substring(lastDot);
+            // Validate extension to prevent path traversal
+            if (extension.contains("/") || extension.contains("\\") || extension.contains("..")) {
+                throw new IllegalArgumentException("Invalid file extension: " + extension);
+            }
+            return extension;
         }
         return "";
     }
@@ -233,7 +244,13 @@ public class DocumentStorageService {
         Path targetDirectory = rootLocation.resolve(subPath);
         Files.createDirectories(targetDirectory);
 
-        Path targetPath = targetDirectory.resolve(storedFilename);
+        Path targetPath = targetDirectory.resolve(storedFilename).normalize();
+
+        // Prevent path traversal attacks
+        if (!targetPath.startsWith(rootLocation)) {
+            throw new SecurityException("Access denied: path traversal attempt detected");
+        }
+
         Files.write(targetPath, bytes);
 
         log.debug("Stored file from bytes: {} -> {}", filename, targetPath);

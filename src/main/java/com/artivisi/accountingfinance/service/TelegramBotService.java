@@ -82,14 +82,14 @@ public class TelegramBotService {
         String username = message.getFrom().getUsername();
         String firstName = message.getFrom().getFirstName();
 
-        log.info("Received message from {} ({})", username, userId);
+        log.info("Received message from telegram user id: {}", sanitizeForLog(String.valueOf(userId)));
 
         // Check if user is linked
         Optional<TelegramUserLink> linkOpt = telegramLinkRepository.findByTelegramUserIdAndIsActiveTrue(userId);
         log.info("User link status: {}", linkOpt.isPresent() ? "linked" : "not linked");
 
         if (message.hasText()) {
-            log.info("Processing text message: {}", message.getText());
+            log.info("Processing text message from user id: {}", sanitizeForLog(String.valueOf(userId)));
             String text = message.getText();
 
             if (text.startsWith("/start")) {
@@ -324,10 +324,10 @@ public class TelegramBotService {
             var response = telegramApiClient.sendMessage(request);
             
             if (!Boolean.TRUE.equals(response.ok())) {
-                log.error("Failed to send message to {}: {}", chatId, response.description());
+                log.error("Failed to send telegram message: {}", sanitizeForLog(response.description()));
             }
         } catch (Exception e) {
-            log.error("Failed to send message to {}: {}", chatId, e.getMessage());
+            log.error("Failed to send telegram message: {}", e.getMessage());
         }
     }
 
@@ -337,6 +337,23 @@ public class TelegramBotService {
                    .replace("*", "\\*")
                    .replace("[", "\\[")
                    .replace("`", "\\`");
+    }
+
+    /**
+     * Sanitize user-controlled data for safe logging.
+     * Removes newlines and limits length to prevent log injection attacks.
+     */
+    private String sanitizeForLog(String input) {
+        if (input == null) {
+            return "[null]";
+        }
+        // Remove newlines to prevent log injection
+        String sanitized = input.replace("\n", " ").replace("\r", " ");
+        // Limit length to prevent log flooding
+        if (sanitized.length() > 100) {
+            sanitized = sanitized.substring(0, 100) + "...";
+        }
+        return sanitized;
     }
 
     public String generateVerificationCode(User user) {
