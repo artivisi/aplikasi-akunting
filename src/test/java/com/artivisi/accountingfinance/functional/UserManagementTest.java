@@ -128,4 +128,152 @@ class UserManagementTest extends PlaywrightTestBase {
 
         assertThat(detailPage.hasRole("Administrator")).isTrue();
     }
+
+    @Test
+    @DisplayName("Should navigate to edit form")
+    void shouldNavigateToEditForm() {
+        // Navigate to admin user detail
+        listPage.navigate();
+        listPage.clickUserDetailLink("admin");
+
+        // Wait for detail page
+        page.waitForLoadState();
+
+        // Click edit button
+        detailPage.clickEditButton();
+
+        // Should be on edit form
+        page.waitForLoadState();
+        assertThat(page.url()).contains("/edit");
+    }
+
+    @Test
+    @DisplayName("Should toggle user active status")
+    void shouldToggleUserActiveStatus() {
+        // First create a user to toggle
+        formPage.navigateToNew();
+
+        String uniqueUsername = "toggle" + System.currentTimeMillis() % 100000;
+
+        formPage.fillUsername(uniqueUsername);
+        formPage.fillPassword("password123");
+        formPage.fillFullName("Toggle Test User");
+        formPage.selectRole("STAFF");
+        formPage.clickSubmit();
+
+        // Navigate to user detail
+        listPage.navigate();
+        listPage.clickUserDetailLink(uniqueUsername);
+
+        // Initially active
+        detailPage.assertActiveStatus();
+
+        // Toggle to inactive
+        detailPage.clickToggleActiveButton();
+        detailPage.assertInactiveStatus();
+    }
+
+    @Test
+    @DisplayName("Should change user password")
+    void shouldChangeUserPassword() {
+        // First create a user
+        formPage.navigateToNew();
+
+        String uniqueUsername = "pwdtest" + System.currentTimeMillis() % 100000;
+
+        formPage.fillUsername(uniqueUsername);
+        formPage.fillPassword("oldpassword");
+        formPage.fillFullName("Password Test User");
+        formPage.selectRole("STAFF");
+        formPage.clickSubmit();
+
+        // Navigate to user detail and change password
+        listPage.navigate();
+        listPage.clickUserDetailLink(uniqueUsername);
+
+        // Click change password link
+        page.locator("a:has-text('Ubah Password')").click();
+
+        // Fill password form
+        page.locator("input[name='newPassword']").fill("newpassword123");
+        page.locator("input[name='confirmPassword']").fill("newpassword123");
+        page.locator("button[type='submit']:has-text('Simpan')").click();
+
+        // Should redirect back to detail page with success message
+        assertThat(page.locator("body").textContent()).contains("Password berhasil diubah");
+    }
+
+    @Test
+    @DisplayName("Should show error when passwords dont match")
+    void shouldShowErrorWhenPasswordsDontMatch() {
+        // First create a user
+        formPage.navigateToNew();
+
+        String uniqueUsername = "pwderr" + System.currentTimeMillis() % 100000;
+
+        formPage.fillUsername(uniqueUsername);
+        formPage.fillPassword("testpass");
+        formPage.fillFullName("Password Error Test");
+        formPage.selectRole("STAFF");
+        formPage.clickSubmit();
+
+        // Navigate to change password
+        listPage.navigate();
+        listPage.clickUserDetailLink(uniqueUsername);
+        page.locator("a:has-text('Ubah Password')").click();
+
+        // Fill mismatched passwords
+        page.locator("input[name='newPassword']").fill("newpassword123");
+        page.locator("input[name='confirmPassword']").fill("differentpassword");
+        page.locator("button[type='submit']:has-text('Simpan')").click();
+
+        // Should show error
+        assertThat(page.locator("body").textContent()).contains("Password tidak cocok");
+    }
+
+    @Test
+    @DisplayName("Should navigate to change password form")
+    void shouldNavigateToChangePasswordForm() {
+        // Navigate to admin user detail
+        listPage.navigate();
+        listPage.clickUserDetailLink("admin");
+
+        // Wait for detail page to load
+        page.waitForLoadState();
+        page.locator("a:has-text('Ubah Password')").click();
+
+        // Wait for change password form
+        page.waitForLoadState();
+        assertThat(page.url()).contains("/change-password");
+    }
+
+    @Test
+    @DisplayName("Should search users")
+    void shouldSearchUsers() {
+        listPage.navigate();
+
+        // Search for admin
+        page.locator("input[name='search']").fill("admin");
+        page.locator("button:has-text('Cari')").click();
+
+        // Should find admin
+        assertThat(listPage.hasUserWithUsername("admin")).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should show error when no role selected")
+    void shouldShowErrorWhenNoRoleSelected() {
+        formPage.navigateToNew();
+
+        String uniqueUsername = "norole" + System.currentTimeMillis() % 100000;
+
+        formPage.fillUsername(uniqueUsername);
+        formPage.fillPassword("password123");
+        formPage.fillFullName("No Role Test");
+        // Don't select any role
+        formPage.clickSubmit();
+
+        // Should show error
+        assertThat(page.locator("body").textContent()).contains("At least one role must be selected");
+    }
 }

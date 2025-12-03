@@ -167,4 +167,17 @@ public class ProjectDetailPage {
         page.locator(PAYMENT_TERM_ITEM + ":has-text('" + termName + "')").locator("button[title='Buat Invoice']").click();
         page.waitForLoadState();
     }
+
+    public void clickPaymentTermEditButton(String termName) {
+        page.waitForLoadState();
+        page.locator(PAYMENT_TERM_ITEM + ":has-text('" + termName + "')").locator("a[title='Edit']").click();
+        page.waitForLoadState();
+    }
+
+    public void clickPaymentTermDeleteButton(String termName) {
+        page.waitForLoadState();
+        page.onceDialog(dialog -> dialog.accept());
+        page.locator(PAYMENT_TERM_ITEM + ":has-text('" + termName + "')").locator("button[title='Hapus']").click();
+        page.waitForLoadState();
+    }
 }

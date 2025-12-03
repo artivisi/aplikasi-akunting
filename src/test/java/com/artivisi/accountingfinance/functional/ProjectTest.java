@@ -344,6 +344,81 @@ class ProjectTest extends PlaywrightTestBase {
             // Should be removed
             assertThat(detailPage.getMilestoneCount()).isEqualTo(countBefore - 1);
         }
+
+        @Test
+        @DisplayName("Should edit milestone")
+        void shouldEditMilestone() {
+            // Create a project with milestone
+            formPage.navigateToNew();
+
+            String uniqueCode = "PRJ-MSED-" + System.currentTimeMillis();
+            String uniqueName = "Milestone Edit Test " + System.currentTimeMillis();
+
+            formPage.fillCode(uniqueCode);
+            formPage.fillName(uniqueName);
+            formPage.clickSubmit();
+
+            // Create milestone
+            detailPage.clickNewMilestoneButton();
+            String milestoneName = "Original Milestone";
+            milestoneFormPage.fillName(milestoneName);
+            milestoneFormPage.fillWeight("20");
+            milestoneFormPage.clickSubmit();
+
+            // Click edit button for milestone
+            detailPage.clickMilestoneEditButton(milestoneName);
+
+            // Update milestone
+            String updatedName = "Updated Milestone";
+            milestoneFormPage.fillName(updatedName);
+            milestoneFormPage.fillWeight("30");
+            milestoneFormPage.clickSubmit();
+
+            // Should show updated milestone
+            assertThat(detailPage.hasMilestoneWithName(updatedName)).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should reset completed milestone back to pending")
+        void shouldResetMilestone() {
+            // Create a project with milestone
+            formPage.navigateToNew();
+
+            String uniqueCode = "PRJ-MSRS-" + System.currentTimeMillis();
+            String uniqueName = "Milestone Reset Test " + System.currentTimeMillis();
+
+            formPage.fillCode(uniqueCode);
+            formPage.fillName(uniqueName);
+            formPage.clickSubmit();
+
+            // Create milestone
+            detailPage.clickNewMilestoneButton();
+            String milestoneName = "Reset Test Milestone";
+            milestoneFormPage.fillName(milestoneName);
+            milestoneFormPage.clickSubmit();
+
+            // Wait for page to reload
+            page.waitForLoadState();
+
+            // Start milestone (PENDING -> IN_PROGRESS)
+            detailPage.clickMilestoneStartButton(milestoneName);
+            page.waitForLoadState();
+
+            // Complete milestone (IN_PROGRESS -> COMPLETED)
+            detailPage.clickMilestoneCompleteButton(milestoneName);
+            page.waitForLoadState();
+
+            // Verify milestone is completed
+            String status = detailPage.getMilestoneStatus(milestoneName);
+            assertThat(status).isEqualTo("Selesai");
+
+            // Reset milestone (COMPLETED -> PENDING) - Reset button only appears for completed
+            detailPage.clickMilestoneResetButton(milestoneName);
+            page.waitForLoadState();
+
+            // Should be back to pending
+            assertThat(detailPage.getMilestoneStatus(milestoneName)).isEqualTo("Pending");
+        }
     }
 
     @Nested
@@ -434,6 +509,68 @@ class ProjectTest extends PlaywrightTestBase {
             page.waitForURL("**/invoices/**");
             page.waitForLoadState();
             assertThat(page.url()).contains("/invoices/");
+        }
+
+        @Test
+        @DisplayName("Should edit payment term")
+        void shouldEditPaymentTerm() {
+            String projectId = createTestClientAndGetProjectId();
+
+            // Create payment term
+            detailPage.clickNewPaymentTermButton();
+            String originalName = "Original Term " + System.currentTimeMillis();
+            paymentTermFormPage.fillName(originalName);
+            paymentTermFormPage.selectDueTrigger("ON_SIGNING");
+            paymentTermFormPage.fillPercentage("25");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect to project detail
+            page.waitForURL("**/projects/" + projectId);
+            page.waitForLoadState();
+
+            // Click edit button for payment term
+            detailPage.clickPaymentTermEditButton(originalName);
+
+            // Update payment term
+            String updatedName = "Updated Term " + System.currentTimeMillis();
+            paymentTermFormPage.fillName(updatedName);
+            paymentTermFormPage.fillPercentage("35");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect and verify
+            page.waitForURL("**/projects/" + projectId);
+            page.waitForLoadState();
+            assertThat(detailPage.hasPaymentTermWithName(updatedName)).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should delete payment term")
+        void shouldDeletePaymentTerm() {
+            String projectId = createTestClientAndGetProjectId();
+
+            // Create payment term
+            detailPage.clickNewPaymentTermButton();
+            String termName = "Delete Term Test " + System.currentTimeMillis();
+            paymentTermFormPage.fillName(termName);
+            paymentTermFormPage.selectDueTrigger("ON_SIGNING");
+            paymentTermFormPage.fillPercentage("20");
+            paymentTermFormPage.clickSubmit();
+
+            // Wait for redirect to project detail
+            page.waitForURL("**/projects/" + projectId);
+            page.waitForLoadState();
+
+            // Verify created
+            assertThat(detailPage.hasPaymentTermWithName(termName)).isTrue();
+
+            int countBefore = detailPage.getPaymentTermCount();
+
+            // Delete payment term
+            detailPage.clickPaymentTermDeleteButton(termName);
+
+            // Should be removed
+            page.waitForLoadState();
+            assertThat(detailPage.getPaymentTermCount()).isEqualTo(countBefore - 1);
         }
     }
 

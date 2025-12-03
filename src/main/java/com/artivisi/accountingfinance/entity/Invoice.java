@@ -20,6 +20,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -56,10 +57,12 @@ public class Invoice {
 
     @NotNull(message = "Tanggal invoice wajib diisi")
     @Column(name = "invoice_date", nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate invoiceDate;
 
     @NotNull(message = "Tanggal jatuh tempo wajib diisi")
     @Column(name = "due_date", nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dueDate;
 
     @NotNull(message = "Jumlah wajib diisi")

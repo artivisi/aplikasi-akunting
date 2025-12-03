@@ -198,4 +198,224 @@ class InvoiceTest extends PlaywrightTestBase {
             detailPage.assertStatusText("Dibatalkan");
         }
     }
+
+    @Nested
+    @DisplayName("1.9.14 Invoice Edit")
+    class InvoiceEditTests {
+
+        private void createTestClient() {
+            clientFormPage.navigateToNew();
+            String uniqueCode = "CLI-EDT-" + System.currentTimeMillis();
+            String uniqueName = "Edit Test Client " + System.currentTimeMillis();
+            clientFormPage.fillCode(uniqueCode);
+            clientFormPage.fillName(uniqueName);
+            clientFormPage.clickSubmit();
+        }
+
+        private void createTestInvoice() {
+            formPage.navigateToNew();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+            String dueDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ISO_DATE);
+
+            formPage.selectClientByIndex(1);
+            formPage.fillInvoiceDate(today);
+            formPage.fillDueDate(dueDate);
+            formPage.fillAmount("5000000");
+            formPage.fillNotes("Original notes");
+            formPage.clickSubmit();
+        }
+
+        @Test
+        @DisplayName("Should edit draft invoice")
+        void shouldEditDraftInvoice() {
+            createTestClient();
+            createTestInvoice();
+
+            // Click edit button
+            page.locator("a:has-text('Edit')").click();
+            page.waitForLoadState();
+
+            // Verify we're on edit form
+            assertThat(page.url()).contains("/edit");
+
+            // Verify form fields are populated from database
+            String invoiceDateValue = page.locator("#invoiceDate").inputValue();
+            assertThat(invoiceDateValue).as("Invoice date should be populated").isNotEmpty();
+
+            String dueDateValue = page.locator("#dueDate").inputValue();
+            assertThat(dueDateValue).as("Due date should be populated").isNotEmpty();
+
+            String amountValue = page.locator("#amount").inputValue();
+            assertThat(amountValue).as("Amount should be populated").isNotEmpty();
+
+            // Clear and update amount
+            page.locator("#amount").clear();
+            page.locator("#amount").fill("7500000");
+
+            // Clear and update notes
+            page.locator("#notes").clear();
+            page.locator("#notes").fill("Updated notes");
+
+            // Submit form
+            page.locator("#btn-simpan").click();
+            page.waitForLoadState();
+
+            // Should redirect to detail page with updated values
+            page.waitForURL("**/invoices/**", new com.microsoft.playwright.Page.WaitForURLOptions().setTimeout(10000));
+            assertThat(page.url()).doesNotContain("/edit");
+            // Amount is formatted as "7,500,000" (comma as thousands separator)
+            assertThat(page.locator("body").textContent()).contains("7,500,000");
+        }
+
+        @Test
+        @DisplayName("Should not allow edit on non-draft invoice")
+        void shouldNotAllowEditOnNonDraftInvoice() {
+            createTestClient();
+            createTestInvoice();
+
+            // Send first
+            detailPage.clickSendButton();
+            detailPage.assertStatusText("Terkirim");
+
+            // Navigate directly to edit URL - should redirect back
+            String currentUrl = page.url();
+            page.navigate(currentUrl.replace("/invoices/", "/invoices/") + "/edit");
+
+            // Should redirect back to detail (no edit allowed)
+            assertThat(page.url()).doesNotContain("/edit");
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.15 Invoice Delete")
+    class InvoiceDeleteTests {
+
+        private void createTestClient() {
+            clientFormPage.navigateToNew();
+            String uniqueCode = "CLI-DEL-" + System.currentTimeMillis();
+            String uniqueName = "Delete Test Client " + System.currentTimeMillis();
+            clientFormPage.fillCode(uniqueCode);
+            clientFormPage.fillName(uniqueName);
+            clientFormPage.clickSubmit();
+        }
+
+        private void createTestInvoice() {
+            formPage.navigateToNew();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+            String dueDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ISO_DATE);
+
+            formPage.selectClientByIndex(1);
+            formPage.fillInvoiceDate(today);
+            formPage.fillDueDate(dueDate);
+            formPage.fillAmount("3000000");
+            formPage.clickSubmit();
+        }
+
+        @Test
+        @DisplayName("Should delete draft invoice")
+        void shouldDeleteDraftInvoice() {
+            createTestClient();
+            createTestInvoice();
+
+            // Wait for detail page
+            page.waitForLoadState();
+
+            // Accept confirmation dialog and click delete
+            page.onceDialog(dialog -> dialog.accept());
+            page.locator("form[action*='/delete'] button").click();
+
+            // Should redirect to list
+            page.waitForURL("**/invoices", new com.microsoft.playwright.Page.WaitForURLOptions().setTimeout(10000));
+            assertThat(page.url()).endsWith("/invoices");
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.16 Invoice Print")
+    class InvoicePrintTests {
+
+        private void createTestClient() {
+            clientFormPage.navigateToNew();
+            String uniqueCode = "CLI-PRT-" + System.currentTimeMillis();
+            String uniqueName = "Print Test Client " + System.currentTimeMillis();
+            clientFormPage.fillCode(uniqueCode);
+            clientFormPage.fillName(uniqueName);
+            clientFormPage.clickSubmit();
+        }
+
+        private void createTestInvoice() {
+            formPage.navigateToNew();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+            String dueDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ISO_DATE);
+
+            formPage.selectClientByIndex(1);
+            formPage.fillInvoiceDate(today);
+            formPage.fillDueDate(dueDate);
+            formPage.fillAmount("8000000");
+            formPage.clickSubmit();
+        }
+
+        @Test
+        @DisplayName("Should display invoice print view")
+        void shouldDisplayInvoicePrintView() {
+            createTestClient();
+            createTestInvoice();
+
+            // Get invoice number from URL
+            String url = page.url();
+            String invoiceNumber = url.substring(url.lastIndexOf("/") + 1);
+
+            // Navigate to print view
+            page.navigate(baseUrl() + "/invoices/" + invoiceNumber + "/print");
+
+            // Should display printable invoice
+            assertThat(page.locator("body").textContent()).contains("INVOICE");
+            // Amount is formatted with comma as thousands separator
+            assertThat(page.locator("body").textContent()).contains("8,000,000");
+        }
+    }
+
+    @Nested
+    @DisplayName("1.9.17 Invoice Filters")
+    class InvoiceFilterTests {
+
+        @Test
+        @DisplayName("Should display status filter")
+        void shouldDisplayStatusFilter() {
+            listPage.navigate();
+
+            assertThat(page.locator("select[name='status']").isVisible()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should display client filter")
+        void shouldDisplayClientFilter() {
+            listPage.navigate();
+
+            assertThat(page.locator("select[name='clientId']").isVisible()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should display summary counts")
+        void shouldDisplaySummaryCounts() {
+            listPage.navigate();
+
+            // Summary badges should be visible
+            assertThat(page.locator("text=Draf").first().isVisible()).isTrue();
+            assertThat(page.locator("text=Terkirim").first().isVisible()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should filter by status")
+        void shouldFilterByStatus() {
+            listPage.navigate();
+
+            // Select DRAFT status
+            page.locator("select[name='status']").selectOption("DRAFT");
+            page.locator("button[type='submit']:has-text('Filter'), button:has-text('Terapkan')").first().click();
+
+            // Page should reload with status filter
+            assertThat(page.url()).contains("status=DRAFT");
+        }
+    }
 }
