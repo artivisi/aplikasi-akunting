@@ -99,7 +99,7 @@ public class DraftTransactionService {
         draft.setStatus(DraftTransaction.Status.PENDING);
 
         DraftTransaction saved = draftRepository.save(draft);
-        log.info("Created draft transaction {} from Telegram message {}", saved.getId(), telegramMessageId);
+        log.info("Created draft transaction {} from Telegram", saved.getId());
 
         return saved;
     }
