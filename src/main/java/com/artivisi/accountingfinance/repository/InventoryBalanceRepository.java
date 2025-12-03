@@ -56,4 +56,38 @@ public interface InventoryBalanceRepository extends JpaRepository<InventoryBalan
     @Query("SELECT COALESCE(SUM(b.totalCost), 0) FROM InventoryBalance b " +
            "WHERE b.product.active = true")
     BigDecimal getTotalInventoryValue();
+
+    @Query("SELECT b FROM InventoryBalance b " +
+           "LEFT JOIN FETCH b.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE p.active = true " +
+           "ORDER BY p.code")
+    List<InventoryBalance> findAllWithProduct();
+
+    @Query("SELECT b FROM InventoryBalance b " +
+           "LEFT JOIN FETCH b.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE p.category.id = :categoryId " +
+           "AND p.active = true " +
+           "ORDER BY p.code")
+    List<InventoryBalance> findByProductCategoryId(@Param("categoryId") UUID categoryId);
+
+    @Query("SELECT b FROM InventoryBalance b " +
+           "LEFT JOIN FETCH b.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE (LOWER(p.code) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "       LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND p.active = true " +
+           "ORDER BY p.code")
+    List<InventoryBalance> findBySearch(@Param("search") String search);
+
+    @Query("SELECT b FROM InventoryBalance b " +
+           "LEFT JOIN FETCH b.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE p.category.id = :categoryId " +
+           "AND (LOWER(p.code) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND p.active = true " +
+           "ORDER BY p.code")
+    List<InventoryBalance> findByProductCategoryIdAndSearch(@Param("categoryId") UUID categoryId, @Param("search") String search);
 }

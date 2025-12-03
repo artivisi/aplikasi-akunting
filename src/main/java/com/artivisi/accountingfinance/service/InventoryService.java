@@ -1,14 +1,19 @@
 package com.artivisi.accountingfinance.service;
 
 import com.artivisi.accountingfinance.entity.CostingMethod;
+import com.artivisi.accountingfinance.dto.FormulaContext;
 import com.artivisi.accountingfinance.entity.InventoryBalance;
 import com.artivisi.accountingfinance.entity.InventoryFifoLayer;
 import com.artivisi.accountingfinance.entity.InventoryTransaction;
 import com.artivisi.accountingfinance.entity.InventoryTransactionType;
+import com.artivisi.accountingfinance.entity.JournalTemplate;
+import com.artivisi.accountingfinance.entity.JournalTemplateLine;
 import com.artivisi.accountingfinance.entity.Product;
+import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.repository.InventoryBalanceRepository;
 import com.artivisi.accountingfinance.repository.InventoryFifoLayerRepository;
 import com.artivisi.accountingfinance.repository.InventoryTransactionRepository;
+import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
 import com.artivisi.accountingfinance.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +27,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,6 +42,14 @@ public class InventoryService {
     private final InventoryBalanceRepository balanceRepository;
     private final InventoryFifoLayerRepository fifoLayerRepository;
     private final ProductRepository productRepository;
+    private final JournalTemplateRepository journalTemplateRepository;
+    private final TransactionService transactionService;
+
+    // Template IDs from V004 seed data (Phase 5 inventory templates)
+    private static final UUID PURCHASE_TEMPLATE_ID = UUID.fromString("f5000000-0000-0000-0000-000000000001");
+    private static final UUID SALE_TEMPLATE_ID = UUID.fromString("f5000000-0000-0000-0000-000000000002");
+    private static final UUID ADJUSTMENT_IN_TEMPLATE_ID = UUID.fromString("f5000000-0000-0000-0000-000000000003");
+    private static final UUID ADJUSTMENT_OUT_TEMPLATE_ID = UUID.fromString("f5000000-0000-0000-0000-000000000004");
 
     /**
      * Record an inventory purchase.
@@ -266,6 +281,15 @@ public class InventoryService {
             fifoLayerRepository.save(layer);
         }
 
+        // Create journal entry if product has inventory account configured
+        if (product.getInventoryAccount() != null) {
+            Transaction journalTransaction = createJournalEntry(transaction, product);
+            if (journalTransaction != null) {
+                transaction.setTransaction(journalTransaction);
+                transaction = transactionRepository.save(transaction);
+            }
+        }
+
         log.info("Inbound transaction recorded. New balance: {} @ avg cost {}",
                 balance.getQuantity(), balance.getAverageCost());
 
@@ -333,6 +357,15 @@ public class InventoryService {
 
         transaction = transactionRepository.save(transaction);
 
+        // Create journal entry if product has inventory account configured
+        if (product.getInventoryAccount() != null) {
+            Transaction journalTransaction = createJournalEntry(transaction, product);
+            if (journalTransaction != null) {
+                transaction.setTransaction(journalTransaction);
+                transaction = transactionRepository.save(transaction);
+            }
+        }
+
         log.info("Outbound transaction recorded. COGS: {}, New balance: {}",
                 totalCost, balance.getQuantity());
 
@@ -396,5 +429,108 @@ public class InventoryService {
         } catch (Exception e) {
             return "system";
         }
+    }
+
+    /**
+     * Create and post a journal entry for an inventory transaction.
+     * Uses the appropriate template based on transaction type.
+     */
+    private Transaction createJournalEntry(InventoryTransaction invTransaction, Product product) {
+        UUID templateId = getTemplateIdForType(invTransaction.getTransactionType());
+        if (templateId == null) {
+            log.debug("No journal template for transaction type: {}", invTransaction.getTransactionType());
+            return null;
+        }
+
+        Optional<JournalTemplate> templateOpt = journalTemplateRepository.findByIdWithLines(templateId);
+        if (templateOpt.isEmpty()) {
+            log.warn("Journal template not found: {}", templateId);
+            return null;
+        }
+
+        JournalTemplate template = templateOpt.get();
+
+        // Build formula context with inventory variables
+        Map<String, BigDecimal> variables = new HashMap<>();
+        variables.put("amount", invTransaction.getTotalCost());
+        variables.put("cogsAmount", invTransaction.getTotalCost());
+
+        // For sales, include revenue amount
+        if (invTransaction.getUnitPrice() != null) {
+            BigDecimal revenueAmount = invTransaction.getQuantity().multiply(invTransaction.getUnitPrice());
+            variables.put("revenueAmount", revenueAmount);
+        }
+
+        FormulaContext context = FormulaContext.of(invTransaction.getTotalCost(), variables);
+
+        // Build description
+        String description = buildJournalDescription(invTransaction, product);
+
+        // Create account mappings for dynamic accounts (lines with NULL account and account_hint)
+        Map<UUID, UUID> accountMappings = new HashMap<>();
+        for (JournalTemplateLine line : template.getLines()) {
+            if (line.getAccount() == null && line.getAccountHint() != null) {
+                switch (line.getAccountHint()) {
+                    case "PERSEDIAAN":
+                        if (product.getInventoryAccount() != null) {
+                            accountMappings.put(line.getId(), product.getInventoryAccount().getId());
+                        }
+                        break;
+                    case "HPP":
+                        if (product.getCogsAccount() != null) {
+                            accountMappings.put(line.getId(), product.getCogsAccount().getId());
+                        }
+                        break;
+                    case "PENJUALAN":
+                        if (product.getSalesAccount() != null) {
+                            accountMappings.put(line.getId(), product.getSalesAccount().getId());
+                        }
+                        break;
+                }
+            }
+        }
+
+        // Create transaction
+        Transaction transaction = new Transaction();
+        transaction.setJournalTemplate(template);
+        transaction.setTransactionDate(invTransaction.getTransactionDate());
+        transaction.setAmount(invTransaction.getTotalCost());
+        transaction.setDescription(description);
+        transaction.setReferenceNumber(invTransaction.getReferenceNumber());
+
+        // Create and post the transaction
+        Transaction savedTransaction = transactionService.create(transaction, accountMappings);
+        Transaction postedTransaction = transactionService.post(savedTransaction.getId(), getCurrentUsername(), context);
+
+        log.info("Created journal entry {} for inventory transaction {}",
+                postedTransaction.getTransactionNumber(), invTransaction.getId());
+
+        return postedTransaction;
+    }
+
+    private UUID getTemplateIdForType(InventoryTransactionType type) {
+        return switch (type) {
+            case PURCHASE -> PURCHASE_TEMPLATE_ID;
+            case SALE -> SALE_TEMPLATE_ID;
+            case ADJUSTMENT_IN -> ADJUSTMENT_IN_TEMPLATE_ID;
+            case ADJUSTMENT_OUT -> ADJUSTMENT_OUT_TEMPLATE_ID;
+            // Production and transfer don't auto-generate journals yet
+            default -> null;
+        };
+    }
+
+    private String buildJournalDescription(InventoryTransaction invTransaction, Product product) {
+        String typeDesc = switch (invTransaction.getTransactionType()) {
+            case PURCHASE -> "Pembelian";
+            case SALE -> "Penjualan";
+            case ADJUSTMENT_IN -> "Penyesuaian Masuk";
+            case ADJUSTMENT_OUT -> "Penyesuaian Keluar";
+            case PRODUCTION_IN -> "Produksi Masuk";
+            case PRODUCTION_OUT -> "Produksi Keluar";
+            case TRANSFER_IN -> "Transfer Masuk";
+            case TRANSFER_OUT -> "Transfer Keluar";
+        };
+        return String.format("%s %s - %s x %s",
+                typeDesc, product.getCode(), invTransaction.getQuantity(), product.getUnit());
     }
 }

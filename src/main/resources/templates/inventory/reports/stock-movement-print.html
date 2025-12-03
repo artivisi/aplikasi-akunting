@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Mutasi Stok</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; line-height: 1.4; padding: 15px; }
+        h1 { font-size: 16px; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; }
+        th { background: #f5f5f5; font-weight: 600; text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 600; }
+        .bg-gray { background: #f9f9f9; }
+        .text-green { color: #16a34a; }
+        .text-red { color: #dc2626; }
+        .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+        .badge-green { background: #f0fdf4; color: #16a34a; }
+        .badge-red { background: #fef2f2; color: #dc2626; }
+        .summary { margin-bottom: 15px; }
+        .summary-item { display: inline-block; margin-right: 30px; }
+        .summary-label { font-size: 10px; color: #666; }
+        .summary-value { font-size: 14px; font-weight: bold; }
+        @media print { body { padding: 0; } }
+    </style>
+</head>
+<body>
+    <h1>LAPORAN MUTASI STOK</h1>
+    <p class="subtitle">Periode <span th:text="${#temporals.format(startDate, 'dd MMM yyyy')}">1 Jan</span> - <span th:text="${#temporals.format(endDate, 'dd MMM yyyy')}">31 Jan</span></p>
+
+    <div class="summary">
+        <div class="summary-item">
+            <div class="summary-label">Total Masuk</div>
+            <div class="summary-value text-green" th:text="${'Rp ' + #numbers.formatDecimal(report.totalInboundValue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Total Keluar</div>
+            <div class="summary-value text-red" th:text="${'Rp ' + #numbers.formatDecimal(report.totalOutboundValue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Selisih</div>
+            <div class="summary-value" th:text="${'Rp ' + #numbers.formatDecimal(report.totalInboundValue() - report.totalOutboundValue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Kode</th>
+                <th>Produk</th>
+                <th>Jenis</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Harga</th>
+                <th class="text-right">Total</th>
+                <th>Referensi</th>
+                <th class="text-right">Saldo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${report.items()}">
+                <td th:text="${#temporals.format(item.transactionDate(), 'dd/MM/yyyy')}">01/01/2025</td>
+                <td th:text="${item.productCode()}">SKU001</td>
+                <td th:text="${item.productName()}">Produk A</td>
+                <td>
+                    <span th:class="${item.transactionType().name().contains('IN') || item.transactionType().name() == 'PURCHASE' ? 'badge badge-green' : 'badge badge-red'}"
+                          th:text="${item.transactionTypeLabel()}">Pembelian</span>
+                </td>
+                <td class="text-right" th:classappend="${item.transactionType().name().contains('IN') || item.transactionType().name() == 'PURCHASE' ? 'text-green' : 'text-red'}" th:text="${#numbers.formatDecimal(item.quantity(), 0, 'COMMA', 2, 'POINT')}">0</td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(item.unitCost(), 0, 'COMMA', 0, 'POINT')}">0</td>
+                <td class="text-right font-bold" th:text="${#numbers.formatDecimal(item.totalCost(), 0, 'COMMA', 0, 'POINT')}">0</td>
+                <td th:text="${item.referenceNumber() ?: '-'}">REF001</td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(item.balanceAfter(), 0, 'COMMA', 2, 'POINT')}">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>window.onload = function() { window.print(); }</script>
+</body>
+</html>

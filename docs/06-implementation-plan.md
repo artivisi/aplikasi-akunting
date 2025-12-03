@@ -508,14 +508,14 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Stock card per product (transaction history, FIFO layers)
 - [x] Transaction list with filters
 - [x] Functional tests (13 Playwright tests)
-- [ ] Auto-journal generation via templates
+- [x] Auto-journal generation via templates (3 Playwright tests)
 - [ ] User manual
 
-### 5.3 Inventory Reports
-- [ ] Stock balance report (current quantity and value per product)
-- [ ] Stock movement report (in/out per period)
-- [ ] Inventory valuation report (FIFO layers or weighted average)
-- [ ] Low stock alert (configurable threshold per product)
+### 5.3 Inventory Reports ✅
+- [x] Stock balance report (current quantity and value per product)
+- [x] Stock movement report (in/out per period)
+- [x] Inventory valuation report (FIFO layers or weighted average)
+- [x] Low stock alert (configurable threshold per product)
 - [ ] PDF/Excel export
 - [ ] Functional tests
 - [ ] User manual

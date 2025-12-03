@@ -52,4 +52,35 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
            "LEFT JOIN FETCH t.product " +
            "WHERE t.id = :id")
     InventoryTransaction findByIdWithProduct(@Param("id") UUID id);
+
+    @Query("SELECT t FROM InventoryTransaction t " +
+           "LEFT JOIN FETCH t.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE t.transactionDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY t.transactionDate, t.createdAt")
+    List<InventoryTransaction> findByDateRange(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT t FROM InventoryTransaction t " +
+           "LEFT JOIN FETCH t.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE t.product.id = :productId " +
+           "AND t.transactionDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY t.transactionDate, t.createdAt")
+    List<InventoryTransaction> findByProductIdAndDateRange(
+            @Param("productId") UUID productId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT t FROM InventoryTransaction t " +
+           "LEFT JOIN FETCH t.product p " +
+           "LEFT JOIN FETCH p.category " +
+           "WHERE p.category.id = :categoryId " +
+           "AND t.transactionDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY t.transactionDate, t.createdAt")
+    List<InventoryTransaction> findByCategoryIdAndDateRange(
+            @Param("categoryId") UUID categoryId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

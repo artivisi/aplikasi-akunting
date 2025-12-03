@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Penilaian Persediaan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; line-height: 1.4; padding: 15px; }
+        h1 { font-size: 16px; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; }
+        th { background: #f5f5f5; font-weight: 600; text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 600; }
+        .bg-gray { background: #f9f9f9; }
+        .text-primary { color: #2563eb; }
+        .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+        .badge-blue { background: #eff6ff; color: #2563eb; }
+        .badge-purple { background: #faf5ff; color: #9333ea; }
+        @media print { body { padding: 0; } }
+    </style>
+</head>
+<body>
+    <h1>LAPORAN PENILAIAN PERSEDIAAN</h1>
+    <p class="subtitle">Per tanggal <span th:text="${#temporals.format(asOfDate, 'dd MMMM yyyy')}">1 Januari 2025</span></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px;">No</th>
+                <th>Kode</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th class="text-right">Stok</th>
+                <th>Satuan</th>
+                <th class="text-center">Metode</th>
+                <th class="text-right">Harga Rata-rata</th>
+                <th class="text-right">Total Nilai</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item, iter : ${report.items()}">
+                <td th:text="${iter.count}">1</td>
+                <td th:text="${item.productCode()}">SKU001</td>
+                <td th:text="${item.productName()}">Produk A</td>
+                <td th:text="${item.categoryName()}">Kategori</td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(item.quantity(), 0, 'COMMA', 2, 'POINT')}">0</td>
+                <td th:text="${item.unit()}">pcs</td>
+                <td class="text-center">
+                    <span th:class="${item.costingMethod() == 'FIFO' ? 'badge badge-blue' : 'badge badge-purple'}"
+                          th:text="${item.costingMethod()}">FIFO</span>
+                </td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(item.averageCost(), 0, 'COMMA', 0, 'POINT')}">0</td>
+                <td class="text-right font-bold" th:text="${#numbers.formatDecimal(item.totalValue(), 0, 'COMMA', 0, 'POINT')}">0</td>
+            </tr>
+        </tbody>
+        <tfoot th:if="${!#lists.isEmpty(report.items())}">
+            <tr class="bg-gray font-bold">
+                <td colspan="8" class="text-right">Total Nilai Persediaan:</td>
+                <td class="text-right text-primary" th:text="${'Rp ' + #numbers.formatDecimal(report.totalValue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>window.onload = function() { window.print(); }</script>
+</body>
+</html>
