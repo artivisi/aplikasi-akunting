@@ -16,9 +16,10 @@
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
 | **4** | Fixed Assets | ⏳ Not Started |
-| **5** | Budget, Analytics & Reconciliation | ⏳ Not Started |
-| **6** | API for Multi-Industry Integration | ⏳ Not Started |
-| **7+** | Other Industries, Advanced Features | ⏳ Not Started |
+| **5** | Inventory & Production | ⏳ Not Started |
+| **6** | Budget, Analytics & Reconciliation | ⏳ Not Started |
+| **7** | API for Multi-Industry Integration | ⏳ Not Started |
+| **8+** | Other Industries, Advanced Features | ⏳ Not Started |
 
 ---
 
@@ -447,23 +448,95 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 5: Budget, Analytics & Reconciliation
+## Phase 5: Inventory & Production
+
+**Goal:** Inventory tracking and simple production costing for home industries and retail
+
+**Target users:** Home industries (cake shops, bakeries), small retail, simple manufacturing
+
+**Implementation note:** Follow payroll pattern for journal posting:
+- Route through Transaction → JournalTemplate → JournalEntry (not direct journal creation)
+- Use extended FormulaContext with inventory variables (e.g., `quantity`, `unitCost`, `totalCost`, `cogsAmount`)
+- Create system templates for: inventory purchase, inventory adjustment, sales with COGS, production transfer
+- Keep inventory-specific logic in InventoryService, core accounting remains generic
+
+### 5.1 Product Master
+- [ ] Product entity (code, name, unit, category, costing_method)
+- [ ] ProductCategory entity (code, name, parent)
+- [ ] CostingMethod enum (FIFO, WEIGHTED_AVERAGE)
+- [ ] Product CRUD UI (list with search/category filter, form, detail)
+- [ ] Category CRUD UI
+- [ ] Link to inventory accounts (raw material, finished goods)
+- [ ] Functional tests
+- [ ] User manual
+
+### 5.2 Inventory Transactions
+- [ ] InventoryTransaction entity (product, quantity, unit_cost, type, reference)
+- [ ] InventoryTransactionType enum (PURCHASE, SALE, ADJUSTMENT, PRODUCTION_IN, PRODUCTION_OUT)
+- [ ] InventoryBalance entity (product, quantity, total_cost, average_cost)
+- [ ] InventoryService (record transaction, update balance, calculate cost)
+- [ ] FIFO cost calculation
+- [ ] Weighted average cost calculation
+- [ ] Purchase recording UI (product, quantity, unit cost)
+- [ ] Sale recording UI (product, quantity → auto-calculate COGS)
+- [ ] Adjustment UI (stock opname corrections)
+- [ ] Auto-journal generation via templates
+- [ ] Functional tests
+- [ ] User manual
+
+### 5.3 Inventory Reports
+- [ ] Stock balance report (current quantity and value per product)
+- [ ] Stock movement report (in/out per period)
+- [ ] Inventory valuation report (FIFO layers or weighted average)
+- [ ] Low stock alert (configurable threshold per product)
+- [ ] PDF/Excel export
+- [ ] Functional tests
+- [ ] User manual
+
+### 5.4 Simple Production (BOM)
+- [ ] BillOfMaterial entity (finished product, components with quantities)
+- [ ] BOM CRUD UI
+- [ ] ProductionOrder entity (BOM, quantity, status)
+- [ ] ProductionOrderStatus enum (DRAFT, IN_PROGRESS, COMPLETED, CANCELLED)
+- [ ] Production workflow:
+  - [ ] Create order → reserve raw materials
+  - [ ] Complete order → deduct raw materials, add finished goods
+  - [ ] Cost accumulation (sum of component costs)
+- [ ] Production order UI (create, view, complete)
+- [ ] Auto-journal for production (WIP transfers)
+- [ ] Functional tests
+- [ ] User manual
+
+### 5.5 Integration with Sales
+- [ ] Link Transaction to InventoryTransaction
+- [ ] Auto-COGS on sales transaction posting
+- [ ] Sales template with COGS variables (`cogsAmount`, `inventoryAccount`)
+- [ ] Margin calculation per sale
+- [ ] Product profitability report
+- [ ] Functional tests
+- [ ] User manual
+
+**Phase 5 Deliverable:** Inventory management with FIFO/weighted average costing, simple BOM-based production, and automatic COGS calculation.
+
+---
+
+## Phase 6: Budget, Analytics & Reconciliation
 
 **Goal:** Budget management, transaction tagging, analytics, and bank reconciliation
 
-### 5.1 Budget Setup
+### 6.1 Budget Setup
 - [ ] Budget entity
 - [ ] Budget per account per period
 - [ ] Budget CRUD UI
 - [ ] Copy from previous period
 
-### 5.2 Budget Reports
+### 6.2 Budget Reports
 - [ ] Budget vs Actual report
 - [ ] Variance analysis
 - [ ] Over-budget highlighting
 - [ ] PDF/Excel export
 
-### 5.3 Transaction Tags
+### 6.3 Transaction Tags
 - [ ] Tag type entity (user-defined: "Client", "Channel", "Category")
 - [ ] Tag entity (values per type)
 - [ ] Tag type CRUD UI
@@ -472,7 +545,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Tag filters in transaction list
 - [ ] Tag-based reports (summary by tag)
 
-### 5.4 Trend Analysis
+### 6.4 Trend Analysis
 - [ ] Revenue trend chart (12 months)
 - [ ] Expense trend by category (12 months)
 - [ ] Profit margin trend (12 months)
@@ -480,7 +553,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Comparison: current period vs previous period
 - [ ] Comparison: current period vs same period last year
 
-### 5.5 Smart Alerts
+### 6.5 Smart Alerts
 - [ ] Project cost overrun alert
 - [ ] Project margin drop alert
 - [ ] Overdue receivables alert
@@ -493,7 +566,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Alert delivery: Dashboard notification, Email (optional)
 - [ ] Alert history and acknowledgment
 
-### 5.6 Bank Reconciliation
+### 6.6 Bank Reconciliation
 - [ ] Bank parser config entity
 - [ ] ConfigurableBankStatementParser class
 - [ ] Column name matching with fallback
@@ -517,17 +590,17 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **For typical small IT services (30-80 tx/month):** Manual reconciliation takes ~15 min/month.
 Bank reconciliation feature becomes valuable at ~150+ transactions/month or with multiple bank accounts.
 
-**Phase 5 Deliverable:** Budget management, transaction tagging, trend analysis, smart alerts, and bank reconciliation.
+**Phase 6 Deliverable:** Budget management, transaction tagging, trend analysis, smart alerts, and bank reconciliation.
 
 ---
 
-## Phase 6: API for Multi-Industry Integration
+## Phase 7: API for Multi-Industry Integration
 
 **Goal:** Expose REST API for domain-specific applications to record transactions
 
 **Strategy document:** `docs/08-multi-industry-expansion-strategy.md`
 
-### 6.1 API Foundation ⏳
+### 7.1 API Foundation ⏳
 - [ ] Transaction entity: add `idempotency_key` column (unique, nullable)
 - [ ] ApiKey entity (hashed key, name, permissions, created_at, last_used_at, active)
 - [ ] ApiKeyService (generate, validate, revoke)
@@ -547,7 +620,7 @@ Bank reconciliation feature becomes valuable at ~150+ transactions/month or with
 - [ ] Integration tests for all API endpoints
 - [ ] User manual: API documentation
 
-### 6.2 API Enhancements ⏳
+### 7.2 API Enhancements ⏳
 - [ ] ReportApiController (`/api/reports`)
   - [ ] GET /api/reports/trial-balance
   - [ ] GET /api/reports/balance-sheet
@@ -558,18 +631,18 @@ Bank reconciliation feature becomes valuable at ~150+ transactions/month or with
 - [ ] API audit logging (request/response, latency, errors)
 - [ ] API versioning header (Accept-Version or URL prefix)
 
-### 6.3 API Management UI ⏳
+### 7.3 API Management UI ⏳
 - [ ] API Keys list page (`/settings/api-keys`)
 - [ ] Generate new API key (show once, then hashed)
 - [ ] Revoke API key
 - [ ] View API key usage statistics
 - [ ] Permission scopes (read-only, read-write, admin)
 
-**Phase 6 Deliverable:** REST API enabling domain-specific applications (grant management, inventory, POS, etc.) to integrate with core accounting.
+**Phase 7 Deliverable:** REST API enabling domain-specific applications (grant management, inventory, POS, etc.) to integrate with core accounting.
 
 ---
 
-## Phase 7+: Future Enhancements
+## Phase 8+: Future Enhancements
 
 ### Additional Industry Templates
 - [ ] Photography COA and journal templates

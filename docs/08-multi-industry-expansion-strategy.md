@@ -279,6 +279,186 @@ No fund dimension needed. One pool of money, standard double-entry.
 
 Most private universities that rely solely on tuition fees operate like regular businesses. The fund accounting complexity comes from external funding sources with strings attached (government grants, research funding, donor-restricted scholarships, endowments).
 
+### Home Industry / Hobby Sellers
+
+Home industries (e.g., housewives selling homemade cakes via Instagram) have simple transaction patterns that the current app fully supports.
+
+#### Typical Transaction Patterns
+
+```
+Buy ingredients:
+  Dr Supplies Expense (5.1.01)     Rp 200,000
+  Cr Cash (1.1.01)                 Rp 200,000
+
+Sell cakes via Instagram:
+  Dr Cash/Bank (1.1.01)            Rp 500,000
+  Cr Sales Revenue (4.1.01)        Rp 500,000
+```
+
+#### Why This App Works for Home Industry
+
+The perceived complexity barrier (double-entry, debit/credit) is abstracted away:
+
+| Perceived Barrier | How App Solves It |
+|-------------------|-------------------|
+| No accounting knowledge | Pre-configured templates crafted by experts |
+| Don't understand debit/credit | User sees "Beli Bahan" or "Terima Pembayaran", not journal entries |
+| Too busy to do bookkeeping | Telegram OCR: send receipt photo → auto-post transaction |
+| Just want to know profit | Income statement report shows monthly profit |
+
+#### User Experience
+
+The user doesn't interact with accounting concepts:
+
+1. **Template-based input**: Select transaction type → fill amount → submit
+2. **Telegram OCR**: Send receipt photo to bot → transaction auto-posted
+3. **Reports**: View monthly income statement for profit/loss
+
+#### Growth Path Without Migration
+
+```
+Hobby Stage (Rp 0-5M/month)
+  → Basic templates: Buy supplies, Receive payment
+  → Telegram OCR for receipts
+
+Growing (Rp 5-50M/month)
+  → More templates: Packaging, Delivery, Equipment
+  → Track by product using Project field
+
+UMKM Threshold (>Rp 500M/year)
+  → Tax reporting becomes mandatory
+  → Complete records already exist
+  → No system migration needed
+```
+
+#### Fit Analysis
+
+| Requirement | Solution |
+|-------------|----------|
+| No accounting knowledge | Pre-configured templates hide complexity |
+| Quick transaction entry | Template selection + amount only |
+| Receipt-based recording | Telegram OCR auto-posts |
+| Monthly profit tracking | Income statement report |
+| Tax compliance (when needed) | Already built-in |
+| Scale to formal business | No migration needed |
+
+**Key insight:** Complexity is in the setup (done by experts), not in daily use. The app targets any business that needs financial records, from hobby sellers to established SMEs.
+
+#### Production Accounting Limitations
+
+Home industries involve production (raw materials → finished goods). The current app has limitations in this area:
+
+**What Current App Can Do:**
+
+| Activity | Supported? | How |
+|----------|------------|-----|
+| Buy raw materials | ✅ | Template: expense or asset |
+| Record sales | ✅ | Template: sales revenue |
+| Marketing expenses | ✅ | Template: expense |
+| Packaging costs | ✅ | Template: expense |
+| Delivery costs | ✅ | Template: expense |
+| Simple COGS (periodic) | ✅ | Monthly adjustment template |
+| Track raw material quantities | ❌ | No inventory module |
+| Track WIP | ❌ | No production module |
+| Calculate perpetual COGS | ❌ | No inventory valuation |
+| BOM costing | ❌ | No BOM module |
+
+**What Current App Cannot Do:**
+
+1. **Inventory Quantity Tracking** - App tracks monetary amounts only, not quantities (e.g., "Flour: 10 kg @ Rp 15,000")
+
+2. **WIP (Work in Progress)** - Manufacturing flow (Raw Material → WIP → Finished Goods → COGS) requires production orders, cost accumulation, and inventory stage transfers
+
+3. **Perpetual COGS** - Calculating accurate COGS per sale requires inventory valuation (FIFO/weighted average)
+
+**COGS Methods:**
+
+| Method | Description | Current App |
+|--------|-------------|-------------|
+| Periodic | Estimate COGS, adjust at period end | ✅ Supported |
+| Perpetual | Calculate COGS per sale based on actual cost | ❌ Needs inventory system |
+
+For simple home industry with consistent recipes, periodic method works:
+```
+Monthly COGS adjustment:
+  Dr COGS (5.1.01)               Rp 2,000,000
+  Cr Supplies Expense (5.1.02)   Rp 2,000,000
+```
+
+**Decision Matrix:**
+
+| Business Complexity | Current App? |
+|--------------------|--------------|
+| Single product, consistent recipe | ✅ Yes |
+| Few products, estimate costs | ✅ Yes (periodic COGS) |
+| Many products, need accurate costing | ❌ Need inventory module |
+| Actual manufacturing with WIP | ❌ Need manufacturing module |
+
+**When to Upgrade:** When the business needs to track inventory quantities, calculate per-product profitability accurately, or manage actual manufacturing processes with WIP tracking.
+
+#### Why Inventory/Production Should Be Inbuilt Module
+
+Unlike fund accounting, production/inventory transactions fit the current journal template model without architectural changes.
+
+**Transaction Pattern Compatibility:**
+
+```
+Purchase raw materials:
+  Dr Raw Materials Inventory (1.1.05)   Rp 500,000
+  Cr Cash (1.1.01)                      Rp 500,000
+
+Transfer to production:
+  Dr WIP (1.1.06)                       Rp 300,000
+  Cr Raw Materials Inventory (1.1.05)   Rp 300,000
+
+Complete production:
+  Dr Finished Goods (1.1.07)            Rp 400,000
+  Cr WIP (1.1.06)                       Rp 400,000
+
+Sale with COGS:
+  Dr Cash (1.1.01)                      Rp 600,000
+  Cr Sales Revenue (4.1.01)             Rp 600,000
+
+  Dr COGS (5.1.01)                      Rp 400,000
+  Cr Finished Goods (1.1.07)            Rp 400,000
+```
+
+No new dimension needed on journal entries. Standard debit/credit to existing accounts.
+
+**Comparison: Fund Accounting vs Inventory/Production**
+
+| Aspect | Fund Accounting | Inventory/Production |
+|--------|-----------------|---------------------|
+| New dimension on journal entry? | Yes (fund_id) | No |
+| Complex validation rules? | Yes (restrictions, budgets, dates) | No (just quantity math) |
+| Separate balance tracking? | Yes (per-fund balances) | No (uses existing COA balances) |
+| External compliance? | Yes (grant terms) | No |
+| Architectural change needed? | Yes | No |
+
+**Conclusion:** Inventory/Production should be an inbuilt module (like Payroll and Fixed Assets), not a separate app. This keeps the home industry growth path entirely within the app with no migration needed.
+
+**Proposed Module Structure:**
+
+```
+New Entities:
+├── Product (name, unit, BOM optional)
+├── InventoryTransaction (product, qty, unit_cost, type)
+├── InventoryBalance (product, qty, total_cost)
+└── ProductionOrder (optional, for WIP tracking)
+
+New Services:
+├── InventoryService (track quantities, calculate FIFO/avg cost)
+├── COGSCalculator (compute cost when selling)
+└── ProductionService (optional, for WIP)
+
+Integration:
+├── When sale recorded → auto-calculate COGS → create journal entries
+├── When purchase recorded → update inventory balance
+└── Uses existing Transaction + JournalEntry entities
+```
+
+See Phase 5 in `docs/06-implementation-plan.md` for implementation details.
+
 ## Integration Pattern: Store and Forward (SAF)
 
 ### Why SAF?
