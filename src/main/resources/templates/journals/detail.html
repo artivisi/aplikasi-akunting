@@ -114,7 +114,7 @@
                     <div class="flex items-start justify-between mb-6">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900" data-testid="journal-number" th:text="${journalEntry.journalNumber}">JE-2025-0001</h2>
-                            <p class="text-sm text-gray-500 mt-1" data-testid="journal-description" th:text="${journalEntry.description}">Jurnal Entry</p>
+                            <p class="text-sm text-gray-500 mt-1" data-testid="journal-description" th:text="${journalEntry.effectiveDescription}">Jurnal Entry</p>
                         </div>
                         <div class="text-right">
                             <!-- Status Badge - DRAFT -->
@@ -144,11 +144,11 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div>
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</p>
-                            <p class="text-sm text-gray-900 mt-1" data-testid="journal-date" th:text="${#temporals.format(journalEntry.journalDate, 'd MMMM yyyy')}">22 November 2025</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="journal-date" th:text="${#temporals.format(journalEntry.effectiveJournalDate, 'd MMMM yyyy')}">22 November 2025</p>
                         </div>
                         <div>
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Referensi</p>
-                            <p class="text-sm text-gray-900 mt-1" data-testid="reference-number" th:text="${journalEntry.referenceNumber ?: '-'}">-</p>
+                            <p class="text-sm text-gray-900 mt-1" data-testid="reference-number" th:text="${journalEntry.effectiveReferenceNumber ?: '-'}">-</p>
                         </div>
                         <div th:if="${journalEntry.isPosted()}">
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diposting</p>
@@ -191,7 +191,6 @@
                                 <a th:href="@{'/journals/ledger/' + ${line.account.id}}"
                                    class="text-sm text-gray-900 hover:text-primary-600"
                                    th:text="${line.account.accountName}">Kas</a>
-                                <p class="text-xs text-gray-500" th:if="${line.description != journalEntry.description}" th:text="${line.description}"></p>
                             </div>
                             <div class="col-span-3 text-right">
                                 <span class="text-sm font-mono"

@@ -121,4 +121,53 @@ public class JournalEntry extends BaseEntity {
     public boolean isVoid() {
         return status == JournalEntryStatus.VOID;
     }
+
+    // ========== Computed Getters (delegate to Transaction when available) ==========
+
+    /**
+     * Get the effective journal date.
+     * For Transaction-backed entries, returns the Transaction's date.
+     * For legacy entries, returns the local journalDate.
+     */
+    public LocalDate getEffectiveJournalDate() {
+        if (transaction != null) {
+            return transaction.getTransactionDate();
+        }
+        return journalDate;
+    }
+
+    /**
+     * Get the effective description.
+     * For Transaction-backed entries, returns the Transaction's description.
+     * For reversal entries, prefixes with "Reversal: ".
+     * For legacy entries, returns the local description.
+     */
+    public String getEffectiveDescription() {
+        if (transaction != null) {
+            if (Boolean.TRUE.equals(isReversal)) {
+                return "Reversal: " + transaction.getDescription();
+            }
+            return transaction.getDescription();
+        }
+        return description;
+    }
+
+    /**
+     * Get the effective reference number.
+     * For Transaction-backed entries, returns the Transaction's reference.
+     * For legacy entries, returns the local referenceNumber.
+     */
+    public String getEffectiveReferenceNumber() {
+        if (transaction != null) {
+            return transaction.getReferenceNumber();
+        }
+        return referenceNumber;
+    }
+
+    /**
+     * Check if this entry has a parent Transaction.
+     */
+    public boolean hasTransaction() {
+        return transaction != null;
+    }
 }
