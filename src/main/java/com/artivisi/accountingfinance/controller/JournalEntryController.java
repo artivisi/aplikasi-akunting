@@ -201,9 +201,7 @@ public class JournalEntryController {
             JournalEntry entry = new JournalEntry();
             entry.setJournalDate(dto.journalDate());
             entry.setReferenceNumber(dto.referenceNumber());
-            entry.setDescription(line.lineDescription() != null && !line.lineDescription().isBlank()
-                    ? line.lineDescription()
-                    : dto.description());
+            entry.setDescription(dto.description()); // Use header description for all lines
             entry.setAccount(account);
             entry.setDebitAmount(line.debit() != null ? line.debit() : BigDecimal.ZERO);
             entry.setCreditAmount(line.credit() != null ? line.credit() : BigDecimal.ZERO);
@@ -243,9 +241,7 @@ public class JournalEntryController {
             JournalEntry entry = new JournalEntry();
             entry.setJournalDate(dto.journalDate());
             entry.setReferenceNumber(dto.referenceNumber());
-            entry.setDescription(line.lineDescription() != null && !line.lineDescription().isBlank()
-                    ? line.lineDescription()
-                    : dto.description());
+            entry.setDescription(dto.description()); // Use header description for all lines
             entry.setAccount(account);
             entry.setDebitAmount(line.debit() != null ? line.debit() : BigDecimal.ZERO);
             entry.setCreditAmount(line.credit() != null ? line.credit() : BigDecimal.ZERO);
