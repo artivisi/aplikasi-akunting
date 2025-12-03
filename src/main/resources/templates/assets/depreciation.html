@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Penyusutan Aset</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Penyusutan Aset Tetap</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Generate Depreciation -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Generate Penyusutan</h3>
+            <form th:action="@{/assets/depreciation/generate}" method="post" class="flex items-end gap-4">
+                <div>
+                    <label for="period" class="block text-sm font-medium text-gray-700 mb-1">Periode</label>
+                    <input type="month" id="period" name="period"
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           required>
+                </div>
+                <button type="submit"
+                        class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    Generate
+                </button>
+            </form>
+            <p class="mt-2 text-sm text-gray-500">Generate entri penyusutan untuk semua aset aktif pada periode tertentu.</p>
+        </div>
+
+        <!-- Pending Entries -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Penyusutan Tertunda</h3>
+                <form th:if="${!#lists.isEmpty(pendingEntries)}" th:action="@{/assets/depreciation/post-all}" method="post" class="flex items-center gap-2">
+                    <input type="month" name="period" class="px-3 py-1 border border-gray-300 rounded text-sm" required>
+                    <button type="submit" class="px-4 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">
+                        Posting Semua
+                    </button>
+                </form>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Aset</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Aset</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periode</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Jumlah</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:if="${#lists.isEmpty(pendingEntries)}">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <p>Tidak ada penyusutan tertunda</p>
+                            </td>
+                        </tr>
+                        <tr th:each="entry : ${pendingEntries}" class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a th:href="@{/assets/{id}(id=${entry.fixedAsset.id})}" class="text-primary-600 hover:underline font-mono text-sm"
+                                   th:text="${entry.fixedAsset.assetCode}">AST001</a>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900" th:text="${entry.fixedAsset.name}">Laptop</div>
+                                <div class="text-xs text-gray-500" th:text="${entry.fixedAsset.category?.name}">Komputer</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${entry.periodDisplayName}">Januari 2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-mono"
+                                th:text="${#numbers.formatDecimal(entry.depreciationAmount, 0, 'COMMA', 0, 'POINT')}">208,333</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <form th:action="@{/assets/depreciation/{id}/post(id=${entry.id})}" method="post">
+                                        <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">
+                                            Posting
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/assets/depreciation/{id}/skip(id=${entry.id})}" method="post">
+                                        <button type="submit" class="px-3 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400">
+                                            Skip
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="flex justify-start">
+            <a th:href="@{/assets}" class="text-gray-600 hover:text-gray-900 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Daftar Aset
+            </a>
+        </div>
+    </div>
+</body>
+</html>

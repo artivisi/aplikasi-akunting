@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<body>
+    <div th:fragment="table" id="asset-table">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Aset</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai Perolehan</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai Buku</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr id="empty-state" th:if="${assets.empty}">
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <p>Tidak ada aset ditemukan</p>
+                    </td>
+                </tr>
+                <tr th:each="asset : ${assets}" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{/assets/{id}(id=${asset.id})}" class="text-primary-600 hover:underline font-mono text-sm" th:text="${asset.assetCode}">AST001</a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900" th:text="${asset.name}">Laptop HP</div>
+                        <div th:if="${asset.location}" class="text-xs text-gray-500" th:text="${asset.location}">Kantor Pusat</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${asset.category?.name}">Komputer</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-mono" th:text="${#numbers.formatDecimal(asset.purchaseCost, 0, 'COMMA', 0, 'POINT')}">10,000,000</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-mono" th:text="${#numbers.formatDecimal(asset.bookValue, 0, 'COMMA', 0, 'POINT')}">8,000,000</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span th:switch="${asset.status.name()}">
+                            <span th:case="'ACTIVE'" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Aktif</span>
+                            <span th:case="'FULLY_DEPRECIATED'" class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Habis Penyusutan</span>
+                            <span th:case="'DISPOSED'" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Dilepas</span>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <a th:href="@{/assets/{id}(id=${asset.id})}" class="text-primary-600 hover:text-primary-800" title="Detail">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div th:if="${!assets.empty}" class="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+                Menampilkan <span th:text="${assets.number * assets.size + 1}">1</span> -
+                <span th:text="${assets.number * assets.size + assets.numberOfElements}">10</span>
+                dari <span th:text="${assets.totalElements}">100</span> aset
+            </div>
+            <div class="flex gap-2">
+                <a th:if="${assets.hasPrevious()}"
+                   th:href="@{/assets(page=${assets.number - 1}, search=${search}, status=${status}, categoryId=${categoryId})}"
+                   class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Sebelumnya</a>
+                <a th:if="${assets.hasNext()}"
+                   th:href="@{/assets(page=${assets.number + 1}, search=${search}, status=${status}, categoryId=${categoryId})}"
+                   class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Selanjutnya</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

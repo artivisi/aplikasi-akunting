@@ -33,8 +33,11 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 3.6 Payroll Reports: ✅ Complete
   - 3.7 User Management & RBAC: ✅ Complete
   - 3.8 Employee Self-Service: ✅ Complete
-- **Phase 4:** Analytics & Reconciliation (Tags, Trends, Alerts, Bank Recon)
-- **Phase 5:** Assets & Budget
+- **Phase 4:** ✅ Complete (Fixed Assets)
+  - 4.1 Fixed Asset Register: ✅ Complete
+  - 4.2 Depreciation: ✅ Complete
+  - 4.3 Asset Disposal: ✅ Complete
+- **Phase 5:** Inventory & Production
 - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -89,17 +92,17 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 3 (Payroll + RBAC + Self-Service) complete!
+Phase 4 (Fixed Assets) complete!
 
-Phase 3 highlights:
-- Employee Management with PTKP status
-- Salary Components (17 preloaded Indonesian components)
-- BPJS and PPh 21 Calculations
-- Payroll Processing with full workflow
-- Payroll Reports (summary, PPh 21, BPJS, payslip, Bukti Potong)
-- User Management & RBAC (6 roles, additive permissions)
-- Employee Self-Service (My Payslips, My Bukti Potong, My Profile)
+Phase 4 highlights:
+- Fixed Asset entity with status tracking (ACTIVE, FULLY_DEPRECIATED, DISPOSED)
+- Asset Categories with default depreciation settings and account mappings
+- Depreciation methods: Straight-line and Declining Balance
+- Monthly depreciation batch job (integrated with MonthlyJournalScheduler)
+- Depreciation journal entries via templates with dynamic account mapping (account_hint)
+- Asset disposal workflow (sell, write-off, transfer) with gain/loss calculation
+- Playwright functional tests for CRUD operations
 
-Next: Phase 4 (Analytics & Reconciliation)
+Next: Phase 5 (Inventory & Production)
 
 See `docs/06-implementation-plan.md` for full plan

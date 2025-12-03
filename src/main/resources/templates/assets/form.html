@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${asset.id != null} ? 'Edit Aset' : 'Aset Baru'">Aset</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${asset.id != null} ? 'Edit Aset' : 'Aset Baru'">Aset</h1>
+
+    <div layout:fragment="content" class="max-w-4xl">
+        <div class="bg-white rounded-lg shadow p-6">
+            <form th:action="${asset.id != null} ? @{/assets/{id}(id=${asset.id})} : @{/assets/new}"
+                  th:object="${asset}"
+                  method="post" class="space-y-6">
+
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-sm text-red-600 font-medium">Terdapat kesalahan:</p>
+                    <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</li>
+                    </ul>
+                </div>
+
+                <!-- Basic Information Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Dasar</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Asset Code -->
+                        <div>
+                            <label for="assetCode" class="block text-sm font-medium text-gray-700 mb-1">Kode Aset *</label>
+                            <input type="text" id="assetCode" th:field="*{assetCode}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('assetCode')} ? 'border-red-500' : ''"
+                                   placeholder="AST-001" required>
+                            <p th:if="${#fields.hasErrors('assetCode')}" th:errors="*{assetCode}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Name -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Aset *</label>
+                            <input type="text" id="name" th:field="*{name}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''"
+                                   placeholder="Laptop HP Pavilion" required>
+                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Category -->
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Kategori *</label>
+                            <select id="category" th:field="*{category}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    th:classappend="${#fields.hasErrors('category')} ? 'border-red-500' : ''"
+                                    required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name + ' (' + cat.usefulLifeYears + ' tahun)'}">Kategori</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('category')}" th:errors="*{category}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Location -->
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                            <input type="text" id="location" th:field="*{location}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="Kantor Pusat">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <textarea id="description" th:field="*{description}" rows="2"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                      placeholder="Deskripsi aset"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchase Information Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pembelian</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Purchase Date -->
+                        <div>
+                            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pembelian *</label>
+                            <input type="date" id="purchaseDate" th:field="*{purchaseDate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('purchaseDate')} ? 'border-red-500' : ''"
+                                   required>
+                            <p th:if="${#fields.hasErrors('purchaseDate')}" th:errors="*{purchaseDate}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Purchase Cost -->
+                        <div>
+                            <label for="purchaseCost" class="block text-sm font-medium text-gray-700 mb-1">Nilai Perolehan *</label>
+                            <input type="number" id="purchaseCost" th:field="*{purchaseCost}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('purchaseCost')} ? 'border-red-500' : ''"
+                                   placeholder="10000000" min="0" step="1" required>
+                            <p th:if="${#fields.hasErrors('purchaseCost')}" th:errors="*{purchaseCost}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Supplier -->
+                        <div>
+                            <label for="supplier" class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                            <input type="text" id="supplier" th:field="*{supplier}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="PT Toko Komputer">
+                        </div>
+
+                        <!-- Invoice Number -->
+                        <div>
+                            <label for="invoiceNumber" class="block text-sm font-medium text-gray-700 mb-1">Nomor Faktur</label>
+                            <input type="text" id="invoiceNumber" th:field="*{invoiceNumber}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="INV-2025-001">
+                        </div>
+
+                        <!-- Serial Number -->
+                        <div>
+                            <label for="serialNumber" class="block text-sm font-medium text-gray-700 mb-1">Nomor Seri</label>
+                            <input type="text" id="serialNumber" th:field="*{serialNumber}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="SN123456789">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depreciation Section -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Penyusutan</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Depreciation Start Date -->
+                        <div>
+                            <label for="depreciationStartDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai Penyusutan *</label>
+                            <input type="date" id="depreciationStartDate" th:field="*{depreciationStartDate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('depreciationStartDate')} ? 'border-red-500' : ''"
+                                   required>
+                            <p th:if="${#fields.hasErrors('depreciationStartDate')}" th:errors="*{depreciationStartDate}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Depreciation Method -->
+                        <div>
+                            <label for="depreciationMethod" class="block text-sm font-medium text-gray-700 mb-1">Metode Penyusutan *</label>
+                            <select id="depreciationMethod" th:field="*{depreciationMethod}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    required>
+                                <option value="STRAIGHT_LINE">Garis Lurus (Straight Line)</option>
+                                <option value="DECLINING_BALANCE">Saldo Menurun (Declining Balance)</option>
+                            </select>
+                        </div>
+
+                        <!-- Useful Life -->
+                        <div>
+                            <label for="usefulLifeMonths" class="block text-sm font-medium text-gray-700 mb-1">Umur Ekonomis (bulan) *</label>
+                            <input type="number" id="usefulLifeMonths" th:field="*{usefulLifeMonths}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('usefulLifeMonths')} ? 'border-red-500' : ''"
+                                   min="1" max="600" required>
+                            <p th:if="${#fields.hasErrors('usefulLifeMonths')}" th:errors="*{usefulLifeMonths}" class="mt-1 text-sm text-red-500"></p>
+                            <p class="mt-1 text-xs text-gray-500">Contoh: 48 bulan = 4 tahun</p>
+                        </div>
+
+                        <!-- Residual Value -->
+                        <div>
+                            <label for="residualValue" class="block text-sm font-medium text-gray-700 mb-1">Nilai Residu *</label>
+                            <input type="number" id="residualValue" th:field="*{residualValue}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('residualValue')} ? 'border-red-500' : ''"
+                                   placeholder="0" min="0" step="1" required>
+                            <p th:if="${#fields.hasErrors('residualValue')}" th:errors="*{residualValue}" class="mt-1 text-sm text-red-500"></p>
+                            <p class="mt-1 text-xs text-gray-500">Nilai sisa setelah habis masa penyusutan</p>
+                        </div>
+
+                        <!-- Depreciation Rate (for declining balance) -->
+                        <div>
+                            <label for="depreciationRate" class="block text-sm font-medium text-gray-700 mb-1">Tarif Penyusutan (%)</label>
+                            <input type="number" id="depreciationRate" th:field="*{depreciationRate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="25" min="0" max="100" step="0.01">
+                            <p class="mt-1 text-xs text-gray-500">Wajib diisi untuk metode Saldo Menurun</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                    <textarea id="notes" th:field="*{notes}" rows="2"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Catatan tambahan"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <a th:href="${asset.id != null} ? @{/assets/{id}(id=${asset.id})} : @{/assets}"
+                       class="px-4 py-2 text-gray-600 hover:text-gray-900">Batal</a>
+                    <button id="btn-simpan" type="submit"
+                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

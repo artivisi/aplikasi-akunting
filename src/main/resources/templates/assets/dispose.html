@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Lepas Aset</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Lepas Aset</h1>
+
+    <div layout:fragment="content" class="max-w-2xl">
+        <!-- Asset Summary -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Aset</h3>
+            <dl class="grid grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm text-gray-500">Kode Aset</dt>
+                    <dd class="text-sm font-medium text-gray-900 font-mono" th:text="${asset.assetCode}">AST001</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">Nama Aset</dt>
+                    <dd class="text-sm font-medium text-gray-900" th:text="${asset.name}">Laptop HP</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">Nilai Perolehan</dt>
+                    <dd class="text-sm font-medium text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(asset.purchaseCost, 0, 'COMMA', 0, 'POINT')}">Rp 10,000,000</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">Akum. Penyusutan</dt>
+                    <dd class="text-sm font-medium text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(asset.accumulatedDepreciation, 0, 'COMMA', 0, 'POINT')}">Rp 2,000,000</dd>
+                </div>
+                <div class="col-span-2 border-t pt-4">
+                    <dt class="text-sm text-gray-500">Nilai Buku Saat Ini</dt>
+                    <dd class="text-xl font-bold text-primary-600" th:text="'Rp ' + ${#numbers.formatDecimal(asset.bookValue, 0, 'COMMA', 0, 'POINT')}">Rp 8,000,000</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Disposal Form -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Form Pelepasan</h3>
+            <form th:action="@{/assets/{id}/dispose(id=${asset.id})}" method="post" class="space-y-4">
+                <!-- Disposal Type -->
+                <div>
+                    <label for="disposalType" class="block text-sm font-medium text-gray-700 mb-1">Tipe Pelepasan *</label>
+                    <select id="disposalType" name="disposalType"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                            required>
+                        <option value="">-- Pilih Tipe --</option>
+                        <option value="SOLD">Dijual</option>
+                        <option value="WRITTEN_OFF">Dihapuskan (Write-off)</option>
+                        <option value="TRANSFERRED">Dipindahkan</option>
+                    </select>
+                </div>
+
+                <!-- Disposal Date -->
+                <div>
+                    <label for="disposalDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pelepasan *</label>
+                    <input type="date" id="disposalDate" name="disposalDate"
+                           th:value="${disposalDate}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           required>
+                </div>
+
+                <!-- Proceeds -->
+                <div>
+                    <label for="proceeds" class="block text-sm font-medium text-gray-700 mb-1">Hasil Penjualan</label>
+                    <input type="number" id="proceeds" name="proceeds"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="0" min="0" step="1">
+                    <p class="mt-1 text-xs text-gray-500">Isi jika aset dijual. Kosongkan untuk write-off atau transfer.</p>
+                </div>
+
+                <!-- Gain/Loss Preview -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-500 mb-2">Perkiraan Laba/Rugi:</p>
+                    <p id="gainLossPreview" class="text-lg font-bold">-</p>
+                    <p class="text-xs text-gray-400 mt-1">Laba/Rugi = Hasil Penjualan - Nilai Buku</p>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                    <textarea id="notes" name="notes" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Catatan pelepasan aset"></textarea>
+                </div>
+
+                <!-- Warning -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <p class="text-sm text-yellow-700">
+                            <strong>Perhatian:</strong> Pelepasan aset akan membuat jurnal otomatis dan tidak dapat dibatalkan.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <a th:href="@{/assets/{id}(id=${asset.id})}"
+                       class="px-4 py-2 text-gray-600 hover:text-gray-900">Batal</a>
+                    <button id="btn-dispose" type="submit"
+                            class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        Lepas Aset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                const bookValue = /*[[${asset.bookValue}]]*/ 0;
+                const proceedsInput = document.getElementById('proceeds');
+                const gainLossPreview = document.getElementById('gainLossPreview');
+
+                function updateGainLoss() {
+                    const proceeds = parseFloat(proceedsInput.value) || 0;
+                    const gainLoss = proceeds - bookValue;
+
+                    gainLossPreview.textContent = 'Rp ' + gainLoss.toLocaleString('id-ID');
+                    gainLossPreview.className = 'text-lg font-bold ' + (gainLoss >= 0 ? 'text-green-600' : 'text-red-600');
+                }
+
+                proceedsInput.addEventListener('input', updateGainLoss);
+                updateGainLoss();
+            });
+        </script>
+    </th:block>
+</body>
+</html>

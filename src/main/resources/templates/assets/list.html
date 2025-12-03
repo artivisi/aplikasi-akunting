@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Daftar Aset Tetap</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Daftar Aset Tetap</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Total Nilai Perolehan</p>
+                <p class="text-xl font-semibold text-gray-900" th:text="${#numbers.formatDecimal(totalPurchaseCost, 0, 'COMMA', 0, 'POINT')}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Total Akum. Penyusutan</p>
+                <p class="text-xl font-semibold text-gray-900" th:text="${#numbers.formatDecimal(totalAccumulatedDepreciation, 0, 'COMMA', 0, 'POINT')}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Total Nilai Buku</p>
+                <p class="text-xl font-semibold text-primary-600" th:text="${#numbers.formatDecimal(totalBookValue, 0, 'COMMA', 0, 'POINT')}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Penyusutan Tertunda</p>
+                <p class="text-xl font-semibold" th:classappend="${pendingDepreciationCount > 0} ? 'text-yellow-600' : 'text-gray-900'" th:text="${pendingDepreciationCount}">0</p>
+                <a th:if="${pendingDepreciationCount > 0}" sec:authorize="hasAuthority('ASSET_DEPRECIATE')"
+                   th:href="@{/assets/depreciation}" class="text-sm text-primary-600 hover:underline">Proses</a>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4 flex-wrap">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           id="search-input"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Cari aset..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           hx-get="/assets"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#asset-table"
+                           hx-swap="outerHTML"
+                           hx-include="[name='status'], [name='categoryId']">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Filter Status -->
+                <select name="status"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/assets"
+                        hx-trigger="change"
+                        hx-target="#asset-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'], [name='categoryId']">
+                    <option value="" th:selected="${status == null}">Semua Status</option>
+                    <option value="ACTIVE" th:selected="${status != null && status.name() == 'ACTIVE'}">Aktif</option>
+                    <option value="FULLY_DEPRECIATED" th:selected="${status != null && status.name() == 'FULLY_DEPRECIATED'}">Habis Penyusutan</option>
+                    <option value="DISPOSED" th:selected="${status != null && status.name() == 'DISPOSED'}">Dilepas</option>
+                </select>
+
+                <!-- Filter Category -->
+                <select name="categoryId"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        hx-get="/assets"
+                        hx-trigger="change"
+                        hx-target="#asset-table"
+                        hx-swap="outerHTML"
+                        hx-include="[name='search'], [name='status']">
+                    <option value="" th:selected="${categoryId == null}">Semua Kategori</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${categoryId != null && categoryId.equals(cat.id)}">Kategori</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a sec:authorize="hasAuthority('ASSET_CREATE')" th:href="@{/assets/categories}"
+                   class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Kategori
+                </a>
+                <a sec:authorize="hasAuthority('ASSET_DEPRECIATE')" th:href="@{/assets/depreciation}"
+                   class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Penyusutan
+                </a>
+                <a sec:authorize="hasAuthority('ASSET_CREATE')" th:href="@{/assets/new}"
+                   id="btn-new-asset"
+                   class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Aset Baru
+                </a>
+            </div>
+        </div>
+
+        <!-- Asset Table -->
+        <div class="bg-white rounded-lg shadow">
+            <th:block th:insert="~{assets/fragments/asset-table :: table}"/>
+        </div>
+    </div>
+</body>
+</html>

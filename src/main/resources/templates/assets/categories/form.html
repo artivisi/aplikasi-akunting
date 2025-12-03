@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${category.id != null} ? 'Edit Kategori Aset' : 'Kategori Aset Baru'">Kategori Aset</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${category.id != null} ? 'Edit Kategori Aset' : 'Kategori Aset Baru'">Kategori Aset</h1>
+
+    <div layout:fragment="content" class="max-w-2xl">
+        <div class="bg-white rounded-lg shadow p-6">
+            <form th:action="${category.id != null} ? @{/assets/categories/{id}(id=${category.id})} : @{/assets/categories/new}"
+                  th:object="${category}"
+                  method="post" class="space-y-6">
+
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-sm text-red-600 font-medium">Terdapat kesalahan:</p>
+                    <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</li>
+                    </ul>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Code -->
+                    <div>
+                        <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Kode *</label>
+                        <input type="text" id="code" th:field="*{code}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                               th:classappend="${#fields.hasErrors('code')} ? 'border-red-500' : ''"
+                               placeholder="KOMPUTER" required>
+                        <p th:if="${#fields.hasErrors('code')}" th:errors="*{code}" class="mt-1 text-sm text-red-500"></p>
+                    </div>
+
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
+                        <input type="text" id="name" th:field="*{name}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                               th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''"
+                               placeholder="Peralatan Komputer" required>
+                        <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-500"></p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                    <textarea id="description" th:field="*{description}" rows="2"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Deskripsi kategori"></textarea>
+                </div>
+
+                <!-- Depreciation Settings -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Penyusutan Default</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Method -->
+                        <div>
+                            <label for="depreciationMethod" class="block text-sm font-medium text-gray-700 mb-1">Metode Penyusutan *</label>
+                            <select id="depreciationMethod" th:field="*{depreciationMethod}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    required>
+                                <option value="STRAIGHT_LINE">Garis Lurus (Straight Line)</option>
+                                <option value="DECLINING_BALANCE">Saldo Menurun (Declining Balance)</option>
+                            </select>
+                        </div>
+
+                        <!-- Useful Life -->
+                        <div>
+                            <label for="usefulLifeMonths" class="block text-sm font-medium text-gray-700 mb-1">Umur Ekonomis (bulan) *</label>
+                            <input type="number" id="usefulLifeMonths" th:field="*{usefulLifeMonths}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   th:classappend="${#fields.hasErrors('usefulLifeMonths')} ? 'border-red-500' : ''"
+                                   min="1" max="600" required>
+                            <p th:if="${#fields.hasErrors('usefulLifeMonths')}" th:errors="*{usefulLifeMonths}" class="mt-1 text-sm text-red-500"></p>
+                            <p class="mt-1 text-xs text-gray-500">Contoh: 48 bulan = 4 tahun</p>
+                        </div>
+
+                        <!-- Depreciation Rate -->
+                        <div>
+                            <label for="depreciationRate" class="block text-sm font-medium text-gray-700 mb-1">Tarif Penyusutan (%)</label>
+                            <input type="number" id="depreciationRate" th:field="*{depreciationRate}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="25" min="0" max="100" step="0.01">
+                            <p class="mt-1 text-xs text-gray-500">Wajib diisi untuk metode Saldo Menurun</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accounts -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Akun Default</h3>
+                    <div class="space-y-4">
+                        <!-- Asset Account -->
+                        <div>
+                            <label for="assetAccount" class="block text-sm font-medium text-gray-700 mb-1">Akun Aset *</label>
+                            <select id="assetAccount" th:field="*{assetAccount}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    th:classappend="${#fields.hasErrors('assetAccount')} ? 'border-red-500' : ''"
+                                    required>
+                                <option value="">-- Pilih Akun --</option>
+                                <option th:each="acc : ${assetAccounts}"
+                                        th:value="${acc.id}"
+                                        th:text="${acc.accountCode + ' - ' + acc.accountName}">Account</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('assetAccount')}" th:errors="*{assetAccount}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Accumulated Depreciation Account -->
+                        <div>
+                            <label for="accumulatedDepreciationAccount" class="block text-sm font-medium text-gray-700 mb-1">Akun Akumulasi Penyusutan *</label>
+                            <select id="accumulatedDepreciationAccount" th:field="*{accumulatedDepreciationAccount}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    th:classappend="${#fields.hasErrors('accumulatedDepreciationAccount')} ? 'border-red-500' : ''"
+                                    required>
+                                <option value="">-- Pilih Akun --</option>
+                                <option th:each="acc : ${assetAccounts}"
+                                        th:value="${acc.id}"
+                                        th:text="${acc.accountCode + ' - ' + acc.accountName}">Account</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('accumulatedDepreciationAccount')}" th:errors="*{accumulatedDepreciationAccount}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+
+                        <!-- Depreciation Expense Account -->
+                        <div>
+                            <label for="depreciationExpenseAccount" class="block text-sm font-medium text-gray-700 mb-1">Akun Beban Penyusutan *</label>
+                            <select id="depreciationExpenseAccount" th:field="*{depreciationExpenseAccount}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                    th:classappend="${#fields.hasErrors('depreciationExpenseAccount')} ? 'border-red-500' : ''"
+                                    required>
+                                <option value="">-- Pilih Akun --</option>
+                                <option th:each="acc : ${expenseAccounts}"
+                                        th:value="${acc.id}"
+                                        th:text="${acc.accountCode + ' - ' + acc.accountName}">Account</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('depreciationExpenseAccount')}" th:errors="*{depreciationExpenseAccount}" class="mt-1 text-sm text-red-500"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <a th:href="@{/assets/categories}" class="px-4 py-2 text-gray-600 hover:text-gray-900">Batal</a>
+                    <button id="btn-simpan" type="submit"
+                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

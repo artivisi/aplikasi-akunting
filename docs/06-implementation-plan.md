@@ -15,7 +15,7 @@
 | **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
-| **4** | Fixed Assets | ⏳ In Progress |
+| **4** | Fixed Assets | ✅ Complete |
 | **5** | Inventory & Production | ⏳ Not Started |
 | **6** | API Foundation | ⏳ Not Started |
 | **7** | Online Seller Support | ⏳ Not Started |
@@ -418,7 +418,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 4: Fixed Assets
+## Phase 4: Fixed Assets ✅
 
 **Goal:** Fixed asset tracking with depreciation
 
@@ -428,23 +428,27 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - Create system templates for: asset purchase, depreciation entry, asset disposal
 - Keep asset-specific logic in AssetService, core accounting remains generic
 
-### 4.1 Fixed Asset Register
-- [ ] Fixed asset entity
-- [ ] Asset categories
-- [ ] Asset CRUD UI
-- [ ] Purchase recording
+### 4.1 Fixed Asset Register ✅
+- [x] Fixed asset entity (FixedAsset with status, depreciation tracking fields)
+- [x] Asset categories (AssetCategory with default depreciation settings and account mappings)
+- [x] Asset CRUD UI (list, form, detail pages)
+- [x] Purchase recording (via asset creation with purchase date and cost)
+- [x] Asset search and filtering
 
-### 4.2 Depreciation
-- [ ] Straight-line calculation
-- [ ] Declining balance calculation
-- [ ] Depreciation schedule
-- [ ] Monthly depreciation batch job
-- [ ] Auto-journal via templates
+### 4.2 Depreciation ✅
+- [x] Straight-line calculation
+- [x] Declining balance calculation
+- [x] Depreciation schedule (DepreciationEntry entity)
+- [x] Monthly depreciation batch job (merged into MonthlyJournalScheduler)
+- [x] Auto-journal via templates (using account_hint for dynamic account mapping)
+- [x] Generate and post depreciation entries
+- [x] Prevent duplicate entries for same period
 
-### 4.3 Asset Disposal
-- [ ] Disposal workflow
-- [ ] Gain/loss calculation
-- [ ] Disposal journal entry
+### 4.3 Asset Disposal ✅
+- [x] Disposal workflow (sell, write-off, transfer)
+- [x] Gain/loss calculation
+- [x] Disposal journal entry (via journal template with dynamic accounts)
+- [x] Asset status tracking (ACTIVE, FULLY_DEPRECIATED, DISPOSED)
 
 **Phase 4 Deliverable:** Fixed asset management with depreciation and disposal.
 

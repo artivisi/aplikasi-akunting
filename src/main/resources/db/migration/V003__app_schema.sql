@@ -450,6 +450,7 @@ CREATE TABLE amortization_entries (
     amount DECIMAL(19, 2) NOT NULL,
 
     id_journal_entry UUID,
+    journal_number VARCHAR(20),
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
 
     generated_at TIMESTAMP,
@@ -464,6 +465,7 @@ CREATE TABLE amortization_entries (
 CREATE INDEX idx_amort_entries_schedule ON amortization_entries(id_schedule);
 CREATE INDEX idx_amort_entries_status ON amortization_entries(status);
 CREATE INDEX idx_amort_entries_period_end ON amortization_entries(period_end);
+CREATE INDEX idx_amortization_entries_journal_number ON amortization_entries(journal_number);
 
 -- ============================================
 -- Documents (Attachments)
@@ -889,3 +891,123 @@ CREATE TABLE payroll_details (
 
 CREATE INDEX idx_payroll_details_run ON payroll_details(id_payroll_run);
 CREATE INDEX idx_payroll_details_employee ON payroll_details(id_employee);
+
+-- ============================================
+-- Asset Categories (Phase 4)
+-- ============================================
+
+CREATE TABLE asset_categories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    depreciation_method VARCHAR(20) NOT NULL DEFAULT 'STRAIGHT_LINE',
+    useful_life_months INTEGER NOT NULL DEFAULT 48,
+    depreciation_rate DECIMAL(5, 2),
+    id_asset_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    id_accumulated_depreciation_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    id_depreciation_expense_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_depreciation_method CHECK (depreciation_method IN ('STRAIGHT_LINE', 'DECLINING_BALANCE'))
+);
+
+CREATE INDEX idx_asset_categories_code ON asset_categories(code);
+CREATE INDEX idx_asset_categories_active ON asset_categories(active);
+
+-- ============================================
+-- Fixed Assets (Phase 4)
+-- ============================================
+
+CREATE TABLE fixed_assets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    asset_code VARCHAR(30) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(500),
+    id_category UUID NOT NULL REFERENCES asset_categories(id),
+
+    -- Purchase information
+    purchase_date DATE NOT NULL,
+    purchase_cost DECIMAL(19, 2) NOT NULL,
+    supplier VARCHAR(100),
+    invoice_number VARCHAR(100),
+
+    -- Depreciation settings
+    depreciation_method VARCHAR(20) NOT NULL DEFAULT 'STRAIGHT_LINE',
+    useful_life_months INTEGER NOT NULL DEFAULT 48,
+    residual_value DECIMAL(19, 2) NOT NULL DEFAULT 0,
+    depreciation_rate DECIMAL(5, 2),
+    depreciation_start_date DATE NOT NULL,
+
+    -- Current values
+    accumulated_depreciation DECIMAL(19, 2) NOT NULL DEFAULT 0,
+    book_value DECIMAL(19, 2) NOT NULL,
+    last_depreciation_date DATE,
+    depreciation_periods_completed INTEGER NOT NULL DEFAULT 0,
+
+    -- Status
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+
+    -- Disposal information
+    disposal_date DATE,
+    disposal_type VARCHAR(20),
+    disposal_proceeds DECIMAL(19, 2),
+    gain_loss_on_disposal DECIMAL(19, 2),
+    disposal_notes VARCHAR(500),
+
+    -- Account references
+    id_asset_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    id_accumulated_depreciation_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+    id_depreciation_expense_account UUID NOT NULL REFERENCES chart_of_accounts(id),
+
+    -- Transaction references
+    id_purchase_transaction UUID REFERENCES transactions(id),
+    id_disposal_transaction UUID REFERENCES transactions(id),
+
+    -- Additional information
+    location VARCHAR(100),
+    serial_number VARCHAR(100),
+    notes TEXT,
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_asset_depreciation_method CHECK (depreciation_method IN ('STRAIGHT_LINE', 'DECLINING_BALANCE')),
+    CONSTRAINT chk_asset_status CHECK (status IN ('ACTIVE', 'FULLY_DEPRECIATED', 'DISPOSED')),
+    CONSTRAINT chk_disposal_type CHECK (disposal_type IS NULL OR disposal_type IN ('SOLD', 'WRITTEN_OFF', 'TRANSFERRED'))
+);
+
+CREATE INDEX idx_fixed_assets_code ON fixed_assets(asset_code);
+CREATE INDEX idx_fixed_assets_category ON fixed_assets(id_category);
+CREATE INDEX idx_fixed_assets_status ON fixed_assets(status);
+CREATE INDEX idx_fixed_assets_purchase_date ON fixed_assets(purchase_date);
+
+-- ============================================
+-- Depreciation Entries (Phase 4)
+-- ============================================
+
+CREATE TABLE depreciation_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_fixed_asset UUID NOT NULL REFERENCES fixed_assets(id) ON DELETE CASCADE,
+    period_number INTEGER NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    depreciation_amount DECIMAL(19, 2) NOT NULL,
+    accumulated_depreciation DECIMAL(19, 2) NOT NULL,
+    book_value DECIMAL(19, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    id_transaction UUID REFERENCES transactions(id),
+    generated_at TIMESTAMP,
+    posted_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_depreciation_entry_status CHECK (status IN ('PENDING', 'POSTED', 'SKIPPED')),
+    CONSTRAINT uk_asset_period UNIQUE (id_fixed_asset, period_number)
+);
+
+CREATE INDEX idx_depreciation_entries_asset ON depreciation_entries(id_fixed_asset);
+CREATE INDEX idx_depreciation_entries_status ON depreciation_entries(status);
+CREATE INDEX idx_depreciation_entries_period_end ON depreciation_entries(period_end);

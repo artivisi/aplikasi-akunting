@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="'Detail Aset - ' + ${asset.assetCode}">Detail Aset</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="'Detail Aset: ' + ${asset.name}">Detail Aset</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Header with actions -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span id="asset-status" th:switch="${asset.status.name()}">
+                    <span th:case="'ACTIVE'" class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Aktif</span>
+                    <span th:case="'FULLY_DEPRECIATED'" class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800">Habis Penyusutan</span>
+                    <span th:case="'DISPOSED'" class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-800">Dilepas</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="btn-edit" sec:authorize="hasAuthority('ASSET_EDIT')" th:if="${!asset.disposed}"
+                   th:href="@{/assets/{id}/edit(id=${asset.id})}"
+                   class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Edit</a>
+                <a id="btn-dispose" sec:authorize="hasAuthority('ASSET_DISPOSE')" th:if="${!asset.disposed}"
+                   th:href="@{/assets/{id}/dispose(id=${asset.id})}"
+                   class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50">Lepas Aset</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column: Asset Info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Info Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Aset</h3>
+                    <dl class="grid grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm text-gray-500">Kode Aset</dt>
+                            <dd id="asset-code" class="text-sm font-medium text-gray-900 font-mono" th:text="${asset.assetCode}">AST001</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Nama Aset</dt>
+                            <dd id="asset-name" class="text-sm font-medium text-gray-900" th:text="${asset.name}">Laptop HP</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Kategori</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.category?.name}">Komputer</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Lokasi</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.location ?: '-'}">Kantor</dd>
+                        </div>
+                        <div th:if="${asset.serialNumber}">
+                            <dt class="text-sm text-gray-500">Nomor Seri</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.serialNumber}">SN123</dd>
+                        </div>
+                        <div th:if="${asset.description}" class="col-span-2">
+                            <dt class="text-sm text-gray-500">Deskripsi</dt>
+                            <dd class="text-sm text-gray-900" th:text="${asset.description}">-</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Purchase Info Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pembelian</h3>
+                    <dl class="grid grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm text-gray-500">Tanggal Pembelian</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${#temporals.format(asset.purchaseDate, 'dd MMM yyyy')}">01 Jan 2025</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Nilai Perolehan</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(asset.purchaseCost, 0, 'COMMA', 0, 'POINT')}">Rp 10,000,000</dd>
+                        </div>
+                        <div th:if="${asset.supplier}">
+                            <dt class="text-sm text-gray-500">Supplier</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.supplier}">Toko ABC</dd>
+                        </div>
+                        <div th:if="${asset.invoiceNumber}">
+                            <dt class="text-sm text-gray-500">Nomor Faktur</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.invoiceNumber}">INV001</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Depreciation History -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-medium text-gray-900">Riwayat Penyusutan</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periode</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Penyusutan</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Akum. Penyusutan</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Nilai Buku</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr th:if="${#lists.isEmpty(depreciationHistory)}">
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada riwayat penyusutan</td>
+                                </tr>
+                                <tr th:each="entry : ${depreciationHistory}" class="hover:bg-gray-50">
+                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${entry.periodNumber}">1</td>
+                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900" th:text="${entry.periodDisplayName}">Jan 2025</td>
+                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 text-right font-mono" th:text="${#numbers.formatDecimal(entry.depreciationAmount, 0, 'COMMA', 0, 'POINT')}">208,333</td>
+                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 text-right font-mono" th:text="${#numbers.formatDecimal(entry.accumulatedDepreciation, 0, 'COMMA', 0, 'POINT')}">208,333</td>
+                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 text-right font-mono" th:text="${#numbers.formatDecimal(entry.bookValue, 0, 'COMMA', 0, 'POINT')}">9,791,667</td>
+                                    <td class="px-6 py-3 whitespace-nowrap text-center">
+                                        <span th:switch="${entry.status.name()}">
+                                            <span th:case="'PENDING'" class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                            <span th:case="'POSTED'" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Posted</span>
+                                            <span th:case="'SKIPPED'" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Skipped</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Disposal Info (if disposed) -->
+                <div th:if="${asset.disposed}" class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Pelepasan</h3>
+                    <dl class="grid grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm text-gray-500">Tanggal Pelepasan</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${#temporals.format(asset.disposalDate, 'dd MMM yyyy')}">01 Jan 2025</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Tipe Pelepasan</dt>
+                            <dd class="text-sm font-medium text-gray-900">
+                                <span th:switch="${asset.disposalType?.name()}">
+                                    <span th:case="'SOLD'">Dijual</span>
+                                    <span th:case="'WRITTEN_OFF'">Dihapuskan</span>
+                                    <span th:case="'TRANSFERRED'">Dipindahkan</span>
+                                </span>
+                            </dd>
+                        </div>
+                        <div th:if="${asset.disposalProceeds != null}">
+                            <dt class="text-sm text-gray-500">Hasil Penjualan</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(asset.disposalProceeds, 0, 'COMMA', 0, 'POINT')}">Rp 5,000,000</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-500">Laba/Rugi</dt>
+                            <dd class="text-sm font-medium"
+                                th:classappend="${asset.gainLossOnDisposal != null && asset.gainLossOnDisposal.signum() >= 0} ? 'text-green-600' : 'text-red-600'"
+                                th:text="'Rp ' + ${#numbers.formatDecimal(asset.gainLossOnDisposal ?: 0, 0, 'COMMA', 0, 'POINT')}">Rp 0</dd>
+                        </div>
+                        <div th:if="${asset.disposalNotes}" class="col-span-2">
+                            <dt class="text-sm text-gray-500">Catatan</dt>
+                            <dd class="text-sm text-gray-900" th:text="${asset.disposalNotes}">-</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Right Column: Summary -->
+            <div class="space-y-6">
+                <!-- Financial Summary Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Ringkasan Nilai</h3>
+                    <dl class="space-y-4">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Nilai Perolehan</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(asset.purchaseCost, 0, 'COMMA', 0, 'POINT')}">Rp 10,000,000</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Akum. Penyusutan</dt>
+                            <dd class="text-sm font-medium text-red-600" th:text="'(Rp ' + ${#numbers.formatDecimal(asset.accumulatedDepreciation, 0, 'COMMA', 0, 'POINT')} + ')'">Rp 2,000,000</dd>
+                        </div>
+                        <div class="flex justify-between border-t pt-4">
+                            <dt class="text-sm font-medium text-gray-900">Nilai Buku</dt>
+                            <dd class="text-lg font-bold text-primary-600" th:text="'Rp ' + ${#numbers.formatDecimal(asset.bookValue, 0, 'COMMA', 0, 'POINT')}">Rp 8,000,000</dd>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <dt class="text-gray-500">Nilai Residu</dt>
+                            <dd class="text-gray-500" th:text="'Rp ' + ${#numbers.formatDecimal(asset.residualValue, 0, 'COMMA', 0, 'POINT')}">Rp 0</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Depreciation Settings Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Penyusutan</h3>
+                    <dl class="space-y-3">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Metode</dt>
+                            <dd class="text-sm font-medium text-gray-900">
+                                <span th:if="${asset.depreciationMethod.name() == 'STRAIGHT_LINE'}">Garis Lurus</span>
+                                <span th:if="${asset.depreciationMethod.name() == 'DECLINING_BALANCE'}">Saldo Menurun</span>
+                            </dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Umur Ekonomis</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.usefulLifeMonths} + ' bulan'">48 bulan</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Periode Selesai</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.depreciationPeriodsCompleted} + ' bulan'">12 bulan</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Sisa Periode</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.remainingUsefulLifeMonths} + ' bulan'">36 bulan</dd>
+                        </div>
+                        <div th:if="${asset.depreciationRate != null}" class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Tarif</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${asset.depreciationRate} + '%'">25%</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Mulai Penyusutan</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${#temporals.format(asset.depreciationStartDate, 'dd MMM yyyy')}">01 Jan 2025</dd>
+                        </div>
+                        <div th:if="${asset.lastDepreciationDate}" class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Penyusutan Terakhir</dt>
+                            <dd class="text-sm font-medium text-gray-900" th:text="${#temporals.format(asset.lastDepreciationDate, 'dd MMM yyyy')}">31 Jan 2025</dd>
+                        </div>
+                        <div class="flex justify-between border-t pt-3">
+                            <dt class="text-sm text-gray-500">Penyusutan/Bulan</dt>
+                            <dd class="text-sm font-bold text-gray-900" th:text="'Rp ' + ${#numbers.formatDecimal(monthlyDepreciation, 0, 'COMMA', 0, 'POINT')}">Rp 208,333</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Accounts Card -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Akun Terkait</h3>
+                    <dl class="space-y-3 text-sm">
+                        <div>
+                            <dt class="text-gray-500">Akun Aset</dt>
+                            <dd class="font-medium text-gray-900" th:text="${asset.assetAccount != null ? asset.assetAccount.accountCode + ' - ' + asset.assetAccount.accountName : '-'}">1.2.01 - Peralatan</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Akun Akum. Penyusutan</dt>
+                            <dd class="font-medium text-gray-900" th:text="${asset.accumulatedDepreciationAccount != null ? asset.accumulatedDepreciationAccount.accountCode + ' - ' + asset.accumulatedDepreciationAccount.accountName : '-'}">1.2.02 - Akum. Penyusutan</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Akun Beban Penyusutan</dt>
+                            <dd class="font-medium text-gray-900" th:text="${asset.depreciationExpenseAccount != null ? asset.depreciationExpenseAccount.accountCode + ' - ' + asset.depreciationExpenseAccount.accountName : '-'}">5.1.07 - Beban Penyusutan</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="flex justify-start">
+            <a th:href="@{/assets}" class="text-gray-600 hover:text-gray-900 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Daftar Aset
+            </a>
+        </div>
+    </div>
+</body>
+</html>

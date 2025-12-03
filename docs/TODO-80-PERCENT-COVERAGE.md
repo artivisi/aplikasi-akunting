@@ -1,10 +1,159 @@
 # TODO: Achieve 80% Code Coverage
 
 ## Current Status
-- **Overall Coverage**: 67% instruction coverage, 53% branch coverage (was 67%/52%)
+- **Overall Coverage**: 70% instruction coverage, 57% branch coverage
 - **Target**: 80% instruction coverage
-- **Gap to Close**: 13% additional coverage needed
-- **Progress**: +14% instruction coverage, +10% branch coverage (cumulative)
+- **Gap to Close**: 10% additional coverage needed
+- **Progress**: +17% instruction coverage, +14% branch coverage (cumulative from 53%/43% baseline)
+
+## Current Package Coverage (from JaCoCo)
+
+| Package | Instruction Coverage | Branch Coverage | Priority |
+|---------|---------------------|-----------------|----------|
+| `service.telegram` | 100% | n/a | ✅ Done |
+| `dto` | 86% | 50% | ✅ Done |
+| `dto.telegram` | 80% | 60% | ✅ Done |
+| `service` | 75% | 62% | High - largest package |
+| `entity` | 73% | 49% | Medium |
+| `enums` | 67% | 0% | Low |
+| `config` | 63% | 0% | Low |
+| `controller` | 59% | 46% | **High - second largest** |
+| `main` | 37% | n/a | Low (1 class) |
+| `repository` | 35% | n/a | Low (2 classes) |
+| `security` | 32% | 37% | Medium |
+| `scheduler` | 9% | n/a | Low (1 class) |
+| `util` | 0% | 0% | Low |
+| `exception` | 0% | n/a | Low (1 class) |
+
+### Priority Analysis for Reaching 80%
+
+To get from 70% to 80%, focus on the two largest packages:
+
+1. **controller** (59% → 80%): +21% coverage needed on ~10,900 instructions
+   - Impact: ~2,300 more instructions covered → significant overall gain
+
+2. **service** (75% → 80%): +5% coverage needed on ~32,400 instructions
+   - Impact: ~1,600 more instructions covered → significant overall gain
+
+3. **entity** (73% → 80%): +7% coverage needed on ~2,300 instructions
+   - Impact: ~160 more instructions covered → moderate gain
+
+### Controller Coverage Breakdown (59% overall)
+
+| Controller | Coverage | Missed | Priority |
+|------------|----------|--------|----------|
+| UserController | 24% | 342 | **Critical** |
+| SelfServiceController | 18% | 312 | **Critical** |
+| PaymentTermController | 25% | 224 | High |
+| DocumentController | 33% | 286 | High |
+| MilestoneController | 37% | 157 | High |
+| InvoiceController | 39% | 321 | **Critical** |
+| EmployeeController | 47% | 167 | Medium |
+| ReportController | 50% | 567 | **Critical - most missed** |
+| SettingsController | 51% | 316 | High |
+| ProjectController | 53% | 139 | Medium |
+| SalaryComponentController | 55% | 113 | Medium |
+| TaxCalendarController | 56% | 128 | Medium |
+| DataImportController | 58% | 46 | Low |
+| AmortizationController | 59% | 186 | Medium |
+| DraftTransactionController | 64% | 79 | Low |
+| FiscalPeriodController | 66% | 70 | Low |
+| JournalTemplateController | 69% | 243 | Medium |
+| PayrollController | 78% | 162 | Low |
+| AboutController | 78% | 26 | Low |
+| DataExportController | 79% | 13 | Low |
+| JournalEntryController | 81% | 136 | ✅ Done |
+| TransactionController | 84% | 114 | ✅ Done |
+| ChartOfAccountsController | 89% | 42 | ✅ Done |
+| DashboardController | 96% | - | ✅ Done |
+| TaxExportController | 99% | - | ✅ Done |
+| BpjsCalculatorController | 100% | - | ✅ Done |
+| Pph21CalculatorController | 100% | - | ✅ Done |
+| TelegramWebhookController | 100% | - | ✅ Done |
+
+**Top 5 Controllers to Focus On** (by missed instructions):
+1. ReportController: 567 missed → testing more report types
+2. UserController: 342 missed → user CRUD, password reset, role assignment
+3. InvoiceController: 321 missed → invoice workflow, payments, PDF export
+4. SettingsController: 316 missed → company settings, bank accounts
+5. SelfServiceController: 312 missed → employee self-service features
+
+### Service Coverage Breakdown (75% overall)
+
+| Service | Coverage | Missed | Priority |
+|---------|----------|--------|----------|
+| VisionOcrService | 0% | 119 | Skip (external API) |
+| AmortizationBatchService | 4% | 78 | Low |
+| ProjectPaymentTermService | 21% | 165 | High |
+| DraftTransactionService | 25% | 332 | **Critical** |
+| SalaryComponentService | 26% | 280 | **Critical** |
+| ProjectMilestoneService | 36% | 211 | High |
+| DocumentService | 44% | 164 | High |
+| FiscalPeriodService | 47% | 137 | Medium |
+| UserTemplatePreferenceService | 51% | 105 | Medium |
+| DocumentStorageService | 52% | 252 | High |
+| TaxDeadlineService | 55% | 158 | Medium |
+| CompanyConfigService | 57% | 57 | Low |
+| AmortizationEntryService | 58% | 144 | Medium |
+| AmortizationScheduleService | 58% | 197 | Medium |
+| JournalEntryService | 59% | 361 | **Critical** |
+| DataImportService | 66% | 1,548 | **Critical - most missed** |
+| PayrollService | 70% | 174 | Medium |
+| CompanyBankAccountService | 72% | 55 | Low |
+| ReportExportService | 75% | 632 | High |
+| ChartOfAccountService | 76% | 65 | Low |
+| TelegramBotService | 76% | 177 | Low |
+| DataExportService | 77% | 1,041 | High |
+| InvoiceService | 80% | 121 | ✅ Done |
+| TransactionService | 81% | 134 | ✅ Done |
+| PayrollReportService | 84% | 620 | ✅ Done |
+| JournalTemplateService | 92% | 42 | ✅ Done |
+| ReceiptParserService | 94% | 48 | ✅ Done |
+| CoretaxExportService | 97% | 0 | ✅ Done |
+| UserService | 100% | 0 | ✅ Done |
+| EmployeeService | 100% | 0 | ✅ Done |
+| ClientService | 100% | 0 | ✅ Done |
+
+**Top 5 Services to Focus On** (by missed instructions):
+1. DataImportService: 1,548 missed → import workflows (COA, transactions, employees)
+2. DataExportService: 1,041 missed → export workflows (backup, data dump)
+3. ReportExportService: 632 missed → PDF/Excel export for various reports
+4. JournalEntryService: 361 missed → journal creation, ledger queries
+5. DraftTransactionService: 332 missed → draft approval/rejection workflow
+
+### Concrete Action Plan to Reach 80%
+
+Current: 70% (49,256 total instructions, 34,870 covered)
+Target: 80% (need 39,405 covered → need ~4,535 more instructions covered)
+
+**Priority 1: Controller Tests (biggest gap)**
+| Test to Create | Target Controller | Expected Coverage Gain |
+|----------------|-------------------|------------------------|
+| ReportFunctionalTest | ReportController | +500 instructions |
+| UserManagementTest (expand) | UserController | +300 instructions |
+| InvoiceWorkflowTest | InvoiceController | +280 instructions |
+| SelfServiceFunctionalTest | SelfServiceController | +280 instructions |
+| SettingsFunctionalTest (expand) | SettingsController | +280 instructions |
+
+**Priority 2: Service Tests (high-value)**
+| Test to Create | Target Service | Expected Coverage Gain |
+|----------------|----------------|------------------------|
+| DataImportTest | DataImportService | +1,000 instructions |
+| DataExportTest | DataExportService | +800 instructions |
+| ReportExportTest | ReportExportService | +500 instructions |
+| JournalEntryServiceTest | JournalEntryService | +300 instructions |
+| DraftTransactionServiceTest (expand) | DraftTransactionService | +280 instructions |
+
+**Priority 3: Quick Wins (low-hanging fruit)**
+| Test to Create | Target | Expected Coverage Gain |
+|----------------|--------|------------------------|
+| PaymentTermTest | PaymentTermController + ProjectPaymentTermService | +350 instructions |
+| MilestoneTest | MilestoneController + ProjectMilestoneService | +330 instructions |
+| SalaryComponentTest | SalaryComponentController + SalaryComponentService | +350 instructions |
+
+**Estimated Total Gain**: ~5,500 instructions → 82% coverage
+
+---
 
 ## Coverage Analysis by Package
 
@@ -551,13 +700,15 @@ Update this section weekly:
 | Week 3 | 72% / 58% | JournalTemplateServiceTest (31 tests) | ✅ JournalTemplateService integration tests |
 | Week 3 | 73% / 59% | ClientServiceTest (20 tests) | ✅ ClientService integration tests |
 | Week 3 | 74% / 60% | SettingsTest (20 tests) | ✅ Settings functional tests |
-| Week 4 | | | |
+| Week 4 | 70% / 57% | - | ⚠️ JaCoCo recalibration - actual current coverage |
 | Week 5 | | | |
 | Week 6 | | | |
 | Week 7 | | | |
 | Week 8 | | | |
 | Week 9 | | | |
 | Week 10 | | | |
+
+**Note**: Week 4 shows actual JaCoCo output. Previous estimates were optimistic projections based on test counts rather than actual measurements.
 
 Target completion: 10 weeks
 Target coverage: 80%+

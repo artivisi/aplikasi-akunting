@@ -133,6 +133,11 @@ class BpjsCalculatorTest extends PlaywrightTestBase {
         void shouldNavigateFromSidebarMenu() {
             page.navigate(baseUrl() + "/dashboard");
 
+            // Expand Payroll group first (if collapsed)
+            if (!page.locator("#nav-bpjs-calculator").isVisible()) {
+                page.click("#nav-group-payroll");
+                page.locator("#nav-bpjs-calculator").waitFor();
+            }
             page.click("#nav-bpjs-calculator");
             page.waitForLoadState();
 

@@ -286,3 +286,82 @@ INSERT INTO salary_components (id, code, name, description, component_type, is_p
 ('c0000000-0000-0000-0000-000000000023', 'BPJS-JP-K', 'BPJS JP (Karyawan)', 'Iuran BPJS Jaminan Pensiun ditanggung karyawan (1%)', 'DEDUCTION', TRUE, 1.0, NULL, TRUE, 230, FALSE, 'JP', TRUE),
 ('c0000000-0000-0000-0000-000000000024', 'PPH21', 'PPh Pasal 21', 'Pajak Penghasilan Pasal 21', 'DEDUCTION', FALSE, NULL, NULL, TRUE, 240, FALSE, NULL, TRUE),
 ('c0000000-0000-0000-0000-000000000025', 'POT-LAIN', 'Potongan Lain-lain', 'Potongan lainnya (pinjaman, dll)', 'DEDUCTION', FALSE, NULL, NULL, FALSE, 250, FALSE, NULL, TRUE);
+
+-- ============================================
+-- Additional Fixed Asset Accounts
+-- ============================================
+
+-- Add more fixed asset accounts to support Phase 4
+INSERT INTO chart_of_accounts (id, account_code, account_name, account_type, normal_balance, id_parent, level, is_header, active, is_permanent) VALUES
+-- Aset Tetap - Kendaraan
+('10000000-0000-0000-0000-000000000141', '1.2.03', 'Kendaraan', 'ASSET', 'DEBIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE),
+('10000000-0000-0000-0000-000000000142', '1.2.04', 'Akum. Penyusutan Kendaraan', 'ASSET', 'CREDIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE),
+-- Aset Tetap - Peralatan Kantor
+('10000000-0000-0000-0000-000000000143', '1.2.05', 'Peralatan Kantor', 'ASSET', 'DEBIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE),
+('10000000-0000-0000-0000-000000000144', '1.2.06', 'Akum. Penyusutan Peralatan Kantor', 'ASSET', 'CREDIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE),
+-- Aset Tetap - Mesin
+('10000000-0000-0000-0000-000000000145', '1.2.07', 'Mesin', 'ASSET', 'DEBIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE),
+('10000000-0000-0000-0000-000000000146', '1.2.08', 'Akum. Penyusutan Mesin', 'ASSET', 'CREDIT', '10000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, TRUE);
+
+-- Add Gain/Loss on Asset Disposal accounts
+INSERT INTO chart_of_accounts (id, account_code, account_name, account_type, normal_balance, id_parent, level, is_header, active, is_permanent) VALUES
+('40000000-0000-0000-0000-000000000122', '4.2.02', 'Laba Penjualan Aset', 'REVENUE', 'CREDIT', '40000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, FALSE),
+('50000000-0000-0000-0000-000000000122', '5.2.02', 'Rugi Penjualan Aset', 'EXPENSE', 'DEBIT', '50000000-0000-0000-0000-000000000012', 3, FALSE, TRUE, FALSE);
+
+-- ============================================
+-- Asset Categories
+-- ============================================
+
+INSERT INTO asset_categories (id, code, name, description, depreciation_method, useful_life_months, depreciation_rate, id_asset_account, id_accumulated_depreciation_account, id_depreciation_expense_account, active) VALUES
+-- Peralatan Komputer - 4 years useful life
+('a0000000-0000-0000-0000-000000000001', 'KOMPUTER', 'Peralatan Komputer', 'Laptop, desktop, monitor, printer, dan perangkat keras IT lainnya', 'STRAIGHT_LINE', 48, NULL, '10000000-0000-0000-0000-000000000121', '10000000-0000-0000-0000-000000000122', '50000000-0000-0000-0000-000000000107', TRUE),
+-- Kendaraan - 8 years useful life
+('a0000000-0000-0000-0000-000000000002', 'KENDARAAN', 'Kendaraan', 'Mobil, motor, dan alat transportasi perusahaan', 'STRAIGHT_LINE', 96, NULL, '10000000-0000-0000-0000-000000000141', '10000000-0000-0000-0000-000000000142', '50000000-0000-0000-0000-000000000107', TRUE),
+-- Peralatan Kantor - 4 years useful life
+('a0000000-0000-0000-0000-000000000003', 'PERALATAN', 'Peralatan Kantor', 'Meja, kursi, lemari, dan furnitur kantor lainnya', 'STRAIGHT_LINE', 48, NULL, '10000000-0000-0000-0000-000000000143', '10000000-0000-0000-0000-000000000144', '50000000-0000-0000-0000-000000000107', TRUE),
+-- Mesin - 8 years useful life with declining balance
+('a0000000-0000-0000-0000-000000000004', 'MESIN', 'Mesin', 'Mesin produksi dan peralatan berat', 'DECLINING_BALANCE', 96, 25.00, '10000000-0000-0000-0000-000000000145', '10000000-0000-0000-0000-000000000146', '50000000-0000-0000-0000-000000000107', TRUE);
+
+-- ============================================
+-- Fixed Asset Journal Templates (Phase 4)
+-- ============================================
+
+-- Template: Pembelian Aset Tetap (Fixed Asset Purchase)
+-- Uses: assetCost for purchase amount
+INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
+('e0000000-0000-0000-0000-000000000015', 'Pembelian Aset Tetap', 'EXPENSE', 'INVESTING', 'SIMPLE', 'Template untuk mencatat pembelian aset tetap. Variabel: assetCost', TRUE, TRUE);
+
+INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description, account_hint) VALUES
+-- Debit: Asset account (use account_hint for dynamic selection)
+('e1000000-0000-0000-0000-000000000032', 'e0000000-0000-0000-0000-000000000015', NULL, 'DEBIT', 'assetCost', 1, 'Aset tetap yang dibeli', 'ASET_TETAP'),
+-- Credit: Bank/Cash
+('e1000000-0000-0000-0000-000000000033', 'e0000000-0000-0000-0000-000000000015', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'assetCost', 2, 'Pembayaran dari bank', NULL);
+
+-- Template: Penyusutan Aset Tetap (Asset Depreciation)
+-- Uses: depreciationAmount for monthly depreciation
+INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
+('e0000000-0000-0000-0000-000000000016', 'Penyusutan Aset Tetap', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat penyusutan aset tetap bulanan. Variabel: depreciationAmount', TRUE, TRUE);
+
+INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description, account_hint) VALUES
+-- Debit: Depreciation expense
+('e1000000-0000-0000-0000-000000000034', 'e0000000-0000-0000-0000-000000000016', '50000000-0000-0000-0000-000000000107', 'DEBIT', 'depreciationAmount', 1, 'Beban penyusutan', NULL),
+-- Credit: Accumulated depreciation (use account_hint for dynamic selection)
+('e1000000-0000-0000-0000-000000000035', 'e0000000-0000-0000-0000-000000000016', NULL, 'CREDIT', 'depreciationAmount', 2, 'Akumulasi penyusutan', 'AKUM_PENYUSUTAN');
+
+-- Template: Pelepasan Aset Tetap (Asset Disposal)
+-- Uses: bookValue, disposalProceeds, gainLoss
+-- Note: This is a complex template, actual accounts depend on gain/loss
+INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
+('e0000000-0000-0000-0000-000000000017', 'Pelepasan Aset Tetap', 'INCOME', 'INVESTING', 'DETAILED', 'Template untuk mencatat pelepasan/penjualan aset tetap. Variabel: bookValue, accumulatedDepreciation, assetCost, disposalProceeds, gainLoss', TRUE, TRUE);
+
+INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description, account_hint) VALUES
+-- Debit: Bank/Cash (proceeds received)
+('e1000000-0000-0000-0000-000000000036', 'e0000000-0000-0000-0000-000000000017', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'disposalProceeds', 1, 'Penerimaan dari penjualan', NULL),
+-- Debit: Accumulated depreciation (reverse accumulated)
+('e1000000-0000-0000-0000-000000000037', 'e0000000-0000-0000-0000-000000000017', NULL, 'DEBIT', 'accumulatedDepreciation', 2, 'Hapus akumulasi penyusutan', 'AKUM_PENYUSUTAN'),
+-- Debit: Loss on disposal (if loss, else 0)
+('e1000000-0000-0000-0000-000000000038', 'e0000000-0000-0000-0000-000000000017', '50000000-0000-0000-0000-000000000122', 'DEBIT', 'gainLoss < 0 ? -gainLoss : 0', 3, 'Rugi penjualan aset', NULL),
+-- Credit: Asset account (remove asset cost)
+('e1000000-0000-0000-0000-000000000039', 'e0000000-0000-0000-0000-000000000017', NULL, 'CREDIT', 'assetCost', 4, 'Hapus nilai perolehan aset', 'ASET_TETAP'),
+-- Credit: Gain on disposal (if gain, else 0)
+('e1000000-0000-0000-0000-000000000040', 'e0000000-0000-0000-0000-000000000017', '40000000-0000-0000-0000-000000000122', 'CREDIT', 'gainLoss > 0 ? gainLoss : 0', 5, 'Laba penjualan aset', NULL);

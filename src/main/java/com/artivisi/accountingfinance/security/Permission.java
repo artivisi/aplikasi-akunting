@@ -77,6 +77,14 @@ public final class Permission {
     public static final String AMORTIZATION_EDIT = "AMORTIZATION_EDIT";
     public static final String AMORTIZATION_POST = "AMORTIZATION_POST";
 
+    // Fixed Assets
+    public static final String ASSET_VIEW = "ASSET_VIEW";
+    public static final String ASSET_CREATE = "ASSET_CREATE";
+    public static final String ASSET_EDIT = "ASSET_EDIT";
+    public static final String ASSET_DELETE = "ASSET_DELETE";
+    public static final String ASSET_DEPRECIATE = "ASSET_DEPRECIATE";
+    public static final String ASSET_DISPOSE = "ASSET_DISPOSE";
+
     // Tax Calendar
     public static final String TAX_CALENDAR_VIEW = "TAX_CALENDAR_VIEW";
     public static final String TAX_CALENDAR_MANAGE = "TAX_CALENDAR_MANAGE";
@@ -144,6 +152,7 @@ public final class Permission {
                 PROJECT_VIEW, PROJECT_CREATE, PROJECT_EDIT, PROJECT_DELETE,
                 INVOICE_VIEW, INVOICE_CREATE, INVOICE_EDIT, INVOICE_SEND, INVOICE_MARK_PAID,
                 AMORTIZATION_VIEW, AMORTIZATION_CREATE, AMORTIZATION_EDIT, AMORTIZATION_POST,
+                ASSET_VIEW, ASSET_CREATE, ASSET_EDIT, ASSET_DELETE, ASSET_DEPRECIATE, ASSET_DISPOSE,
                 TAX_CALENDAR_VIEW, TAX_CALENDAR_MANAGE,
                 FISCAL_PERIOD_VIEW, FISCAL_PERIOD_MANAGE,
                 EMPLOYEE_VIEW, EMPLOYEE_CREATE, EMPLOYEE_EDIT, EMPLOYEE_DELETE,
@@ -169,6 +178,7 @@ public final class Permission {
                 PROJECT_VIEW, PROJECT_CREATE, PROJECT_EDIT, PROJECT_DELETE,
                 INVOICE_VIEW, INVOICE_CREATE, INVOICE_EDIT, INVOICE_SEND, INVOICE_MARK_PAID,
                 AMORTIZATION_VIEW, AMORTIZATION_CREATE, AMORTIZATION_EDIT, AMORTIZATION_POST,
+                ASSET_VIEW, ASSET_CREATE, ASSET_EDIT, ASSET_DELETE, ASSET_DEPRECIATE, ASSET_DISPOSE,
                 TAX_CALENDAR_VIEW, TAX_CALENDAR_MANAGE,
                 FISCAL_PERIOD_VIEW, FISCAL_PERIOD_MANAGE,
                 EMPLOYEE_VIEW, EMPLOYEE_CREATE, EMPLOYEE_EDIT, EMPLOYEE_DELETE,
@@ -193,6 +203,7 @@ public final class Permission {
                 PROJECT_VIEW, PROJECT_CREATE, PROJECT_EDIT,
                 INVOICE_VIEW, INVOICE_CREATE, INVOICE_EDIT, INVOICE_SEND, INVOICE_MARK_PAID,
                 AMORTIZATION_VIEW, AMORTIZATION_CREATE, AMORTIZATION_EDIT, AMORTIZATION_POST,
+                ASSET_VIEW, ASSET_CREATE, ASSET_EDIT, ASSET_DEPRECIATE, ASSET_DISPOSE,
                 TAX_CALENDAR_VIEW, TAX_CALENDAR_MANAGE,
                 FISCAL_PERIOD_VIEW, FISCAL_PERIOD_MANAGE,
                 EMPLOYEE_VIEW,
@@ -216,6 +227,7 @@ public final class Permission {
                 CLIENT_VIEW,
                 PROJECT_VIEW,
                 INVOICE_VIEW,
+                ASSET_VIEW,
                 CALCULATOR_USE,
                 SETTINGS_VIEW, // Read-only access to settings (can view, but only edit own Telegram)
                 TELEGRAM_MANAGE,
@@ -235,6 +247,7 @@ public final class Permission {
                 PROJECT_VIEW,
                 INVOICE_VIEW,
                 AMORTIZATION_VIEW,
+                ASSET_VIEW,
                 TAX_CALENDAR_VIEW,
                 FISCAL_PERIOD_VIEW,
                 EMPLOYEE_VIEW,

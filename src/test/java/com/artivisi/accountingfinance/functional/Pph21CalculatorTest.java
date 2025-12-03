@@ -181,6 +181,11 @@ class Pph21CalculatorTest extends PlaywrightTestBase {
         void shouldNavigateFromSidebarMenu() {
             page.navigate(baseUrl() + "/dashboard");
 
+            // Expand Payroll group first (if collapsed)
+            if (!page.locator("#nav-pph21-calculator").isVisible()) {
+                page.click("#nav-group-payroll");
+                page.locator("#nav-pph21-calculator").waitFor();
+            }
             page.click("#nav-pph21-calculator");
             page.waitForLoadState();
 
