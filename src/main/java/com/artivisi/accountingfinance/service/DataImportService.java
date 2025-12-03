@@ -69,6 +69,7 @@ public class DataImportService {
     private final UserTemplatePreferenceRepository userTemplatePreferenceRepository;
     private final TelegramUserLinkRepository telegramUserLinkRepository;
     private final TransactionSequenceRepository transactionSequenceRepository;
+    private final AssetCategoryRepository assetCategoryRepository;
 
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -202,7 +203,8 @@ public class DataImportService {
             Map.entry("23_amortization_schedules.csv", List.of("amortization_entries", "amortization_schedules")),
             Map.entry("27_draft_transactions.csv", List.of("draft_transactions")),
             Map.entry("28_users.csv", List.of("telegram_user_links", "user_template_preferences", "user_roles", "audit_logs", "users")),
-            Map.entry("33_transaction_sequences.csv", List.of("transaction_sequences"))
+            Map.entry("33_transaction_sequences.csv", List.of("transaction_sequences")),
+            Map.entry("34_asset_categories.csv", List.of("asset_categories"))
     );
 
     private void truncateTablesForFiles(Set<String> filesWithData) {
@@ -328,6 +330,7 @@ public class DataImportService {
                 case "31_telegram_user_links.csv" -> importTelegramUserLinks(content);
                 case "32_audit_logs.csv" -> importAuditLogs(content);
                 case "33_transaction_sequences.csv" -> importTransactionSequences(content);
+                case "34_asset_categories.csv" -> importAssetCategories(content);
                 case "documents/index.csv" -> 0; // Handled separately
                 default -> {
                     if (!filename.equals("MANIFEST.md")) {
@@ -1282,6 +1285,53 @@ public class DataImportService {
             ts.setLastNumber(parseInteger(getField(row, 3)));
 
             transactionSequenceRepository.save(ts);
+        }
+        return rows.size();
+    }
+
+    private int importAssetCategories(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: code,name,description,depreciation_method,useful_life_months,depreciation_rate,
+        //              asset_account_code,accumulated_depreciation_account_code,depreciation_expense_account_code,active
+        for (String[] row : rows) {
+            AssetCategory ac = new AssetCategory();
+            ac.setCode(getField(row, 0));
+            ac.setName(getField(row, 1));
+            ac.setDescription(getField(row, 2));
+
+            String method = getField(row, 3);
+            if (!method.isEmpty()) {
+                ac.setDepreciationMethod(DepreciationMethod.valueOf(method));
+            }
+
+            String usefulLife = getField(row, 4);
+            if (!usefulLife.isEmpty()) {
+                ac.setUsefulLifeMonths(parseInteger(usefulLife));
+            }
+
+            String rate = getField(row, 5);
+            if (!rate.isEmpty()) {
+                ac.setDepreciationRate(new BigDecimal(rate));
+            }
+
+            String assetAccountCode = getField(row, 6);
+            if (!assetAccountCode.isEmpty()) {
+                ac.setAssetAccount(accountMap.get(assetAccountCode));
+            }
+
+            String accumAccountCode = getField(row, 7);
+            if (!accumAccountCode.isEmpty()) {
+                ac.setAccumulatedDepreciationAccount(accountMap.get(accumAccountCode));
+            }
+
+            String expenseAccountCode = getField(row, 8);
+            if (!expenseAccountCode.isEmpty()) {
+                ac.setDepreciationExpenseAccount(accountMap.get(expenseAccountCode));
+            }
+
+            ac.setActive(parseBoolean(getField(row, 9)));
+
+            assetCategoryRepository.save(ac);
         }
         return rows.size();
     }

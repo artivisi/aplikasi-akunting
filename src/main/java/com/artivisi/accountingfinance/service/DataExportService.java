@@ -65,6 +65,7 @@ public class DataExportService {
     private final UserTemplatePreferenceRepository userTemplatePreferenceRepository;
     private final TelegramUserLinkRepository telegramUserLinkRepository;
     private final TransactionSequenceRepository transactionSequenceRepository;
+    private final AssetCategoryRepository assetCategoryRepository;
 
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -132,6 +133,9 @@ public class DataExportService {
             // 32-33: System state
             addTextEntry(zos, "32_audit_logs.csv", exportAuditLogs());
             addTextEntry(zos, "33_transaction_sequences.csv", exportTransactionSequences());
+
+            // 34: Asset categories (depends on COA)
+            addTextEntry(zos, "34_asset_categories.csv", exportAssetCategories());
 
             // Export documents (files + index)
             exportDocuments(zos);
@@ -939,6 +943,30 @@ public class DataExportService {
             csv.append(escapeCsv(ts.getPrefix())).append(",");
             csv.append(ts.getYear()).append(",");
             csv.append(ts.getLastNumber()).append("\n");
+        }
+        return csv.toString();
+    }
+
+    // ============================================
+    // 34: Asset Categories
+    // ============================================
+    private String exportAssetCategories() {
+        StringBuilder csv = new StringBuilder();
+        csv.append("code,name,description,depreciation_method,useful_life_months,depreciation_rate,");
+        csv.append("asset_account_code,accumulated_depreciation_account_code,depreciation_expense_account_code,active\n");
+
+        List<AssetCategory> categories = assetCategoryRepository.findAll(Sort.by("code"));
+        for (AssetCategory ac : categories) {
+            csv.append(escapeCsv(ac.getCode())).append(",");
+            csv.append(escapeCsv(ac.getName())).append(",");
+            csv.append(escapeCsv(ac.getDescription())).append(",");
+            csv.append(ac.getDepreciationMethod()).append(",");
+            csv.append(ac.getUsefulLifeMonths()).append(",");
+            csv.append(ac.getDepreciationRate() != null ? ac.getDepreciationRate() : "").append(",");
+            csv.append(ac.getAssetAccount() != null ? escapeCsv(ac.getAssetAccount().getAccountCode()) : "").append(",");
+            csv.append(ac.getAccumulatedDepreciationAccount() != null ? escapeCsv(ac.getAccumulatedDepreciationAccount().getAccountCode()) : "").append(",");
+            csv.append(ac.getDepreciationExpenseAccount() != null ? escapeCsv(ac.getDepreciationExpenseAccount().getAccountCode()) : "").append(",");
+            csv.append(ac.getActive()).append("\n");
         }
         return csv.toString();
     }

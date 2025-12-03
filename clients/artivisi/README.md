@@ -17,10 +17,26 @@ Client-specific configuration for PT Artivisi Intermedia - IT services company.
 | File | Description |
 |------|-------------|
 | `capacity-planning.md` | Infrastructure sizing and cost estimates |
-| `templates/coa.json` | Chart of Accounts (v2.1) |
-| `templates/journal-templates.json` | Journal entry templates (v2.1) |
+| `seed-data/` | Expanded CSV seed data (v3.0) |
 
-## Templates Version History
+## Seed Data Contents (v3.0)
+
+| Data Type | Count | Description |
+|-----------|-------|-------------|
+| Chart of Accounts | 91 | SAK EMKM compliant, includes fixed assets |
+| Journal Templates | 64 | Income, expense, tax, payroll, fixed assets |
+| Salary Components | 17 | BPJS, PPh 21, deductions |
+| Asset Categories | 4 | Computer, Vehicle, Office Equipment, Machinery |
+
+## Version History
+
+### v3.0 (2024-12)
+- Migrated to expanded CSV format for easier diff/version control
+- Added asset categories with depreciation settings
+- Added fixed asset templates (purchase, depreciation, disposal)
+- Added salary components for payroll
+- Added BBM (fuel) expense account and templates
+- Added 6 new fixed asset accounts (Kendaraan, Peralatan Kantor, Mesin)
 
 ### v2.1 (2024-11)
 - Added separate accounts for Deposito, Logam Mulia, Dinar/Dirham
@@ -46,18 +62,20 @@ See:
 
 ## Import Seed Data
 
-The seed data (COA + Journal Templates) is available in the new ZIP export format.
+The seed data is in expanded CSV format in `seed-data/` directory.
 
-### Generate ZIP file
+### Create ZIP for Import
 
 ```bash
-cd clients/artivisi
-python3 convert-to-export-format.py
+cd clients/artivisi/seed-data
+zip -r ../artivisi-seed-data.zip .
 ```
 
 This creates `artivisi-seed-data.zip` containing:
-- 83 chart of accounts
-- 58 journal templates
+- 91 chart of accounts
+- 64 journal templates
+- 17 salary components
+- 4 asset categories
 
 ### Import via UI
 
@@ -68,13 +86,25 @@ This creates `artivisi-seed-data.zip` containing:
 ### Import via curl
 
 ```bash
+cd clients/artivisi/seed-data && zip -r ../artivisi-seed-data.zip .
 curl -X POST http://localhost:10000/settings/import \
   -u admin:admin \
   -F "file=@clients/artivisi/artivisi-seed-data.zip"
 ```
 
-### Source Files
+### Seed Data Structure
 
-The original JSON files are preserved for reference:
-- `templates/coa.json` - Chart of Accounts definition
-- `templates/journal-templates.json` - Journal template definitions
+```
+seed-data/
+├── MANIFEST.md                      # Export metadata
+├── 01_company_config.csv            # Company settings (empty)
+├── 02_chart_of_accounts.csv         # 91 accounts
+├── 03_salary_components.csv         # 17 components
+├── 04_journal_templates.csv         # 64 templates
+├── 05_journal_template_lines.csv    # Template line items
+├── 06_journal_template_tags.csv     # Template tags
+├── 07_clients.csv - 33_*.csv        # Empty placeholders
+├── 34_asset_categories.csv          # 4 categories
+└── documents/
+    └── index.csv                    # Empty
+```
