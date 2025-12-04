@@ -272,23 +272,27 @@ Mappings:
 ```sql
 journal_entries
 - id                    UUID PRIMARY KEY
-- transaction_id        UUID REFERENCES transactions(id) ON DELETE RESTRICT
-- entry_date            DATE NOT NULL
+- transaction_id        UUID NOT NULL REFERENCES transactions(id) ON DELETE RESTRICT
 - account_id            UUID NOT NULL REFERENCES chart_of_accounts(id)
 - debit                 DECIMAL(15,2) DEFAULT 0
 - credit                DECIMAL(15,2) DEFAULT 0
-- description           TEXT
 - created_at            TIMESTAMP
 - updated_at            TIMESTAMP
 
-INDEX(entry_date)
-INDEX(account_id, entry_date)
+INDEX(account_id)
 INDEX(transaction_id)
 
 CONSTRAINT check_debit_or_credit CHECK (
   (debit > 0 AND credit = 0) OR (credit > 0 AND debit = 0)
 )
 ```
+
+**Transaction-Centric Architecture:**
+- Every journal entry MUST belong to a transaction (transaction_id is NOT NULL)
+- All CRUD operations go through TransactionController
+- JournalEntryController only provides ledger views (read-only)
+- Entry date, description, and other metadata are stored in the parent Transaction
+- Journal entries access these via computed getters that delegate to transaction
 
 **Immutability:** Once posted, journal entries should not be edited. Corrections done via reversal entries.
 
@@ -662,6 +666,27 @@ payroll_details
 INDEX(payroll_run_id)
 INDEX(employee_id)
 ```
+
+## System Templates vs User Templates
+
+The application distinguishes between system templates and user templates:
+
+**System Templates (is_system = true):**
+Templates used by internal modules that should not be modified by users:
+1. Post Gaji Bulanan - PayrollService
+2. Penyusutan Aset Tetap - FixedAssetService
+3. Pelepasan Aset Tetap - FixedAssetService
+4. Jurnal Penutup Tahun - FiscalYearClosingService
+5. Jurnal Manual - TransactionService
+6. 4 Inventory templates (Phase 5)
+
+**User Templates (is_system = false):**
+All industry-specific and transactional templates that users can modify:
+- Pendapatan Jasa, Pendapatan Jasa dengan PPN
+- Beban Gaji, Beban Listrik, etc.
+- Transfer Antar Bank
+- Penyetoran Pajak (PPh 21, PPh 23, PPN)
+- All other business-specific templates
 
 ## Data Validation Rules
 

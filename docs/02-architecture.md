@@ -140,7 +140,8 @@ Control Plane
 
 **Key Controllers:**
 - `DashboardController` - KPI and reporting
-- `TransactionController` - Journal entry management
+- `TransactionController` - All journal entry CRUD operations (create, edit, post, void)
+- `JournalEntryController` - Ledger views only (General Ledger, Account Ledger)
 - `JournalTemplateController` - Template configuration
 - `PayrollController` - Payroll processing
 - `TaxReportController` - Indonesian tax compliance
@@ -174,18 +175,26 @@ Control Plane
 ## Data Model Architecture
 
 ### Core Accounting Structure
+
+**Transaction-Centric Architecture:**
+All journal entries are created through transactions. There are no standalone journal entries.
+
 ```sql
--- Double-entry system
-journal_entry (UUID primary key)
-├── journal_entry_lines (debit/credit pairs)
-├── transaction (high-level business event)
-└── journal_template (mapping rules)
+-- Transaction as header for journal entries
+transaction (UUID primary key)
+├── journal_entries[] (multiple debit/credit entries, transaction_id NOT NULL)
+├── journal_template (mapping rules for generating entries)
+└── account_mappings (user-selected accounts for template placeholders)
 
 -- Chart of accounts
 chart_of_account (hierarchical structure)
 ├── account_type (Asset, Liability, Equity, Revenue, Expense)
 └── normal_balance (Debit/Credit)
 ```
+
+**System Templates vs User Templates:**
+- System templates (9 total): Used by internal modules (PayrollService, FixedAssetService, FiscalYearClosingService)
+- User templates: Industry-specific templates that users can customize
 
 ### Extended Features
 ```sql

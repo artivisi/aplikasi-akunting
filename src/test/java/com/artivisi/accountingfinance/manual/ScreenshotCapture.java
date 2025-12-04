@@ -36,7 +36,6 @@ public class ScreenshotCapture {
     // Seed data UUIDs for detail pages
     private static final String TEMPLATE_ID = "e0000000-0000-0000-0000-000000000001"; // Pendapatan Jasa Konsultasi
     private static final String TRANSACTION_ID = "a0000000-0000-0000-0000-000000000002"; // TRX-TEST-0002
-    private static final String JOURNAL_ID = "b0000000-0000-0000-0000-000000000001"; // JE-TEST-0001
     private static final String CLIENT_ID = "c0500000-0000-0000-0000-000000000001"; // PT ABC Technology
     private static final String PROJECT_ID = "a0500000-0000-0000-0000-000000000001"; // Website Development ABC
 
@@ -72,11 +71,9 @@ public class ScreenshotCapture {
             new PageDefinition("transactions-form", "Form Transaksi", "/transactions/new", true,
                     "Form untuk membuat transaksi baru", "mencatat-pendapatan"),
 
-            // Journal Entries
+            // Journal Entries (Ledger View - read-only)
             new PageDefinition("journals-list", "Buku Besar", "/journals", true,
                     "Tampilan buku besar dengan saldo berjalan", "laporan-harian"),
-            new PageDefinition("journals-detail", "Detail Jurnal", "/journals/" + JOURNAL_ID, true,
-                    "Detail entri jurnal dengan dampak akun", "laporan-harian"),
 
             // Reports
             new PageDefinition("reports-trial-balance", "Neraca Saldo", "/reports/trial-balance", true,

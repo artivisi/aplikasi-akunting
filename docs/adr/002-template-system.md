@@ -86,11 +86,30 @@ The transaction-centric architecture requires a flexible template system to gene
 - Templates tailored per instance during SaaS onboarding
 - No need for runtime validation
 
+### 2.7 System vs User Templates
+**Decision:** Minimize system templates to only those used by internal modules.
+
+**Rationale:**
+- System templates are protected from user modification (no edit/delete buttons)
+- Industry-specific templates should be user templates for flexibility
+- Reduces confusion about which templates can be modified
+
+**Implementation:**
+- Only 9 system templates (is_system = true):
+  1. Post Gaji Bulanan - PayrollService
+  2. Penyusutan Aset Tetap - FixedAssetService
+  3. Pelepasan Aset Tetap - FixedAssetService
+  4. Jurnal Penutup Tahun - FiscalYearClosingService
+  5. Jurnal Manual - TransactionService
+  6. 4 Inventory templates (Phase 5)
+- All other templates are user templates (is_system = false)
+
 ## Consequences
 - Template system is the core abstraction for all accounting operations
 - Non-accountants can record transactions without understanding debits/credits
 - Templates can evolve without affecting historical data integrity
 - Power users can create custom templates for unique scenarios
+- Clear distinction between module-dependent templates and business-specific templates
 
 ## References
 See [Historical Discussion](../archive/decisions-historical.md) for detailed Q&A and alternatives considered.

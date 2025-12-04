@@ -122,22 +122,32 @@ Hutang PPh 23 (Cr) = DPP * 0.02
 | **Setor PPh 23** | Dr. Hutang PPh 23 / Cr. Bank | Setor PPh 23 vendor |
 | **Setor PPh 25** | Dr. Hutang PPh 25 / Cr. Bank | Setor angsuran PPh |
 
-## Payroll (Sistem)
+## Template Sistem
 
-| Template | Jurnal | Kapan Digunakan |
-|----------|--------|-----------------|
-| **Post Gaji Bulanan** | Dr. Beban Gaji / Dr. Beban BPJS / Cr. Hutang Gaji / Cr. Hutang BPJS / Cr. Hutang PPh 21 | Posting hasil payroll bulanan |
+Template sistem adalah template yang digunakan oleh modul internal dan tidak dapat dimodifikasi oleh pengguna. Hanya ada 9 template sistem:
 
-**Formula Post Gaji Bulanan**:
-```
-Beban Gaji (Dr)     = grossSalary    (total gaji bruto)
-Beban BPJS (Dr)     = companyBpjs    (kontribusi BPJS perusahaan)
-Hutang Gaji (Cr)    = netPay         (gaji neto yang dibayarkan)
-Hutang BPJS (Cr)    = totalBpjs      (BPJS perusahaan + karyawan)
-Hutang PPh 21 (Cr)  = pph21          (PPh 21 yang dipotong)
-```
+| Template | Modul | Keterangan |
+|----------|-------|------------|
+| **Post Gaji Bulanan** | PayrollService | Posting hasil payroll bulanan |
+| **Penyusutan Aset Tetap** | FixedAssetService | Jurnal penyusutan bulanan otomatis |
+| **Pelepasan Aset Tetap** | FixedAssetService | Jurnal saat aset dijual/dihapus |
+| **Jurnal Penutup Tahun** | FiscalYearClosingService | Tutup buku akhir tahun |
+| **Jurnal Manual** | TransactionService | Entry jurnal manual |
+| 4 Inventory templates | InventoryService | Stok masuk/keluar (Phase 5) |
+
+### Post Gaji Bulanan
+
+| Jurnal | Formula |
+|--------|---------|
+| Dr. Beban Gaji | `grossSalary` (total gaji bruto) |
+| Dr. Beban BPJS | `companyBpjs` (kontribusi BPJS perusahaan) |
+| Cr. Hutang Gaji | `netPay` (gaji neto yang dibayarkan) |
+| Cr. Hutang BPJS | `totalBpjs` (BPJS perusahaan + karyawan) |
+| Cr. Hutang PPh 21 | `pph21` (PPh 21 yang dipotong) |
 
 Template ini menggunakan variabel yang disuplai oleh modul Payroll, bukan input user. Lihat [Proses Penggajian](64-payroll-processing.md) untuk detail.
+
+**Catatan**: Semua template lainnya (pendapatan, pengeluaran, transfer, pajak) adalah template pengguna yang dapat dimodifikasi sesuai kebutuhan bisnis.
 
 ## Formula yang Sering Digunakan
 

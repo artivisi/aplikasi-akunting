@@ -76,13 +76,21 @@ Bagan akun adalah daftar semua akun yang digunakan untuk mencatat transaksi. Aku
 | 4.x.xx | Pendapatan | Pendapatan Jasa, Pendapatan Lain |
 | 5.x.xx | Beban | Gaji, Sewa, Listrik, Internet |
 
-## Jurnal
+## Transaksi dan Jurnal
 
-Jurnal adalah catatan kronologis setiap transaksi. Setiap jurnal berisi:
-- Tanggal transaksi
-- Akun yang terlibat
-- Jumlah debit dan kredit
-- Keterangan
+Aplikasi ini menggunakan pendekatan **transaction-centric** dimana setiap pencatatan dimulai dari transaksi bisnis, bukan dari jurnal.
+
+**Transaksi** adalah kejadian bisnis yang dicatat, misalnya:
+- Terima pembayaran dari klien
+- Bayar tagihan listrik
+- Transfer antar rekening
+
+**Jurnal** adalah catatan debit/kredit yang dihasilkan dari transaksi. Setiap transaksi menghasilkan satu atau lebih baris jurnal.
+
+Keuntungan pendekatan ini:
+- Anda tidak perlu memahami debit/kredit untuk mencatat transaksi
+- Sistem otomatis membuat jurnal yang benar berdasarkan template
+- Semua jurnal selalu terkait dengan transaksi yang jelas
 
 ## Status Transaksi
 
