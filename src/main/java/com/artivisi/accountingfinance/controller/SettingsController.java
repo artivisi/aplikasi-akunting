@@ -54,7 +54,7 @@ public class SettingsController {
     private static final Set<String> ALLOWED_LOGO_TYPES = Set.of(
             "image/png", "image/jpeg", "image/gif", "image/webp"
     );
-    private static final long MAX_LOGO_SIZE = 2 * 1024 * 1024; // 2MB
+    private static final long MAX_LOGO_SIZE = 2L * 1024L * 1024L; // 2MB
 
     private final CompanyConfigService companyConfigService;
     private final CompanyBankAccountService bankAccountService;

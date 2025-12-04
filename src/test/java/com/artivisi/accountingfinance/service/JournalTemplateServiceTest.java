@@ -98,7 +98,7 @@ class JournalTemplateServiceTest {
         void findByCategoryShouldFilterByCategory() {
             List<JournalTemplate> incomeTemplates = journalTemplateService.findByCategory(TemplateCategory.INCOME);
 
-            assertThat(incomeTemplates).allMatch(t -> t.getCategory() == TemplateCategory.INCOME);
+            assertThat(incomeTemplates).isNotEmpty().allMatch(t -> t.getCategory() == TemplateCategory.INCOME);
         }
 
         @Test
@@ -106,8 +106,7 @@ class JournalTemplateServiceTest {
         void findByCategoryNullShouldReturnAllActive() {
             List<JournalTemplate> allTemplates = journalTemplateService.findByCategory(null);
 
-            assertThat(allTemplates).isNotEmpty();
-            assertThat(allTemplates).allMatch(JournalTemplate::getActive);
+            assertThat(allTemplates).isNotEmpty().allMatch(JournalTemplate::getActive);
         }
 
         @Test
@@ -118,7 +117,7 @@ class JournalTemplateServiceTest {
 
             List<JournalTemplate> favorites = journalTemplateService.findFavorites();
 
-            assertThat(favorites).allMatch(JournalTemplate::getIsFavorite);
+            assertThat(favorites).isNotEmpty().allMatch(JournalTemplate::getIsFavorite);
         }
 
         @Test

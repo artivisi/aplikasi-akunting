@@ -114,7 +114,7 @@ class ProjectServiceTest {
             Page<Project> activePage = projectService.findByFilters(
                 ProjectStatus.ACTIVE, null, null, PageRequest.of(0, 10));
 
-            assertThat(activePage.getContent()).allMatch(p -> p.getStatus() == ProjectStatus.ACTIVE);
+            assertThat(activePage.getContent()).isNotEmpty().allMatch(p -> p.getStatus() == ProjectStatus.ACTIVE);
         }
 
         @Test
@@ -127,7 +127,7 @@ class ProjectServiceTest {
             Page<Project> page = projectService.findByFilters(
                 null, client.getId(), null, PageRequest.of(0, 10));
 
-            assertThat(page.getContent()).allMatch(p ->
+            assertThat(page.getContent()).isNotEmpty().allMatch(p ->
                 p.getClient() != null && p.getClient().getId().equals(client.getId()));
         }
 
@@ -154,8 +154,7 @@ class ProjectServiceTest {
 
             List<Project> projects = projectService.findByClientId(client.getId());
 
-            assertThat(projects).hasSizeGreaterThanOrEqualTo(2);
-            assertThat(projects).allMatch(p -> p.getClient().getId().equals(client.getId()));
+            assertThat(projects).hasSizeGreaterThanOrEqualTo(2).allMatch(p -> p.getClient().getId().equals(client.getId()));
         }
 
         @Test
@@ -169,7 +168,7 @@ class ProjectServiceTest {
 
             List<Project> activeProjects = projectService.findActiveProjects();
 
-            assertThat(activeProjects).allMatch(p -> p.getStatus() == ProjectStatus.ACTIVE);
+            assertThat(activeProjects).isNotEmpty().allMatch(p -> p.getStatus() == ProjectStatus.ACTIVE);
         }
     }
 

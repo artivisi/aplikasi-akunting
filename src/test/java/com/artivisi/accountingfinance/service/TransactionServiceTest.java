@@ -115,9 +115,9 @@ class TransactionServiceTest {
             List<Transaction> postedTransactions = transactionService.findByStatus(TransactionStatus.POSTED);
             List<Transaction> voidedTransactions = transactionService.findByStatus(TransactionStatus.VOID);
 
-            assertThat(draftTransactions).allMatch(t -> t.getStatus() == TransactionStatus.DRAFT);
-            assertThat(postedTransactions).allMatch(t -> t.getStatus() == TransactionStatus.POSTED);
-            assertThat(voidedTransactions).allMatch(t -> t.getStatus() == TransactionStatus.VOID);
+            assertThat(draftTransactions).isNotEmpty().allMatch(t -> t.getStatus() == TransactionStatus.DRAFT);
+            assertThat(postedTransactions).isNotEmpty().allMatch(t -> t.getStatus() == TransactionStatus.POSTED);
+            assertThat(voidedTransactions).isEmpty(); // Test data has no VOID transactions
         }
 
         @Test

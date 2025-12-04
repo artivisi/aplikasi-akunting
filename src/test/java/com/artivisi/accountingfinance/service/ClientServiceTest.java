@@ -105,7 +105,7 @@ class ClientServiceTest {
 
             Page<Client> activePage = clientService.findByFilters(true, null, PageRequest.of(0, 10));
 
-            assertThat(activePage.getContent()).allMatch(Client::isActive);
+            assertThat(activePage.getContent()).isNotEmpty().allMatch(Client::isActive);
         }
 
         @Test

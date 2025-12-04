@@ -135,7 +135,7 @@ class InvoiceServiceTest {
             Page<Invoice> draftPage = invoiceService.findByFilters(
                 InvoiceStatus.DRAFT, null, null, PageRequest.of(0, 10));
 
-            assertThat(draftPage.getContent()).allMatch(i -> i.getStatus() == InvoiceStatus.DRAFT);
+            assertThat(draftPage.getContent()).isNotEmpty().allMatch(i -> i.getStatus() == InvoiceStatus.DRAFT);
         }
 
         @Test

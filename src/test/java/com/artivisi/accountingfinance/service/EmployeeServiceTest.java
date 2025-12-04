@@ -108,7 +108,7 @@ class EmployeeServiceTest {
             Page<Employee> page = employeeService.findByFilters(
                 null, EmploymentStatus.ACTIVE, null, PageRequest.of(0, 10));
 
-            assertThat(page.getContent()).allMatch(e -> e.getEmploymentStatus() == EmploymentStatus.ACTIVE);
+            assertThat(page.getContent()).isNotEmpty().allMatch(e -> e.getEmploymentStatus() == EmploymentStatus.ACTIVE);
         }
 
         @Test
@@ -121,7 +121,7 @@ class EmployeeServiceTest {
             Page<Employee> activePage = employeeService.findByFilters(
                 null, null, true, PageRequest.of(0, 10));
 
-            assertThat(activePage.getContent()).allMatch(Employee::isActive);
+            assertThat(activePage.getContent()).isNotEmpty().allMatch(Employee::isActive);
         }
 
         @Test
@@ -145,7 +145,7 @@ class EmployeeServiceTest {
 
             List<Employee> activeEmployees = employeeService.findActiveEmployees();
 
-            assertThat(activeEmployees).allMatch(Employee::isActive);
+            assertThat(activeEmployees).isNotEmpty().allMatch(Employee::isActive);
             assertThat(activeEmployees).anyMatch(e -> e.getId().equals(active.getId()));
             assertThat(activeEmployees).noneMatch(e -> e.getId().equals(inactive.getId()));
         }
@@ -159,7 +159,7 @@ class EmployeeServiceTest {
 
             List<Employee> activeEmployees = employeeService.findByEmploymentStatus(EmploymentStatus.ACTIVE);
 
-            assertThat(activeEmployees).allMatch(e -> e.getEmploymentStatus() == EmploymentStatus.ACTIVE);
+            assertThat(activeEmployees).isNotEmpty().allMatch(e -> e.getEmploymentStatus() == EmploymentStatus.ACTIVE);
         }
     }
 
