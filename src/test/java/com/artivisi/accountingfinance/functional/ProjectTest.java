@@ -379,6 +379,27 @@ class ProjectTest extends PlaywrightTestBase {
         }
 
         @Test
+        @DisplayName("Should show overdue badge for milestone with past target date")
+        void shouldShowOverdueBadgeForPastTargetDate() {
+            // Navigate to test project PRJ-TEST-001 from V905 seed data
+            // This project has 3 milestones:
+            // - Design Phase: COMPLETED (not overdue)
+            // - Development Phase: IN_PROGRESS with past target 2024-03-15 (overdue)
+            // - Testing Phase: PENDING with future target 2024-12-31 (not overdue)
+            detailPage.navigate("PRJ-TEST-001");
+
+            // Milestone 2 "Development Phase" should show "Terlambat" badge
+            // because it's IN_PROGRESS with target date 2024-03-15 (past)
+            assertThat(detailPage.getMilestoneStatus("Development Phase")).isEqualTo("Terlambat");
+
+            // Milestone 1 "Design Phase" should show "Selesai" (completed, never overdue)
+            assertThat(detailPage.getMilestoneStatus("Design Phase")).isEqualTo("Selesai");
+
+            // Milestone 3 "Testing Phase" should show "Pending" (future target, not overdue)
+            assertThat(detailPage.getMilestoneStatus("Testing Phase")).isEqualTo("Pending");
+        }
+
+        @Test
         @DisplayName("Should reset completed milestone back to pending")
         void shouldResetMilestone() {
             // Create a project with milestone

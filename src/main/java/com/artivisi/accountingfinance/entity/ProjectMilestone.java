@@ -99,4 +99,10 @@ public class ProjectMilestone {
     public boolean isCompleted() {
         return status == MilestoneStatus.COMPLETED;
     }
+
+    public boolean isOverdue() {
+        return targetDate != null &&
+               status != MilestoneStatus.COMPLETED &&
+               LocalDate.now().isAfter(targetDate);
+    }
 }

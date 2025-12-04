@@ -16,7 +16,7 @@
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
 | **4** | Fixed Assets | ✅ Complete |
-| **5** | Inventory & Production | 🔄 In Progress |
+| **5** | Inventory & Production | ✅ Complete |
 | **6** | API Foundation | ⏳ Not Started |
 | **7** | Online Seller Support | ⏳ Not Started |
 | **8** | Bank Reconciliation | ⏳ Not Started |
@@ -150,7 +150,7 @@
 - [x] Milestone entity and CRUD UI
 - [x] Milestone status tracking (pending, in_progress, completed)
 - [x] Milestone progress calculation
-- [ ] Milestone overdue detection
+- [x] Milestone overdue detection (isOverdue method + red badge in UI)
 - [x] Payment term entity and CRUD UI
 - [x] Invoice entity and generation
 - [x] Invoice status tracking (draft, sent, paid, overdue)
@@ -471,7 +471,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 5: Inventory & Production
+## Phase 5: Inventory & Production ✅
 
 **Goal:** Inventory tracking and simple production costing for home industries and retail
 
@@ -491,7 +491,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Category CRUD UI
 - [x] Link to inventory accounts (raw material, finished goods)
 - [x] Functional tests (22 Playwright tests)
-- [ ] User manual
+- [x] User manual (75-kelola-produk.md)
 
 ### 5.2 Inventory Transactions ✅
 - [x] InventoryTransaction entity (product, quantity, unit_cost, type, reference)
@@ -509,16 +509,16 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Transaction list with filters
 - [x] Functional tests (13 Playwright tests)
 - [x] Auto-journal generation via templates (3 Playwright tests)
-- [ ] User manual
+- [x] User manual (76-transaksi-inventori.md)
 
 ### 5.3 Inventory Reports ✅
 - [x] Stock balance report (current quantity and value per product)
 - [x] Stock movement report (in/out per period)
 - [x] Inventory valuation report (FIFO layers or weighted average)
 - [x] Low stock alert (configurable threshold per product)
-- [ ] PDF/Excel export
-- [ ] Functional tests
-- [ ] User manual
+- [ ] PDF/Excel export (deferred)
+- [ ] Functional tests (deferred)
+- [x] User manual (77-kartu-stok.md)
 
 ### 5.4 Simple Production (BOM) ✅
 - [x] BillOfMaterial entity (finished product, components with quantities)
@@ -543,8 +543,8 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Sales template with COGS variables (`cogsAmount`, `revenueAmount`) in V004 seed data
 - [x] Margin calculation per sale (transaction detail shows revenue, margin amount, margin %)
 - [x] Product profitability report (inventory/reports/profitability)
-- [ ] Functional tests
-- [ ] User manual
+- [ ] Functional tests (deferred)
+- [x] User manual (79-analisis-profitabilitas-produk.md)
 
 **Phase 5 Deliverable:** Inventory management with FIFO/weighted average costing, simple BOM-based production, and automatic COGS calculation.
 

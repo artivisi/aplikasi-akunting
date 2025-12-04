@@ -96,9 +96,10 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
+                            <span th:if="${milestone.overdue}" class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Terlambat</span>
                             <span th:if="${milestone.status.name() == 'COMPLETED'}" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Selesai</span>
-                            <span th:if="${milestone.status.name() == 'IN_PROGRESS'}" class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Proses</span>
-                            <span th:if="${milestone.status.name() == 'PENDING'}" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">Pending</span>
+                            <span th:if="${milestone.status.name() == 'IN_PROGRESS' and !milestone.overdue}" class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Proses</span>
+                            <span th:if="${milestone.status.name() == 'PENDING' and !milestone.overdue}" class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">Pending</span>
 
                             <!-- Actions for active project -->
                             <div th:if="${project.status.name() == 'ACTIVE'}" class="flex items-center gap-1 ml-2">

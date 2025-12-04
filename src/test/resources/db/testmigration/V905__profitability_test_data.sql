@@ -46,6 +46,19 @@ VALUES
 ('a0500000-0000-0000-0000-000000000004', 'PRJ-TEST-004', 'Infrastructure DEF', 'Infrastructure upgrade', 'ACTIVE', 'c0500000-0000-0000-0000-000000000003', '2024-07-01', '2024-12-31', 50000000, 40000000, NOW(), NOW());
 
 -- =============================================================================
+-- PROJECT MILESTONES (for overdue detection test)
+-- =============================================================================
+INSERT INTO project_milestones (id, id_project, sequence, name, description, weight_percent, target_date, actual_date, status, created_at, updated_at)
+VALUES
+-- PRJ-TEST-001: Website Development ABC - 3 milestones
+-- Milestone 1: Completed on time
+('b0500000-0000-0000-0000-000000000001', 'a0500000-0000-0000-0000-000000000001', 1, 'Design Phase', 'UI/UX design and wireframes', 25, '2024-02-15', '2024-02-10', 'COMPLETED', NOW(), NOW()),
+-- Milestone 2: Overdue (past target, still in progress)
+('b0500000-0000-0000-0000-000000000002', 'a0500000-0000-0000-0000-000000000001', 2, 'Development Phase', 'Backend and frontend development', 50, '2024-03-15', NULL, 'IN_PROGRESS', NOW(), NOW()),
+-- Milestone 3: Pending with future target
+('b0500000-0000-0000-0000-000000000003', 'a0500000-0000-0000-0000-000000000001', 3, 'Testing Phase', 'QA and user acceptance testing', 25, '2099-12-31', NULL, 'PENDING', NOW(), NOW());
+
+-- =============================================================================
 -- TRANSACTIONS (headers for journal entries)
 -- =============================================================================
 INSERT INTO transactions (id, transaction_number, transaction_date, id_journal_template, id_project, amount, description, status, posted_at, created_at, updated_at, created_by, updated_by)
