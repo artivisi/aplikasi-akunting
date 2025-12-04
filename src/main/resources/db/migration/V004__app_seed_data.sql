@@ -109,105 +109,105 @@ INSERT INTO chart_of_accounts (id, account_code, account_name, account_type, nor
 -- Journal Templates - IT Services
 -- ============================================
 
--- Template: Pendapatan Jasa Konsultasi
+-- Template: Pendapatan Jasa Konsultasi (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000001', 'Pendapatan Jasa Konsultasi', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa konsultasi IT', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000001', 'Pendapatan Jasa Konsultasi', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa konsultasi IT', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000101', 'CREDIT', 'amount', 2);
 
--- Template: Pendapatan Jasa Development
+-- Template: Pendapatan Jasa Development (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000002', 'Pendapatan Jasa Development', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa development', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000002', 'Pendapatan Jasa Development', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa development', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000004', 'e0000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Pendapatan Jasa Training
+-- Template: Pendapatan Jasa Training (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000003', 'Pendapatan Jasa Training', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa training', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000003', 'Pendapatan Jasa Training', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pendapatan dari jasa training', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000005', 'e0000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000103', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Beban Gaji
+-- Template: Bayar Beban Gaji (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000004', 'Bayar Beban Gaji', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran gaji karyawan', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000004', 'Bayar Beban Gaji', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran gaji karyawan', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000004', '50000000-0000-0000-0000-000000000101', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000008', 'e0000000-0000-0000-0000-000000000004', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Beban Server & Cloud
+-- Template: Bayar Beban Server & Cloud (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000005', 'Bayar Beban Server & Cloud', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran server dan cloud', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000005', 'Bayar Beban Server & Cloud', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran server dan cloud', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000009', 'e0000000-0000-0000-0000-000000000005', '50000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000010', 'e0000000-0000-0000-0000-000000000005', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Beban Software & Lisensi
+-- Template: Bayar Beban Software & Lisensi (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000006', 'Bayar Beban Software & Lisensi', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran software dan lisensi', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000006', 'Bayar Beban Software & Lisensi', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran software dan lisensi', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000011', 'e0000000-0000-0000-0000-000000000006', '50000000-0000-0000-0000-000000000103', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000012', 'e0000000-0000-0000-0000-000000000006', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Beban Internet
+-- Template: Bayar Beban Internet (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000007', 'Bayar Beban Internet & Telekomunikasi', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran internet dan telekomunikasi', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000007', 'Bayar Beban Internet & Telekomunikasi', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran internet dan telekomunikasi', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000013', 'e0000000-0000-0000-0000-000000000007', '50000000-0000-0000-0000-000000000104', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000014', 'e0000000-0000-0000-0000-000000000007', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Beban Administrasi
+-- Template: Bayar Beban Administrasi (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000008', 'Bayar Beban Administrasi & Umum', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran beban administrasi dan umum', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000008', 'Bayar Beban Administrasi & Umum', 'EXPENSE', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran beban administrasi dan umum', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000015', 'e0000000-0000-0000-0000-000000000008', '50000000-0000-0000-0000-000000000105', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000016', 'e0000000-0000-0000-0000-000000000008', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Transfer Antar Bank
+-- Template: Transfer Antar Bank (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000009', 'Transfer Antar Bank', 'TRANSFER', 'OPERATING', 'SIMPLE', 'Template untuk mencatat transfer antar rekening bank', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000009', 'Transfer Antar Bank', 'TRANSFER', 'OPERATING', 'SIMPLE', 'Template untuk mencatat transfer antar rekening bank', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000017', 'e0000000-0000-0000-0000-000000000009', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000018', 'e0000000-0000-0000-0000-000000000009', '10000000-0000-0000-0000-000000000103', 'CREDIT', 'amount', 2);
 
--- Template: Terima Pelunasan Piutang
+-- Template: Terima Pelunasan Piutang (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000010', 'Terima Pelunasan Piutang', 'RECEIPT', 'OPERATING', 'SIMPLE', 'Template untuk mencatat penerimaan pelunasan piutang', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000010', 'Terima Pelunasan Piutang', 'RECEIPT', 'OPERATING', 'SIMPLE', 'Template untuk mencatat penerimaan pelunasan piutang', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000019', 'e0000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000020', 'e0000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000104', 'CREDIT', 'amount', 2);
 
--- Template: Bayar Hutang Usaha
+-- Template: Bayar Hutang Usaha (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000011', 'Bayar Hutang Usaha', 'PAYMENT', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran hutang usaha', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000011', 'Bayar Hutang Usaha', 'PAYMENT', 'OPERATING', 'SIMPLE', 'Template untuk mencatat pembayaran hutang usaha', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000021', 'e0000000-0000-0000-0000-000000000011', '20000000-0000-0000-0000-000000000101', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000022', 'e0000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 2);
 
--- Template: Setoran Modal
+-- Template: Setoran Modal (user template - general purpose)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000012', 'Setoran Modal', 'RECEIPT', 'FINANCING', 'SIMPLE', 'Template untuk mencatat setoran modal dari pemilik', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000012', 'Setoran Modal', 'RECEIPT', 'FINANCING', 'SIMPLE', 'Template untuk mencatat setoran modal dari pemilik', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000023', 'e0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1),
 ('e1000000-0000-0000-0000-000000000024', 'e0000000-0000-0000-0000-000000000012', '30000000-0000-0000-0000-000000000101', 'CREDIT', 'amount', 2);
 
--- Template: Pengakuan Pendapatan Proyek (Revenue Recognition from Advance Payment)
+-- Template: Pengakuan Pendapatan Proyek (user template - industry specific)
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000013', 'Pengakuan Pendapatan Proyek', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mengakui pendapatan dari pembayaran dimuka saat milestone selesai', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000013', 'Pengakuan Pendapatan Proyek', 'INCOME', 'OPERATING', 'SIMPLE', 'Template untuk mengakui pendapatan dari pembayaran dimuka saat milestone selesai', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order) VALUES
 ('e1000000-0000-0000-0000-000000000025', 'e0000000-0000-0000-0000-000000000013', '20000000-0000-0000-0000-000000000104', 'DEBIT', 'amount', 1),
@@ -326,10 +326,10 @@ INSERT INTO asset_categories (id, code, name, description, depreciation_method, 
 -- Fixed Asset Journal Templates (Phase 4)
 -- ============================================
 
--- Template: Pembelian Aset Tetap (Fixed Asset Purchase)
+-- Template: Pembelian Aset Tetap (user template - general purpose)
 -- Uses: assetCost for purchase amount
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000015', 'Pembelian Aset Tetap', 'EXPENSE', 'INVESTING', 'SIMPLE', 'Template untuk mencatat pembelian aset tetap. Variabel: assetCost', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000015', 'Pembelian Aset Tetap', 'EXPENSE', 'INVESTING', 'SIMPLE', 'Template untuk mencatat pembelian aset tetap. Variabel: assetCost', FALSE, TRUE);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description, account_hint) VALUES
 -- Debit: Asset account (use account_hint for dynamic selection)
@@ -453,7 +453,7 @@ INSERT INTO journal_template_lines (id, id_journal_template, id_account, positio
 -- It has no template lines - the user defines their own debit/credit lines.
 -- Used internally by the system when creating transactions for manual entries.
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000099', 'Jurnal Manual', 'TRANSFER', NULL, 'SIMPLE', 'Template sistem untuk jurnal manual. Tidak memiliki baris template - pengguna mendefinisikan sendiri baris debit/kredit.', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000099', 'Jurnal Manual', 'TRANSFER', 'OPERATING', 'SIMPLE', 'Template sistem untuk jurnal manual. Tidak memiliki baris template - pengguna mendefinisikan sendiri baris debit/kredit.', TRUE, TRUE);
 -- Note: No template lines for MANUAL template - lines are user-defined
 
 -- ============================================
@@ -463,5 +463,5 @@ INSERT INTO journal_templates (id, template_name, category, cash_flow_category, 
 -- This is a special system template used for fiscal year closing entries.
 -- It has no template lines - entries are system-generated based on account balances.
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active) VALUES
-('e0000000-0000-0000-0000-000000000098', 'Jurnal Penutup Tahun', 'TRANSFER', NULL, 'SIMPLE', 'Template sistem untuk jurnal penutup akhir tahun. Baris debit/kredit dibuat otomatis berdasarkan saldo akun.', TRUE, TRUE);
+('e0000000-0000-0000-0000-000000000098', 'Jurnal Penutup Tahun', 'TRANSFER', 'OPERATING', 'SIMPLE', 'Template sistem untuk jurnal penutup akhir tahun. Baris debit/kredit dibuat otomatis berdasarkan saldo akun.', TRUE, TRUE);
 -- Note: No template lines for CLOSING template - lines are system-generated

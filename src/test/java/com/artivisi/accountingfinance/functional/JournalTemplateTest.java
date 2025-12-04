@@ -409,10 +409,13 @@ class JournalTemplateTest extends PlaywrightTestBase {
     @DisplayName("1.4.11 System Template Protection")
     class SystemTemplateProtectionTests {
 
+        // True system template: Post Gaji Bulanan (used by PayrollService)
+        private static final String SYSTEM_TEMPLATE_ID = "e0000000-0000-0000-0000-000000000014";
+
         @Test
         @DisplayName("Should not show edit button for system template")
         void shouldNotShowEditButtonForSystemTemplate() {
-            templateDetailPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            templateDetailPage.navigate(SYSTEM_TEMPLATE_ID);
 
             templateDetailPage.assertEditButtonNotVisible();
         }
@@ -420,7 +423,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should not show delete button for system template")
         void shouldNotShowDeleteButtonForSystemTemplate() {
-            templateDetailPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            templateDetailPage.navigate(SYSTEM_TEMPLATE_ID);
 
             templateDetailPage.assertDeleteButtonNotVisible();
         }
@@ -428,7 +431,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should show version in detail page")
         void shouldShowVersionInDetailPage() {
-            templateDetailPage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
+            templateDetailPage.navigate(SYSTEM_TEMPLATE_ID);
 
             templateDetailPage.assertVersionVisible();
         }

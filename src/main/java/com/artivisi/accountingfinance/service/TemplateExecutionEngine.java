@@ -4,6 +4,7 @@ import com.artivisi.accountingfinance.dto.FormulaContext;
 import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.entity.JournalTemplateLine;
+import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.JournalPosition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class TemplateExecutionEngine {
     private final FormulaEvaluator formulaEvaluator;
 
     /**
-     * Execute a template and create journal entries.
+     * Execute a template and create journal entries via Transaction.
      * Creates entries in DRAFT status.
      */
     @Transactional
@@ -34,14 +35,22 @@ public class TemplateExecutionEngine {
         }
 
         List<JournalEntry> entries = buildJournalEntries(template, context);
-        List<JournalEntry> savedEntries = journalEntryService.create(entries);
+
+        // Create Transaction as header
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(context.transactionDate());
+        transaction.setDescription(context.description());
+        transaction.setReferenceNumber(context.referenceNumber());
+        transaction.setJournalTemplate(template);
+
+        Transaction saved = journalEntryService.create(transaction, entries);
 
         // Record usage
         journalTemplateService.recordUsage(template.getId());
 
         return new ExecutionResult(
-                savedEntries.get(0).getJournalNumber(),
-                savedEntries
+                saved.getJournalEntries().get(0).getJournalNumber(),
+                saved.getJournalEntries()
         );
     }
 
@@ -54,18 +63,26 @@ public class TemplateExecutionEngine {
             return new PreviewResult(false, validationErrors, List.of(), BigDecimal.ZERO, BigDecimal.ZERO);
         }
 
-        List<JournalEntry> entries = buildJournalEntries(template, context);
-        List<PreviewEntry> previewEntries = entries.stream()
-                .map(PreviewEntry::from)
-                .toList();
+        List<PreviewEntry> previewEntries = new ArrayList<>();
+        BigDecimal totalDebit = BigDecimal.ZERO;
+        BigDecimal totalCredit = BigDecimal.ZERO;
 
-        BigDecimal totalDebit = entries.stream()
-                .map(JournalEntry::getDebitAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        for (JournalTemplateLine line : template.getLines()) {
+            BigDecimal amount = evaluateFormula(line.getFormula(), context.amount());
+            BigDecimal debit = line.getPosition() == JournalPosition.DEBIT ? amount : BigDecimal.ZERO;
+            BigDecimal credit = line.getPosition() == JournalPosition.CREDIT ? amount : BigDecimal.ZERO;
 
-        BigDecimal totalCredit = entries.stream()
-                .map(JournalEntry::getCreditAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            previewEntries.add(new PreviewEntry(
+                    line.getAccount().getAccountCode(),
+                    line.getAccount().getAccountName(),
+                    context.description(),
+                    debit,
+                    credit
+            ));
+
+            totalDebit = totalDebit.add(debit);
+            totalCredit = totalCredit.add(credit);
+        }
 
         return new PreviewResult(true, List.of(), previewEntries, totalDebit, totalCredit);
     }
@@ -116,16 +133,7 @@ public class TemplateExecutionEngine {
 
         for (JournalTemplateLine line : template.getLines()) {
             JournalEntry entry = new JournalEntry();
-            entry.setJournalDate(context.transactionDate());
             entry.setAccount(line.getAccount());
-
-            // Build description: template description or line description or context description
-            String lineDesc = line.getDescription();
-            if (lineDesc != null && !lineDesc.isBlank()) {
-                entry.setDescription(lineDesc + " - " + context.description());
-            } else {
-                entry.setDescription(context.description());
-            }
 
             // Evaluate formula to get amount
             BigDecimal amount = evaluateFormula(line.getFormula(), context.amount());
@@ -160,8 +168,14 @@ public class TemplateExecutionEngine {
     public record ExecutionContext(
             LocalDate transactionDate,
             BigDecimal amount,
-            String description
-    ) {}
+            String description,
+            String referenceNumber
+    ) {
+        // Constructor without referenceNumber for backward compatibility
+        public ExecutionContext(LocalDate transactionDate, BigDecimal amount, String description) {
+            this(transactionDate, amount, description, null);
+        }
+    }
 
     public record ExecutionResult(
             String journalNumber,
@@ -174,17 +188,7 @@ public class TemplateExecutionEngine {
             String description,
             BigDecimal debitAmount,
             BigDecimal creditAmount
-    ) {
-        public static PreviewEntry from(JournalEntry entry) {
-            return new PreviewEntry(
-                    entry.getAccount() != null ? entry.getAccount().getAccountCode() : null,
-                    entry.getAccount() != null ? entry.getAccount().getAccountName() : null,
-                    entry.getEffectiveDescription(),
-                    entry.getDebitAmount(),
-                    entry.getCreditAmount()
-            );
-        }
-    }
+    ) {}
 
     public record PreviewResult(
             boolean valid,

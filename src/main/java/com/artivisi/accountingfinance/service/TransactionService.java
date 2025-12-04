@@ -185,10 +185,7 @@ public class TransactionService {
 
             JournalEntry entry = new JournalEntry();
             entry.setJournalNumber(journalNumber + "-" + String.format("%02d", ++lineIndex));
-            entry.setJournalDate(transaction.getTransactionDate());
             entry.setAccount(account);
-            entry.setDescription(transaction.getDescription());
-            entry.setReferenceNumber(transaction.getReferenceNumber());
 
             // Assign project from transaction to journal entry
             if (transaction.getProject() != null) {
@@ -231,10 +228,7 @@ public class TransactionService {
         for (JournalEntry original : originalEntries) {
             JournalEntry reversal = new JournalEntry();
             reversal.setJournalNumber(reversalJournalNumber + "-" + String.format("%02d", ++lineIndex));
-            reversal.setJournalDate(LocalDate.now());
             reversal.setAccount(original.getAccount());
-            reversal.setDescription("Reversal: " + original.getDescription());
-            reversal.setReferenceNumber(original.getReferenceNumber());
             reversal.setDebitAmount(original.getCreditAmount());
             reversal.setCreditAmount(original.getDebitAmount());
             reversal.setIsReversal(true);

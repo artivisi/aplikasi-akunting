@@ -36,33 +36,29 @@ VALUES (
 
 -- Journal entries for posted transaction (TRX-TEST-0002)
 -- Debit: Bank BCA (1.1.02)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'b0000000-0000-0000-0000-000000000001',
     'JE-TEST-0001',
-    CURRENT_DATE,
+    'a0000000-0000-0000-0000-000000000002',
     '10000000-0000-0000-0000-000000000102', -- Bank BCA (1.1.02)
     15000000,
     0,
-    'Test Income Transaction - Posted',
-    'POSTED',
-    'a0000000-0000-0000-0000-000000000002',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Pendapatan Jasa Konsultasi (4.1.01)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'b0000000-0000-0000-0000-000000000002',
     'JE-TEST-0001',
-    CURRENT_DATE,
+    'a0000000-0000-0000-0000-000000000002',
     '40000000-0000-0000-0000-000000000101', -- Pendapatan Jasa Konsultasi (4.1.01)
     0,
     15000000,
-    'Test Income Transaction - Posted',
-    'POSTED',
-    'a0000000-0000-0000-0000-000000000002',
+    NOW(),
     NOW(),
     NOW()
 );

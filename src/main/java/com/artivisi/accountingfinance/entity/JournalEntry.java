@@ -1,6 +1,6 @@
 package com.artivisi.accountingfinance.entity;
 
-import com.artivisi.accountingfinance.enums.JournalEntryStatus;
+import com.artivisi.accountingfinance.enums.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,19 +30,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class JournalEntry extends BaseEntity {
 
-    @NotBlank(message = "Journal number is required")
     @Size(max = 50, message = "Journal number must not exceed 50 characters")
-    @Column(name = "journal_number", nullable = false, unique = true, length = 50)
+    @Column(name = "journal_number", unique = true, length = 50)
     private String journalNumber;
-
-    @NotNull(message = "Journal date is required")
-    @Column(name = "journal_date", nullable = false)
-    private LocalDate journalDate;
-
-    @NotNull(message = "Status is required")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private JournalEntryStatus status = JournalEntryStatus.DRAFT;
 
     @Column(name = "posted_at")
     private LocalDateTime postedAt;
@@ -56,8 +45,9 @@ public class JournalEntry extends BaseEntity {
     private String voidReason;
 
     @JsonIgnore
+    @NotNull(message = "Transaction is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_transaction")
+    @JoinColumn(name = "id_transaction", nullable = false)
     private Transaction transaction;
 
     @JsonIgnore
@@ -71,11 +61,6 @@ public class JournalEntry extends BaseEntity {
     @JoinColumn(name = "id_account", nullable = false)
     private ChartOfAccount account;
 
-    @NotBlank(message = "Description is required")
-    @Size(max = 500, message = "Description must not exceed 500 characters")
-    @Column(name = "description", nullable = false, length = 500)
-    private String description;
-
     @NotNull(message = "Debit amount is required")
     @DecimalMin(value = "0.00", message = "Debit amount cannot be negative")
     @Column(name = "debit_amount", nullable = false, precision = 19, scale = 2)
@@ -85,10 +70,6 @@ public class JournalEntry extends BaseEntity {
     @DecimalMin(value = "0.00", message = "Credit amount cannot be negative")
     @Column(name = "credit_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal creditAmount = BigDecimal.ZERO;
-
-    @Size(max = 100, message = "Reference number must not exceed 100 characters")
-    @Column(name = "reference_number", length = 100)
-    private String referenceNumber;
 
     @Column(name = "is_reversal", nullable = false)
     private Boolean isReversal = false;
@@ -111,63 +92,35 @@ public class JournalEntry extends BaseEntity {
     }
 
     public boolean isDraft() {
-        return status == JournalEntryStatus.DRAFT;
+        return transaction.isDraft();
     }
 
     public boolean isPosted() {
-        return status == JournalEntryStatus.POSTED;
+        return transaction.isPosted();
     }
 
     public boolean isVoid() {
-        return status == JournalEntryStatus.VOID;
+        return transaction.isVoid();
     }
 
-    // ========== Computed Getters (delegate to Transaction when available) ==========
+    // ========== Delegated Getters (from Transaction) ==========
 
-    /**
-     * Get the effective journal date.
-     * For Transaction-backed entries, returns the Transaction's date.
-     * For legacy entries, returns the local journalDate.
-     */
-    public LocalDate getEffectiveJournalDate() {
-        if (transaction != null) {
-            return transaction.getTransactionDate();
+    public LocalDate getJournalDate() {
+        return transaction.getTransactionDate();
+    }
+
+    public String getDescription() {
+        if (Boolean.TRUE.equals(isReversal)) {
+            return "Reversal: " + transaction.getDescription();
         }
-        return journalDate;
+        return transaction.getDescription();
     }
 
-    /**
-     * Get the effective description.
-     * For Transaction-backed entries, returns the Transaction's description.
-     * For reversal entries, prefixes with "Reversal: ".
-     * For legacy entries, returns the local description.
-     */
-    public String getEffectiveDescription() {
-        if (transaction != null) {
-            if (Boolean.TRUE.equals(isReversal)) {
-                return "Reversal: " + transaction.getDescription();
-            }
-            return transaction.getDescription();
-        }
-        return description;
+    public String getReferenceNumber() {
+        return transaction.getReferenceNumber();
     }
 
-    /**
-     * Get the effective reference number.
-     * For Transaction-backed entries, returns the Transaction's reference.
-     * For legacy entries, returns the local referenceNumber.
-     */
-    public String getEffectiveReferenceNumber() {
-        if (transaction != null) {
-            return transaction.getReferenceNumber();
-        }
-        return referenceNumber;
-    }
-
-    /**
-     * Check if this entry has a parent Transaction.
-     */
-    public boolean hasTransaction() {
-        return transaction != null;
+    public TransactionStatus getStatus() {
+        return transaction.getStatus();
     }
 }

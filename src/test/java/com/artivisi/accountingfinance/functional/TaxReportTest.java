@@ -34,13 +34,19 @@ class TaxReportTest extends PlaywrightTestBase {
         pph23Page = new PPh23WithholdingPage(page, baseUrl());
         taxSummaryPage = new TaxSummaryPage(page, baseUrl());
 
-        // Test data is inserted relative to CURRENT_DATE
-        // Use a date range that covers the test data (last 10 days)
+        // V907 test data is inserted relative to CURRENT_DATE:
+        // - TRX-TAX-0001: CURRENT_DATE - 5 days
+        // - TRX-TAX-0002: CURRENT_DATE - 4 days
+        // - TRX-TAX-0003: CURRENT_DATE - 3 days
+        // - TRX-TAX-0004: CURRENT_DATE - 2 days
+        // Use a date range that covers only V907 test data (days 2-5 ago)
+        // This excludes today to avoid conflicts with TransactionIntegrationTest
         LocalDate today = LocalDate.now();
-        LocalDate tenDaysAgo = today.minusDays(10);
+        LocalDate sixDaysAgo = today.minusDays(6);
+        LocalDate yesterday = today.minusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        startDate = tenDaysAgo.format(formatter);
-        endDate = today.format(formatter);
+        startDate = sixDaysAgo.format(formatter);
+        endDate = yesterday.format(formatter);
 
         loginPage.navigate().loginAsAdmin();
     }

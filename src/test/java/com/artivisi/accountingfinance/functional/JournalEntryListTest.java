@@ -104,11 +104,14 @@ class JournalEntryListTest extends PlaywrightTestBase {
     @DisplayName("3.3 Ledger Display")
     class LedgerDisplayTests {
 
+        // Use Bank BNI (1.1.03) which has no test data seeded
+        private static final String EMPTY_ACCOUNT_LABEL = "1.1.03 - Bank BNI";
+
         @BeforeEach
         void selectAccount() {
             journalListPage.navigate();
-            // Select "Kas" account
-            journalListPage.selectAccountByLabel("1.1.01 - Kas");
+            // Select "Bank BNI" account - no test data seeded for this account
+            journalListPage.selectAccountByLabel(EMPTY_ACCOUNT_LABEL);
             page.waitForLoadState();
         }
 
@@ -116,7 +119,7 @@ class JournalEntryListTest extends PlaywrightTestBase {
         @DisplayName("Should display account info card")
         void shouldDisplayAccountInfoCard() {
             journalListPage.assertAccountInfoCardVisible();
-            journalListPage.assertAccountNameContains("1.1.01 - Kas");
+            journalListPage.assertAccountNameContains(EMPTY_ACCOUNT_LABEL);
         }
 
         @Test
@@ -144,14 +147,14 @@ class JournalEntryListTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should show opening balance as 0 for new account")
         void shouldShowOpeningBalanceAsZeroForNewAccount() {
-            // Kas account has no transactions, so opening balance should be 0
+            // Bank BNI has no transactions, so opening balance should be 0
             journalListPage.assertOpeningBalanceText("0");
         }
 
         @Test
         @DisplayName("Should show empty entries message when no journal entries")
         void shouldShowEmptyEntriesMessageWhenNoJournalEntries() {
-            // Kas account has no transactions, so entries should be empty
+            // Bank BNI has no transactions, so entries should be empty
             journalListPage.assertEmptyEntriesVisible();
         }
     }

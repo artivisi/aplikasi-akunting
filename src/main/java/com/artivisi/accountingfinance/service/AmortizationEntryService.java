@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.entity.AmortizationEntry;
 import com.artivisi.accountingfinance.entity.AmortizationSchedule;
 import com.artivisi.accountingfinance.entity.JournalEntry;
+import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.AmortizationEntryStatus;
 import com.artivisi.accountingfinance.enums.ScheduleType;
 import com.artivisi.accountingfinance.repository.AmortizationEntryRepository;
@@ -60,14 +61,26 @@ public class AmortizationEntryService {
             throw new IllegalStateException("Cannot post entry for schedule with status: " + schedule.getStatus());
         }
 
-        // Create and post journal entry
+        // Create Transaction and journal entries
+        ScheduleType type = schedule.getScheduleType();
+        String description = String.format("%s - %s (%s)",
+                getTypeDescription(type),
+                schedule.getName(),
+                entry.getPeriodLabel());
+
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(entry.getPeriodEnd());
+        transaction.setDescription(description);
+        transaction.setReferenceNumber(schedule.getCode() + "-" + entry.getPeriodNumber());
+
         List<JournalEntry> journalEntries = createJournalEntries(entry);
-        List<JournalEntry> savedEntries = journalEntryService.create(journalEntries);
-        journalEntryService.post(savedEntries.get(0).getJournalNumber());
+        Transaction savedTx = journalEntryService.create(transaction, journalEntries);
+        journalEntryService.post(savedTx.getJournalEntries().get(0).getJournalNumber());
 
         // Update amortization entry
-        entry.setJournalEntryId(savedEntries.get(0).getId());
-        entry.setJournalNumber(savedEntries.get(0).getJournalNumber());
+        JournalEntry firstEntry = savedTx.getJournalEntries().get(0);
+        entry.setJournalEntryId(firstEntry.getId());
+        entry.setJournalNumber(firstEntry.getJournalNumber());
         entry.setStatus(AmortizationEntryStatus.POSTED);
         entry.setPostedAt(LocalDateTime.now());
         entry.setGeneratedAt(LocalDateTime.now());
@@ -107,20 +120,8 @@ public class AmortizationEntryService {
         AmortizationSchedule schedule = entry.getSchedule();
         ScheduleType type = schedule.getScheduleType();
 
-        String description = String.format("%s - %s (%s)",
-                getTypeDescription(type),
-                schedule.getName(),
-                entry.getPeriodLabel());
-
         JournalEntry debitEntry = new JournalEntry();
-        debitEntry.setJournalDate(entry.getPeriodEnd());
-        debitEntry.setDescription(description);
-        debitEntry.setReferenceNumber(schedule.getCode() + "-" + entry.getPeriodNumber());
-
         JournalEntry creditEntry = new JournalEntry();
-        creditEntry.setJournalDate(entry.getPeriodEnd());
-        creditEntry.setDescription(description);
-        creditEntry.setReferenceNumber(schedule.getCode() + "-" + entry.getPeriodNumber());
 
         // Set accounts and amounts based on schedule type
         switch (type) {
@@ -167,6 +168,9 @@ public class AmortizationEntryService {
                 creditEntry.setDebitAmount(BigDecimal.ZERO);
                 creditEntry.setCreditAmount(entry.getAmount());
                 break;
+
+            default:
+                throw new IllegalStateException("Unknown schedule type: " + type);
         }
 
         return List.of(debitEntry, creditEntry);

@@ -306,7 +306,7 @@ public class FiscalYearClosingService {
         int count = 0;
 
         for (JournalEntry entry : closingEntries) {
-            if (entry.getStatus() == JournalEntryStatus.POSTED && entry.getTransaction() != null) {
+            if (entry.isPosted()) {
                 Transaction transaction = entry.getTransaction();
 
                 // Only process each transaction once
@@ -316,9 +316,8 @@ public class FiscalYearClosingService {
                     transaction.setVoidedBy(username);
                     transaction.setVoidNotes("Pembatalan Jurnal Penutup: " + reason);
 
-                    // Void all entries in this transaction
+                    // Update void timestamps on entries
                     for (JournalEntry txEntry : transaction.getJournalEntries()) {
-                        txEntry.setStatus(JournalEntryStatus.VOID);
                         txEntry.setVoidedAt(now);
                         txEntry.setVoidReason("Pembatalan Jurnal Penutup: " + reason);
                         count++;
@@ -358,15 +357,16 @@ public class FiscalYearClosingService {
                 .orElseGet(() -> {
                     TransactionSequence newSeq = new TransactionSequence();
                     newSeq.setSequenceType("FISCAL_CLOSING");
+                    newSeq.setPrefix("FC");
                     newSeq.setYear(year);
-                    newSeq.setLastSequence(0);
+                    newSeq.setLastNumber(0);
                     return newSeq;
                 });
 
-        sequence.setLastSequence(sequence.getLastSequence() + 1);
+        sequence.setLastNumber(sequence.getLastNumber() + 1);
         transactionSequenceRepository.save(sequence);
 
-        return String.format("FC-%d-%04d", year, sequence.getLastSequence());
+        return String.format("FC-%d-%04d", year, sequence.getLastNumber());
     }
 
     private String generateJournalNumber(LocalDate date, String suffix) {
@@ -384,7 +384,6 @@ public class FiscalYearClosingService {
         entry.setAccount(account);
         entry.setDebitAmount(debit);
         entry.setCreditAmount(credit);
-        entry.setStatus(JournalEntryStatus.POSTED);
         entry.setPostedAt(LocalDateTime.now());
         entry.setCreatedBy(username);
         return entry;

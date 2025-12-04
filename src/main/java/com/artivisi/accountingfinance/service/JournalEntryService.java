@@ -237,7 +237,7 @@ public class JournalEntryService {
         }
 
         JournalEntry firstEntry = entries.get(0);
-        LocalDate journalDate = firstEntry.getEffectiveJournalDate();
+        LocalDate journalDate = firstEntry.getJournalDate();
         boolean isPosted = firstEntry.isPosted() || firstEntry.isVoid();
 
         List<AccountImpact> impacts = new ArrayList<>();
@@ -312,20 +312,17 @@ public class JournalEntryService {
     // ========== Manual Journal Entry Operations ==========
 
     /**
-     * Create manual journal entries (multiple lines with same journal number).
-     * Creates a Transaction with MANUAL_ENTRY template to serve as the header.
+     * Create manual journal entries via Transaction.
+     * Transaction serves as the header containing date, description, reference.
      * All entries are created in DRAFT status.
      */
     @Transactional
-    public List<JournalEntry> create(List<JournalEntry> entries) {
+    public Transaction create(Transaction transaction, List<JournalEntry> entries) {
         if (entries == null || entries.size() < 2) {
             throw new IllegalArgumentException("Journal entry must have at least 2 lines");
         }
 
         validateBalance(entries);
-
-        // Get the first entry to extract header information
-        JournalEntry firstEntry = entries.get(0);
 
         // Calculate total debit as the transaction amount
         BigDecimal totalDebit = entries.stream()
@@ -336,14 +333,10 @@ public class JournalEntryService {
         JournalTemplate manualTemplate = journalTemplateRepository.findById(MANUAL_ENTRY_TEMPLATE_ID)
                 .orElseThrow(() -> new IllegalStateException("Manual entry template not found"));
 
-        // Create a Transaction as the header
-        Transaction transaction = new Transaction();
+        // Set transaction properties
         transaction.setTransactionNumber(generateTransactionNumber());
-        transaction.setTransactionDate(firstEntry.getJournalDate());
         transaction.setJournalTemplate(manualTemplate);
         transaction.setAmount(totalDebit);
-        transaction.setDescription(firstEntry.getDescription());
-        transaction.setReferenceNumber(firstEntry.getReferenceNumber());
         transaction.setStatus(TransactionStatus.DRAFT);
         transaction.setCreatedBy(getCurrentUsername());
 
@@ -353,22 +346,18 @@ public class JournalEntryService {
 
         for (JournalEntry entry : entries) {
             entry.setJournalNumber(journalNumber + "-" + String.format("%02d", ++lineIndex));
-            entry.setStatus(JournalEntryStatus.DRAFT);
             transaction.addJournalEntry(entry);
         }
 
-        // Save the transaction (cascades to journal entries)
-        Transaction savedTransaction = transactionRepository.save(transaction);
-
-        return savedTransaction.getJournalEntries();
+        return transactionRepository.save(transaction);
     }
 
     /**
      * Update a draft journal entry group.
-     * Only draft entries can be updated.
+     * Transaction contains updated header info (date, description, reference).
      */
     @Transactional
-    public List<JournalEntry> update(String journalNumber, List<JournalEntry> updatedEntries) {
+    public Transaction update(String journalNumber, Transaction updatedHeader, List<JournalEntry> updatedEntries) {
         // Extract base journal number (remove line suffix like "-01")
         String baseJournalNumber = journalNumber.contains("-")
                 ? journalNumber.substring(0, journalNumber.lastIndexOf("-"))
@@ -387,9 +376,6 @@ public class JournalEntryService {
 
         // Get the parent transaction
         Transaction transaction = existingEntries.get(0).getTransaction();
-        if (transaction == null) {
-            throw new IllegalStateException("Journal entry has no parent transaction");
-        }
 
         if (!transaction.isDraft()) {
             throw new IllegalStateException("Cannot update journal entry with status: " + transaction.getStatus());
@@ -410,23 +396,20 @@ public class JournalEntryService {
                 .map(JournalEntry::getDebitAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Update transaction header from first entry
-        JournalEntry firstEntry = updatedEntries.get(0);
-        transaction.setTransactionDate(firstEntry.getJournalDate());
+        // Update transaction header from provided transaction
+        transaction.setTransactionDate(updatedHeader.getTransactionDate());
         transaction.setAmount(totalDebit);
-        transaction.setDescription(firstEntry.getDescription());
-        transaction.setReferenceNumber(firstEntry.getReferenceNumber());
+        transaction.setDescription(updatedHeader.getDescription());
+        transaction.setReferenceNumber(updatedHeader.getReferenceNumber());
 
         // Add new entries
         int lineIndex = 0;
         for (JournalEntry entry : updatedEntries) {
             entry.setJournalNumber(baseJournalNumber + "-" + String.format("%02d", ++lineIndex));
-            entry.setStatus(JournalEntryStatus.DRAFT);
             transaction.addJournalEntry(entry);
         }
 
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        return savedTransaction.getJournalEntries();
+        return transactionRepository.save(transaction);
     }
 
     /**
@@ -435,22 +418,27 @@ public class JournalEntryService {
      */
     @Transactional
     public List<JournalEntry> post(String journalNumber) {
-        List<JournalEntry> entries = journalEntryRepository.findAllByJournalNumberOrderByIdAsc(journalNumber);
+        // First find one entry by the provided journal number
+        JournalEntry firstEntry = journalEntryRepository.findByJournalNumber(journalNumber)
+                .orElse(null);
 
-        // Try finding by pattern if exact match not found
-        if (entries.isEmpty()) {
+        // If not found, try finding by base number pattern
+        if (firstEntry == null) {
             String baseNumber = journalNumber.contains("-")
                     ? journalNumber.substring(0, journalNumber.lastIndexOf("-"))
                     : journalNumber;
-            entries = journalEntryRepository.findByReferenceNumberLike(baseNumber + "-%");
+            List<JournalEntry> patternMatches = journalEntryRepository.findByReferenceNumberLike(baseNumber + "-%");
+            if (!patternMatches.isEmpty()) {
+                firstEntry = patternMatches.get(0);
+            }
         }
 
-        if (entries.isEmpty()) {
+        if (firstEntry == null) {
             throw new EntityNotFoundException("Journal entry not found with number: " + journalNumber);
         }
 
         // Get the parent transaction
-        Transaction transaction = entries.get(0).getTransaction();
+        Transaction transaction = firstEntry.getTransaction();
         if (transaction == null) {
             throw new IllegalStateException("Journal entry has no parent transaction");
         }
@@ -458,6 +446,9 @@ public class JournalEntryService {
         if (!transaction.isDraft()) {
             throw new IllegalStateException("Cannot post journal entry with status: " + transaction.getStatus());
         }
+
+        // Get ALL entries for this transaction (not just the one passed in)
+        List<JournalEntry> entries = journalEntryRepository.findByTransactionIdOrderByJournalNumberAsc(transaction.getId());
 
         validateBalance(entries);
 
@@ -469,9 +460,8 @@ public class JournalEntryService {
         transaction.setPostedAt(now);
         transaction.setPostedBy(username);
 
-        // Update journal entries status
+        // Update journal entries timestamps
         for (JournalEntry entry : entries) {
-            entry.setStatus(JournalEntryStatus.POSTED);
             entry.setPostedAt(now);
         }
 
@@ -522,9 +512,8 @@ public class JournalEntryService {
         transaction.setVoidedBy(username);
         transaction.setVoidNotes(reason);
 
-        // Update journal entries status
+        // Update journal entries timestamps
         for (JournalEntry entry : entries) {
-            entry.setStatus(JournalEntryStatus.VOID);
             entry.setVoidedAt(now);
             entry.setVoidReason(reason);
         }
@@ -561,9 +550,22 @@ public class JournalEntryService {
 
     /**
      * Find all entries by journal number with account eagerly loaded.
+     * Accepts either exact journal number (with suffix like JE-2025-0001-01)
+     * or base journal number (without suffix like JE-2025-0001).
+     * Returns all entries belonging to the same transaction.
      */
     public List<JournalEntry> findAllByJournalNumberWithAccount(String journalNumber) {
-        return journalEntryRepository.findAllByJournalNumberWithAccount(journalNumber);
+        // First try exact match
+        List<JournalEntry> entries = journalEntryRepository.findAllByJournalNumberWithAccount(journalNumber);
+        if (!entries.isEmpty()) {
+            // Found entry, now get all entries for the same transaction
+            JournalEntry firstEntry = entries.get(0);
+            return journalEntryRepository.findByTransactionIdWithAccount(firstEntry.getTransaction().getId());
+        }
+
+        // Try pattern match (for base journal numbers like JE-2025-0001)
+        entries = journalEntryRepository.findAllByJournalNumberPatternWithAccount(journalNumber + "-%");
+        return entries;
     }
 
     /**
@@ -589,15 +591,16 @@ public class JournalEntryService {
                 .orElseGet(() -> {
                     TransactionSequence newSeq = new TransactionSequence();
                     newSeq.setSequenceType("MANUAL_JOURNAL");
+                    newSeq.setPrefix("MJ");
                     newSeq.setYear(year);
-                    newSeq.setLastSequence(0);
+                    newSeq.setLastNumber(0);
                     return newSeq;
                 });
 
-        sequence.setLastSequence(sequence.getLastSequence() + 1);
+        sequence.setLastNumber(sequence.getLastNumber() + 1);
         transactionSequenceRepository.save(sequence);
 
-        return String.format("MJ-%d-%04d", year, sequence.getLastSequence());
+        return String.format("MJ-%d-%04d", year, sequence.getLastNumber());
     }
 
     private String getCurrentUsername() {

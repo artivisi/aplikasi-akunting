@@ -58,7 +58,7 @@ Jual Logam Mulia (Rugi),EXPENSE,INVESTING,SIMPLE,"Penjualan emas dengan rugi. Va
 Beli Dinar/Dirham,EXPENSE,INVESTING,SIMPLE,Pembelian koin emas dinar atau perak dirham,false,false,true,1,0,
 Jual Dinar/Dirham (Laba),INCOME,INVESTING,SIMPLE,"Penjualan dinar/dirham dengan laba. Variables: hasilPenjualan, nilaiPerolehan",false,false,true,1,0,
 Jual Dinar/Dirham (Rugi),EXPENSE,INVESTING,SIMPLE,"Penjualan dinar/dirham dengan rugi. Variables: hasilPenjualan, nilaiPerolehan",false,false,true,1,0,
-Pembelian Aset Tetap,EXPENSE,INVESTING,SIMPLE,Template untuk mencatat pembelian aset tetap. Variabel: assetCost,false,true,true,1,0,
+Pembelian Aset Tetap,EXPENSE,INVESTING,SIMPLE,Template untuk mencatat pembelian aset tetap. Variabel: assetCost,false,false,true,1,0,
 Penyusutan Aset Tetap,EXPENSE,OPERATING,SIMPLE,Template untuk mencatat penyusutan aset tetap bulanan. Variabel: depreciationAmount,false,true,true,1,0,
 Pelepasan Aset Tetap,INCOME,INVESTING,DETAILED,"Template untuk mencatat pelepasan/penjualan aset tetap. Variabel: bookValue, accumulatedDepreciation, assetCost, disposalProceeds, gainLoss",false,true,true,1,0,
 Isi BBM Kendaraan (Karyawan Bayar),EXPENSE,OPERATING,SIMPLE,"Karyawan isi BBM kendaraan kantor, perusahaan akan ganti",false,false,true,1,0,

@@ -21,6 +21,9 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
 
     List<JournalEntry> findByTransactionIdOrderByJournalNumberAsc(UUID transactionId);
 
+    @Query("SELECT j FROM JournalEntry j LEFT JOIN FETCH j.account WHERE j.transaction.id = :transactionId ORDER BY j.journalNumber ASC")
+    List<JournalEntry> findByTransactionIdWithAccount(@Param("transactionId") UUID transactionId);
+
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "j.account.id = :accountId AND " +
            "t.transactionDate BETWEEN :startDate AND :endDate " +
@@ -107,6 +110,9 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
 
     @Query("SELECT j FROM JournalEntry j LEFT JOIN FETCH j.account WHERE j.journalNumber = :journalNumber ORDER BY j.id ASC")
     List<JournalEntry> findAllByJournalNumberWithAccount(@Param("journalNumber") String journalNumber);
+
+    @Query("SELECT j FROM JournalEntry j LEFT JOIN FETCH j.account WHERE j.journalNumber LIKE :pattern ORDER BY j.journalNumber ASC")
+    List<JournalEntry> findAllByJournalNumberPatternWithAccount(@Param("pattern") String pattern);
 
     boolean existsByJournalNumber(String journalNumber);
 

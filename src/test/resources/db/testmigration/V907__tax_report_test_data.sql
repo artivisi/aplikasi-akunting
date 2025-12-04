@@ -51,49 +51,43 @@ VALUES (
 
 -- Journal entries for TRX-TAX-0001
 -- Debit: Bank BCA 11.100.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000001',
     'JE-TAX-0001',
-    CURRENT_DATE - INTERVAL '5 day',
+    'c0000000-0000-0000-0000-000000000001',
     '10000000-0000-0000-0000-000000000102', -- Bank BCA (1.1.02)
     11100000,
     0,
-    'Pendapatan Jasa Konsultasi dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000001',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Pendapatan Jasa Konsultasi 10.000.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000002',
     'JE-TAX-0001',
-    CURRENT_DATE - INTERVAL '5 day',
+    'c0000000-0000-0000-0000-000000000001',
     '40000000-0000-0000-0000-000000000101', -- Pendapatan Jasa Konsultasi (4.1.01)
     0,
     10000000,
-    'Pendapatan Jasa Konsultasi dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000001',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Hutang PPN 1.100.000 (PPN Keluaran)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000003',
     'JE-TAX-0001',
-    CURRENT_DATE - INTERVAL '5 day',
+    'c0000000-0000-0000-0000-000000000001',
     '20000000-0000-0000-0000-000000000103', -- Hutang PPN (2.1.03)
     0,
     1100000,
-    'PPN Keluaran 11%',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000001',
+    NOW(),
     NOW(),
     NOW()
 );
@@ -123,49 +117,43 @@ VALUES (
 
 -- Journal entries for TRX-TAX-0002
 -- Debit: Beban Server & Cloud 5.000.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000004',
     'JE-TAX-0002',
-    CURRENT_DATE - INTERVAL '4 day',
+    'c0000000-0000-0000-0000-000000000002',
     '50000000-0000-0000-0000-000000000102', -- Beban Server & Cloud (5.1.02)
     5000000,
     0,
-    'Pembelian Server dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000002',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Debit: PPN Masukan 550.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000005',
     'JE-TAX-0002',
-    CURRENT_DATE - INTERVAL '4 day',
+    'c0000000-0000-0000-0000-000000000002',
     '10000000-0000-0000-0000-000000000125', -- PPN Masukan (1.1.25)
     550000,
     0,
-    'PPN Masukan 11%',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000002',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Bank BCA 5.550.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000006',
     'JE-TAX-0002',
-    CURRENT_DATE - INTERVAL '4 day',
+    'c0000000-0000-0000-0000-000000000002',
     '10000000-0000-0000-0000-000000000102', -- Bank BCA (1.1.02)
     0,
     5550000,
-    'Pembelian Server dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000002',
+    NOW(),
     NOW(),
     NOW()
 );
@@ -195,49 +183,43 @@ VALUES (
 
 -- Journal entries for TRX-TAX-0003
 -- Debit: Beban Software & Lisensi 2.000.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000007',
     'JE-TAX-0003',
-    CURRENT_DATE - INTERVAL '3 day',
+    'c0000000-0000-0000-0000-000000000003',
     '50000000-0000-0000-0000-000000000103', -- Beban Software & Lisensi (5.1.03)
     2000000,
     0,
-    'Pembayaran Jasa dengan PPh 23',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000003',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Bank BCA 1.960.000 (Net payment)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000008',
     'JE-TAX-0003',
-    CURRENT_DATE - INTERVAL '3 day',
+    'c0000000-0000-0000-0000-000000000003',
     '10000000-0000-0000-0000-000000000102', -- Bank BCA (1.1.02)
     0,
     1960000,
-    'Pembayaran Jasa (Net)',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000003',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Hutang PPh 23 40.000 (Withheld)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000009',
     'JE-TAX-0003',
-    CURRENT_DATE - INTERVAL '3 day',
+    'c0000000-0000-0000-0000-000000000003',
     '20000000-0000-0000-0000-000000000121', -- Hutang PPh 23 (2.1.21)
     0,
     40000,
-    'PPh 23 (2%) dipotong',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000003',
+    NOW(),
     NOW(),
     NOW()
 );
@@ -267,49 +249,43 @@ VALUES (
 
 -- Journal entries for TRX-TAX-0004
 -- Debit: Bank BCA 16.650.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000010',
     'JE-TAX-0004',
-    CURRENT_DATE - INTERVAL '2 day',
+    'c0000000-0000-0000-0000-000000000004',
     '10000000-0000-0000-0000-000000000102', -- Bank BCA (1.1.02)
     16650000,
     0,
-    'Pendapatan Jasa Development dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000004',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Pendapatan Jasa Development 15.000.000
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000011',
     'JE-TAX-0004',
-    CURRENT_DATE - INTERVAL '2 day',
+    'c0000000-0000-0000-0000-000000000004',
     '40000000-0000-0000-0000-000000000102', -- Pendapatan Jasa Development (4.1.02)
     0,
     15000000,
-    'Pendapatan Jasa Development dengan PPN',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000004',
+    NOW(),
     NOW(),
     NOW()
 );
 
 -- Credit: Hutang PPN 1.650.000 (PPN Keluaran)
-INSERT INTO journal_entries (id, journal_number, journal_date, id_account, debit_amount, credit_amount, description, status, id_transaction, created_at, updated_at)
+INSERT INTO journal_entries (id, journal_number, id_transaction, id_account, debit_amount, credit_amount, posted_at, created_at, updated_at)
 VALUES (
     'c1000000-0000-0000-0000-000000000012',
     'JE-TAX-0004',
-    CURRENT_DATE - INTERVAL '2 day',
+    'c0000000-0000-0000-0000-000000000004',
     '20000000-0000-0000-0000-000000000103', -- Hutang PPN (2.1.03)
     0,
     1650000,
-    'PPN Keluaran 11%',
-    'POSTED',
-    'c0000000-0000-0000-0000-000000000004',
+    NOW(),
     NOW(),
     NOW()
 );

@@ -222,7 +222,26 @@ public class DataImportService {
 
         for (String table : tablesToTruncate) {
             try {
-                entityManager.createNativeQuery("TRUNCATE TABLE " + table + " CASCADE").executeUpdate();
+                if ("journal_templates".equals(table)) {
+                    // Preserve system templates - only delete non-system templates
+                    entityManager.createNativeQuery(
+                        "DELETE FROM journal_templates WHERE is_system = false"
+                    ).executeUpdate();
+                } else if ("journal_template_lines".equals(table)) {
+                    // Delete lines for non-system templates only
+                    entityManager.createNativeQuery(
+                        "DELETE FROM journal_template_lines WHERE id_journal_template IN " +
+                        "(SELECT id FROM journal_templates WHERE is_system = false)"
+                    ).executeUpdate();
+                } else if ("journal_template_tags".equals(table)) {
+                    // Delete tags for non-system templates only
+                    entityManager.createNativeQuery(
+                        "DELETE FROM journal_template_tags WHERE id_journal_template IN " +
+                        "(SELECT id FROM journal_templates WHERE is_system = false)"
+                    ).executeUpdate();
+                } else {
+                    entityManager.createNativeQuery("TRUNCATE TABLE " + table + " CASCADE").executeUpdate();
+                }
             } catch (Exception e) {
                 log.warn("Could not truncate {}: {}", table, e.getMessage());
             }
@@ -546,16 +565,28 @@ public class DataImportService {
 
     private int importJournalTemplates(String content) {
         List<String[]> rows = parseCsv(content);
+        int imported = 0;
 
         for (String[] row : rows) {
+            String templateName = getField(row, 0);
+            boolean isSystem = parseBoolean(getField(row, 6));
+
+            // Check if system template already exists (preserved from seed data)
+            JournalTemplate existing = templateMap.get(templateName);
+            if (existing != null && existing.getIsSystem()) {
+                // Keep existing system template, don't overwrite
+                log.debug("Skipping existing system template: {}", templateName);
+                continue;
+            }
+
             JournalTemplate t = new JournalTemplate();
-            t.setTemplateName(getField(row, 0));
+            t.setTemplateName(templateName);
             t.setCategory(TemplateCategory.valueOf(getField(row, 1)));
             t.setCashFlowCategory(CashFlowCategory.valueOf(getField(row, 2)));
             t.setTemplateType(TemplateType.valueOf(getField(row, 3)));
             t.setDescription(getField(row, 4));
             t.setIsFavorite(parseBoolean(getField(row, 5)));
-            t.setIsSystem(parseBoolean(getField(row, 6)));
+            t.setIsSystem(isSystem);
             t.setActive(parseBoolean(getField(row, 7)));
             t.setVersion(parseInteger(getField(row, 8)));
             t.setUsageCount(parseInteger(getField(row, 9)));
@@ -563,18 +594,25 @@ public class DataImportService {
 
             templateRepository.save(t);
             templateMap.put(t.getTemplateName(), t);
+            imported++;
         }
-        return rows.size();
+        return imported;
     }
 
     private int importJournalTemplateLines(String content) {
         List<String[]> rows = parseCsv(content);
+        int imported = 0;
 
         for (String[] row : rows) {
             String templateName = getField(row, 0);
             JournalTemplate template = templateMap.get(templateName);
             if (template == null) {
                 log.warn("Template not found for line: {}", templateName);
+                continue;
+            }
+
+            // Skip lines for system templates (they already have lines from seed data)
+            if (template.getIsSystem()) {
                 continue;
             }
 
@@ -592,22 +630,30 @@ public class DataImportService {
             line.setDescription(getField(row, 6));
 
             templateLineRepository.save(line);
+            imported++;
         }
-        return rows.size();
+        return imported;
     }
 
     private int importJournalTemplateTags(String content) {
         List<String[]> rows = parseCsv(content);
+        int imported = 0;
 
         for (String[] row : rows) {
             String templateName = getField(row, 0);
             JournalTemplate template = templateMap.get(templateName);
             if (template == null) continue;
 
+            // Skip tags for system templates
+            if (template.getIsSystem()) {
+                continue;
+            }
+
             JournalTemplateTag tag = new JournalTemplateTag(template, getField(row, 1));
             templateTagRepository.save(tag);
+            imported++;
         }
-        return rows.size();
+        return imported;
     }
 
     private int importClients(String content) {
@@ -959,16 +1005,16 @@ public class DataImportService {
         List<String[]> rows = parseCsv(content);
 
         for (String[] row : rows) {
+            String txNumber = getField(row, 2);
+            Transaction transaction = transactionMap.get(txNumber);
+            if (transaction == null) {
+                log.warn("Transaction not found for journal entry: {}", txNumber);
+                continue;
+            }
+
             JournalEntry je = new JournalEntry();
             je.setJournalNumber(getField(row, 0));
-            je.setJournalDate(parseDate(getField(row, 1)));
-
-            String txNumber = getField(row, 2);
-            if (!txNumber.isEmpty()) {
-                je.setTransaction(transactionMap.get(txNumber));
-            }
-            je.setDescription(getField(row, 3));
-            je.setStatus(JournalEntryStatus.valueOf(getField(row, 4)));
+            je.setTransaction(transaction);
 
             String accountCode = getField(row, 5);
             if (!accountCode.isEmpty()) {
