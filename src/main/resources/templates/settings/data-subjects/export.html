@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Ekspor Data Pribadi (DSAR)</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Ekspor Data Pribadi (DSAR)</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Back Button -->
+        <div>
+            <a th:href="@{/settings/data-subjects/{id}(id=${employee.id})}" class="text-primary-600 hover:text-primary-800 flex items-center gap-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali ke Detail
+            </a>
+        </div>
+
+        <!-- DSAR Info -->
+        <div id="dsar-info-panel" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h3 id="dsar-title" class="font-medium text-blue-900">Data Subject Access Request (DSAR)</h3>
+                    <p class="text-sm text-blue-700 mt-1">
+                        Sesuai GDPR Article 15 (Hak Akses) dan UU PDP Pasal 10, subjek data berhak memperoleh salinan data pribadi mereka.
+                        Data sensitif seperti NIK KTP, NPWP, dan nomor rekening ditampilkan dalam format tersamarkan.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Timestamp -->
+        <div class="text-sm text-gray-500">
+            Diekspor pada: <span id="export-timestamp" th:text="${#temporals.format(exportedData['export_timestamp'], 'dd MMMM yyyy HH:mm:ss')}">01 Januari 2024 12:00:00</span>
+        </div>
+
+        <!-- Exported Data Card -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Data Pribadi: <span id="export-name" th:text="${exportedData['name']}">Nama Karyawan</span></h2>
+            </div>
+            <div class="px-6 py-4">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4" id="exported-data">
+                    <!-- Basic Information -->
+                    <div class="col-span-2">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Informasi Dasar</h3>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">NIK Karyawan</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['employee_id'] ?: '-'}">EMP001</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Nama</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['name'] ?: '-'}">Nama Karyawan</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['email'] ?: '-'}">email@example.com</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Telepon</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['phone'] ?: '-'}">08123456789</dd>
+                    </div>
+                    <div class="col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Alamat</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['address'] ?: '-'}">Alamat lengkap</dd>
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div class="col-span-2 mt-4">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Informasi Kepegawaian</h3>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Jabatan</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['job_title'] ?: '-'}">Software Engineer</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Departemen</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['department'] ?: '-'}">IT</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Tipe Kepegawaian</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['employment_type'] ?: '-'}">PERMANENT</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Status Kepegawaian</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['employment_status'] ?: '-'}">ACTIVE</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Tanggal Masuk</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['hire_date'] ?: '-'}">2020-01-01</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Tanggal Resign</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['resign_date'] ?: '-'}">-</dd>
+                    </div>
+
+                    <!-- Sensitive Data (Masked) -->
+                    <div class="col-span-2 mt-4">
+                        <h3 id="sensitive-data-header" class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Data Sensitif (Tersamarkan)</h3>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">NIK KTP</dt>
+                        <dd id="masked-nik" class="mt-1 text-sm text-gray-900 font-mono" th:text="${exportedData['nik_ktp'] ?: '-'}">31****01</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">NPWP</dt>
+                        <dd id="masked-npwp" class="mt-1 text-sm text-gray-900 font-mono" th:text="${exportedData['npwp'] ?: '-'}">12****00</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Bank</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['bank_name'] ?: '-'}">BCA</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Nomor Rekening</dt>
+                        <dd id="masked-bank" class="mt-1 text-sm text-gray-900 font-mono" th:text="${exportedData['bank_account_number'] ?: '-'}">12****90</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">BPJS Kesehatan</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono" th:text="${exportedData['bpjs_kesehatan_number'] ?: '-'}">00****90</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">BPJS Ketenagakerjaan</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono" th:text="${exportedData['bpjs_ketenagakerjaan_number'] ?: '-'}">12****01</dd>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="col-span-2 mt-4">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Metadata</h3>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Data Dibuat</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['created_at'] ?: '-'}">2020-01-01T00:00:00</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Data Diperbarui</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${exportedData['updated_at'] ?: '-'}">2024-01-01T00:00:00</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Print Button -->
+        <div class="flex gap-4">
+            <button onclick="window.print()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                Cetak
+            </button>
+        </div>
+    </div>
+</body>
+</html>

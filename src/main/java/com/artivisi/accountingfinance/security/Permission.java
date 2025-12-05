@@ -135,6 +135,11 @@ public final class Permission {
     // Security Audit Logs
     public static final String AUDIT_LOG_VIEW = "AUDIT_LOG_VIEW";
 
+    // Data Subject Rights (GDPR/UU PDP) - Admin only
+    public static final String DATA_SUBJECT_VIEW = "DATA_SUBJECT_VIEW";
+    public static final String DATA_SUBJECT_EXPORT = "DATA_SUBJECT_EXPORT";
+    public static final String DATA_SUBJECT_ANONYMIZE = "DATA_SUBJECT_ANONYMIZE";
+
     // User Management (Admin only)
     public static final String USER_VIEW = "USER_VIEW";
     public static final String USER_CREATE = "USER_CREATE";
@@ -176,6 +181,7 @@ public final class Permission {
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
                 AUDIT_LOG_VIEW,
+                DATA_SUBJECT_VIEW, DATA_SUBJECT_EXPORT, DATA_SUBJECT_ANONYMIZE,
                 USER_VIEW, USER_CREATE, USER_EDIT, USER_DELETE, USER_ASSIGN_ROLES,
                 OWN_PAYSLIP_VIEW, OWN_PROFILE_VIEW, OWN_PROFILE_EDIT
             );
