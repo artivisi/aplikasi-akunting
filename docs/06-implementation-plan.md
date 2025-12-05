@@ -661,7 +661,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **Backup Security:**
 - [x] Encrypt backup exports - Handled by Ansible infrastructure (GPG + AES256 for B2/GDrive)
 - [x] Implement backup file integrity verification (SHA-256 checksum) - backup.sh/restore.sh
-- [ ] Add confirmation dialog for destructive operations (data import truncate)
+- [x] Add confirmation dialog for destructive operations (data import truncate) - import/index.html onclick confirm
 
 **Data in Use (Memory Protection):**
 - [x] Disable heap dumps in production (`-XX:+DisableAttachMechanism`) - systemd service
@@ -813,11 +813,12 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] CSRF token validation
   - [x] XSS payload injection tests
   - [x] SQL injection attempts (blocked)
-- [ ] JUnit security unit tests
-  - [ ] Password complexity validation
-  - [ ] Input sanitization
-  - [ ] Encryption/decryption
-  - [ ] Access control logic
+- [x] JUnit security unit tests
+  - [x] Password complexity validation (`PasswordValidatorTest.java` - 18 tests)
+  - [x] Account lockout logic (`LoginAttemptServiceTest.java` - 21 tests)
+  - [x] Data masking (`DataMaskingUtilTest.java` - 25 tests)
+  - [x] Input sanitization for logs (`LogSanitizerTest.java` - 30 tests)
+  - [x] Encryption/decryption (`FileEncryptionServiceTest.java` - 25 tests)
 
 ### 6.10 Security Documentation & Policies (P3)
 - [x] Password complexity validation (PasswordValidator with 12+ chars, upper/lower/digit/special)
