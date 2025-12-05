@@ -12,6 +12,19 @@
     state: started
     enabled: yes
 
+- name: Get PostgreSQL version
+  ansible.builtin.shell: pg_config --version | grep -oP '\d+' | head -1
+  register: pg_version
+  changed_when: false
+
+- name: Enable SSL in PostgreSQL configuration
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/{{ pg_version.stdout }}/main/postgresql.conf
+    regexp: "^#?ssl\\s*="
+    line: "ssl = on"
+    state: present
+  notify: restart postgresql
+
 - name: Create database user
   community.postgresql.postgresql_user:
     name: "{{ db_user }}"

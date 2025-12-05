@@ -1,6 +1,28 @@
 services:
+  db-ssl-init:
+    image: alpine:3.20
+    volumes:
+      - db-ssl:/ssl
+    command: >
+      sh -c "
+        if [ ! -f /ssl/server.crt ]; then
+          apk add --no-cache openssl &&
+          openssl genrsa -out /ssl/server.key 2048 &&
+          openssl req -new -x509 -days 3650 -key /ssl/server.key -out /ssl/server.crt -subj '/CN=localhost/O=Development/C=ID' &&
+          chmod 600 /ssl/server.key &&
+          chmod 644 /ssl/server.crt &&
+          chown 70:70 /ssl/server.key /ssl/server.crt &&
+          echo 'SSL certificates generated'
+        else
+          echo 'SSL certificates already exist'
+        fi
+      "
+
   db-belajar:
     image: postgres:17-alpine
+    depends_on:
+      db-ssl-init:
+        condition: service_completed_successfully
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-accountingdb}
       - POSTGRES_USER=${POSTGRES_USER:-accounting}
@@ -9,3 +31,12 @@ services:
       - ${POSTGRES_PORT:-12345}:5432
     volumes:
       - ./db-accounting:/var/lib/postgresql/data
+      - db-ssl:/var/lib/postgresql/ssl:ro
+    command: >
+      postgres
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/ssl/server.crt
+      -c ssl_key_file=/var/lib/postgresql/ssl/server.key
+
+volumes:
+  db-ssl:

@@ -585,7 +585,10 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] DocumentStorageService integration (encrypt on store, decrypt on load)
   - [x] Magic header (ENCF) for encrypted file detection
   - [x] Backward compatibility with unencrypted files
-- [ ] Database connection with SSL (`sslmode=verify-full`) - requires production deployment
+- [x] Database connection with SSL
+  - [x] Development: compose.yml with PostgreSQL SSL enabled
+  - [x] Production: Ansible role enables SSL in postgresql.conf
+  - [x] Application: sslmode=require (both dev and prod)
 - [x] Functional tests for encryption/decryption
   - [x] FileEncryptionServiceTest (25 unit tests)
   - [x] DocumentEncryptionTest (8 Playwright functional tests)
@@ -598,9 +601,9 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [ ] Generate/obtain SSL certificate (Let's Encrypt or commercial CA)
   - [ ] Configure `server.ssl.*` properties in application-prod.properties
   - [ ] Disable TLS 1.0/1.1, weak ciphers
-- [ ] PostgreSQL SSL connection (production deployment)
-  - [ ] Configure `sslmode=verify-full` in JDBC URL
-  - [ ] Deploy CA certificate for database server verification
+- [x] PostgreSQL SSL connection
+  - [x] Configure `sslmode=require` in JDBC URL (Ansible template)
+  - [x] Enable SSL in PostgreSQL server (Ansible role)
 - [x] HSTS header (Strict-Transport-Security)
   - [x] `max-age=31536000; includeSubDomains; preload`
 - [ ] HTTP to HTTPS redirect (or handle at reverse proxy)
