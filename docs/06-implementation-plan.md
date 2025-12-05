@@ -555,8 +555,6 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Goal:** Address critical and high-severity security vulnerabilities identified in the security audit to make the application production-ready for hosting client data.
 
-**Audit Report:** `docs/SECURITY-AUDIT-REPORT.md`
-
 **Standards:** OWASP Top 10 (2021), PCI-DSS v4.0, NIST CSF
 
 ### 6.1 Critical Fixes (P0) ✅
