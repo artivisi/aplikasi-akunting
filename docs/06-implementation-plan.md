@@ -813,16 +813,19 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [ ] Access control logic
 
 ### 6.10 Security Documentation & Policies (P3)
-- [ ] Functional tests for password complexity validation
-- [ ] Functional tests for account lockout
+- [x] Password complexity validation (PasswordValidator with 12+ chars, upper/lower/digit/special)
+- [x] Account lockout (LoginAttemptService with 5 attempts, 30 min lockout)
+- [x] Functional tests for password change (UserManagementTest)
+- [x] Functional tests for brute force protection (SecurityRegressionTest.shouldProtectAgainstBruteForce)
 - [x] Functional tests for field-level encryption (FileEncryptionServiceTest, DocumentEncryptionTest)
-- [ ] Functional tests for security headers
-- [ ] Functional tests for data deletion (GDPR right to erasure)
+- [x] Functional tests for security headers (SecurityRegressionTest.SecurityHeaderTests)
+- [x] GDPR/UU PDP data subject rights (DataSubjectService: export, anonymize, delete, retention check)
+- [x] Integration tests for data subject rights (DataSubjectServiceTest: 11 tests covering Art. 15 & 17)
 - [ ] Penetration testing checklist (manual verification)
 - [ ] Update user manual with security best practices
 - [ ] Create SECURITY.md with vulnerability reporting process
 - [ ] Document security patch procedures for PCI-DSS compliance
-- [ ] Create PRIVACY.md with data processing documentation
+- [x] Privacy policy page (/privacy) with UU PDP and GDPR compliance
 
 **Phase 6 Deliverable:** Production-ready security posture with encrypted PII, strong authentication, comprehensive audit logging, and compliance with OWASP Top 10, PCI-DSS, and UU PDP/GDPR requirements.
 
