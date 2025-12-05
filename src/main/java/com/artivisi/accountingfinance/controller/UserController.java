@@ -1,8 +1,11 @@
 package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.entity.User;
+import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.enums.Role;
+import com.artivisi.accountingfinance.security.PasswordValidator;
 import com.artivisi.accountingfinance.security.Permission;
+import com.artivisi.accountingfinance.service.SecurityAuditService;
 import com.artivisi.accountingfinance.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,8 @@ public class UserController {
     private static final String USER_NOT_FOUND = "User not found: ";
 
     private final UserService userService;
+    private final PasswordValidator passwordValidator;
+    private final SecurityAuditService securityAuditService;
 
     @GetMapping
     public String list(
@@ -97,8 +102,18 @@ public class UserController {
                 return VIEW_FORM;
             }
 
+            var validationResult = passwordValidator.validate(password);
+            if (!validationResult.isValid()) {
+                model.addAttribute(ATTR_ERROR_MESSAGE, validationResult.getErrorMessage());
+                model.addAttribute(ATTR_ROLES, Role.values());
+                model.addAttribute(ATTR_SELECTED_ROLES, roles);
+                return VIEW_FORM;
+            }
+
             user.setPassword(password);
             userService.create(user, roles);
+            securityAuditService.log(AuditEventType.USER_CREATED,
+                    "Created user: " + user.getUsername() + " with roles: " + roles);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pengguna berhasil dibuat: " + user.getUsername());
             return REDIRECT_USERS;
         } catch (IllegalArgumentException e) {
@@ -163,6 +178,8 @@ public class UserController {
             }
 
             userService.update(id, user, roles);
+            securityAuditService.log(AuditEventType.USER_UPDATED,
+                    "Updated user: " + user.getUsername() + " (id: " + id + ") with roles: " + roles);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pengguna berhasil diperbarui: " + user.getUsername());
             return "redirect:/users/" + id;
         } catch (IllegalArgumentException e) {
@@ -203,13 +220,16 @@ public class UserController {
             return VIEW_CHANGE_PASSWORD;
         }
 
-        if (newPassword.length() < 4) {
+        var validationResult = passwordValidator.validate(newPassword);
+        if (!validationResult.isValid()) {
             model.addAttribute("user", user);
-            model.addAttribute(ATTR_ERROR_MESSAGE, "Password minimal 4 karakter");
+            model.addAttribute(ATTR_ERROR_MESSAGE, validationResult.getErrorMessage());
             return VIEW_CHANGE_PASSWORD;
         }
 
         userService.changePassword(id, newPassword);
+        securityAuditService.log(AuditEventType.PASSWORD_CHANGED,
+                "Password changed for user: " + user.getUsername() + " (id: " + id + ")");
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Password berhasil diubah");
         return "redirect:/users/" + id;
     }
@@ -217,7 +237,13 @@ public class UserController {
     @PostMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('" + Permission.USER_EDIT + "')")
     public String toggleActive(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        User user = userService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+        Boolean wasActive = user.getActive();
         userService.toggleActive(id);
+        securityAuditService.log(AuditEventType.USER_STATUS_CHANGED,
+                "User " + user.getUsername() + " (id: " + id + ") status changed from " +
+                        (Boolean.TRUE.equals(wasActive) ? "active" : "inactive") + " to " + (Boolean.TRUE.equals(wasActive) ? "inactive" : "active"));
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Status pengguna berhasil diubah");
         return "redirect:/users/" + id;
     }
@@ -226,7 +252,12 @@ public class UserController {
     @PreAuthorize("hasAuthority('" + Permission.USER_DELETE + "')")
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         try {
+            User user = userService.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+            String username = user.getUsername();
             userService.delete(id);
+            securityAuditService.log(AuditEventType.USER_DELETED,
+                    "Deleted user: " + username + " (id: " + id + ")");
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pengguna berhasil dihapus");
             return REDIRECT_USERS;
         } catch (IllegalArgumentException e) {

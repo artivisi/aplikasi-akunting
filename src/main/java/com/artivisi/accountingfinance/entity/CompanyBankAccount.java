@@ -1,6 +1,8 @@
 package com.artivisi.accountingfinance.entity;
 
+import com.artivisi.accountingfinance.security.EncryptedStringConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,9 +40,11 @@ public class CompanyBankAccount {
     @Column(name = "bank_branch", length = 100)
     private String bankBranch;
 
+    // Encrypted at rest (PII protection - financial data)
     @NotBlank(message = "Nomor rekening wajib diisi")
     @Size(max = 50, message = "Nomor rekening maksimal 50 karakter")
-    @Column(name = "account_number", nullable = false, length = 50)
+    @Column(name = "account_number", nullable = false, length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String accountNumber;
 
     @NotBlank(message = "Nama pemilik rekening wajib diisi")

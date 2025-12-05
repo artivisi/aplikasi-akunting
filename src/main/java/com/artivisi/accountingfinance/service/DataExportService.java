@@ -842,12 +842,12 @@ public class DataExportService {
     // ============================================
     private String exportUsers() {
         StringBuilder csv = new StringBuilder();
-        csv.append("username,password,full_name,email,active,created_at\n");
+        // Security: password hashes are NOT exported to prevent offline brute force attacks
+        csv.append("username,full_name,email,active,created_at\n");
 
         List<User> users = userRepository.findAll(Sort.by("username"));
         for (User u : users) {
             csv.append(escapeCsv(u.getUsername())).append(",");
-            csv.append(escapeCsv(u.getPassword())).append(",");  // bcrypt hash preserved
             csv.append(escapeCsv(u.getFullName())).append(",");
             csv.append(escapeCsv(u.getEmail())).append(",");
             csv.append(u.getActive()).append(",");

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Kebijakan Privasi</title>
+</head>
+<body>
+<div layout:fragment="content" id="privacy-page-content">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Kebijakan Privasi</h1>
+            <p class="mt-2 text-gray-600">Terakhir diperbarui: <span th:text="${#temporals.format(#temporals.createNow(), 'MMMM yyyy')}">Desember 2024</span></p>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+            <!-- Introduction -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">1. Pendahuluan</h2>
+                <p class="text-gray-600">
+                    Kebijakan privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data
+                    pribadi Anda sesuai dengan Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi
+                    (UU PDP) dan standar GDPR.
+                </p>
+            </section>
+
+            <!-- Data Collected -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">2. Data yang Dikumpulkan</h2>
+                <p class="text-gray-600 mb-2">Kami mengumpulkan data berikut untuk keperluan operasional bisnis:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li><strong>Data Identitas:</strong> Nama, NIK KTP, NPWP</li>
+                    <li><strong>Data Kontak:</strong> Alamat email, nomor telepon, alamat</li>
+                    <li><strong>Data Kepegawaian:</strong> Jabatan, departemen, tanggal bergabung, gaji</li>
+                    <li><strong>Data Keuangan:</strong> Nomor rekening bank, data BPJS</li>
+                    <li><strong>Data Akses:</strong> Username, log aktivitas, alamat IP</li>
+                </ul>
+            </section>
+
+            <!-- Legal Basis -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">3. Dasar Hukum Pemrosesan</h2>
+                <p class="text-gray-600 mb-2">Data pribadi diproses berdasarkan:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li>Pelaksanaan kontrak kerja (hubungan ketenagakerjaan)</li>
+                    <li>Kewajiban hukum (pelaporan pajak, BPJS)</li>
+                    <li>Kepentingan sah perusahaan (pengelolaan keuangan)</li>
+                </ul>
+            </section>
+
+            <!-- Data Retention -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">4. Penyimpanan Data</h2>
+                <p class="text-gray-600">
+                    Data disimpan selama hubungan kerja berlangsung dan 10 tahun setelahnya sesuai dengan
+                    ketentuan perpajakan (UU KUP Pasal 28). Data yang tidak lagi diperlukan akan dihapus
+                    atau dianonimkan.
+                </p>
+            </section>
+
+            <!-- Data Subject Rights -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">5. Hak Anda</h2>
+                <p class="text-gray-600 mb-2">Sesuai UU PDP dan GDPR, Anda memiliki hak:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li><strong>Hak Akses:</strong> Meminta salinan data pribadi Anda</li>
+                    <li><strong>Hak Koreksi:</strong> Memperbarui data yang tidak akurat</li>
+                    <li><strong>Hak Penghapusan:</strong> Meminta penghapusan data (dengan pembatasan hukum)</li>
+                    <li><strong>Hak Portabilitas:</strong> Menerima data dalam format yang dapat dibaca mesin</li>
+                    <li><strong>Hak Keberatan:</strong> Menolak pemrosesan tertentu</li>
+                </ul>
+            </section>
+
+            <!-- Security -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">6. Keamanan Data</h2>
+                <p class="text-gray-600 mb-2">Kami menerapkan langkah-langkah keamanan:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li>Enkripsi data sensitif (AES-256-GCM)</li>
+                    <li>Akses berbasis peran (RBAC)</li>
+                    <li>Audit logging untuk semua akses data</li>
+                    <li>Backup terenkripsi</li>
+                    <li>Autentikasi yang kuat dengan pembatasan percobaan login</li>
+                </ul>
+            </section>
+
+            <!-- Data Breach -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">7. Pemberitahuan Pelanggaran Data</h2>
+                <p class="text-gray-600">
+                    Jika terjadi pelanggaran data yang berdampak pada hak Anda, kami akan memberitahukan Anda
+                    dalam waktu 14 hari (sesuai UU PDP) dan melaporkan kepada KOMDIGI.
+                </p>
+            </section>
+
+            <!-- Contact -->
+            <section>
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">8. Kontak</h2>
+                <p class="text-gray-600">
+                    Untuk pertanyaan atau permintaan terkait data pribadi, hubungi administrator sistem
+                    atau bagian HRD perusahaan Anda.
+                </p>
+            </section>
+        </div>
+
+        <!-- Links -->
+        <div class="mt-6 flex gap-4">
+            <a th:href="@{/settings}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali ke Pengaturan
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

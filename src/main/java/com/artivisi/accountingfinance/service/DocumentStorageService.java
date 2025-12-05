@@ -1,6 +1,8 @@
 package com.artivisi.accountingfinance.service;
 
+import com.artivisi.accountingfinance.security.FileValidationService;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -23,8 +25,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class DocumentStorageService {
+
+    private final FileValidationService fileValidationService;
 
     @Value("${app.storage.documents.path}")
     private String storagePath;
@@ -161,6 +166,16 @@ public class DocumentStorageService {
         if (filename == null || filename.contains("..")) {
             throw new IllegalArgumentException("Invalid filename: " + filename);
         }
+
+        // Magic byte validation to prevent content-type spoofing
+        try {
+            if (!fileValidationService.validateMagicBytes(file, contentType)) {
+                throw new IllegalArgumentException(
+                        "File content does not match declared type. Possible content-type spoofing detected.");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Could not validate file content: " + e.getMessage());
+        }
     }
 
     /**
@@ -233,6 +248,12 @@ public class DocumentStorageService {
             throw new IllegalArgumentException(
                     String.format("File type '%s' is not allowed. Allowed types: %s",
                             contentType, allowedTypes));
+        }
+
+        // Magic byte validation to prevent content-type spoofing
+        if (!fileValidationService.validateMagicBytes(bytes, contentType)) {
+            throw new IllegalArgumentException(
+                    "File content does not match declared type. Possible content-type spoofing detected.");
         }
 
         String extension = getExtension(filename);

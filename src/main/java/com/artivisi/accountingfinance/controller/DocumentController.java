@@ -1,10 +1,13 @@
 package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.entity.Document;
+import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.service.DocumentService;
+import com.artivisi.accountingfinance.service.SecurityAuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +35,7 @@ import java.util.UUID;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final SecurityAuditService securityAuditService;
 
     /**
      * Upload document for a transaction (HTMX endpoint).
@@ -45,6 +50,8 @@ public class DocumentController {
 
         try {
             Document document = documentService.uploadForTransaction(transactionId, file, username);
+            securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
+                    "Uploaded document: " + document.getOriginalFilename() + " for transaction: " + transactionId);
             model.addAttribute("document", document);
             model.addAttribute("success", true);
             model.addAttribute("message", "Dokumen berhasil diunggah");
@@ -77,6 +84,8 @@ public class DocumentController {
 
         try {
             Document document = documentService.uploadForJournalEntry(journalEntryId, file, username);
+            securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
+                    "Uploaded document: " + document.getOriginalFilename() + " for journal entry: " + journalEntryId);
             model.addAttribute("document", document);
             model.addAttribute("success", true);
             model.addAttribute("message", "Dokumen berhasil diunggah");
@@ -108,6 +117,8 @@ public class DocumentController {
 
         try {
             Document document = documentService.uploadForInvoice(invoiceId, file, username);
+            securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
+                    "Uploaded document: " + document.getOriginalFilename() + " for invoice: " + invoiceId);
             model.addAttribute("document", document);
             model.addAttribute("success", true);
             model.addAttribute("message", "Dokumen berhasil diunggah");
@@ -141,6 +152,7 @@ public class DocumentController {
 
     /**
      * View/download a document.
+     * Uses RFC 6266 compliant Content-Disposition to prevent RFD attacks.
      */
     @GetMapping("/{id}/view")
     @ResponseBody
@@ -149,19 +161,27 @@ public class DocumentController {
         Resource resource = documentService.loadAsResource(id);
 
         // For images and PDFs, display inline; otherwise download
-        String disposition = (document.isImage() || document.isPdf())
-                ? "inline"
-                : "attachment";
+        // Use ContentDisposition builder for proper RFC 6266 encoding
+        ContentDisposition contentDisposition;
+        if (document.isImage() || document.isPdf()) {
+            contentDisposition = ContentDisposition.inline()
+                    .filename(document.getOriginalFilename(), StandardCharsets.UTF_8)
+                    .build();
+        } else {
+            contentDisposition = ContentDisposition.attachment()
+                    .filename(document.getOriginalFilename(), StandardCharsets.UTF_8)
+                    .build();
+        }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(document.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        disposition + "; filename=\"" + document.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .body(resource);
     }
 
     /**
      * Download a document.
+     * Uses RFC 6266 compliant Content-Disposition to prevent RFD attacks.
      */
     @GetMapping("/{id}/download")
     @ResponseBody
@@ -169,10 +189,16 @@ public class DocumentController {
         Document document = documentService.findById(id);
         Resource resource = documentService.loadAsResource(id);
 
+        securityAuditService.log(AuditEventType.DOCUMENT_DOWNLOAD,
+                "Downloaded document: " + document.getOriginalFilename() + " (id: " + id + ")");
+
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(document.getOriginalFilename(), StandardCharsets.UTF_8)
+                .build();
+
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + document.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .body(resource);
     }
 
@@ -187,7 +213,11 @@ public class DocumentController {
             @RequestParam(required = false) UUID invoiceId,
             Model model) {
         try {
+            Document document = documentService.findById(id);
+            String filename = document.getOriginalFilename();
             documentService.delete(id);
+            securityAuditService.log(AuditEventType.DOCUMENT_DELETE,
+                    "Deleted document: " + filename + " (id: " + id + ")");
             model.addAttribute("success", true);
             model.addAttribute("message", "Dokumen berhasil dihapus");
         } catch (IOException e) {

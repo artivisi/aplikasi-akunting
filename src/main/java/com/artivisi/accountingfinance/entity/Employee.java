@@ -1,6 +1,8 @@
 package com.artivisi.accountingfinance.entity;
 
+import com.artivisi.accountingfinance.security.EncryptedStringConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -66,14 +68,18 @@ public class Employee {
     private User user;
 
     // Tax identification - optional fields, validated only when provided
+    // Encrypted at rest (PII protection)
     @Size(max = 20, message = "NPWP maksimal 20 karakter")
     @Pattern(regexp = "^$|^[0-9.\\-]{15,20}$", message = "NPWP harus 15-20 digit")
-    @Column(name = "npwp", length = 20)
+    @Column(name = "npwp", length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String npwp;
 
+    // Encrypted at rest (PII protection)
     @Size(max = 16, message = "NIK KTP maksimal 16 karakter")
     @Pattern(regexp = "^$|^[0-9]{16}$", message = "NIK KTP harus 16 digit angka")
-    @Column(name = "nik_ktp", length = 16)
+    @Column(name = "nik_ktp", length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String nikKtp;
 
     @NotNull(message = "Status PTKP wajib diisi")
@@ -112,21 +118,26 @@ public class Employee {
     @Column(name = "bank_name", length = 100)
     private String bankName;
 
+    // Encrypted at rest (PII protection - financial data)
     @Size(max = 50, message = "Nomor rekening maksimal 50 karakter")
-    @Column(name = "bank_account_number", length = 50)
+    @Column(name = "bank_account_number", length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String bankAccountNumber;
 
     @Size(max = 255, message = "Nama pemilik rekening maksimal 255 karakter")
     @Column(name = "bank_account_name")
     private String bankAccountName;
 
-    // BPJS registration
+    // BPJS registration - Encrypted at rest (PII protection)
     @Size(max = 20, message = "Nomor BPJS Kesehatan maksimal 20 karakter")
-    @Column(name = "bpjs_kesehatan_number", length = 20)
+    @Column(name = "bpjs_kesehatan_number", length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String bpjsKesehatanNumber;
 
+    // Encrypted at rest (PII protection)
     @Size(max = 20, message = "Nomor BPJS Ketenagakerjaan maksimal 20 karakter")
-    @Column(name = "bpjs_ketenagakerjaan_number", length = 20)
+    @Column(name = "bpjs_ketenagakerjaan_number", length = 255)  // Extended for encrypted data
+    @Convert(converter = EncryptedStringConverter.class)
     private String bpjsKetenagakerjaanNumber;
 
     @Column(name = "notes", columnDefinition = "TEXT")

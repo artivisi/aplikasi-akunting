@@ -36,11 +36,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
                     <p class="text-gray-500">Email</p>
-                    <p class="font-medium" th:text="${employee.email} ?: '-'">john@example.com</p>
+                    <p class="font-medium" th:text="${employee.email != null ? #mask.email(employee.email) : '-'}">jo****@example.com</p>
                 </div>
                 <div>
                     <p class="text-gray-500">Telepon</p>
-                    <p class="font-medium" th:text="${employee.phone} ?: '-'">081234567890</p>
+                    <p class="font-medium" th:text="${employee.phone != null ? #mask.phone(employee.phone) : '-'}">0812*****890</p>
                 </div>
                 <div>
                     <p class="text-gray-500">Tanggal Bergabung</p>
@@ -95,11 +95,11 @@
                 </div>
                 <div>
                     <p class="text-gray-500">NIK KTP</p>
-                    <p class="font-medium font-mono" th:text="${employee.nikKtp} ?: '-'">3201234567890001</p>
+                    <p class="font-medium font-mono" th:text="${employee.nikKtp != null ? #mask.nik(employee.nikKtp) : '-'}">3201********0001</p>
                 </div>
                 <div>
                     <p class="text-gray-500">NPWP</p>
-                    <p class="font-medium font-mono" th:text="${employee.npwp} ?: '-'">XX.XXX.XXX.X-XXX.XXX</p>
+                    <p class="font-medium font-mono" th:text="${employee.npwp != null ? #mask.npwp(employee.npwp) : '-'}">12.3***********345</p>
                 </div>
             </div>
         </div>
@@ -114,7 +114,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500">Nomor Rekening</p>
-                    <p class="font-medium font-mono" th:text="${employee.bankAccountNumber} ?: '-'">1234567890</p>
+                    <p class="font-medium font-mono" th:text="${employee.bankAccountNumber != null ? #mask.bankAccount(employee.bankAccountNumber) : '-'}">123****890</p>
                 </div>
                 <div>
                     <p class="text-gray-500">Nama Pemilik</p>
@@ -129,11 +129,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <p class="text-gray-500">BPJS Kesehatan</p>
-                    <p class="font-medium font-mono" th:text="${employee.bpjsKesehatanNumber} ?: '-'">0001234567890</p>
+                    <p class="font-medium font-mono" th:text="${employee.bpjsKesehatanNumber != null ? #mask.bpjs(employee.bpjsKesehatanNumber) : '-'}">000*******890</p>
                 </div>
                 <div>
                     <p class="text-gray-500">BPJS Ketenagakerjaan</p>
-                    <p class="font-medium font-mono" th:text="${employee.bpjsKetenagakerjaanNumber} ?: '-'">1234567890</p>
+                    <p class="font-medium font-mono" th:text="${employee.bpjsKetenagakerjaanNumber != null ? #mask.bpjs(employee.bpjsKetenagakerjaanNumber) : '-'}">123****890</p>
                 </div>
             </div>
         </div>

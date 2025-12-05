@@ -6,6 +6,7 @@ import com.artivisi.accountingfinance.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class DataImportService {
 
     private final EntityManager entityManager;
     private final DocumentStorageService documentStorageService;
+    private final PasswordEncoder passwordEncoder;
 
     // Core repositories
     private final ChartOfAccountRepository accountRepository;
@@ -183,6 +185,21 @@ public class DataImportService {
         }
     }
 
+    // Whitelist of allowed table names for TRUNCATE operations (SQL injection prevention)
+    // Only these table names are allowed in native SQL queries
+    private static final Set<String> ALLOWED_TABLES = Set.of(
+            "company_config", "chart_of_accounts", "salary_components", "employee_salary_components",
+            "journal_templates", "journal_template_lines", "journal_template_tags",
+            "clients", "projects", "project_milestones", "project_payment_terms",
+            "fiscal_periods", "tax_deadlines", "tax_deadline_completions",
+            "company_bank_accounts", "merchant_mappings", "employees", "invoices",
+            "transactions", "transaction_account_mappings", "tax_transaction_details", "documents",
+            "journal_entries", "payroll_runs", "payroll_details",
+            "amortization_schedules", "amortization_entries", "draft_transactions",
+            "users", "user_roles", "user_template_preferences", "telegram_user_links", "audit_logs",
+            "transaction_sequences", "asset_categories"
+    );
+
     // Mapping from CSV filename to table name(s) that should be truncated
     // Includes dependent tables that would have broken references
     private static final Map<String, List<String>> FILE_TO_TABLES = Map.ofEntries(
@@ -229,6 +246,12 @@ public class DataImportService {
         log.info("Truncating tables: {}", tablesToTruncate);
 
         for (String table : tablesToTruncate) {
+            // Security: Validate table name against whitelist to prevent SQL injection
+            if (!ALLOWED_TABLES.contains(table)) {
+                log.error("Attempted to truncate non-whitelisted table: {}", table);
+                throw new IllegalArgumentException("Table not in allowed list: " + table);
+            }
+
             try {
                 if ("journal_templates".equals(table)) {
                     // Preserve system templates - only delete non-system templates
@@ -1231,18 +1254,24 @@ public class DataImportService {
 
     private int importUsers(String content) {
         List<String[]> rows = parseCsv(content);
-        // CSV columns: username,password,full_name,email,active,created_at
+        // CSV columns: username,full_name,email,active,created_at
+        // Note: password is NOT exported for security reasons
+        // Users will need to reset their password after import
         for (String[] row : rows) {
             User u = new User();
             u.setUsername(getField(row, 0));
-            u.setPassword(getField(row, 1)); // bcrypt hash preserved
-            u.setFullName(getField(row, 2));
-            u.setEmail(getField(row, 3));
-            u.setActive(parseBoolean(getField(row, 4)));
-            // column 5 = created_at (ignored, auto-generated)
+            // Generate a random password that requires reset
+            // Uses a secure random UUID as temporary password (user must reset)
+            String tempPassword = UUID.randomUUID().toString();
+            u.setPassword(passwordEncoder.encode(tempPassword));
+            u.setFullName(getField(row, 1));
+            u.setEmail(getField(row, 2));
+            u.setActive(parseBoolean(getField(row, 3)));
+            // column 4 = created_at (ignored, auto-generated)
 
             userRepository.save(u);
             userMap.put(u.getUsername(), u);
+            log.info("Imported user '{}' - password reset required", u.getUsername());
         }
         return rows.size();
     }

@@ -3,8 +3,10 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.enums.Role;
 import com.artivisi.accountingfinance.repository.UserRepository;
+import com.artivisi.accountingfinance.security.LoginAttemptService;
 import com.artivisi.accountingfinance.security.Permission;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,10 +24,18 @@ import java.util.Set;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Check if account is locked due to failed login attempts
+        if (loginAttemptService.isBlocked(username)) {
+            long remainingMinutes = loginAttemptService.getRemainingLockoutMinutes(username);
+            throw new LockedException("Akun dikunci karena terlalu banyak percobaan login gagal. " +
+                    "Coba lagi dalam " + remainingMinutes + " menit.");
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 

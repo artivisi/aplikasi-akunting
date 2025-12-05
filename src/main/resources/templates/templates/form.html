@@ -723,8 +723,9 @@
 
                     // Format the preview data as a table
                     const lines = result.entries || [];
-                    const templateName = this.templateName;
-                    const previewAmount = this.previewAmount;
+                    // Escape user-controlled data to prevent XSS
+                    const templateName = this.escapeHtml(this.templateName);
+                    const previewAmount = this.escapeHtml(String(this.previewAmount));
                     
                     let html = `
                         <div class="fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.5)" id="previewModal">
@@ -757,7 +758,9 @@
                     let totalCredit = 0;
 
                     lines.forEach(line => {
-                        const accountName = (line.accountCode || '?') + ' - ' + (line.accountName || 'Akun tidak tersedia');
+                        // Escape account data to prevent XSS from stored malicious data
+                        const accountCode = this.escapeHtml(line.accountCode || '?');
+                        const accountName = this.escapeHtml(line.accountName || 'Akun tidak tersedia');
                         const debit = line.debitAmount || 0;
                         const credit = line.creditAmount || 0;
                         totalDebit += debit;
@@ -765,7 +768,7 @@
 
                         html += `
                             <tr>
-                                <td class="px-4 py-2 text-sm text-gray-900">${accountName}</td>
+                                <td class="px-4 py-2 text-sm text-gray-900">${accountCode} - ${accountName}</td>
                                 <td class="px-4 py-2 text-sm text-right font-mono">${debit > 0 ? this.formatNumber(debit) : '-'}</td>
                                 <td class="px-4 py-2 text-sm text-right font-mono">${credit > 0 ? this.formatNumber(credit) : '-'}</td>
                             </tr>
@@ -806,6 +809,14 @@
 
                 formatNumber(num) {
                     return new Intl.NumberFormat('id-ID').format(num);
+                },
+
+                // Escape HTML to prevent XSS attacks
+                escapeHtml(text) {
+                    if (text == null) return '';
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
                 }
             };
         }

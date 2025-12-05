@@ -42,3 +42,8 @@ src/main/frontend/node/
 db-accounting
 data
 clients/artivisi/artivisi-seed-data.zip
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local

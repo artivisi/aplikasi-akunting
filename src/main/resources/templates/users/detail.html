@@ -56,7 +56,7 @@
                     </div>
                     <div>
                         <span class="block text-sm font-medium text-gray-500">Email</span>
-                        <p class="mt-1 text-gray-900" th:text="${user.email ?: '-'}">admin@example.com</p>
+                        <p class="mt-1 text-gray-900" th:text="${user.email != null ? #mask.email(user.email) : '-'}">ad***@example.com</p>
                     </div>
                     <div>
                         <span class="block text-sm font-medium text-gray-500">Nama Lengkap</span>

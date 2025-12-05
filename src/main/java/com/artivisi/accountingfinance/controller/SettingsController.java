@@ -405,4 +405,12 @@ public class SettingsController {
         model.addAttribute(ATTR_CURRENT_PAGE, "settings");
         return "settings/about";
     }
+
+    // ==================== Privacy Policy ====================
+
+    @GetMapping("/privacy")
+    public String privacy(Model model) {
+        model.addAttribute(ATTR_CURRENT_PAGE, "settings");
+        return "privacy";
+    }
 }

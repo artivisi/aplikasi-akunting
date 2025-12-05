@@ -80,7 +80,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String fullName = "Test User " + System.currentTimeMillis();
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("password123");
+        formPage.fillPassword("SecurePass123!");
         formPage.fillFullName(fullName);
         formPage.fillEmail(uniqueUsername + "@example.com");
         formPage.selectRole("ACCOUNTANT");
@@ -100,7 +100,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String fullName = "Staff User " + System.currentTimeMillis();
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("password123");
+        formPage.fillPassword("SecurePass123!");
         formPage.fillFullName(fullName);
         formPage.selectRole("STAFF");
         formPage.clickSubmit();
@@ -156,7 +156,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String uniqueUsername = "toggle" + System.currentTimeMillis() % 100000;
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("password123");
+        formPage.fillPassword("SecurePass123!");
         formPage.fillFullName("Toggle Test User");
         formPage.selectRole("STAFF");
         formPage.clickSubmit();
@@ -182,7 +182,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String uniqueUsername = "pwdtest" + System.currentTimeMillis() % 100000;
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("oldpassword");
+        formPage.fillPassword("OldSecurePass1!");
         formPage.fillFullName("Password Test User");
         formPage.selectRole("STAFF");
         formPage.clickSubmit();
@@ -194,9 +194,9 @@ class UserManagementTest extends PlaywrightTestBase {
         // Click change password link
         page.locator("a:has-text('Ubah Password')").click();
 
-        // Fill password form
-        page.locator("input[name='newPassword']").fill("newpassword123");
-        page.locator("input[name='confirmPassword']").fill("newpassword123");
+        // Fill password form with complex password
+        page.locator("input[name='newPassword']").fill("NewSecurePass2!");
+        page.locator("input[name='confirmPassword']").fill("NewSecurePass2!");
         page.locator("button[type='submit']:has-text('Simpan')").click();
 
         // Should redirect back to detail page with success message
@@ -212,7 +212,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String uniqueUsername = "pwderr" + System.currentTimeMillis() % 100000;
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("testpass");
+        formPage.fillPassword("SecureTestPass1!");
         formPage.fillFullName("Password Error Test");
         formPage.selectRole("STAFF");
         formPage.clickSubmit();
@@ -222,9 +222,9 @@ class UserManagementTest extends PlaywrightTestBase {
         listPage.clickUserDetailLink(uniqueUsername);
         page.locator("a:has-text('Ubah Password')").click();
 
-        // Fill mismatched passwords
-        page.locator("input[name='newPassword']").fill("newpassword123");
-        page.locator("input[name='confirmPassword']").fill("differentpassword");
+        // Fill mismatched passwords (both complex but different)
+        page.locator("input[name='newPassword']").fill("NewSecurePass1!");
+        page.locator("input[name='confirmPassword']").fill("DifferentPass2!");
         page.locator("button[type='submit']:has-text('Simpan')").click();
 
         // Should show error
@@ -256,6 +256,9 @@ class UserManagementTest extends PlaywrightTestBase {
         page.locator("input[name='search']").fill("admin");
         page.locator("button:has-text('Cari')").click();
 
+        // Wait for search results to load
+        page.waitForLoadState();
+
         // Should find admin
         assertThat(listPage.hasUserWithUsername("admin")).isTrue();
     }
@@ -268,7 +271,7 @@ class UserManagementTest extends PlaywrightTestBase {
         String uniqueUsername = "norole" + System.currentTimeMillis() % 100000;
 
         formPage.fillUsername(uniqueUsername);
-        formPage.fillPassword("password123");
+        formPage.fillPassword("SecurePass123!");
         formPage.fillFullName("No Role Test");
         // Don't select any role
         formPage.clickSubmit();

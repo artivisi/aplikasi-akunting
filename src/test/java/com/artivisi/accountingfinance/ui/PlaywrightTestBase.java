@@ -6,12 +6,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.artivisi.accountingfinance.TestcontainersConfiguration;
+import com.artivisi.accountingfinance.security.LoginAttemptService;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +30,9 @@ public abstract class PlaywrightTestBase {
 
     @LocalServerPort
     protected int port;
+
+    @Autowired
+    protected LoginAttemptService loginAttemptService;
 
     protected static final Path SCREENSHOTS_DIR = Paths.get("target/screenshots");
     protected static final Path MANUAL_SCREENSHOTS_DIR = Paths.get("docs/screenshots");
@@ -60,6 +65,9 @@ public abstract class PlaywrightTestBase {
 
     @BeforeEach
     void createContextAndPage() {
+        // Reset login attempts to prevent lockout from previous tests
+        loginAttemptService.resetAllAttempts();
+
         context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080)
                 .setLocale("id-ID"));

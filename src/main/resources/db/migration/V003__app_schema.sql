@@ -1193,3 +1193,22 @@ CREATE INDEX idx_production_orders_number ON production_orders(order_number);
 CREATE INDEX idx_production_orders_bom ON production_orders(id_bill_of_material);
 CREATE INDEX idx_production_orders_status ON production_orders(status);
 CREATE INDEX idx_production_orders_date ON production_orders(order_date);
+
+-- ============================================
+-- Security Audit Logs (Phase 6 - Security Hardening)
+-- ============================================
+
+CREATE TABLE security_audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type VARCHAR(50) NOT NULL,
+    username VARCHAR(100),
+    ip_address VARCHAR(50),
+    user_agent VARCHAR(500),
+    details TEXT,
+    success BOOLEAN NOT NULL DEFAULT TRUE,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_security_audit_event_type ON security_audit_logs(event_type);
+CREATE INDEX idx_security_audit_username ON security_audit_logs(username);
+CREATE INDEX idx_security_audit_timestamp ON security_audit_logs(timestamp);
