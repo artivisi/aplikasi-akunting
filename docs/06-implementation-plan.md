@@ -597,19 +597,25 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Goal:** Encrypt all data transmitted over networks.
 
-- [ ] TLS 1.3 configuration for application server (production deployment)
-  - [ ] Generate/obtain SSL certificate (Let's Encrypt or commercial CA)
-  - [ ] Configure `server.ssl.*` properties in application-prod.properties
-  - [ ] Disable TLS 1.0/1.1, weak ciphers
+- [x] TLS 1.2/1.3 configuration via Nginx reverse proxy (Ansible)
+  - [x] Let's Encrypt certificate via certbot (`setup-ssl.yml`, `nginx/tasks/main.yml`)
+  - [x] TLS 1.2 and 1.3 only (`ssl_protocols TLSv1.2 TLSv1.3`)
+  - [x] Modern cipher suites (ECDHE, AES-GCM, CHACHA20-POLY1305)
+  - [x] Auto-renewal via cron job
 - [x] PostgreSQL SSL connection
   - [x] Configure `sslmode=require` in JDBC URL (Ansible template)
   - [x] Enable SSL in PostgreSQL server (Ansible role)
 - [x] HSTS header (Strict-Transport-Security)
-  - [x] `max-age=31536000; includeSubDomains; preload`
-- [ ] HTTP to HTTPS redirect (or handle at reverse proxy)
+  - [x] `max-age=63072000` (2 years) in nginx-site-ssl.conf.j2
+- [x] HTTP to HTTPS redirect (nginx reverse proxy)
+  - [x] `return 301 https://$server_name$request_uri`
 - [x] Secure cookie flags (`secure`, `httpOnly`, `sameSite=strict`)
-- [ ] Backup transfer encryption (rsync over SSH or encrypted channel)
-- [ ] Verify external API connections use TLS (Telegram, Google Vision)
+- [x] Backup transfer encryption
+  - [x] AES-256 GPG encryption before upload (backup-b2.sh.j2, backup-gdrive.sh.j2)
+  - [x] HTTPS transfer via rclone to B2/GDrive
+- [x] External API connections use TLS
+  - [x] Telegram API: `api.telegram.org` (HTTPS enforced by Telegram)
+  - [x] Google Cloud Vision: Google client library uses HTTPS
 
 ### 6.3 Authentication Hardening (P1) ✅
 - [x] Implement account lockout after 5 failed login attempts (30-minute lockout)
