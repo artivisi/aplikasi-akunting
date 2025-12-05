@@ -1,22 +1,20 @@
 package com.artivisi.accountingfinance.service;
 
+import com.artivisi.accountingfinance.security.FileEncryptionService;
 import com.artivisi.accountingfinance.security.FileValidationService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
@@ -30,6 +28,7 @@ import java.util.UUID;
 public class DocumentStorageService {
 
     private final FileValidationService fileValidationService;
+    private final FileEncryptionService fileEncryptionService;
 
     @Value("${app.storage.documents.path}")
     private String storagePath;
@@ -58,6 +57,7 @@ public class DocumentStorageService {
 
     /**
      * Store a file and return the storage path relative to root.
+     * Files are encrypted before saving if encryption is enabled.
      */
     public String store(MultipartFile file) throws IOException {
         validateFile(file);
@@ -79,11 +79,16 @@ public class DocumentStorageService {
             throw new SecurityException("Access denied: path traversal attempt detected");
         }
 
-        try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-        }
+        // Read file content and encrypt before saving
+        byte[] fileContent = file.getBytes();
+        byte[] contentToStore = fileEncryptionService.encrypt(fileContent);
+        Files.write(targetPath, contentToStore);
 
-        log.debug("Stored file: {} -> {}", originalFilename, targetPath);
+        if (fileEncryptionService.isEncryptionEnabled()) {
+            log.debug("Stored encrypted file: {} -> {}", originalFilename, targetPath);
+        } else {
+            log.debug("Stored file (unencrypted): {} -> {}", originalFilename, targetPath);
+        }
 
         // Return relative path from root
         return subPath + "/" + storedFilename;
@@ -91,6 +96,7 @@ public class DocumentStorageService {
 
     /**
      * Load a file as Resource.
+     * Files are decrypted if they were encrypted.
      */
     public Resource loadAsResource(String relativePath) {
         try {
@@ -101,14 +107,22 @@ public class DocumentStorageService {
                 throw new SecurityException("Access denied: path traversal attempt detected");
             }
 
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
+            if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
                 throw new RuntimeException("Could not read file: " + relativePath);
             }
-        } catch (MalformedURLException e) {
+
+            // Read encrypted content and decrypt
+            byte[] encryptedContent = Files.readAllBytes(filePath);
+            byte[] decryptedContent = fileEncryptionService.decrypt(encryptedContent);
+
+            // Return as ByteArrayResource
+            return new ByteArrayResource(decryptedContent) {
+                @Override
+                public String getFilename() {
+                    return filePath.getFileName().toString();
+                }
+            };
+        } catch (IOException e) {
             throw new RuntimeException("Could not read file: " + relativePath, e);
         }
     }
@@ -232,6 +246,7 @@ public class DocumentStorageService {
 
     /**
      * Store file from byte array.
+     * Files are encrypted before saving if encryption is enabled.
      */
     public String storeFromBytes(byte[] bytes, String filename, String contentType) throws IOException {
         if (bytes == null || bytes.length == 0) {
@@ -272,9 +287,15 @@ public class DocumentStorageService {
             throw new SecurityException("Access denied: path traversal attempt detected");
         }
 
-        Files.write(targetPath, bytes);
+        // Encrypt before saving
+        byte[] contentToStore = fileEncryptionService.encrypt(bytes);
+        Files.write(targetPath, contentToStore);
 
-        log.debug("Stored file from bytes: {} -> {}", filename, targetPath);
+        if (fileEncryptionService.isEncryptionEnabled()) {
+            log.debug("Stored encrypted file from bytes: {} -> {}", filename, targetPath);
+        } else {
+            log.debug("Stored file from bytes (unencrypted): {} -> {}", filename, targetPath);
+        }
 
         return subPath + "/" + storedFilename;
     }
@@ -290,5 +311,35 @@ public class DocumentStorageService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not available", e);
         }
+    }
+
+    /**
+     * Check if file encryption is enabled.
+     */
+    public boolean isEncryptionEnabled() {
+        return fileEncryptionService.isEncryptionEnabled();
+    }
+
+    /**
+     * Load raw file content (encrypted) without decryption.
+     * Useful for checking if a file is encrypted.
+     */
+    public byte[] loadRawContent(String relativePath) throws IOException {
+        Path filePath = rootLocation.resolve(relativePath).normalize();
+
+        // Prevent path traversal attacks
+        if (!filePath.startsWith(rootLocation)) {
+            throw new SecurityException("Access denied: path traversal attempt detected");
+        }
+
+        return Files.readAllBytes(filePath);
+    }
+
+    /**
+     * Check if the file at the given path is encrypted.
+     */
+    public boolean isFileEncrypted(String relativePath) throws IOException {
+        byte[] rawContent = loadRawContent(relativePath);
+        return fileEncryptionService.isEncrypted(rawContent);
     }
 }

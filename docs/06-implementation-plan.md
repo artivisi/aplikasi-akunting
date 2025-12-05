@@ -580,9 +580,15 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] Employee.bpjsKetenagakerjaanNumber
   - [x] CompanyBankAccount.accountNumber
 - [x] Data migration for existing records (encrypt on startup or batch job) - handled transparently via converter
-- [ ] Document storage encryption (encrypt files before saving to disk)
+- [x] Document storage encryption (encrypt files before saving to disk)
+  - [x] FileEncryptionService with AES-256-GCM
+  - [x] DocumentStorageService integration (encrypt on store, decrypt on load)
+  - [x] Magic header (ENCF) for encrypted file detection
+  - [x] Backward compatibility with unencrypted files
 - [ ] Database connection with SSL (`sslmode=verify-full`) - requires production deployment
-- [ ] Functional tests for encryption/decryption
+- [x] Functional tests for encryption/decryption
+  - [x] FileEncryptionServiceTest (25 unit tests)
+  - [x] DocumentEncryptionTest (8 Playwright functional tests)
 
 ### 6.2.5 Data in Transit Protection (P1) ✅
 
