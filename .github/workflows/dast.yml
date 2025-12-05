@@ -48,7 +48,7 @@ jobs:
           cache: maven
 
       - name: Run ZAP DAST tests
-        run: ./mvnw test -Dtest=ZapDastTest -Dgroups=security,dast
+        run: ./mvnw test -Dtest=ZapDastTest -Dgroups=dast -DexcludedGroups=
 
       - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
