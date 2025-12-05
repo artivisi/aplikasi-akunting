@@ -623,7 +623,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Implement rate limiting on /login endpoint (RateLimitFilter with Bucket4j-style algorithm)
 - [x] Configure session timeout (15 minutes)
 - [x] Add session cookie security flags (secure, httpOnly, sameSite=strict)
-- [ ] Enforce Telegram webhook authentication (fail if secret not configured)
+- [x] Enforce Telegram webhook authentication (fail if secret not configured)
 - [x] Remove password hashes from DataExportService exports
 
 ### 6.4 Input Validation & Output Encoding (P1) ✅
@@ -641,9 +641,9 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] Log user management operations (create, update, delete, role changes) - UserController
 - [x] Log sensitive data access (payroll exports, tax reports, backups) - DataExportService
 - [x] Log document operations (upload, download, delete) - DocumentController
-- [ ] Log settings modifications
+- [x] Log settings modifications
 - [x] Mask sensitive fields in audit log details (passwords, bank accounts)
-- [ ] Security audit log viewer UI (/settings/audit-logs)
+- [x] Security audit log viewer UI (/settings/audit-logs)
 - [x] Audit log retention policy (2 years) - logrotate config in Ansible
 
 ### 6.6 Data Protection & Data in Use (P2)
@@ -655,8 +655,8 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - Created DataMaskingUtil.java with maskNik, maskNpwp, maskPhone, maskBankAccount, maskBpjs, maskEmail
   - Created ThymeleafConfig.java with custom #mask dialect for templates
   - Applied masking in employees/detail.html and users/detail.html
-- [ ] Add @SecureField annotation for role-based field visibility
-- [ ] Mask sensitive fields in API responses
+- [x] ~~Add @SecureField annotation for role-based field visibility~~ - Won't implement: Thymeleaf sec:authorize already provides role-based field visibility in templates
+- [x] ~~Mask sensitive fields in API responses~~ - Won't implement: No REST API - MVC app uses Thymeleaf templates with sec:authorize and #mask dialect
 
 **Backup Security:**
 - [x] Encrypt backup exports - Handled by Ansible infrastructure (GPG + AES256 for B2/GDrive)
@@ -664,22 +664,22 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Add confirmation dialog for destructive operations (data import truncate)
 
 **Data in Use (Memory Protection):**
-- [ ] Secure temporary file handling (wipe byte arrays after use)
-- [ ] Clear sensitive data from ByteArrayOutputStream after export
-- [ ] Use char[] instead of String for password handling where possible
 - [x] Disable heap dumps in production (`-XX:+DisableAttachMechanism`) - systemd service
 - [x] Configure JVM with ZGC for better memory management (`-XX:+UseZGC`) - systemd service
 - [x] Prevent core dumps (`LimitCORE=0`) - systemd service
 - [x] Restrict filesystem access (`ProtectSystem=strict`, `PrivateTmp=true`) - systemd service
 - [x] Drop capabilities (`NoNewPrivileges=true`, `CapabilityBoundingSet=`) - systemd service
-- [ ] Review and secure any in-memory caching of sensitive data
+- [x] Review in-memory caching - No sensitive data cached (only IP/username for rate limiting)
+- ~Secure temporary file handling (wipe byte arrays)~ - Won't implement: Low ROI, requires root access to exploit, JVM hardening already blocks debugger attach
+- ~Clear ByteArrayOutputStream after export~ - Won't implement: Low ROI, JIT may optimize away the wipe, export data is already encrypted at rest
+- ~Use char[] instead of String for passwords~ - Won't implement: Spring Security uses String internally, would require extensive refactoring with minimal benefit
 
 ### 6.7 API Security (P2) ✅
 - [x] Implement rate limiting on all /api/** endpoints - RateLimitFilter covers all paths
 - [x] Add API request logging (endpoint, user, latency, status) - nginx api_log format
 - [x] Configure CORS policy (explicit allowed origins) - SecurityConfig denies cross-origin by default
 - [x] API error responses without sensitive information - GlobalExceptionHandler
-- [ ] Move Telegram token from URL to header-based authentication
+- [x] Telegram webhook uses header-based authentication (`X-Telegram-Bot-Api-Secret-Token`)
 
 ### 6.8 GDPR/UU PDP Compliance (P2) ✅
 

@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.controller;
 import com.artivisi.accountingfinance.config.TelegramConfig;
 import com.artivisi.accountingfinance.dto.telegram.TelegramUpdate;
 import com.artivisi.accountingfinance.service.TelegramBotService;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/telegram")
@@ -28,18 +28,29 @@ public class TelegramWebhookController {
         this.telegramConfig = telegramConfig;
     }
 
+    @PostConstruct
+    public void validateSecurityConfiguration() {
+        if (telegramConfig.isEnabled()) {
+            String secretToken = telegramConfig.getWebhook().getSecretToken();
+            if (secretToken == null || secretToken.isBlank()) {
+                throw new IllegalStateException(
+                    "Telegram bot is enabled but webhook secret token is not configured. " +
+                    "Set telegram.bot.webhook.secret-token property for secure webhook authentication.");
+            }
+            log.info("Telegram webhook security: secret token configured");
+        }
+    }
+
     @PostMapping("/webhook")
     public ResponseEntity<String> onUpdate(
             @RequestBody TelegramUpdate update,
             @RequestHeader(value = "X-Telegram-Bot-Api-Secret-Token", required = false) String secretToken) {
 
-        // Validate secret token if configured
+        // Secret token is required when Telegram is enabled (validated at startup)
         String configuredSecret = telegramConfig.getWebhook().getSecretToken();
-        if (configuredSecret != null && !configuredSecret.isBlank()) {
-            if (secretToken == null || !secretToken.equals(configuredSecret)) {
-                log.warn("Invalid secret token in webhook request");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid secret token");
-            }
+        if (secretToken == null || !secretToken.equals(configuredSecret)) {
+            log.warn("Invalid or missing secret token in webhook request");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid secret token");
         }
 
         log.debug("Received Telegram update: {}", update.getUpdateId());

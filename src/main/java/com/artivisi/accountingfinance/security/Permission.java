@@ -132,6 +132,9 @@ public final class Permission {
     public static final String SETTINGS_EDIT = "SETTINGS_EDIT";
     public static final String TELEGRAM_MANAGE = "TELEGRAM_MANAGE"; // Manage own Telegram integration
 
+    // Security Audit Logs
+    public static final String AUDIT_LOG_VIEW = "AUDIT_LOG_VIEW";
+
     // User Management (Admin only)
     public static final String USER_VIEW = "USER_VIEW";
     public static final String USER_CREATE = "USER_CREATE";
@@ -172,6 +175,7 @@ public final class Permission {
                 CALCULATOR_USE,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
+                AUDIT_LOG_VIEW,
                 USER_VIEW, USER_CREATE, USER_EDIT, USER_DELETE, USER_ASSIGN_ROLES,
                 OWN_PAYSLIP_VIEW, OWN_PROFILE_VIEW, OWN_PROFILE_EDIT
             );
@@ -199,6 +203,7 @@ public final class Permission {
                 CALCULATOR_USE,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
+                AUDIT_LOG_VIEW,
                 OWN_PAYSLIP_VIEW, OWN_PROFILE_VIEW, OWN_PROFILE_EDIT
             );
 
@@ -269,6 +274,7 @@ public final class Permission {
                 SALARY_COMPONENT_VIEW,
                 PAYROLL_VIEW, PAYROLL_EXPORT,
                 CALCULATOR_USE,
+                AUDIT_LOG_VIEW,
                 OWN_PROFILE_VIEW
             );
 

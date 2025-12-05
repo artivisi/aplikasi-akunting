@@ -122,7 +122,8 @@ public class SecurityAuditService {
             LocalDateTime startDate,
             LocalDateTime endDate,
             Pageable pageable) {
-        return auditLogRepository.search(eventType, username, startDate, endDate, pageable);
+        String eventTypeStr = eventType != null ? eventType.name() : null;
+        return auditLogRepository.search(eventTypeStr, username, startDate, endDate, pageable);
     }
 
     /**

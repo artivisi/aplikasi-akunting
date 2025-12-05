@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Security Audit Log</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Security Audit Log</h1>
+
+    <div layout:fragment="content" class="h-full flex flex-col">
+        <!-- Filters -->
+        <form id="filter-form" th:action="@{/settings/audit-logs}" method="get"
+              hx-get="/settings/audit-logs"
+              hx-target="#audit-log-table"
+              hx-swap="outerHTML"
+              hx-push-url="true"
+              class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 flex-shrink-0">
+
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Event Type Filter -->
+                <select id="event-type-filter" name="eventType"
+                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-w-48">
+                    <option value="">Semua Event</option>
+                    <option th:each="type : ${eventTypes}"
+                            th:value="${type}"
+                            th:text="${type.name().replace('_', ' ')}"
+                            th:selected="${selectedEventType != null && selectedEventType == type}">
+                    </option>
+                </select>
+
+                <!-- Username Filter -->
+                <div class="relative">
+                    <input id="username-filter" type="text" name="username" th:value="${selectedUsername}"
+                           placeholder="Username..."
+                           class="px-3 py-2 pl-9 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-40">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+
+                <!-- Date Range -->
+                <div class="flex items-center gap-1">
+                    <input id="start-date" type="date" name="startDate" th:value="${startDate}"
+                           class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <span class="text-gray-400">-</span>
+                    <input id="end-date" type="date" name="endDate" th:value="${endDate}"
+                           class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+
+                <!-- Apply Button -->
+                <button id="btn-apply" type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    Terapkan
+                </button>
+
+                <!-- Reset Button -->
+                <a th:href="@{/settings/audit-logs}" id="btn-reset"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Reset
+                </a>
+            </div>
+        </form>
+
+        <!-- Audit Log Table -->
+        <th:block th:insert="~{settings/fragments/audit-log-table :: table}"/>
+    </div>
+</body>
+</html>

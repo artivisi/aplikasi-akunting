@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="table" id="audit-log-table" class="bg-white rounded-lg shadow flex-1 flex flex-col min-h-0 overflow-hidden">
+        <!-- Table Header -->
+        <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider flex-shrink-0">
+            <div class="col-span-2">Waktu</div>
+            <div class="col-span-2">Event</div>
+            <div class="col-span-1">Username</div>
+            <div class="col-span-2">IP Address</div>
+            <div class="col-span-4">Detail</div>
+            <div class="col-span-1 text-center">Status</div>
+        </div>
+
+        <!-- Table Body -->
+        <div class="flex-1 overflow-y-auto divide-y divide-gray-100">
+            <div th:each="log : ${auditLogs.content}"
+                 class="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors items-start">
+
+                <!-- Timestamp -->
+                <div class="col-span-2">
+                    <p class="text-sm text-gray-900" th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy')}">01 Jan 2024</p>
+                    <p class="text-xs text-gray-500" th:text="${#temporals.format(log.timestamp, 'HH:mm:ss')}">12:00:00</p>
+                </div>
+
+                <!-- Event Type -->
+                <div class="col-span-2">
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full"
+                          th:classappend="${log.eventType.name().startsWith('LOGIN_FAILURE') or log.eventType.name().startsWith('ACCOUNT_LOCKED')} ? 'bg-red-100 text-red-800' :
+                                          (${log.eventType.name().startsWith('LOGIN_SUCCESS')} ? 'bg-green-100 text-green-800' :
+                                          (${log.eventType.name().startsWith('USER_')} ? 'bg-blue-100 text-blue-800' :
+                                          (${log.eventType.name().startsWith('DATA_') or log.eventType.name().startsWith('BACKUP_')} ? 'bg-purple-100 text-purple-800' :
+                                          (${log.eventType.name().startsWith('DOCUMENT_')} ? 'bg-yellow-100 text-yellow-800' :
+                                          (${log.eventType.name().startsWith('SETTINGS_')} ? 'bg-orange-100 text-orange-800' :
+                                          (${log.eventType.name().startsWith('PAYROLL_')} ? 'bg-pink-100 text-pink-800' : 'bg-gray-100 text-gray-800'))))))"
+                          th:text="${log.eventType.name().replace('_', ' ')}">
+                        EVENT TYPE
+                    </span>
+                </div>
+
+                <!-- Username -->
+                <div class="col-span-1">
+                    <p class="text-sm text-gray-900 truncate" th:text="${log.username}" th:title="${log.username}">username</p>
+                </div>
+
+                <!-- IP Address -->
+                <div class="col-span-2">
+                    <p class="text-sm font-mono text-gray-600" th:text="${log.ipAddress ?: '-'}">192.168.1.1</p>
+                </div>
+
+                <!-- Details -->
+                <div class="col-span-4">
+                    <p class="text-sm text-gray-600 break-words" th:text="${log.details ?: '-'}">Details here</p>
+                    <p th:if="${log.userAgent}" class="text-xs text-gray-400 truncate mt-1" th:text="${log.userAgent}" th:title="${log.userAgent}">User Agent</p>
+                </div>
+
+                <!-- Success Status -->
+                <div class="col-span-1 text-center">
+                    <span th:if="${log.success}" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </span>
+                    <span th:unless="${log.success}" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(auditLogs.content)}" class="px-4 py-12 text-center">
+                <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="mt-4 text-gray-500">Tidak ada audit log yang ditemukan</p>
+                <p class="mt-1 text-sm text-gray-400">Coba ubah filter untuk melihat hasil lain</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${auditLogs.totalPages > 1}" class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 flex-shrink-0">
+            <div class="flex items-center text-sm text-gray-500">
+                <span>Menampilkan</span>
+                <span class="mx-1 font-medium" th:text="${auditLogs.number * auditLogs.size + 1}">1</span>
+                <span>-</span>
+                <span class="mx-1 font-medium" th:text="${T(Math).min((auditLogs.number + 1) * auditLogs.size, auditLogs.totalElements)}">20</span>
+                <span>dari</span>
+                <span id="total-entries" class="mx-1 font-medium" th:text="${auditLogs.totalElements}">100</span>
+                <span>entri</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <!-- Previous Page -->
+                <a th:if="${auditLogs.hasPrevious()}"
+                   th:href="@{/settings/audit-logs(eventType=${selectedEventType}, username=${selectedUsername}, startDate=${startDate}, endDate=${endDate}, page=${auditLogs.number - 1})}"
+                   th:hx-get="@{/settings/audit-logs(eventType=${selectedEventType}, username=${selectedUsername}, startDate=${startDate}, endDate=${endDate}, page=${auditLogs.number - 1})}"
+                   hx-target="#audit-log-table"
+                   hx-swap="outerHTML"
+                   hx-push-url="true"
+                   id="btn-prev-page"
+                   class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    Sebelumnya
+                </a>
+                <span th:unless="${auditLogs.hasPrevious()}"
+                      class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                    Sebelumnya
+                </span>
+
+                <!-- Page Info -->
+                <span class="px-3 py-1 text-sm text-gray-500">
+                    Halaman <span th:text="${auditLogs.number + 1}">1</span> dari <span th:text="${auditLogs.totalPages}">10</span>
+                </span>
+
+                <!-- Next Page -->
+                <a th:if="${auditLogs.hasNext()}"
+                   th:href="@{/settings/audit-logs(eventType=${selectedEventType}, username=${selectedUsername}, startDate=${startDate}, endDate=${endDate}, page=${auditLogs.number + 1})}"
+                   th:hx-get="@{/settings/audit-logs(eventType=${selectedEventType}, username=${selectedUsername}, startDate=${startDate}, endDate=${endDate}, page=${auditLogs.number + 1})}"
+                   hx-target="#audit-log-table"
+                   hx-swap="outerHTML"
+                   hx-push-url="true"
+                   id="btn-next-page"
+                   class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    Berikutnya
+                </a>
+                <span th:unless="${auditLogs.hasNext()}"
+                      class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                    Berikutnya
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

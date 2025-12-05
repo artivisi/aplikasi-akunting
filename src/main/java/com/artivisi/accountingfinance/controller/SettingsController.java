@@ -2,19 +2,25 @@ package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.entity.CompanyBankAccount;
 import com.artivisi.accountingfinance.entity.CompanyConfig;
+import com.artivisi.accountingfinance.entity.SecurityAuditLog;
 import com.artivisi.accountingfinance.entity.TelegramUserLink;
 import com.artivisi.accountingfinance.entity.User;
+import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.repository.TelegramUserLinkRepository;
 import com.artivisi.accountingfinance.repository.UserRepository;
 import com.artivisi.accountingfinance.service.CompanyBankAccountService;
 import com.artivisi.accountingfinance.service.CompanyConfigService;
 import com.artivisi.accountingfinance.service.DocumentStorageService;
+import com.artivisi.accountingfinance.service.SecurityAuditService;
 import com.artivisi.accountingfinance.service.TelegramBotService;
 import com.artivisi.accountingfinance.service.VersionInfoService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,10 +41,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.Set;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -63,6 +71,7 @@ public class SettingsController {
     private final TelegramUserLinkRepository telegramLinkRepository;
     private final UserRepository userRepository;
     private final VersionInfoService versionInfoService;
+    private final SecurityAuditService securityAuditService;
 
     // ==================== Company Settings ====================
 
@@ -94,6 +103,8 @@ public class SettingsController {
         }
 
         companyConfigService.update(config.getId(), config);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Company settings updated: " + config.getCompanyName());
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pengaturan perusahaan berhasil disimpan");
         return "redirect:/settings";
     }
@@ -140,6 +151,7 @@ public class SettingsController {
             config.setCompanyLogoPath(storedPath);
             companyConfigService.save(config);
 
+            securityAuditService.log(AuditEventType.SETTINGS_CHANGE, "Company logo uploaded");
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Logo perusahaan berhasil diupload");
         } catch (IOException e) {
             log.error("Failed to upload company logo: {}", e.getMessage());
@@ -190,6 +202,7 @@ public class SettingsController {
 
             config.setCompanyLogoPath(null);
             companyConfigService.save(config);
+            securityAuditService.log(AuditEventType.SETTINGS_CHANGE, "Company logo deleted");
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Logo perusahaan berhasil dihapus");
         }
 
@@ -204,6 +217,16 @@ public class SettingsController {
         if (lower.endsWith(".gif")) return "image/gif";
         if (lower.endsWith(".webp")) return "image/webp";
         return "application/octet-stream";
+    }
+
+    /**
+     * Mask bank account number for audit logging (show only last 4 digits).
+     */
+    private String maskAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() <= 4) {
+            return "****";
+        }
+        return "****" + accountNumber.substring(accountNumber.length() - 4);
     }
 
     // ==================== Bank Accounts ====================
@@ -246,6 +269,8 @@ public class SettingsController {
 
         try {
             bankAccountService.create(bankAccount);
+            securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                    "Bank account created: " + bankAccount.getBankName() + " - " + maskAccountNumber(bankAccount.getAccountNumber()));
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening bank berhasil ditambahkan");
             return "redirect:/settings";
         } catch (IllegalArgumentException e) {
@@ -280,6 +305,8 @@ public class SettingsController {
 
         try {
             bankAccountService.update(id, bankAccount);
+            securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                    "Bank account updated: " + bankAccount.getBankName() + " - " + maskAccountNumber(bankAccount.getAccountNumber()));
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening bank berhasil diperbarui");
             return "redirect:/settings";
         } catch (IllegalArgumentException e) {
@@ -296,7 +323,10 @@ public class SettingsController {
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
 
+        CompanyBankAccount bankAccount = bankAccountService.findById(id);
         bankAccountService.setAsDefault(id);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Default bank account changed to: " + bankAccount.getBankName());
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening utama berhasil diubah");
         return "redirect:/settings";
     }
@@ -307,7 +337,10 @@ public class SettingsController {
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
 
+        CompanyBankAccount bankAccount = bankAccountService.findById(id);
         bankAccountService.deactivate(id);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Bank account deactivated: " + bankAccount.getBankName());
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening bank berhasil dinonaktifkan");
         return "redirect:/settings";
     }
@@ -318,7 +351,10 @@ public class SettingsController {
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
 
+        CompanyBankAccount bankAccount = bankAccountService.findById(id);
         bankAccountService.activate(id);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Bank account activated: " + bankAccount.getBankName());
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening bank berhasil diaktifkan");
         return "redirect:/settings";
     }
@@ -329,7 +365,11 @@ public class SettingsController {
             @PathVariable UUID id,
             RedirectAttributes redirectAttributes) {
 
+        CompanyBankAccount bankAccount = bankAccountService.findById(id);
+        String bankName = bankAccount.getBankName();
         bankAccountService.delete(id);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Bank account deleted: " + bankName);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Rekening bank berhasil dihapus");
         return "redirect:/settings";
     }
@@ -363,6 +403,8 @@ public class SettingsController {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         String code = telegramBotService.generateVerificationCode(user);
+        securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                "Telegram verification code generated");
         redirectAttributes.addFlashAttribute("verificationCode", code);
         redirectAttributes.addFlashAttribute("botUsername", telegramBotService.getBotUsername());
 
@@ -387,6 +429,8 @@ public class SettingsController {
             telegramLink.setTelegramUsername(null);
             telegramLink.setLinkedAt(null);
             telegramLinkRepository.save(telegramLink);
+            securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
+                    "Telegram account unlinked");
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun Telegram berhasil diputus");
@@ -412,5 +456,42 @@ public class SettingsController {
     public String privacy(Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, "settings");
         return "privacy";
+    }
+
+    // ==================== Security Audit Logs ====================
+
+    @GetMapping("/audit-logs")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.AUDIT_LOG_VIEW + "')")
+    public String auditLogs(
+            @RequestParam(required = false) AuditEventType eventType,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
+            Model model) {
+
+        // Convert LocalDate to LocalDateTime for query
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(LocalTime.MAX) : null;
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
+        Page<SecurityAuditLog> auditLogs = securityAuditService.search(
+                eventType, username, startDateTime, endDateTime, pageRequest);
+
+        model.addAttribute("auditLogs", auditLogs);
+        model.addAttribute("eventTypes", AuditEventType.values());
+        model.addAttribute("selectedEventType", eventType);
+        model.addAttribute("selectedUsername", username);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute(ATTR_CURRENT_PAGE, "settings");
+
+        if ("true".equals(hxRequest)) {
+            return "settings/fragments/audit-log-table :: table";
+        }
+
+        return "settings/audit-logs";
     }
 }

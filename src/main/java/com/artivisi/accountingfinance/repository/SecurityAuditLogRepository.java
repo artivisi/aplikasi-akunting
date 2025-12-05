@@ -22,14 +22,15 @@ public interface SecurityAuditLogRepository extends JpaRepository<SecurityAuditL
 
     Page<SecurityAuditLog> findByTimestampBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    @Query("SELECT s FROM SecurityAuditLog s WHERE " +
-            "(:eventType IS NULL OR s.eventType = :eventType) AND " +
-            "(:username IS NULL OR s.username LIKE %:username%) AND " +
-            "(:startDate IS NULL OR s.timestamp >= :startDate) AND " +
-            "(:endDate IS NULL OR s.timestamp <= :endDate) " +
-            "ORDER BY s.timestamp DESC")
+    @Query(value = "SELECT * FROM security_audit_logs s WHERE " +
+            "(CAST(:eventType AS VARCHAR) IS NULL OR s.event_type = :eventType) AND " +
+            "(CAST(:username AS VARCHAR) IS NULL OR s.username LIKE '%' || :username || '%') AND " +
+            "(CAST(:startDate AS TIMESTAMP) IS NULL OR s.timestamp >= :startDate) AND " +
+            "(CAST(:endDate AS TIMESTAMP) IS NULL OR s.timestamp <= :endDate) " +
+            "ORDER BY s.timestamp DESC",
+            nativeQuery = true)
     Page<SecurityAuditLog> search(
-            @Param("eventType") AuditEventType eventType,
+            @Param("eventType") String eventType,
             @Param("username") String username,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
