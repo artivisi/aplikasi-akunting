@@ -566,17 +566,41 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Fix DOM-based XSS in templates/form.html (replace innerHTML with textContent/DOMPurify)
 - [ ] Fix SQL injection in DataImportService (whitelist validation for table names)
 
-### 6.2 Data Encryption (P1)
-- [ ] EncryptedStringConverter JPA attribute converter (AES-256)
+### 6.2 Data at Rest Encryption (P1)
+
+**Goal:** Protect sensitive data stored in database, files, and backups.
+
+- [ ] EncryptedStringConverter JPA attribute converter (AES-256-GCM)
 - [ ] Key management integration (environment variable or external KMS)
-- [ ] Encrypt Employee.bankAccountNumber
-- [ ] Encrypt Employee.npwp (Tax ID)
-- [ ] Encrypt Employee.nikKtp (National ID)
-- [ ] Encrypt Employee.bpjsKesehatanNumber
-- [ ] Encrypt Employee.bpjsKetenagakerjaanNumber
-- [ ] Encrypt CompanyBankAccount.accountNumber
-- [ ] Data migration for existing records
+- [ ] Encrypt PII fields:
+  - [ ] Employee.bankAccountNumber
+  - [ ] Employee.npwp (Tax ID)
+  - [ ] Employee.nikKtp (National ID)
+  - [ ] Employee.bpjsKesehatanNumber
+  - [ ] Employee.bpjsKetenagakerjaanNumber
+  - [ ] CompanyBankAccount.accountNumber
+- [ ] Data migration for existing records (encrypt on startup or batch job)
+- [ ] Document storage encryption (encrypt files before saving to disk)
+- [ ] Database connection with SSL (`sslmode=verify-full`)
 - [ ] Functional tests for encryption/decryption
+
+### 6.2.5 Data in Transit Protection (P1)
+
+**Goal:** Encrypt all data transmitted over networks.
+
+- [ ] TLS 1.3 configuration for application server
+  - [ ] Generate/obtain SSL certificate (Let's Encrypt or commercial CA)
+  - [ ] Configure `server.ssl.*` properties in application-prod.properties
+  - [ ] Disable TLS 1.0/1.1, weak ciphers
+- [ ] PostgreSQL SSL connection
+  - [ ] Configure `sslmode=verify-full` in JDBC URL
+  - [ ] Deploy CA certificate for database server verification
+- [ ] HSTS header (Strict-Transport-Security)
+  - [ ] `max-age=31536000; includeSubDomains; preload`
+- [ ] HTTP to HTTPS redirect (or handle at reverse proxy)
+- [ ] Secure cookie flags (`secure`, `httpOnly`, `sameSite=strict`)
+- [ ] Backup transfer encryption (rsync over SSH or encrypted channel)
+- [ ] Verify external API connections use TLS (Telegram, Google Vision)
 
 ### 6.3 Authentication Hardening (P1)
 - [ ] Implement account lockout after 5 failed login attempts (30-minute lockout)
@@ -607,13 +631,27 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Security audit log viewer UI (/settings/audit-logs)
 - [ ] Audit log retention policy (configurable, default 2 years)
 
-### 6.6 Data Protection (P2)
+### 6.6 Data Protection & Data in Use (P2)
+
+**Goal:** Protect data during processing and in application memory.
+
+**Data Masking:**
 - [ ] Implement data masking for sensitive fields in views (show last 4 digits)
 - [ ] Add @SecureField annotation for role-based field visibility
-- [ ] Encrypt backup exports with user-provided password (AES-256)
+- [ ] Mask sensitive fields in API responses
+
+**Backup Security:**
+- [ ] Encrypt backup exports with user-provided password (AES-256-GCM)
 - [ ] Implement backup file integrity verification (SHA-256 checksum)
 - [ ] Add confirmation dialog for destructive operations (data import truncate)
-- [ ] Secure temporary file handling (wipe after use)
+
+**Data in Use (Memory Protection):**
+- [ ] Secure temporary file handling (wipe byte arrays after use)
+- [ ] Clear sensitive data from ByteArrayOutputStream after export
+- [ ] Use char[] instead of String for password handling where possible
+- [ ] Disable heap dumps in production (`-XX:+DisableAttachMechanism`)
+- [ ] Configure JVM to clear sensitive data on GC (`-XX:+UseZGC` or G1GC tuning)
+- [ ] Review and secure any in-memory caching of sensitive data
 
 ### 6.7 API Security (P2)
 - [ ] Implement rate limiting on all /api/** endpoints

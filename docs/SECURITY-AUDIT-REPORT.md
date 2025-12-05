@@ -317,6 +317,88 @@ Data exports contain full database including sensitive data, exported as unencry
 
 ---
 
+## Data Security by State
+
+### Data at Rest
+
+| Asset | Current State | Risk | Remediation |
+|-------|---------------|------|-------------|
+| **Database** | ❌ Unencrypted | HIGH | PostgreSQL TDE or cloud-managed encryption |
+| **PII Fields** | ❌ Plaintext | CRITICAL | AES-256 field-level encryption (Phase 6.2) |
+| **Document Storage** | ❌ Unencrypted | MEDIUM | Encrypt files at rest or use encrypted filesystem |
+| **Backup Files** | ❌ Unencrypted ZIP | HIGH | AES-256 encrypted exports (Phase 6.6) |
+| **Log Files** | ❌ Plaintext | LOW | Consider log encryption for sensitive environments |
+| **Session Data** | ✅ Server-side | LOW | Spring Security default (not in cookies) |
+
+**Current Configuration (`application.properties`):**
+```properties
+spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:12345/accountingdb}
+# No SSL parameters, no encryption configuration
+```
+
+**Recommended Database Connection:**
+```properties
+spring.datasource.url=jdbc:postgresql://host:5432/db?ssl=true&sslmode=verify-full&sslrootcert=/path/to/ca.crt
+```
+
+### Data in Transit
+
+| Channel | Current State | Risk | Remediation |
+|---------|---------------|------|-------------|
+| **Browser ↔ Server** | ⚠️ No HTTPS enforcement | HIGH | Configure TLS 1.3, add HSTS header |
+| **Server ↔ PostgreSQL** | ❌ Unencrypted | HIGH | Enable `sslmode=verify-full` |
+| **Server ↔ Telegram API** | ✅ HTTPS | LOW | Already uses `api.telegram.org` (HTTPS) |
+| **Server ↔ Google Vision** | ✅ HTTPS | LOW | Google Cloud client uses TLS |
+| **Backup Transfer** | ⚠️ Depends on config | MEDIUM | Use rsync over SSH or encrypted channel |
+
+**Missing TLS Configuration:**
+```properties
+# Not configured in application.properties:
+server.ssl.enabled=true
+server.ssl.key-store=classpath:keystore.p12
+server.ssl.key-store-password=${SSL_KEYSTORE_PASSWORD}
+server.ssl.key-store-type=PKCS12
+server.ssl.protocol=TLS
+server.ssl.enabled-protocols=TLSv1.3,TLSv1.2
+```
+
+### Data in Use (Memory)
+
+| Concern | Current State | Risk | Remediation |
+|---------|---------------|------|-------------|
+| **Sensitive Data in Memory** | ❌ Not protected | MEDIUM | Use `char[]` instead of `String` for passwords |
+| **Memory Wiping** | ❌ Not implemented | MEDIUM | Clear sensitive byte arrays after use |
+| **Heap Dump Protection** | ❌ Not configured | LOW | Disable heap dumps in production, encrypt if needed |
+| **Debug Endpoints** | ✅ Disabled | LOW | Actuator not exposed by default |
+| **Temporary Files** | ⚠️ ByteArrayOutputStream | MEDIUM | Secure wipe after export operations |
+
+**Current Issue (`DataExportService.java:80`):**
+```java
+ByteArrayOutputStream baos = new ByteArrayOutputStream();
+// Sensitive data remains in memory until GC
+// No explicit clearing mechanism
+```
+
+**Recommended Pattern:**
+```java
+byte[] sensitiveData = /* ... */;
+try {
+    // Use data
+} finally {
+    Arrays.fill(sensitiveData, (byte) 0);  // Secure wipe
+}
+```
+
+### Data State Summary
+
+| State | Compliance | Priority |
+|-------|------------|----------|
+| **At Rest** | ❌ 20% | P0 - Critical |
+| **In Transit** | ⚠️ 50% | P1 - High |
+| **In Use** | ❌ 10% | P2 - Medium |
+
+---
+
 ## Security Controls Assessment
 
 ### Implemented (Strengths)
