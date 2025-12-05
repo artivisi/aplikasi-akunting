@@ -111,7 +111,7 @@ class SecurityRegressionTest extends PlaywrightTestBase {
         @DisplayName("Should include CSRF token in forms")
         void shouldIncludeCsrfTokenInForms() {
             loginAsAdmin();
-            navigateTo("/coa");
+            navigateTo("/accounts");
             waitForPageLoad();
 
             // Check for CSRF meta tag or hidden input
@@ -156,7 +156,7 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             loginAsAdmin();
 
             for (String payload : XSS_PAYLOADS) {
-                navigateTo("/coa");
+                navigateTo("/accounts");
                 waitForPageLoad();
 
                 Locator searchInput = page.locator("input[type='search'], input[name='search'], input[placeholder*='Cari']");
@@ -332,16 +332,16 @@ class SecurityRegressionTest extends PlaywrightTestBase {
         @DisplayName("Should validate required fields")
         void shouldValidateRequiredFields() {
             loginAsAdmin();
-            navigateTo("/coa/create");
+            navigateTo("/accounts/new");
             waitForPageLoad();
 
             // Try to submit empty form
-            page.click("button[type='submit']");
+            page.click("#btn-simpan");
             waitForPageLoad();
 
             // Should show validation errors or stay on form
-            boolean hasValidationError = page.locator(".invalid-feedback, .text-red, [class*='error']").count() > 0
-                    || page.url().contains("/create");
+            boolean hasValidationError = page.locator("#validation-errors").count() > 0
+                    || page.url().contains("/new");
 
             assertTrue(hasValidationError, "Should show validation errors for empty required fields");
         }
@@ -359,7 +359,7 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             );
 
             for (String payload : sqlPayloads) {
-                navigateTo("/coa");
+                navigateTo("/accounts");
                 waitForPageLoad();
 
                 Locator searchInput = page.locator("input[type='search'], input[name='search']");
@@ -405,7 +405,7 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             loginAsAdmin();
 
             // Trigger an error condition
-            navigateTo("/coa/nonexistent-uuid-12345");
+            navigateTo("/accounts/nonexistent-uuid-12345");
             waitForPageLoad();
 
             String content = page.content().toLowerCase();
