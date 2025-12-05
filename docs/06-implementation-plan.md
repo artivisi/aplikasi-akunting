@@ -17,11 +17,12 @@
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
 | **4** | Fixed Assets | ✅ Complete |
 | **5** | Inventory & Production | ✅ Complete |
-| **6** | API Foundation | ⏳ Not Started |
-| **7** | Online Seller Support | ⏳ Not Started |
-| **8** | Bank Reconciliation | ⏳ Not Started |
-| **9** | Analytics & Insights | ⏳ Not Started |
-| **10+** | Budget, Advanced Features | ⏳ Not Started |
+| **6** | Security Hardening | ⏳ Not Started |
+| **7** | API Foundation | ⏳ Not Started |
+| **8** | Online Seller Support | ⏳ Not Started |
+| **9** | Bank Reconciliation | ⏳ Not Started |
+| **10** | Analytics & Insights | ⏳ Not Started |
+| **11+** | Budget, Advanced Features | ⏳ Not Started |
 
 ---
 
@@ -550,13 +551,98 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 6: API Foundation
+## Phase 6: Security Hardening
+
+**Goal:** Address critical and high-severity security vulnerabilities identified in the security audit to make the application production-ready for hosting client data.
+
+**Audit Report:** `docs/SECURITY-AUDIT-REPORT.md`
+
+**Standards:** OWASP Top 10 (2021), PCI-DSS v4.0, NIST CSF
+
+### 6.1 Critical Fixes (P0)
+- [ ] Remove hardcoded database credentials from compose.yml
+- [ ] Implement password complexity requirements (12+ chars, uppercase, lowercase, number, special)
+- [ ] Add security headers to SecurityConfig (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
+- [ ] Fix DOM-based XSS in templates/form.html (replace innerHTML with textContent/DOMPurify)
+- [ ] Fix SQL injection in DataImportService (whitelist validation for table names)
+
+### 6.2 Data Encryption (P1)
+- [ ] EncryptedStringConverter JPA attribute converter (AES-256)
+- [ ] Key management integration (environment variable or external KMS)
+- [ ] Encrypt Employee.bankAccountNumber
+- [ ] Encrypt Employee.npwp (Tax ID)
+- [ ] Encrypt Employee.nikKtp (National ID)
+- [ ] Encrypt Employee.bpjsKesehatanNumber
+- [ ] Encrypt Employee.bpjsKetenagakerjaanNumber
+- [ ] Encrypt CompanyBankAccount.accountNumber
+- [ ] Data migration for existing records
+- [ ] Functional tests for encryption/decryption
+
+### 6.3 Authentication Hardening (P1)
+- [ ] Implement account lockout after 5 failed login attempts (30-minute lockout)
+- [ ] Add failed login attempt logging with IP address
+- [ ] Implement rate limiting on /login endpoint (Resilience4j or Bucket4j)
+- [ ] Configure session timeout (15 minutes)
+- [ ] Add session cookie security flags (secure, httpOnly, sameSite=strict)
+- [ ] Enforce Telegram webhook authentication (fail if secret not configured)
+- [ ] Remove password hashes from DataExportService exports
+
+### 6.4 Input Validation & Output Encoding (P1)
+- [ ] Add magic byte validation for file uploads (not just Content-Type)
+- [ ] Implement RFC 6266 encoding for Content-Disposition headers
+- [ ] Improve ZIP slip validation (normalize paths, check resolved path)
+- [ ] Add @Pattern validation for sensitive fields (NPWP, NIK format)
+- [ ] Sanitize user input in log statements (prevent log injection)
+- [ ] Generic error messages to clients (no stack traces, no path exposure)
+
+### 6.5 Comprehensive Audit Logging (P2)
+- [ ] AuditEventType enum (LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, USER_CREATE, USER_UPDATE, etc.)
+- [ ] SecurityAuditLog entity (eventType, username, ipAddress, userAgent, details, timestamp)
+- [ ] Log all authentication events (login, logout, failed attempts)
+- [ ] Log user management operations (create, update, delete, role changes)
+- [ ] Log sensitive data access (payroll exports, tax reports, backups)
+- [ ] Log document operations (upload, download, delete)
+- [ ] Log settings modifications
+- [ ] Mask sensitive fields in audit log details (passwords, bank accounts)
+- [ ] Security audit log viewer UI (/settings/audit-logs)
+- [ ] Audit log retention policy (configurable, default 2 years)
+
+### 6.6 Data Protection (P2)
+- [ ] Implement data masking for sensitive fields in views (show last 4 digits)
+- [ ] Add @SecureField annotation for role-based field visibility
+- [ ] Encrypt backup exports with user-provided password (AES-256)
+- [ ] Implement backup file integrity verification (SHA-256 checksum)
+- [ ] Add confirmation dialog for destructive operations (data import truncate)
+- [ ] Secure temporary file handling (wipe after use)
+
+### 6.7 API Security (P2)
+- [ ] Implement rate limiting on all /api/** endpoints
+- [ ] Add API request logging (endpoint, user, latency, status)
+- [ ] Configure CORS policy (explicit allowed origins)
+- [ ] API error responses without sensitive information
+- [ ] Move Telegram token from URL to header-based authentication
+
+### 6.8 Security Testing & Documentation (P3)
+- [ ] Functional tests for password complexity validation
+- [ ] Functional tests for account lockout
+- [ ] Functional tests for field-level encryption
+- [ ] Functional tests for security headers
+- [ ] Penetration testing checklist (manual verification)
+- [ ] Update user manual with security best practices
+- [ ] Create SECURITY.md with vulnerability reporting process
+- [ ] Document security patch procedures for PCI-DSS compliance
+
+**Phase 6 Deliverable:** Production-ready security posture with encrypted PII, strong authentication, comprehensive audit logging, and compliance with OWASP Top 10 and PCI-DSS requirements.
+
+---
+
+## Phase 7: API Foundation
 
 **Goal:** Expose REST API for external integrations, mobile apps, and domain-specific applications
 
 **Strategy document:** `docs/08-multi-industry-expansion-strategy.md`
 
-### 6.1 API Core
+### 7.1 API Core
 - [ ] Transaction entity: add `idempotency_key` column (unique, nullable)
 - [ ] ApiKey entity (hashed key, name, permissions, created_at, last_used_at, active)
 - [ ] ApiKeyService (generate, validate, revoke)
@@ -576,7 +662,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Integration tests for all API endpoints
 - [ ] User manual: API documentation
 
-### 6.2 API Enhancements
+### 7.2 API Enhancements
 - [ ] ReportApiController (`/api/reports`)
   - [ ] GET /api/reports/trial-balance
   - [ ] GET /api/reports/balance-sheet
@@ -587,24 +673,24 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] API audit logging (request/response, latency, errors)
 - [ ] API versioning header (Accept-Version or URL prefix)
 
-### 6.3 API Management UI
+### 7.3 API Management UI
 - [ ] API Keys list page (`/settings/api-keys`)
 - [ ] Generate new API key (show once, then hashed)
 - [ ] Revoke API key
 - [ ] View API key usage statistics
 - [ ] Permission scopes (read-only, read-write, admin)
 
-**Phase 6 Deliverable:** REST API enabling external integrations, mobile apps, and domain-specific applications (grant management, POS, etc.).
+**Phase 7 Deliverable:** REST API enabling external integrations, mobile apps, and domain-specific applications (grant management, POS, etc.).
 
 ---
 
-## Phase 7: Online Seller Support
+## Phase 8: Online Seller Support
 
 **Goal:** Support online sellers with marketplace reconciliation and seller-specific features
 
 **Target users:** Tokopedia, Shopee, Bukalapak, Lazada sellers
 
-### 7.1 Marketplace Reconciliation
+### 8.1 Marketplace Reconciliation
 - [ ] Marketplace parser config entity
 - [ ] ConfigurableMarketplaceParser class
 - [ ] Preload configs (Tokopedia, Shopee, Bukalapak, Lazada)
@@ -617,28 +703,28 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Functional tests
 - [ ] User manual
 
-### 7.2 Shipping Cost Tracking
+### 8.2 Shipping Cost Tracking
 - [ ] Shipping entity (order_id, courier, cost, status)
 - [ ] Link shipping to sales transaction
 - [ ] Shipping cost report (by courier, by period)
 - [ ] COD handling (cash on delivery reconciliation)
 
-### 7.3 Seller Dashboard
+### 8.3 Seller Dashboard
 - [ ] GMV (Gross Merchandise Value) per marketplace
 - [ ] Platform fees summary
 - [ ] Net profit per marketplace
 - [ ] Top selling products (requires inventory module)
 - [ ] Marketplace comparison chart
 
-**Phase 7 Deliverable:** Marketplace settlement reconciliation, fee tracking, and seller-specific dashboard.
+**Phase 8 Deliverable:** Marketplace settlement reconciliation, fee tracking, and seller-specific dashboard.
 
 ---
 
-## Phase 8: Bank Reconciliation
+## Phase 9: Bank Reconciliation
 
 **Goal:** Automate bank statement matching with recorded transactions
 
-### 8.1 Bank Statement Import
+### 9.1 Bank Statement Import
 - [ ] Bank parser config entity
 - [ ] ConfigurableBankStatementParser class
 - [ ] Column name matching with fallback
@@ -647,7 +733,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] CSV/Excel upload and parsing
 - [ ] Statement item entity (date, description, amount, balance)
 
-### 8.2 Transaction Matching
+### 9.2 Transaction Matching
 - [ ] Bank reconciliation entity (period, status, bank account)
 - [ ] Auto-matching rules:
   - [ ] Exact match (date + amount)
@@ -657,7 +743,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Create missing transactions from unmatched statement items
 - [ ] Mark as "bank only" or "book only" for discrepancies
 
-### 8.3 Reconciliation Reports
+### 9.3 Reconciliation Reports
 - [ ] Reconciliation summary (matched, unmatched, discrepancies)
 - [ ] Bank reconciliation statement (book balance → bank balance)
 - [ ] Outstanding items list
@@ -669,15 +755,15 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - 200-300 transactions: 1-2 hours (tedious, automation helpful)
 - 500+ transactions: 3+ hours (automation essential)
 
-**Phase 8 Deliverable:** Bank statement import, auto-matching, manual matching UI, and reconciliation reports.
+**Phase 9 Deliverable:** Bank statement import, auto-matching, manual matching UI, and reconciliation reports.
 
 ---
 
-## Phase 9: Analytics & Insights
+## Phase 10: Analytics & Insights
 
 **Goal:** Provide trend analysis, smart alerts, and flexible transaction tagging
 
-### 9.1 Trend Analysis
+### 10.1 Trend Analysis
 - [ ] Revenue trend chart (12 months)
 - [ ] Expense trend by category (12 months)
 - [ ] Profit margin trend (12 months)
@@ -686,7 +772,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Comparison: current period vs same period last year
 - [ ] Chart library integration (Chart.js or similar)
 
-### 9.2 Smart Alerts
+### 10.2 Smart Alerts
 - [ ] Alert entity (type, threshold, enabled, last_triggered)
 - [ ] Alert types:
   - [ ] Cash low warning
@@ -702,7 +788,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Email notification (optional)
 - [ ] Alert history and acknowledgment
 
-### 9.3 Transaction Tags
+### 10.3 Transaction Tags
 - [ ] Tag type entity (user-defined: "Channel", "Campaign", "Category")
 - [ ] Tag entity (values per type)
 - [ ] Tag type CRUD UI
@@ -711,11 +797,11 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Tag filters in transaction list
 - [ ] Tag-based reports (summary by tag)
 
-**Phase 9 Deliverable:** Trend charts, configurable alerts, and flexible transaction tagging.
+**Phase 10 Deliverable:** Trend charts, configurable alerts, and flexible transaction tagging.
 
 ---
 
-## Phase 10+: Future Enhancements
+## Phase 11+: Future Enhancements
 
 ### Budget Management
 - [ ] Budget entity (account, period, amount)
