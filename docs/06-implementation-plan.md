@@ -896,18 +896,18 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **8. Error Handling (Playwright)**
 - [x] No stack traces in error pages (`SecurityRegressionTest.shouldNotExposeStackTraces`)
 - [x] Generic error messages (`SecurityRegressionTest.shouldShowGenericErrorMessages`)
-- [ ] Database error doesn't expose query
-- [ ] Path traversal error doesn't show paths
+- [x] Database error doesn't expose query (`SecurityRegressionTest.shouldNotExposeDatabaseQueryInError`)
+- [x] Path traversal error doesn't show paths (`SecurityRegressionTest.shouldNotExposeFilePathsInError`)
 
 **9. Rate Limiting (Playwright)**
-- [ ] Rapid login attempts → rate limited
-- [ ] Bulk requests → rate limited
+- [x] Rapid login attempts → rate limited (`SecurityRegressionTest.shouldRateLimitRapidLoginAttempts`)
+- [x] Bulk requests → rate limited (`SecurityRegressionTest.shouldRateLimitBulkApiRequests`)
 
-**10. Audit Logging (JUnit)**
+**10. Audit Logging (JUnit + Playwright)**
 - [x] Log sanitization (`LogSanitizerTest.java` - 30 tests)
-- [ ] Failed logins logged with IP (verify SecurityAuditLog entries)
-- [ ] Successful logins logged
-- [ ] Data exports logged
+- [x] Failed logins logged with IP (`SecurityRegressionTest.shouldLogFailedLoginWithIp`, `SecurityAuditService`)
+- [x] Successful logins logged (`SecurityRegressionTest.shouldLogSuccessfulLogin`, `SecurityAuditService`)
+- [x] Data exports logged (`SecurityRegressionTest.shouldLogDataExportOperations`)
 
 ### 6.10 Security Documentation & Policies (P3)
 - [x] Password complexity validation (PasswordValidator with 12+ chars, upper/lower/digit/special)
