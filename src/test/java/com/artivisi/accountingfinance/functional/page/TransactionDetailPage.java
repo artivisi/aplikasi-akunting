@@ -145,7 +145,13 @@ public class TransactionDetailPage {
     }
 
     public void assertNoDocumentsMessage() {
-        assertThat(page.locator("text=Belum ada dokumen terlampir")).isVisible();
+        // Wait for HTMX to load the document list (file input becomes attached to DOM)
+        page.locator("input[name='file']").waitFor(
+            new com.microsoft.playwright.Locator.WaitForOptions()
+                .setState(com.microsoft.playwright.options.WaitForSelectorState.ATTACHED)
+                .setTimeout(10000));
+        // Now check for the empty state element by id
+        assertThat(page.locator("#documents-empty-state")).isVisible();
     }
 
     public void uploadDocument(Path filePath) {

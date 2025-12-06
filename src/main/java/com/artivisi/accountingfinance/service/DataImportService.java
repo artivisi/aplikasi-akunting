@@ -173,12 +173,15 @@ public class DataImportService {
 
                 byte[] content = zis.readAllBytes();
 
-                if (name.endsWith(".csv") && !name.startsWith("documents/")) {
+                if (name.endsWith(".csv") && !name.startsWith("documents/") && !name.startsWith("company_logo/")) {
                     csvFiles.put(name, new String(content, StandardCharsets.UTF_8));
                 } else if (name.startsWith("documents/") && !name.equals("documents/index.csv")) {
                     documentFiles.put(name.substring("documents/".length()), content);
                 } else if (name.equals("documents/index.csv")) {
                     csvFiles.put(name, new String(content, StandardCharsets.UTF_8));
+                } else if (name.startsWith("company_logo/")) {
+                    // Company logo - store with same key structure as documents
+                    documentFiles.put("company_logo:" + name.substring("company_logo/".length()), content);
                 }
                 zis.closeEntry();
             }
@@ -522,6 +525,11 @@ public class DataImportService {
         config.setCurrencyCode(getField(row, 8));
         config.setSigningOfficerName(getField(row, 9));
         config.setSigningOfficerTitle(getField(row, 10));
+        // column 11 = company_logo_path (set after logo file is imported)
+        String logoPath = getField(row, 11);
+        if (!logoPath.isEmpty()) {
+            config.setCompanyLogoPath(logoPath);
+        }
 
         companyConfigRepository.save(config);
         return 1;
@@ -1424,8 +1432,18 @@ public class DataImportService {
         Path rootLocation = documentStorageService.getRootLocation();
 
         for (Map.Entry<String, byte[]> entry : documentFiles.entrySet()) {
-            String storagePath = entry.getKey();
+            String key = entry.getKey();
             byte[] content = entry.getValue();
+
+            String storagePath;
+            if (key.startsWith("company_logo:")) {
+                // Company logo file - strip the prefix
+                storagePath = key.substring("company_logo:".length());
+                log.info("Importing company logo: {}", storagePath);
+            } else {
+                // Regular document file
+                storagePath = key;
+            }
 
             Path targetPath = rootLocation.resolve(storagePath);
             Files.createDirectories(targetPath.getParent());

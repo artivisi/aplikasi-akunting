@@ -63,6 +63,22 @@ VALUES (
     NOW()
 );
 
+-- Test transaction for document empty state test (should never have documents uploaded)
+INSERT INTO transactions (id, transaction_number, transaction_date, id_journal_template, amount, description, reference_number, notes, status, created_at, updated_at)
+VALUES (
+    'a0000000-0000-0000-0000-000000000010',
+    'TRX-TEST-0010',
+    CURRENT_DATE,
+    'e0000000-0000-0000-0000-000000000001', -- Pendapatan Jasa Konsultasi template
+    1000000,
+    'Test Transaction - For Empty Documents Test',
+    'DOC-EMPTY-001',
+    'This transaction is used only for empty documents state test',
+    'DRAFT',
+    NOW(),
+    NOW()
+);
+
 -- Test transaction 3: Voided transaction (Expense)
 INSERT INTO transactions (id, transaction_number, transaction_date, id_journal_template, amount, description, reference_number, notes, status, posted_at, posted_by, voided_at, voided_by, void_reason, void_notes, created_at, updated_at)
 VALUES (

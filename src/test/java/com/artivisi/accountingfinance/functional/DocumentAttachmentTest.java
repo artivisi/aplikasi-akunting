@@ -24,6 +24,8 @@ class DocumentAttachmentTest extends PlaywrightTestBase {
     // Test data IDs from V904 migration
     private static final String DRAFT_TRANSACTION_ID = "a0000000-0000-0000-0000-000000000001";
     private static final String POSTED_TRANSACTION_ID = "a0000000-0000-0000-0000-000000000002";
+    // Dedicated transaction for empty state test (no documents should ever be uploaded to this)
+    private static final String EMPTY_DOCS_TRANSACTION_ID = "a0000000-0000-0000-0000-000000000010";
 
     @TempDir
     Path tempDir;
@@ -82,7 +84,8 @@ class DocumentAttachmentTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display empty state when no documents")
         void shouldDisplayEmptyStateWhenNoDocuments() {
-            transactionDetailPage.navigate(DRAFT_TRANSACTION_ID);
+            // Use dedicated transaction that never has documents uploaded
+            transactionDetailPage.navigate(EMPTY_DOCS_TRANSACTION_ID);
 
             transactionDetailPage.assertNoDocumentsMessage();
         }

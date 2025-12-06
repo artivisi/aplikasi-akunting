@@ -137,6 +137,9 @@ public class DataExportService {
             // 34: Asset categories (depends on COA)
             addTextEntry(zos, "34_asset_categories.csv", exportAssetCategories());
 
+            // Export company logo
+            exportCompanyLogo(zos);
+
             // Export documents (files + index)
             exportDocuments(zos);
         }
@@ -205,7 +208,7 @@ public class DataExportService {
     private String exportCompanyConfig() {
         StringBuilder csv = new StringBuilder();
         csv.append("company_name,company_address,company_phone,company_email,tax_id,npwp,nitku,");
-        csv.append("fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title\n");
+        csv.append("fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path\n");
 
         companyConfigRepository.findFirst().ifPresent(c -> {
             csv.append(escapeCsv(c.getCompanyName())).append(",");
@@ -218,9 +221,34 @@ public class DataExportService {
             csv.append(c.getFiscalYearStartMonth()).append(",");
             csv.append(escapeCsv(c.getCurrencyCode())).append(",");
             csv.append(escapeCsv(c.getSigningOfficerName())).append(",");
-            csv.append(escapeCsv(c.getSigningOfficerTitle())).append("\n");
+            csv.append(escapeCsv(c.getSigningOfficerTitle())).append(",");
+            csv.append(escapeCsv(c.getCompanyLogoPath())).append("\n");
         });
         return csv.toString();
+    }
+
+    /**
+     * Export company logo file to ZIP archive.
+     */
+    private void exportCompanyLogo(ZipOutputStream zos) throws IOException {
+        companyConfigRepository.findFirst().ifPresent(config -> {
+            String logoPath = config.getCompanyLogoPath();
+            if (logoPath != null && !logoPath.isBlank()) {
+                try {
+                    Path filePath = documentStorageService.getRootLocation().resolve(logoPath);
+                    if (Files.exists(filePath)) {
+                        byte[] content = Files.readAllBytes(filePath);
+                        String zipPath = "company_logo/" + logoPath;
+                        addBinaryEntry(zos, zipPath, content);
+                        log.info("Exported company logo: {}", logoPath);
+                    } else {
+                        log.warn("Company logo file not found: {}", filePath);
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to export company logo: {}", e.getMessage());
+                }
+            }
+        });
     }
 
     // ============================================
