@@ -347,18 +347,106 @@ class SecurityRegressionTest extends PlaywrightTestBase {
     class AuthorizationTests {
 
         @Test
-        @DisplayName("Should restrict access based on roles")
-        void shouldRestrictAccessBasedOnRoles() {
-            // Login as admin
+        @DisplayName("Admin should have access to user management")
+        void adminShouldAccessUserManagement() {
             loginAsAdmin();
 
-            // Admin should be able to access user management
             navigateTo("/users");
             waitForPageLoad();
 
-            // Should not show 403 or redirect
+            // Admin should see user management page
             assertFalse(page.url().contains("/error") || page.url().contains("/403"),
                     "Admin should have access to user management");
+            assertTrue(page.locator("h1:has-text('Pengguna'), h1:has-text('User')").count() > 0 ||
+                       page.content().toLowerCase().contains("pengguna"),
+                    "Page should contain user management content");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Staff should NOT have access to user management")
+        void staffShouldNotAccessUserManagement() {
+            login("staff", "admin");
+
+            navigateTo("/users");
+            waitForPageLoad();
+
+            // SECURITY REQUIREMENT: Staff role does not have USER_VIEW permission
+            // Staff should be blocked from accessing /users endpoint
+            // Expected: 403 Forbidden or redirect to error page
+            assertFalse(page.url().contains("/users") && !page.url().contains("/error"),
+                    "SECURITY VULNERABILITY: Staff can access /users without USER_VIEW permission. " +
+                    "Fix: Ensure @PreAuthorize on UserController properly denies access.");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Employee should NOT have access to payroll")
+        void employeeShouldNotAccessPayroll() {
+            login("employee", "admin");
+
+            navigateTo("/payroll");
+            waitForPageLoad();
+
+            // SECURITY REQUIREMENT: Employee role does not have PAYROLL_VIEW permission
+            // Employee should be blocked from accessing /payroll endpoint
+            // Expected: 403 Forbidden or redirect to error page
+            assertFalse(page.url().contains("/payroll") && !page.url().contains("/error"),
+                    "SECURITY VULNERABILITY: Employee can access /payroll without PAYROLL_VIEW permission. " +
+                    "Fix: Ensure @PreAuthorize on PayrollController properly denies access.");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Auditor should NOT be able to create transactions")
+        void auditorShouldNotCreateTransactions() {
+            login("auditor", "admin");
+
+            navigateTo("/transactions/new");
+            waitForPageLoad();
+
+            // SECURITY REQUIREMENT: Auditor role does not have TRANSACTION_CREATE permission
+            // Auditor should be blocked from accessing /transactions/new
+            // Expected: 403 Forbidden or redirect to error page
+            assertFalse(page.url().contains("/transactions/new") && !page.url().contains("/error"),
+                    "SECURITY VULNERABILITY: Auditor can access /transactions/new without TRANSACTION_CREATE permission. " +
+                    "Fix: Ensure @PreAuthorize on TransactionController.newTransaction() properly denies access.");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Staff should NOT see POST transaction button")
+        void staffShouldNotPostTransaction() {
+            login("staff", "admin");
+
+            navigateTo("/transactions/a0000000-0000-0000-0000-000000000001");
+            waitForPageLoad();
+
+            // SECURITY REQUIREMENT: Staff role does not have TRANSACTION_POST permission
+            // The "Posting" button should be hidden via sec:authorize in template
+            boolean hasPostButton = page.locator("button:has-text('Posting'), a:has-text('Posting')").count() > 0;
+
+            assertFalse(hasPostButton,
+                    "SECURITY VULNERABILITY: Staff can see Posting button without TRANSACTION_POST permission. " +
+                    "Fix: Ensure sec:authorize=\"hasAuthority('TRANSACTION_POST')\" on button in template.");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Employee should NOT access dashboard")
+        void employeeShouldNotAccessDashboard() {
+            login("employee", "admin");
+
+            navigateTo("/dashboard");
+            waitForPageLoad();
+
+            // SECURITY REQUIREMENT: Employee role does not have DASHBOARD_VIEW permission
+            // Employee should be blocked or redirected to self-service
+            // Expected: 403 Forbidden, error page, or redirect to /self-service
+            boolean isBlocked = page.url().contains("/error") ||
+                               page.url().contains("/403") ||
+                               page.url().contains("/self-service") ||
+                               page.url().contains("/login");
+
+            assertTrue(isBlocked,
+                    "SECURITY VULNERABILITY: Employee can access /dashboard without DASHBOARD_VIEW permission. " +
+                    "Fix: Ensure @PreAuthorize on DashboardController properly denies access. " +
+                    "Current URL: " + page.url());
         }
 
         @Test
@@ -366,13 +454,10 @@ class SecurityRegressionTest extends PlaywrightTestBase {
         void shouldPreventHorizontalPrivilegeEscalation() {
             loginAsAdmin();
 
-            // Try to access another user's data by manipulating URLs
-            // This is a basic check - more comprehensive tests needed
             navigateTo("/users");
             waitForPageLoad();
 
-            // Application should validate ownership/permissions
-            // Currently just documenting the test - implement specific checks
+            // This is a placeholder test - more comprehensive IDOR tests needed
         }
     }
 
@@ -485,6 +570,85 @@ class SecurityRegressionTest extends PlaywrightTestBase {
 
             // File type validation is handled server-side
             // This test documents the expected behavior
+        }
+    }
+
+    @Nested
+    @DisplayName("Business Logic Security")
+    class BusinessLogicSecurityTests {
+
+        // Test data IDs from V904 migration
+        private static final String POSTED_TRANSACTION_ID = "a0000000-0000-0000-0000-000000000002";
+        private static final String VOIDED_TRANSACTION_ID = "a0000000-0000-0000-0000-000000000003";
+
+        @Test
+        @DisplayName("Should not allow editing posted transaction via direct URL")
+        void shouldNotAllowEditingPostedTransaction() {
+            loginAsAdmin();
+
+            // Try to access edit page for posted transaction
+            navigateTo("/transactions/" + POSTED_TRANSACTION_ID + "/edit");
+            waitForPageLoad();
+
+            // Should redirect away from edit page or show error
+            // Posted transactions should not be editable
+            String currentUrl = page.url();
+            boolean isOnEditPage = currentUrl.contains("/edit");
+            boolean hasError = page.locator(".alert-danger, .alert-warning, [class*='error']").count() > 0;
+
+            assertTrue(!isOnEditPage || hasError,
+                    "Posted transaction should not be editable, was redirected to: " + currentUrl);
+        }
+
+        @Test
+        @DisplayName("Should not allow editing voided transaction via direct URL")
+        void shouldNotAllowEditingVoidedTransaction() {
+            loginAsAdmin();
+
+            // Try to access edit page for voided transaction
+            navigateTo("/transactions/" + VOIDED_TRANSACTION_ID + "/edit");
+            waitForPageLoad();
+
+            // Should redirect away from edit page or show error
+            String currentUrl = page.url();
+            boolean isOnEditPage = currentUrl.contains("/edit");
+            boolean hasError = page.locator(".alert-danger, .alert-warning, [class*='error']").count() > 0;
+
+            assertTrue(!isOnEditPage || hasError,
+                    "Voided transaction should not be editable, was redirected to: " + currentUrl);
+        }
+
+        @Test
+        @DisplayName("Should not display delete button for posted transaction")
+        void shouldNotDisplayDeleteButtonForPostedTransaction() {
+            loginAsAdmin();
+
+            navigateTo("/transactions/" + POSTED_TRANSACTION_ID);
+            waitForPageLoad();
+
+            // Posted transactions should only have void option, not delete
+            boolean hasDeleteButton = page.locator("button:has-text('Hapus'), a:has-text('Hapus'), [data-action='delete']").count() > 0;
+
+            assertFalse(hasDeleteButton,
+                    "Posted transaction should not have delete button - only void is allowed");
+        }
+
+        @Test
+        @DisplayName("Should not allow voiding an already voided transaction")
+        void shouldNotAllowVoidingVoidedTransaction() {
+            loginAsAdmin();
+
+            // Try to access void page for already voided transaction
+            navigateTo("/transactions/" + VOIDED_TRANSACTION_ID + "/void");
+            waitForPageLoad();
+
+            // Should redirect away or show error
+            String currentUrl = page.url();
+            boolean isOnVoidPage = currentUrl.contains("/void");
+            boolean hasError = page.locator(".alert-danger, .alert-warning, [class*='error']").count() > 0;
+
+            assertTrue(!isOnVoidPage || hasError,
+                    "Already voided transaction should not be voidable again, was at: " + currentUrl);
         }
     }
 }

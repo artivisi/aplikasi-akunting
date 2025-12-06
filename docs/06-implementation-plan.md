@@ -834,14 +834,15 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Session timeout after 15 min idle - requires time manipulation or mock clock
 
 **2. Authorization Testing (Playwright)**
-- [x] RBAC restrictions (`SecurityRegressionTest.shouldRestrictAccessBasedOnRoles`)
-- [ ] Staff accessing /settings/users → 403
-- [ ] Employee accessing /payroll → 403
-- [ ] Auditor modifying transactions → 403
+- [x] RBAC restrictions (`SecurityRegressionTest.AuthorizationTests`)
+  - [x] Admin access to user management - PASS
+  - [x] Staff accessing /users → FAIL (SECURITY GAP - needs fix)
+  - [x] Employee accessing /payroll → FAIL (SECURITY GAP - needs fix)
+  - [x] Auditor accessing /transactions/new → FAIL (SECURITY GAP - needs fix)
+  - [x] Staff seeing POST button → FAIL (SECURITY GAP - needs fix)
+  - [x] Employee accessing /dashboard → FAIL (SECURITY GAP - needs fix)
 - [ ] IDOR: Access /employees/{other-id} as Employee role → 403
 - [ ] IDOR: Modify /transactions/{other-id} without permission → 403
-- [ ] POST to admin endpoints as non-admin → 403
-- [ ] DELETE operations without permission → 403
 
 **3. Input Validation (Playwright + ZAP)**
 - [x] SQL injection in search (`SecurityRegressionTest.shouldRejectSqlInjection`)
@@ -876,11 +877,11 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Sensitive data not in error messages
 
 **7. Business Logic (Playwright)**
-- [ ] Modify posted journal entry → rejected
-- [ ] Delete posted transaction → only void allowed
+- [x] Modify posted journal entry → rejected (`SecurityRegressionTest.shouldNotAllowEditingPostedTransaction`)
+- [x] Delete posted transaction → only void allowed (`SecurityRegressionTest.shouldNotDisplayDeleteButtonForPostedTransaction`)
+- [x] Modify voided transactions → rejected (`SecurityRegressionTest.shouldNotAllowEditingVoidedTransaction`, `shouldNotAllowVoidingVoidedTransaction`)
 - [ ] Negative amounts where not allowed → rejected
 - [ ] Journal entry debit ≠ credit → rejected
-- [ ] Modify voided transactions → rejected
 
 **8. Error Handling (Playwright)**
 - [x] No stack traces in error pages (`SecurityRegressionTest.shouldNotExposeStackTraces`)
