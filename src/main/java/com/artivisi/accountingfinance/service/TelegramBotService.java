@@ -258,7 +258,8 @@ public class TelegramBotService {
             sendProcessingResult(chatId, draft);
 
         } catch (Exception e) {
-            log.error("Error processing photo", e);
+            // Network/file errors are expected - log at warn without stack trace
+            log.warn("Error processing photo for chat {}: {}", chatId, e.getMessage());
             sendMessage(chatId, "❌ Gagal memproses struk: " + e.getMessage());
         }
     }

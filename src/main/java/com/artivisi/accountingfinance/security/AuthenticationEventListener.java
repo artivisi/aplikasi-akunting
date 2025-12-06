@@ -5,7 +5,9 @@ import com.artivisi.accountingfinance.service.SecurityAuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.stereotype.Component;
@@ -47,5 +49,27 @@ public class AuthenticationEventListener {
         String username = event.getAuthentication().getName();
         securityAuditService.log(AuditEventType.LOGOUT, null);
         log.info("User logged out: {}", LogSanitizer.username(username));
+    }
+
+    /**
+     * Handle service exceptions during authentication (e.g., account lockout).
+     * This intercepts InternalAuthenticationServiceException and logs appropriately
+     * instead of letting Spring Security log it at ERROR with full stack trace.
+     */
+    @EventListener
+    public void onAuthenticationServiceException(AuthenticationFailureServiceExceptionEvent event) {
+        String username = (String) event.getAuthentication().getPrincipal();
+        Throwable cause = event.getException().getCause();
+
+        if (cause instanceof LockedException) {
+            // Account lockout is expected behavior, log at WARN without stack trace
+            log.warn("Login blocked for user {}: account locked due to failed attempts",
+                    LogSanitizer.username(username));
+            securityAuditService.logLogin(username, false, "Account locked - login blocked");
+        } else {
+            // Other service exceptions are unexpected, log at ERROR
+            log.error("Authentication service error for user {}: {}",
+                    LogSanitizer.username(username), event.getException().getMessage());
+        }
     }
 }

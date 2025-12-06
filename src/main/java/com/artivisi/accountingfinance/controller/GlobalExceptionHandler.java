@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.apache.catalina.connector.ClientAbortException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -112,8 +114,33 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        log.warn("Method not supported: {} (supported: {})", ex.getMethod(), ex.getSupportedHttpMethods());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new ErrorResponse(
+                        HttpStatus.METHOD_NOT_ALLOWED.value(),
+                        "Method Not Allowed",
+                        "HTTP method " + ex.getMethod() + " tidak didukung untuk endpoint ini.",
+                        LocalDateTime.now()
+                ));
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public ResponseEntity<Void> handleClientAbort(ClientAbortException ex) {
+        // Client disconnected (browser closed, navigation, etc.) - expected behavior
+        log.debug("Client aborted connection: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        // Check if this is a client abort wrapped in another exception
+        if (isClientAbort(ex)) {
+            log.debug("Client aborted connection: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
         log.error("Unexpected error occurred", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(
@@ -122,6 +149,25 @@ public class GlobalExceptionHandler {
                         "An unexpected error occurred. Please try again later.",
                         LocalDateTime.now()
                 ));
+    }
+
+    /**
+     * Check if exception is or contains a ClientAbortException (client disconnected).
+     */
+    private boolean isClientAbort(Throwable ex) {
+        Throwable current = ex;
+        while (current != null) {
+            if (current instanceof ClientAbortException) {
+                return true;
+            }
+            // Also check for common "Broken pipe" or "Connection reset" messages
+            String message = current.getMessage();
+            if (message != null && (message.contains("Broken pipe") || message.contains("Connection reset"))) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     public record ErrorResponse(

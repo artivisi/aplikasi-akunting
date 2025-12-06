@@ -59,7 +59,8 @@ public class TelegramWebhookController {
             telegramBotService.handleUpdate(update);
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
-            log.error("Error handling Telegram update", e);
+            // Log at warn without stack trace - webhook errors are expected (network, parsing, etc.)
+            log.warn("Error handling Telegram update {}: {}", update.getUpdateId(), e.getMessage());
             // Telegram Bot API requires 200 response to acknowledge receipt
             // Returning non-200 causes Telegram to retry the webhook indefinitely
             // See: https://core.telegram.org/bots/api#setwebhook
