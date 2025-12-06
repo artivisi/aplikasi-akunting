@@ -163,68 +163,98 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - Gain/loss calculation
 - Disposal journal entries
 
-## Planned Features
-
-### Phase 5: Inventory & Production
+### Phase 5: Inventory & Production (Complete)
 
 **Product Management**
-- Product master with unit of measure
-- Product categories
-- Optional BOM (Bill of Materials)
+- Product master with unit of measure (FIFO/Weighted Average)
+- Product categories (hierarchical)
+- Bill of Materials (BOM) for production
 
 **Inventory Transactions**
-- Stock in (purchases)
-- Stock out (sales)
-- Stock adjustments
-- Stock transfers
+- Purchase recording (stock in)
+- Sale recording with auto-COGS
+- Stock adjustments (in/out)
+- Production in/out
 
 **Stock Valuation**
-- FIFO method
+- FIFO method with layer tracking
 - Weighted average method
-- Perpetual inventory
+- Perpetual inventory with real-time balance
 
-**Production (Simple)**
-- Production orders
-- Material consumption
-- Finished goods receipt
-- WIP tracking
+**Simple Production**
+- BOM (Bill of Materials) definition
+- Production orders with status workflow
+- Material consumption on completion
+- Finished goods receipt with cost accumulation
 
-**COGS Integration**
-- Auto-calculate COGS on sales
-- Inventory journal entries
+**Sales Integration**
+- Auto-COGS calculation on sales posting
+- Margin calculation per transaction
+- Product profitability report
 
-### Future Roadmap
+### Phase 6: Security Hardening (In Progress)
 
-**Phase 6: Budget Management**
-- Budget per account per period
-- Budget vs actual reports
-- Variance analysis
-- Over-budget alerts
+**Data at Rest Encryption**
+- Field-level AES-256-GCM encryption for PII
+- Document storage encryption
+- Database connection SSL
 
-**Phase 7: Bank Reconciliation**
-- CSV import from BCA, BNI, BSI, CIMB
-- Configurable parsers
-- Exact/fuzzy/manual matching
-- Reconciliation workflow
+**Authentication Hardening**
+- Password complexity (12+ chars, mixed requirements)
+- Account lockout (5 attempts, 30-minute lockout)
+- Rate limiting on login and API endpoints
+- Session timeout (15 minutes)
 
-**Phase 8: Marketplace Reconciliation**
-- CSV import from Tokopedia, Shopee, Bukalapak, Lazada
-- Fee tracking
+**Input Validation & Output Encoding**
+- Magic byte validation for file uploads
+- XSS prevention
+- Log injection prevention
+- Generic error messages
+
+**Security Audit Logging**
+- Authentication events (login/logout/failed)
+- User management operations
+- Sensitive data access
+- Document operations
+
+**Data Protection**
+- Data masking for sensitive fields in UI
+- GDPR/UU PDP compliance (DSAR export, anonymization)
+- Privacy policy page
+
+**DevSecOps**
+- CodeQL static analysis
+- SonarCloud integration
+- OWASP Dependency-Check
+- ZAP DAST scanning
+
+## Planned Features
+
+### Phase 7: API Foundation
+- REST API for external integrations
+- API key authentication
+- Transaction API with idempotency
+- Template and Account APIs
+- OpenAPI/Swagger documentation
+
+### Phase 8: Online Seller Support
+- Marketplace settlement CSV import (Tokopedia, Shopee, Bukalapak, Lazada)
+- Fee tracking and extraction
 - Shipping cost allocation
-- Net settlement calculation
+- Seller dashboard with GMV per marketplace
 
-**Phase 9: Document Management**
-- Receipt/invoice upload
-- PDF/image storage (S3/MinIO)
-- Thumbnail generation
-- 10-year retention (Indonesian law)
-- Audit trail for document access
+### Phase 9: Bank Reconciliation
+- Bank statement CSV import (BCA, BNI, Mandiri, BSI, CIMB)
+- Configurable column mapping
+- Auto-matching (exact, fuzzy, keyword)
+- Manual matching UI
+- Reconciliation reports
 
-**Phase 10: Advanced Reporting**
-- Custom report builder
-- Scheduled report generation
-- Email delivery
-- PDF/Excel templates
+### Phase 10: Analytics & Insights
+- Revenue/expense/profit trend charts (12 months)
+- Smart alerts (cash low, overdue receivables, expense spikes)
+- Transaction tags for flexible categorization
+- Tag-based reports
 
 ## Multi-Industry Expansion Strategy
 

@@ -74,13 +74,15 @@ public class UserManualGenerator {
             new SectionGroup("pelaporan", "Pelaporan", "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", List.of(
                 new Section("laporan-harian", "Laporan Harian", "20-laporan-harian.md", List.of("dashboard", "transactions-list", "journals-list")),
                 new Section("laporan-bulanan", "Laporan Bulanan", "21-laporan-bulanan.md", List.of("reports-trial-balance", "reports-balance-sheet", "reports-income-statement")),
-                new Section("laporan-tahunan", "Laporan Tahunan", "22-laporan-tahunan.md", List.of("reports-income-statement", "reports-balance-sheet"))
+                new Section("laporan-tahunan", "Laporan Tahunan", "22-laporan-tahunan.md", List.of("reports-income-statement", "reports-balance-sheet")),
+                new Section("laporan-penyusutan", "Laporan Penyusutan", "23-laporan-penyusutan.md", List.of("reports-depreciation")),
+                new Section("penutupan-tahun-buku", "Penutupan Tahun Buku", "24-penutupan-tahun-buku.md", List.of("reports-fiscal-closing"))
             )),
             new SectionGroup("perpajakan", "Perpajakan", "M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z", List.of(
                 new Section("transaksi-ppn", "Transaksi PPN", "30-transaksi-ppn.md", List.of("transactions-form", "reports-ppn-summary")),
                 new Section("transaksi-pph", "Transaksi PPh", "31-transaksi-pph.md", List.of("transactions-form", "reports-pph23-withholding")),
                 new Section("laporan-pajak", "Laporan Pajak", "32-laporan-pajak.md", List.of("reports-ppn-summary", "reports-pph23-withholding", "reports-tax-summary")),
-                new Section("kalender-pajak", "Kalender Pajak", "33-kalender-pajak.md", List.of())
+                new Section("kalender-pajak", "Kalender Pajak", "33-kalender-pajak.md", List.of("tax-calendar", "tax-calendar-yearly"))
             )),
             new SectionGroup("manajemen-proyek", "Manajemen Proyek", "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10", List.of(
                 new Section("setup-proyek", "Setup Proyek", "40-setup-proyek.md", List.of("projects-form", "clients-list")),
@@ -93,21 +95,29 @@ public class UserManualGenerator {
                 new Section("kelola-template", "Kelola Template", "51-kelola-template.md", List.of("templates-list", "templates-detail", "templates-form")),
                 new Section("kelola-klien", "Kelola Klien", "52-kelola-klien.md", List.of("clients-list", "clients-detail", "clients-form")),
                 new Section("jadwal-amortisasi", "Jadwal Amortisasi", "53-jadwal-amortisasi.md", List.of("amortization-list", "amortization-form")),
-                new Section("kelola-periode-fiskal", "Kelola Periode Fiskal", "54-kelola-periode-fiskal.md", List.of()),
+                new Section("kelola-periode-fiskal", "Kelola Periode Fiskal", "54-kelola-periode-fiskal.md", List.of("fiscal-periods-list")),
                 new Section("setup-telegram", "Setup Telegram Bot", "55-setup-telegram.md", List.of())
             )),
             new SectionGroup("penggajian", "Penggajian", "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z", List.of(
                 new Section("kelola-karyawan", "Kelola Karyawan", "60-kelola-karyawan.md", List.of("employees-list", "employees-form")),
-                new Section("komponen-gaji", "Komponen Gaji", "61-komponen-gaji.md", List.of()),
-                new Section("kalkulator-bpjs", "Kalkulator BPJS", "62-kalkulator-bpjs.md", List.of()),
-                new Section("kalkulator-pph21", "Kalkulator PPh 21", "63-kalkulator-pph21.md", List.of()),
+                new Section("komponen-gaji", "Komponen Gaji", "61-komponen-gaji.md", List.of("salary-components-list", "salary-components-form")),
+                new Section("kalkulator-bpjs", "Kalkulator BPJS", "62-kalkulator-bpjs.md", List.of("bpjs-calculator")),
+                new Section("kalkulator-pph21", "Kalkulator PPh 21", "63-kalkulator-pph21.md", List.of("pph21-calculator")),
                 new Section("payroll-processing", "Proses Penggajian", "64-payroll-processing.md", List.of("payroll-list", "payroll-detail", "payroll-form"))
             )),
             new SectionGroup("administrasi", "Administrasi", "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z", List.of(
                 new Section("kelola-pengguna", "Kelola Pengguna", "70-kelola-pengguna.md", List.of("users-list", "users-form", "users-detail")),
                 new Section("layanan-mandiri", "Layanan Mandiri", "71-layanan-mandiri.md", List.of("self-service-payslips", "self-service-bukti-potong", "self-service-profile")),
-                new Section("kebijakan-data", "Kebijakan Data", "80-kebijakan-data.md", List.of()),
-                new Section("ekspor-data", "Ekspor Data", "81-ekspor-data.md", List.of())
+                new Section("kebijakan-data", "Kebijakan Data", "80-kebijakan-data.md", List.of("settings-data-subjects", "settings-privacy")),
+                new Section("ekspor-data", "Ekspor Data", "81-ekspor-data.md", List.of()),
+                new Section("keamanan", "Fitur Keamanan", "82-keamanan.md", List.of("settings-audit-logs"))
+            )),
+            new SectionGroup("inventori", "Inventori & Produksi", "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4", List.of(
+                new Section("kelola-produk", "Kelola Produk", "75-kelola-produk.md", List.of("products-list", "products-form", "product-categories-list")),
+                new Section("transaksi-inventori", "Transaksi Inventori", "76-transaksi-inventori.md", List.of("inventory-transactions", "inventory-purchase", "inventory-sale", "inventory-adjustment")),
+                new Section("kartu-stok", "Kartu Stok", "77-kartu-stok.md", List.of("stock-list", "inventory-reports", "inventory-stock-balance", "inventory-stock-movement")),
+                new Section("produksi-bom", "Produksi & BOM", "78-produksi-bom.md", List.of("bom-list", "bom-form", "production-list", "production-form")),
+                new Section("analisis-profitabilitas-produk", "Profitabilitas Produk", "79-analisis-profitabilitas-produk.md", List.of("inventory-reports-profitability"))
             )),
             new SectionGroup("lampiran", "Lampiran", "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", List.of(
                 new Section("glosarium", "Glosarium", "90-glosarium.md", List.of()),

@@ -191,9 +191,63 @@ public class ScreenshotCapture {
 
             // Inventory - Reports
             new PageDefinition("inventory-reports", "Laporan Persediaan", "/inventory/reports", true,
-                    "Daftar laporan persediaan yang tersedia", "laporan-inventori"),
+                    "Daftar laporan persediaan yang tersedia", "kartu-stok"),
             new PageDefinition("inventory-reports-profitability", "Profitabilitas Produk", "/inventory/reports/profitability", true,
-                    "Analisis margin dan profit per produk", "analisis-profitabilitas-produk")
+                    "Analisis margin dan profit per produk", "analisis-profitabilitas-produk"),
+            new PageDefinition("inventory-stock-balance", "Laporan Saldo Stok", "/inventory/reports/stock-balance", true,
+                    "Laporan saldo stok per tanggal", "kartu-stok"),
+            new PageDefinition("inventory-stock-movement", "Laporan Pergerakan Stok", "/inventory/reports/stock-movement", true,
+                    "Laporan pergerakan stok per periode", "kartu-stok"),
+
+            // Fixed Assets
+            new PageDefinition("assets-list", "Daftar Aset Tetap", "/assets", true,
+                    "Daftar aset tetap dengan filter status dan kategori", "kelola-aset"),
+            new PageDefinition("assets-form", "Form Aset Tetap", "/assets/new", true,
+                    "Form untuk menambah aset tetap baru", "kelola-aset"),
+            new PageDefinition("assets-depreciation", "Penyusutan Aset", "/assets/depreciation", true,
+                    "Daftar penyusutan aset dengan filter periode", "penyusutan-aset"),
+
+            // Asset Categories
+            new PageDefinition("asset-categories-list", "Kategori Aset", "/asset-categories", true,
+                    "Daftar kategori aset dengan pengaturan penyusutan default", "kelola-aset"),
+
+            // Depreciation Report
+            new PageDefinition("reports-depreciation", "Laporan Penyusutan", "/reports/depreciation", true,
+                    "Laporan penyusutan untuk SPT Tahunan (Lampiran 1A)", "laporan-penyusutan"),
+
+            // Fiscal Year Closing
+            new PageDefinition("reports-fiscal-closing", "Penutupan Tahun Buku", "/reports/fiscal-closing", true,
+                    "Proses penutupan tahun buku dengan jurnal penutup", "penutupan-tahun-buku"),
+
+            // Calculators
+            new PageDefinition("bpjs-calculator", "Kalkulator BPJS", "/bpjs-calculator", true,
+                    "Kalkulator iuran BPJS Kesehatan dan Ketenagakerjaan", "kalkulator-bpjs"),
+            new PageDefinition("pph21-calculator", "Kalkulator PPh 21", "/pph21-calculator", true,
+                    "Kalkulator pajak penghasilan karyawan", "kalkulator-pph21"),
+
+            // Salary Components
+            new PageDefinition("salary-components-list", "Komponen Gaji", "/salary-components", true,
+                    "Daftar komponen gaji dengan tipe dan rate default", "komponen-gaji"),
+            new PageDefinition("salary-components-form", "Form Komponen Gaji", "/salary-components/new", true,
+                    "Form untuk menambah komponen gaji baru", "komponen-gaji"),
+
+            // Settings - Security
+            new PageDefinition("settings-audit-logs", "Log Audit Keamanan", "/settings/audit-logs", true,
+                    "Daftar log audit keamanan dengan filter event dan tanggal", "keamanan"),
+            new PageDefinition("settings-data-subjects", "Hak Subjek Data", "/settings/data-subjects", true,
+                    "Daftar subjek data untuk kepatuhan GDPR/UU PDP", "kebijakan-data"),
+            new PageDefinition("settings-privacy", "Kebijakan Privasi", "/settings/privacy", false,
+                    "Halaman kebijakan privasi aplikasi", "kebijakan-data"),
+
+            // Fiscal Periods
+            new PageDefinition("fiscal-periods-list", "Periode Fiskal", "/fiscal-periods", true,
+                    "Daftar periode fiskal dengan status tutup buku", "kelola-periode-fiskal"),
+
+            // Tax Calendar
+            new PageDefinition("tax-calendar", "Kalender Pajak", "/tax-calendar", true,
+                    "Kalender deadline pajak bulanan", "kalender-pajak"),
+            new PageDefinition("tax-calendar-yearly", "Kalender Pajak Tahunan", "/tax-calendar/yearly", true,
+                    "Overview deadline pajak setahun penuh", "kalender-pajak")
         );
     }
 

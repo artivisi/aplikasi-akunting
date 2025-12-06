@@ -17,6 +17,9 @@ Panduan ini disusun berdasarkan **tugas yang ingin Anda selesaikan**, bukan berd
 | Cetak laporan keuangan bulanan | [Laporan Bulanan](21-laporan-bulanan.md) |
 | Hitung dan lapor PPN | [Transaksi PPN](30-transaksi-ppn.md) & [Laporan Pajak](32-laporan-pajak.md) |
 | Kelola proyek dan invoice | [Setup Proyek](40-setup-proyek.md) |
+| Jalankan penggajian | [Proses Payroll](64-payroll-processing.md) |
+| Kelola stok barang | [Transaksi Inventori](76-transaksi-inventori.md) |
+| Kelola user dan akses | [Kelola Pengguna](70-kelola-pengguna.md) |
 | Setup awal aplikasi | [Setup Awal](50-setup-awal.md) |
 
 ## Struktur Setiap Bab
@@ -79,6 +82,29 @@ Setiap bab dalam panduan ini mengikuti struktur yang sama:
 - [Jadwal Amortisasi](53-jadwal-amortisasi.md) - Beban dibayar dimuka
 - [Kelola Periode Fiskal](54-kelola-periode-fiskal.md) - Tutup buku bulanan
 - [Setup Telegram Bot](55-setup-telegram.md) - Konfigurasi integrasi Telegram
+
+### Bagian VI: Penggajian
+- [Kelola Karyawan](60-kelola-karyawan.md) - Data karyawan dan PTKP
+- [Komponen Gaji](61-komponen-gaji.md) - Tunjangan dan potongan
+- [Kalkulator BPJS](62-kalkulator-bpjs.md) - Hitung iuran BPJS
+- [Kalkulator PPh 21](63-kalkulator-pph21.md) - Hitung pajak penghasilan
+- [Proses Payroll](64-payroll-processing.md) - Jalankan penggajian bulanan
+
+### Bagian VII: Pengguna & Keamanan
+- [Kelola Pengguna](70-kelola-pengguna.md) - User dan role management
+- [Layanan Mandiri](71-layanan-mandiri.md) - Self-service untuk karyawan
+
+### Bagian VIII: Inventori & Produksi
+- [Kelola Produk](75-kelola-produk.md) - Master produk dan kategori
+- [Transaksi Inventori](76-transaksi-inventori.md) - Pembelian, penjualan, adjustment
+- [Kartu Stok](77-kartu-stok.md) - Laporan stok dan valuasi
+- [Produksi (BOM)](78-produksi-bom.md) - Bill of Materials dan order produksi
+- [Analisis Profitabilitas Produk](79-analisis-profitabilitas-produk.md) - Margin dan HPP
+
+### Bagian IX: Kebijakan Data & Keamanan
+- [Kebijakan Data](80-kebijakan-data.md) - GDPR/UU PDP compliance
+- [Ekspor Data](81-ekspor-data.md) - Full data export/import
+- [Keamanan](82-keamanan.md) - Password, enkripsi, audit log
 
 ### Lampiran
 - [Glosarium](90-glosarium.md) - Istilah-istilah akuntansi

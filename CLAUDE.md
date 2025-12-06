@@ -8,36 +8,23 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 
 - **Phase 0:** ✅ Complete (project setup, auth, CI/CD)
 - **Phase 1:** ✅ Complete (Core Accounting MVP)
-  - 1.1 COA: ✅ Complete
-  - 1.2 Journal Entries: ✅ Complete
-  - 1.3 Basic Reports: ✅ Complete
-  - 1.4 Journal Templates: ✅ Complete
-  - 1.5 Transactions: ✅ Complete
-  - 1.6 Formula Support: ✅ Complete
-  - 1.7 Template Enhancements: ✅ Complete
-  - 1.7.5 HTMX Optimization: ✅ Complete
-  - 1.8 Amortization Schedules: ✅ Complete
-  - 1.9 Project Tracking: ✅ Complete
-  - 1.10 Dashboard KPIs: ✅ Complete
-  - 1.11 User Manual: ✅ Complete
-  - 1.12 Data Import: ✅ Complete
-  - 1.13 Deployment & Operations: ✅ Complete
 - **Phase 2:** ✅ Complete (Tax Compliance + Cash Flow)
-  - 2.0-2.10: All complete (Refactoring, Documents, Telegram, Tax, Reports, Fiscal Periods, Tax Calendar, Backup/Restore, Cash Flow Statement)
 - **Phase 3:** ✅ Complete (Payroll + RBAC + Employee Self-Service)
-  - 3.1 Employee Management: ✅ Complete
-  - 3.2 Salary Components: ✅ Complete
-  - 3.3 BPJS Calculation: ✅ Complete
-  - 3.4 PPh 21 Calculation: ✅ Complete
-  - 3.5 Payroll Processing: ✅ Complete
-  - 3.6 Payroll Reports: ✅ Complete
-  - 3.7 User Management & RBAC: ✅ Complete
-  - 3.8 Employee Self-Service: ✅ Complete
 - **Phase 4:** ✅ Complete (Fixed Assets)
-  - 4.1 Fixed Asset Register: ✅ Complete
-  - 4.2 Depreciation: ✅ Complete
-  - 4.3 Asset Disposal: ✅ Complete
-- **Phase 5:** Inventory & Production
+- **Phase 5:** ✅ Complete (Inventory & Production)
+  - 5.1 Product Master: ✅ Complete
+  - 5.2 Inventory Transactions: ✅ Complete
+  - 5.3 Inventory Reports: ✅ Complete
+  - 5.4 Simple Production (BOM): ✅ Complete
+  - 5.5 Integration with Sales: ✅ Complete
+- **Phase 6:** 🔄 In Progress (Security Hardening)
+  - 6.1-6.5: ✅ Complete (Critical fixes, Encryption, Auth hardening, Input validation, Audit logging)
+  - 6.6: ✅ Complete (Data Protection)
+  - 6.7: ✅ Complete (API Security)
+  - 6.8: 🔄 Partial (GDPR/UU PDP - consent management, breach response pending)
+  - 6.9: 🔄 Partial (DevSecOps - container security, API fuzzing pending)
+  - 6.10: ✅ Complete (Security Documentation)
+- **Phase 7:** ⏳ Not Started (API Foundation)
 - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -97,17 +84,30 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 4 (Fixed Assets) complete!
+Phase 6 (Security Hardening) in progress!
 
-Phase 4 highlights:
-- Fixed Asset entity with status tracking (ACTIVE, FULLY_DEPRECIATED, DISPOSED)
-- Asset Categories with default depreciation settings and account mappings
-- Depreciation methods: Straight-line and Declining Balance
-- Monthly depreciation batch job (integrated with MonthlyJournalScheduler)
-- Depreciation journal entries via templates with dynamic account mapping (account_hint)
-- Asset disposal workflow (sell, write-off, transfer) with gain/loss calculation
-- Playwright functional tests for CRUD operations
+Phase 5 highlights (complete):
+- Product and ProductCategory entities with FIFO/Weighted Average costing
+- Inventory transactions: Purchase, Sale, Adjustment, Production In/Out
+- FIFO layers and weighted average cost calculation
+- BOM (Bill of Materials) for simple production
+- Production orders with component consumption and finished goods receipt
+- Auto-COGS calculation on sales with margin analysis
+- Product profitability reports
+- Playwright functional tests (73+ tests)
 
-Next: Phase 5 (Inventory & Production)
+Phase 6 highlights (in progress):
+- Field-level encryption (AES-256-GCM) for PII fields
+- Document storage encryption with backward compatibility
+- Password complexity enforcement (12+ chars, mixed case, numbers, special)
+- Account lockout (5 attempts, 30-minute lockout)
+- Rate limiting on login and API endpoints
+- Comprehensive security audit logging
+- Data masking for sensitive fields in UI
+- GDPR/UU PDP compliance (DSAR export, anonymization)
+- DevSecOps: CodeQL, SonarCloud, OWASP Dependency-Check, ZAP DAST
+- Security regression tests (Playwright + JUnit)
+
+Next: Complete Phase 6 remaining items (consent management, container security)
 
 See `docs/06-implementation-plan.md` for full plan
