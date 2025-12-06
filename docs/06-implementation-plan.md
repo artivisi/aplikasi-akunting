@@ -819,6 +819,84 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] Input sanitization for logs (`LogSanitizerTest.java` - 30 tests)
   - [x] Encryption/decryption (`FileEncryptionServiceTest.java` - 25 tests)
 
+#### 6.9.9 Automated Penetration Tests (from checklist)
+
+**Goal:** Automate tests from `docs/09-penetration-testing-checklist.md` via Playwright/JUnit/ZAP.
+
+**1. Authentication Testing (Playwright)**
+- [x] Valid/invalid credentials login (`SecurityRegressionTest.shouldRejectInvalidCredentials`)
+- [x] SQL injection in login - ZAP passive scan covers this
+- [x] XSS in username (`SecurityRegressionTest.XssPreventionTests`)
+- [x] Account lockout after 5 attempts (`SecurityRegressionTest.shouldProtectAgainstBruteForce`)
+- [x] Session invalidated on logout (`SecurityRegressionTest.shouldInvalidateSessionOnLogout`)
+- [x] Session fixation protection (`SecurityRegressionTest.shouldRegenerateSessionAfterLogin`)
+- [x] Session cookie flags verification (HttpOnly, SameSite) - `SecurityRegressionTest.shouldUseSecureSessionCookies`
+- [ ] Session timeout after 15 min idle - requires time manipulation or mock clock
+
+**2. Authorization Testing (Playwright)**
+- [x] RBAC restrictions (`SecurityRegressionTest.shouldRestrictAccessBasedOnRoles`)
+- [ ] Staff accessing /settings/users → 403
+- [ ] Employee accessing /payroll → 403
+- [ ] Auditor modifying transactions → 403
+- [ ] IDOR: Access /employees/{other-id} as Employee role → 403
+- [ ] IDOR: Modify /transactions/{other-id} without permission → 403
+- [ ] POST to admin endpoints as non-admin → 403
+- [ ] DELETE operations without permission → 403
+
+**3. Input Validation (Playwright + ZAP)**
+- [x] SQL injection in search (`SecurityRegressionTest.shouldRejectSqlInjection`)
+- [x] XSS payloads escaped (`SecurityRegressionTest.XssPreventionTests` - 7 payloads)
+- [x] File upload: magic byte validation (`FileValidationServiceTest.java` - 26 tests)
+  - [x] Reject .exe disguised as .pdf
+  - [x] Reject PHP/HTML disguised as image
+  - [x] Validate PDF, JPEG, PNG, GIF, XLSX, DOCX signatures
+- [ ] File upload: reject oversized files (>10MB)
+- [ ] File upload: reject path traversal filenames
+- [ ] Template injection in user input
+
+**4. Security Headers (ZAP + Playwright)**
+- [x] ZAP passive scan checks all headers (`ZapDastTest`)
+- [x] Placeholder tests exist (`SecurityRegressionTest.SecurityHeaderTests`)
+- [ ] Assert X-Content-Type-Options = nosniff
+- [ ] Assert X-Frame-Options = DENY
+- [ ] Assert Content-Security-Policy present
+- [ ] Assert Strict-Transport-Security present (HTTPS only)
+
+**5. CSRF Protection (Playwright)**
+- [x] CSRF token present in forms (`SecurityRegressionTest.shouldIncludeCsrfTokenInForms`)
+- [x] CSRF header for HTMX (`SecurityRegressionTest.shouldConfigureCsrfForHtmx`)
+- [ ] POST without CSRF token → 403
+
+**6. Data Protection (JUnit + Playwright)**
+- [x] PII masking utility (`DataMaskingUtilTest.java` - 25 tests)
+- [x] File encryption (`FileEncryptionServiceTest.java` - 25 tests)
+- [ ] PII masked in page source (verify #mask dialect works)
+- [ ] Sensitive data not in URL parameters
+- [ ] Sensitive data not in error messages
+
+**7. Business Logic (Playwright)**
+- [ ] Modify posted journal entry → rejected
+- [ ] Delete posted transaction → only void allowed
+- [ ] Negative amounts where not allowed → rejected
+- [ ] Journal entry debit ≠ credit → rejected
+- [ ] Modify voided transactions → rejected
+
+**8. Error Handling (Playwright)**
+- [x] No stack traces in error pages (`SecurityRegressionTest.shouldNotExposeStackTraces`)
+- [x] Generic error messages (`SecurityRegressionTest.shouldShowGenericErrorMessages`)
+- [ ] Database error doesn't expose query
+- [ ] Path traversal error doesn't show paths
+
+**9. Rate Limiting (Playwright)**
+- [ ] Rapid login attempts → rate limited
+- [ ] Bulk requests → rate limited
+
+**10. Audit Logging (JUnit)**
+- [x] Log sanitization (`LogSanitizerTest.java` - 30 tests)
+- [ ] Failed logins logged with IP (verify SecurityAuditLog entries)
+- [ ] Successful logins logged
+- [ ] Data exports logged
+
 ### 6.10 Security Documentation & Policies (P3)
 - [x] Password complexity validation (PasswordValidator with 12+ chars, upper/lower/digit/special)
 - [x] Account lockout (LoginAttemptService with 5 attempts, 30 min lockout)
