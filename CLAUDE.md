@@ -44,7 +44,12 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 
 | Purpose | Location |
 |---------|----------|
+| Features & Roadmap | `docs/01-features-and-roadmap.md` |
+| Architecture | `docs/02-architecture.md` |
+| Operations Guide | `docs/03-operations-guide.md` |
+| Tax Compliance | `docs/04-tax-compliance.md` |
 | Implementation Plan | `docs/06-implementation-plan.md` |
+| ADRs | `docs/adr/` |
 | User Manual | `docs/user-manual/*.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |

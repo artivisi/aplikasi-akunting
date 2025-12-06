@@ -2,201 +2,234 @@
 
 ## System Overview
 
-Indonesian accounting application for small businesses, built with Spring Boot 4.0 and designed specifically for Indonesian tax compliance and business regulations.
+Indonesian accounting application for small businesses built with Spring Boot 4.0 and designed specifically for Indonesian tax compliance.
 
-### Current Status
-- **Phase 0-3 Complete**: Core Accounting, Tax Compliance, Payroll & RBAC
-- **Production Ready**: Full E2E testing, deployment automation, and documentation
-- **Indonesian Focused**: Built specifically for Indonesian business requirements
+### Architecture Decisions
 
-## Technology Stack
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Architecture | Monolith | Single codebase, simpler deployment |
+| Frontend | Server-rendered + HTMX | No SPA complexity, works without JS |
+| Backend | Java 25 + Spring Boot 4.0 | BigDecimal precision, type safety |
+| Database | PostgreSQL 17 | ACID, JSON support, mature |
+| Multi-tenancy | Single-tenant (per instance) | Complete data isolation |
 
-### Backend
-- **Java 25** with Spring Boot 4.0
-- **PostgreSQL 17** with Flyway migrations
-- **Spring Data JPA** for data access
-- **Spring Security** with method-level RBAC
-- **Apache POI** for Excel exports
-- **OpenPDF** for PDF generation
-- **Google Cloud Vision** for OCR
+### Stack Summary
 
-### Frontend
-- **Thymeleaf** server-side templating
-- **HTMX** for dynamic interactions
-- **Alpine.js** for client-side reactivity
-- **Bootstrap** with responsive design
-- **Tailwind CSS** for utility styling
+```
+User Interface
+├── Thymeleaf templates
+├── HTMX (partial page updates)
+├── Alpine.js (client reactivity)
+└── Bootstrap + Tailwind CSS
 
-### DevOps & Testing
-- **Maven** build system with JaCoCo coverage
-- **Testcontainers** for PostgreSQL testing
-- **Playwright** for E2E functional tests
-- **Pulumi** for infrastructure as code
-- **Ansible** for configuration management
+Application
+├── Java 25 (virtual threads)
+├── Spring Boot 4.0
+├── Spring Data JPA
+├── Spring Security
+└── Flyway migrations
+
+Data Storage
+├── PostgreSQL 17
+└── MinIO / Local filesystem (documents)
+
+External Services
+├── Google Cloud Vision (OCR)
+├── Telegram Bot API
+└── Email service
+```
 
 ## Architecture Patterns
 
-### 1. Transaction-Centric Design
+### Transaction-Centric Design
 
-The application uses a transaction-centric approach where users describe business events rather than understanding debits/credits directly.
+Users describe business events; system generates journal entries:
 
-```mermaid
-flowchart TD
-    A["User Interface<br/>(Business Forms)"]
-    B["Journal Templates<br/>(Mapping Rules)"]
-    C["Double-Entry System<br/>(Chart of Accounts + Journal Entries)"]
-
-    A --> B --> C
+```
+User sees:     "Expense Payment" form
+User enters:   Amount, category, payment account
+System creates: Dr Beban Listrik, Cr Bank BCA
 ```
 
-**Example: Paying electricity bill**
-- User sees: "Expense Payment" form with amount, category, payment account
-- System generates: Debit Beban Listrik, Credit Bank Account
+All journal entries are created through transactions. There are no standalone journal entries.
 
-### System Architecture Overview
-
-```mermaid
-graph TB
-    subgraph "User Interface"
-        UI[Web Browser]
-    end
-
-    subgraph "Application"
-        APP[Spring Boot Application]
-    end
-
-    subgraph "Data Storage"
-        DB[(PostgreSQL)]
-        STORAGE[MinIO Object Storage]
-    end
-
-    subgraph "External Services"
-        VISION[Google Cloud Vision OCR]
-        TELEGRAM[Telegram Bot API]
-        CORETAX[Coretax API]
-        EMAIL[Email Service]
-    end
-
-    subgraph "Infrastructure"
-        LB[Load Balancer]
-        BACKUP[Backup Service]
-    end
-
-    UI --> LB
-    LB --> APP
-    APP --> DB
-    APP --> STORAGE
-    APP --> VISION
-    APP --> TELEGRAM
-    APP --> CORETAX
-    APP --> EMAIL
-    DB --> BACKUP
-    STORAGE --> BACKUP
-
-    classDef ui fill:#e1f5fe
-    classDef app fill:#f3e5f5
-    classDef data fill:#e8f5e8
-    classDef external fill:#fff3e0
-    classDef infra fill:#fff3e0
-
-    class UI ui
-    class APP app
-    class DB,STORAGE data
-    class VISION,TELEGRAM,CORETAX,EMAIL external
-    class LB,BACKUP infra
+```sql
+transaction (header)
+├── journal_entries[] (debit/credit lines)
+├── journal_template (mapping rules)
+└── account_mappings (user-selected accounts)
 ```
 
-### 2. Single-Tenant Deployment
+### Single-Tenant Deployment
 
-Each company gets its own isolated instance and database:
+Each company gets isolated instance and database:
 
 ```
 Control Plane
 ├── Instance A (Company 1)
 │   ├── PostgreSQL Database
-│   └── Spring Boot Application
+│   └── Spring Boot App
 ├── Instance B (Company 2)
 │   ├── PostgreSQL Database
-│   └── Spring Boot Application
-└── Instance C (Company 3)
-    ├── PostgreSQL Database
-    └── Spring Boot Application
+│   └── Spring Boot App
 ```
 
-**Benefits:**
-- Complete data and process isolation
-- No multi-tenancy code complexity
-- Simpler compliance and security
-- Independent scaling per client
+Benefits:
+- Complete data isolation
+- No multi-tenancy complexity
+- Independent scaling
+- Simpler compliance
 
 ## Application Layers
 
-### 1. Controller Layer (`src/main/java/.../controller/`)
-- **25+ controllers** handling business domains
+### Controller Layer
+
+**Location:** `src/main/java/.../controller/`
+
+- 25+ controllers for business domains
 - RESTful design with proper HTTP mappings
-- Global exception handling
 - Method-level security annotations
 - HTMX integration for dynamic updates
 
-**Key Controllers:**
-- `DashboardController` - KPI and reporting
-- `TransactionController` - All journal entry CRUD operations (create, edit, post, void)
-- `JournalEntryController` - Ledger views only (General Ledger, Account Ledger)
-- `JournalTemplateController` - Template configuration
-- `PayrollController` - Payroll processing
-- `TaxReportController` - Indonesian tax compliance
+Key Controllers:
+| Controller | Responsibility |
+|------------|----------------|
+| DashboardController | KPIs, overview |
+| TransactionController | All journal CRUD (create, edit, post, void) |
+| JournalEntryController | Ledger views only (read-only) |
+| JournalTemplateController | Template configuration |
+| PayrollController | Payroll processing |
+| TaxReportController | Tax compliance |
 
-### 2. Service Layer (`src/main/java/.../service/`)
+### Service Layer
+
+**Location:** `src/main/java/.../service/`
+
 - Business logic implementation
-- Transaction management with Spring
-- Complex Indonesian calculations (BPJS, PPh 21, payroll)
-- Template execution with formula processing
-- Document processing and OCR integration
+- Transaction management
+- Indonesian tax calculations
 
-**Key Services:**
-- `JournalService` - Double-entry bookkeeping
-- `FormulaService` - SpEL-based calculations
-- `Pph21Service` - Indonesian PPh 21 calculations
-- `PayrollService` - Payroll processing
-- `OcrService` - Receipt processing
+Key Services:
+| Service | Responsibility |
+|---------|----------------|
+| JournalService | Double-entry bookkeeping |
+| FormulaService | SpEL-based calculations |
+| Pph21Service | Indonesian PPh 21 |
+| PayrollService | Payroll processing |
+| OcrService | Receipt processing |
 
-### 3. Repository Layer (`src/main/java/.../repository/`)
+### Repository Layer
+
+**Location:** `src/main/java/.../repository/`
+
 - Spring Data JPA repositories
-- Custom queries for complex reporting
-- Optimized indexing strategies
+- Custom queries for reporting
 - Soft delete patterns
 
-### 4. Entity Layer (`src/main/java/.../entity/`)
-- **40+ JPA entities** with proper relationships
-- Comprehensive audit fields
-- Indonesian-specific business rules
-- UUID primary keys throughout
+### Entity Layer
 
-## Data Model Architecture
+**Location:** `src/main/java/.../entity/`
 
-### Core Accounting Structure
+- 40+ JPA entities
+- UUID primary keys
+- Audit fields (createdAt, updatedAt)
 
-**Transaction-Centric Architecture:**
-All journal entries are created through transactions. There are no standalone journal entries.
+## Data Model
+
+### Core Entities
 
 ```sql
--- Transaction as header for journal entries
-transaction (UUID primary key)
-├── journal_entries[] (multiple debit/credit entries, transaction_id NOT NULL)
-├── journal_template (mapping rules for generating entries)
-└── account_mappings (user-selected accounts for template placeholders)
+company_config
+├── id                    UUID PK
+├── name                  VARCHAR(255)
+├── npwp                  VARCHAR(20)
+├── is_pkp                BOOLEAN
+└── fiscal_year_start     INTEGER
 
--- Chart of accounts
-chart_of_account (hierarchical structure)
-├── account_type (Asset, Liability, Equity, Revenue, Expense)
-└── normal_balance (Debit/Credit)
+chart_of_accounts
+├── id                    UUID PK
+├── code                  VARCHAR(20) UNIQUE
+├── name                  VARCHAR(255)
+├── account_type          ENUM (asset, liability, equity, revenue, expense)
+├── parent_id             UUID FK
+├── is_header             BOOLEAN
+└── is_active             BOOLEAN
+
+journal_templates
+├── id                    UUID PK
+├── name                  VARCHAR(255)
+├── category              VARCHAR(50)
+├── cash_flow_category    ENUM (OPERATING, INVESTING, FINANCING, NON_CASH)
+├── is_system             BOOLEAN
+└── lines[]               → journal_template_lines
+
+journal_template_lines
+├── id                    UUID PK
+├── template_id           UUID FK
+├── line_number           INTEGER
+├── line_type             ENUM (debit, credit)
+├── account_id            UUID FK (nullable if user-selectable)
+├── mapping_key           VARCHAR(100)
+├── formula               TEXT
+└── is_required           BOOLEAN
+
+transactions
+├── id                    UUID PK
+├── template_id           UUID FK
+├── transaction_type      VARCHAR(3)
+├── transaction_number    VARCHAR(50) UNIQUE
+├── transaction_date      DATE
+├── total_amount          DECIMAL(15,2)
+├── status                ENUM (draft, posted, void)
+└── account_mappings[]    → transaction_account_mappings
+
+journal_entries
+├── id                    UUID PK
+├── transaction_id        UUID FK (NOT NULL)
+├── account_id            UUID FK
+├── debit                 DECIMAL(15,2)
+└── credit                DECIMAL(15,2)
 ```
 
-**System Templates vs User Templates:**
-- System templates (9 total): Used by internal modules (PayrollService, FixedAssetService, FiscalYearClosingService)
-- User templates: Industry-specific templates that users can customize
+### Template System
+
+**System Templates (is_system=true):**
+Used by internal modules, not user-modifiable:
+- Post Gaji Bulanan (PayrollService)
+- Penyusutan Aset Tetap (FixedAssetService)
+- Pelepasan Aset Tetap (FixedAssetService)
+- Jurnal Penutup Tahun (FiscalYearClosingService)
+- Jurnal Manual (TransactionService)
+- Inventory templates (Phase 5)
+
+**User Templates (is_system=false):**
+Customizable by users:
+- Pendapatan Jasa
+- Beban Gaji, Beban Listrik
+- Transfer Antar Bank
+- Penyetoran Pajak
+
+### Formula Engine
+
+SpEL expressions with secure context:
+
+```java
+// Simple percentage
+"amount * 0.11"
+
+// Conditional
+"amount > 2000000 ? amount * 0.02 : 0"
+
+// Dynamic variables (from PayrollService)
+"grossSalary"
+"companyBpjs * 0.8"
+```
+
+Security: `SimpleEvaluationContext.forReadOnlyDataBinding()` blocks type references, constructors, bean references.
 
 ### Extended Features
+
 ```sql
 -- Project management
 project
@@ -205,98 +238,62 @@ project
 └── project_profitability
 
 -- Payroll system
-employee
+employees
 ├── salary_components (17 Indonesian components)
 ├── payroll_runs
 └── payroll_details
 
 -- Tax compliance
-fiscal_period
+fiscal_periods
 ├── tax_deadlines
-├── tax_transaction_details
-└── coretax_export_data
-```
+└── tax_transaction_details
 
-### Indonesian Tax Compliance
-- **e-Faktur** support for PPN transactions
-- **e-Bupot** support for PPh 23 withholding
-- **Fiscal period** management with monthly closing
-- **Tax deadline** tracking and notifications
-- **Coretax** export integration
+-- Fixed assets
+fixed_assets
+├── asset_categories
+├── depreciation_schedules
+└── disposal_records
+```
 
 ## Security Architecture
 
-### Authentication & Authorization
-- **Spring Security** with BCrypt password encryption
-- **RBAC** with 6 predefined roles:
-  1. `SUPERADMIN` - System administration
-  2. `OWNER` - Full company access
-  3. `ACCOUNTANT` - Accounting operations
-  4. `BOOKKEEPER` - Transaction entry
-  5. `EMPLOYEE` - Self-service only
-  6. `VIEWER` - Read-only access
+### Authentication
 
-### Permission System
-- **Granular authority-based** access control
-- **Method-level security** annotations
-- **Self-service isolation** for employee data
-- **CSRF protection** integrated with HTMX
+- Spring Security with BCrypt
+- Session-based (no JWT complexity)
+- CSRF protection integrated with HTMX
 
-## Frontend Architecture
+### Authorization (RBAC)
 
-### Template System
-- **Thymeleaf** with layout dialect
-- **HTMX** for partial page updates
-- **Alpine.js** for reactive components
-- **Bootstrap** responsive design
+6 predefined roles with authority-based permissions:
 
-### Key UI Patterns
-```html
-<!-- Dynamic table updates with HTMX -->
-<table>
-  <tbody hx-get="/transactions" hx-trigger="refresh" hx-target="this">
-    <!-- Server-rendered content -->
-  </tbody>
-</table>
+| Role | Access Level |
+|------|--------------|
+| SUPERADMIN | System administration |
+| OWNER | Full company access |
+| ACCOUNTANT | Accounting operations |
+| BOOKKEEPER | Transaction entry |
+| EMPLOYEE | Self-service only |
+| VIEWER | Read-only |
 
-<!-- Reactive forms with Alpine.js -->
-<form x-data="{ formData: {} }" x-bind:submit.prevent="submitForm">
-  <!-- Form fields with Alpine reactivity -->
-</form>
+Method-level security:
+```java
+@PreAuthorize("hasAuthority('TRANSACTION_CREATE')")
+public void createTransaction() { ... }
 ```
 
-## Deployment Architecture
+## Infrastructure
 
-### Infrastructure as Code
-```typescript
-// Pulumi infrastructure
-import * as digitalocean from "@pulumi/digitalocean";
+### Deployment Stack
 
-const appDroplet = new digitalocean.Droplet("app", {
-    image: "docker-20-04",
-    region: "sgp1",
-    size: "s-2vcpu-4gb", // 4GB RAM
-});
-
-const database = new digitalocean.DatabaseCluster("db", {
-    engine: "pg",
-    version: "17",
-    size: "db-s-2vcpu-4gb"
-});
-```
-
-### Docker Configuration
 ```yaml
 # docker-compose.yml
-version: '3.8'
 services:
   app:
-    image: registry.example.com/akunting:${VERSION}
-    ports:
-      - "8080:8080"
+    image: registry/akunting:${VERSION}
+    ports: ["8080:8080"]
     environment:
       - SPRING_PROFILES_ACTIVE=production
-      - DATABASE_URL=jdbc:postgresql://db:5432/company_db
 
   db:
     image: postgres:17
@@ -305,120 +302,80 @@ services:
 
   nginx:
     image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
+    ports: ["80:80", "443:443"]
 ```
 
-## Feature Implementation
+### Directory Structure
 
-### Phase 1: Core Accounting ✅
-- Chart of accounts with hierarchical structure
-- Journal template system with formula support
-- Double-entry bookkeeping engine
-- Basic financial statements (Trial Balance, Income Statement, Balance Sheet)
-- Transaction management and reporting
+```
+/opt/accounting-finance/
+├── app.jar
+├── application.properties
+├── documents/
+├── backup/
+├── scripts/
+│   ├── backup.sh
+│   ├── backup-b2.sh
+│   └── restore.sh
+└── .backup-key
 
-### Phase 2: Tax Compliance ✅
-- Indonesian tax calendar integration
-- e-Faktur and e-Bupot data export
-- Fiscal period management with closing controls
-- Tax deadline tracking and notifications
-- Coretax API integration for automated filing
+/var/log/accounting-finance/
+├── app.log
+└── backup.log
+```
 
-### Phase 3: Payroll & RBAC ✅
-- Employee management with PTKP status
-- 17 preloaded Indonesian salary components
-- BPJS calculation engine (Kesehatan, Ketenagakerjaan)
-- PPh 21 calculation with progressive rates
-- Payroll processing workflow with approvals
-- User management with 6-role RBAC system
-- Employee self-service portal (payslips, tax documents)
+### Backup Strategy (3-2-1)
 
-### Advanced Features
-- **Project Profitability Tracking**: Track revenue and expenses per project
-- **Amortization Schedules**: Asset depreciation with Indonesian methods
-- **Document Management**: OCR-based receipt processing
-- **Data Import/Export**: Excel-based bulk operations
-- **Dashboard KPIs**: Real-time business metrics
-- **Telegram Integration**: Mobile expense capture
+| Type | Schedule | Retention | Location |
+|------|----------|-----------|----------|
+| Local | Daily 02:00 | 7 days | VPS `/backup/` |
+| B2 | Daily 03:00 | 4 weeks | Backblaze B2 |
+| Google Drive | Daily 04:00 | 12 months | Google Drive |
 
 ## Testing Strategy
 
-### Test Coverage Approach
-- **Unit Tests**: Service layer with Spring Boot Test
-- **Integration Tests**: Controller layer with Testcontainers
-- **E2E Tests**: Full browser automation with Playwright
-- **Target Coverage**: 80% across all layers
+### Test Types
 
-### Test Organization
-```
-src/test/java/
-├── functional/          # Playwright E2E tests
-│   ├── ChartOfAccountsTest.java
-│   ├── JournalTemplateTest.java
-│   └── PayrollTest.java
-├── integration/         # Spring Boot tests
-├── unit/               # Service layer tests
-└── resources/
-    ├── db/testmigration/  # Test data fixtures
-    └── application-test.properties
-```
+| Type | Tool | Location |
+|------|------|----------|
+| Unit | JUnit 5 + Mockito | `src/test/java/unit/` |
+| Integration | Testcontainers | `src/test/java/integration/` |
+| E2E | Playwright | `src/test/java/functional/` |
+
+### Target Coverage
+
+- 80% across all layers
+- All critical paths tested
+- Playwright for user workflows
 
 ## Performance Considerations
 
 ### Database Optimization
-- **Indexing Strategy**: Optimal indexes for common queries
-- **Materialized Views**: Complex report generation
-- **Connection Pooling**: HikariCP configuration
-- **Query Optimization**: N+1 prevention with JOIN FETCH
+
+- HikariCP connection pooling
+- Optimal indexes for common queries
+- JOIN FETCH to prevent N+1
+- Materialized views for reports
 
 ### Application Performance
-- **Virtual Threads**: Java 25 concurrent processing
-- **Async Processing**: Heavy reports and exports
-- **Caching**: Spring Cache for frequently accessed data
-- **Lazy Loading**: JPA relationships optimized
 
-## Monitoring & Observability
+- Virtual threads (Java 25)
+- Async processing for heavy reports
+- Spring Cache for frequent data
+- Lazy loading for JPA relationships
+
+## Monitoring
 
 ### Application Metrics
-- **Spring Boot Actuator**: Health checks and metrics
-- **JaCoCo**: Code coverage reporting
-- **OWASP**: Dependency security scanning
-- **Application Logging**: Structured logging with ELK
+
+- Spring Boot Actuator (health, metrics)
+- JaCoCo (code coverage)
+- OWASP Dependency-Check
+- Structured logging
 
 ### Infrastructure Monitoring
-- **System Metrics**: CPU, memory, disk usage
-- **Database Performance**: Query performance monitoring
-- **Backup Monitoring**: Automated backup verification
-- **SSL Certificate Monitoring**: Certificate expiry alerts
 
-## Compliance & Data Protection
-
-### Indonesian Tax Compliance
-- **10-year Data Retention**: Audit compliance
-- **Complete Audit Trail**: Transaction modification tracking
-- **Tax Export Formats**: Coretax, e-Faktur, e-Bupot
-- **Fiscal Period Controls**: Edit restrictions for closed periods
-
-### Data Security
-- **Encrypted Credentials**: Database passwords and API keys
-- **Role-Based Access**: Granular permission control
-- **Audit Logging**: All user actions logged
-- **Regular Backups**: Automated backup and recovery
-
-## Future Architecture Considerations
-
-### Phase 4: Analytics & Reconciliation
-- **Advanced Analytics**: Financial trend analysis
-- **Bank Reconciliation**: Automated transaction matching
-- **Alert System**: Anomaly detection and notifications
-- **Custom Reporting**: Report builder with templates
-
-### Scalability Improvements
-- **Read Replicas**: Report performance optimization
-- **Microservices**: Potential service decomposition
-- **Event Sourcing**: Audit trail enhancement
-- **API Gateway**: External integration management
-
-This architecture represents a production-ready, comprehensive accounting system specifically designed for Indonesian small businesses, with all planned phases fully implemented, tested, and deployed.
+- System metrics (CPU, memory, disk)
+- Database performance
+- SSL certificate expiry
+- Backup verification

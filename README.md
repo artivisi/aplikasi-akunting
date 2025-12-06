@@ -1,312 +1,37 @@
 # Aplikasi Akunting
 
-Web-based accounting application designed specifically for Indonesian small businesses, freelancers, and online sellers.
+Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymeleaf + PostgreSQL.
 
-## Overview
-
-A modern accounting system that combines ease-of-use with comprehensive Indonesian tax compliance. Built on a transaction-centric architecture that shields users from complex accounting concepts while maintaining proper double-entry bookkeeping behind the scenes.
-
-## Target Market
-
-### Primary Users
-- **IT Services & Consulting** - Software development, corporate training, IT consulting
-- **Wedding Photography/Videography** - Freelance photographers, small studios
-- **Home-based Online Sellers** - Marketplace sellers (Tokopedia, Shopee, Bukalapak), social media commerce
-
-### User Characteristics
-- Minimal accounting/finance/tax knowledge
-- May employ junior accounting staff (fresh graduates)
-- One bookkeeper may serve multiple clients
-- 100% Indonesian users
-
-## Key Features
-
-### 🧾 Transaction-Centric Design
-- Simple transaction forms instead of complex journal entries
-- Pre-configured templates for common business scenarios
-- No accounting jargon - business language throughout
-- Automatic generation of proper double-entry bookkeeping
-
-### 💰 Indonesian Tax Compliance
-- **PPN (VAT):** Automatic calculation, SPT Masa PPN generation
-- **PPh:** Support for PPh 21, 23, 4(2), 25, 29
-- **e-Faktur & e-Bupot** integration (future)
-- Tax calendar with automated reminders
-- PKP vs non-PKP handling
-
-### 📊 Project-Based Accounting
-- Tag transactions by project/job/event
-- Track project profitability
-- Milestone billing support
-- Client deposits and progress payments
-
-### 📦 Simple Inventory Tracking
-- Buy/sell model (no manufacturing complexity)
-- Stock quantity tracking
-- COGS calculation (FIFO or Average)
-- Multi-channel sales tracking (per marketplace/platform)
-
-### 📄 Document Management
-- Attach receipts, invoices, contracts to transactions
-- Cloud storage with 10-year retention (Indonesian tax requirement)
-- OCR support for scanned documents
-- Complete audit trail
-
-### 👥 User Management
-- Role-based access: Owner, Operator, Power Operator, Viewer, Auditor
-- Time-bound auditor access
-- Multiple users per company instance
-- User activity audit trail
-
-### 📈 Analysis & Reporting
-- Laporan Laba Rugi, Neraca, Arus Kas
-- Project profitability reports
-- Channel performance analysis (for online sellers)
-- Budget vs actual comparison
-- Export to PDF, Excel, CSV
-
-## Architecture Highlights
-
-### Three-Layer Design
-
-```mermaid
-flowchart TD
-    A["User Layer<br/>(Transaction Forms)"]
-    B["Business Logic Layer<br/>(Journal Templates)"]
-    C["Data Layer<br/>(Chart of Accounts)"]
-
-    A --> B --> C
-```
-
-### Journal Template System
-- Pre-configured templates for Indonesian business scenarios
-- User-customizable templates for power users
-- Handles simple to complex entries (one-to-many, many-to-many)
-- Automatic tax calculations
-
-### Single-Tenant Architecture
-- Instance-per-client deployment (one app per company)
-- Complete data and process isolation
-- No multi-tenancy code complexity
-- **Deployment Progression:**
-  - Phase 1: Single company (manual deployment)
-  - Phase 2: Multi-instance single node (control plane for client management)
-  - Phase 3: Node per client (Pulumi automation for dedicated VPS)
-
-## Documentation
-
-Comprehensive documentation is available in the `/docs` directory:
-
-- **[Requirements & Features](docs/01-requirements.md)** - Detailed feature specifications and target market
-- **[Architecture](docs/02-architecture.md)** - System architecture and design principles
-- **[Data Model](docs/03-data-model.md)** - Complete database schema and entity relationships
-- **[Tax Compliance](docs/04-tax-compliance.md)** - Indonesian tax handling and regulations
-- **[Technology Stack](docs/05-technology-stack.md)** - Technology selection and justification
-- **[Architecture Decisions (ADR)](docs/adr/README.md)** - Design decisions, technical choices, and architecture records
-
-## Competitive Differentiators
-
-1. **Tax Automation** - Automatic Indonesian tax calculations from transactions
-2. **Junior-Friendly** - Guided workflows, no accounting knowledge required
-3. **Simple Deployment** - Instance-per-client architecture for data isolation
-4. **Project-Based Accounting** - Built-in job costing for service businesses
-5. **Multi-Channel Support** - Marketplace and social media sales tracking
-6. **Analysis Focus** - Actionable business insights, not just compliance
-7. **Indonesian-Native** - Built specifically for Indonesian regulations
-
-## Technology Stack
-
-### Core Stack
-
-**Runtime:**
-- Java 25 (LTS with virtual threads)
-
-**Backend:**
-- Spring Boot 4.0
-- Spring Data JPA
-- Spring Security
-- Thymeleaf (template engine)
-
-**Frontend Enhancement:**
-- HTMX (partial page updates)
-- Alpine.js (lightweight interactivity)
-- Tailwind CSS or Bootstrap
-
-**Database:**
-- PostgreSQL 17
-
-**Document Storage:**
-- Phase 1: MinIO (self-hosted, S3-compatible)
-- Phase 2+: Indonesian cloud (Biznet Gio, IDCloudHost) or AWS S3/GCS
-
-### Development & Testing
-
-**Local Development:**
-- Docker Compose (multi-container orchestration)
-
-**Infrastructure:**
-- Current: Docker Compose + manual provisioning
-- Future: Pulumi (programmatic VPS provisioning for SaaS)
-
-**Testing:**
-- JUnit 5 + Mockito (unit tests)
-- Testcontainers (integration tests)
-- Playwright (functional/E2E tests)
-- K6 (performance testing)
-
-**DevSecOps:**
-- SonarQube (SAST)
-- OWASP Dependency-Check (dependency vulnerabilities)
-- OWASP ZAP (DAST)
-- Trivy (container security)
-- GitLeaks (secret scanning)
-
-### Architecture: Modern Monolith
-
-**Why not split Backend/Frontend?**
-- Single codebase reduces complexity
-- No data model or validation duplication
-- Simple session-based authentication
-- Faster development for accounting workflows
-- HTMX provides modern UX without SPA overhead
-
-See [Technology Stack Documentation](docs/05-technology-stack.md) for detailed justification and DevSecOps pipeline.
-
-## Getting Started
-
-### Setting Up Initial Account Balances
-
-For existing businesses moving to this accounting system, you'll need to set up opening balances for your Chart of Accounts. The system uses **dynamic balance calculation** from journal entries, so initial balances are created through a single opening balance journal entry.
-
-#### How to Create Opening Balances
-
-**Create ONE journal entry with multiple journal items (one per account):**
-
-1. **Journal Entry Header:**
-   - **Date:** Your fiscal year start (e.g., 2025-01-01)
-   - **Description:** "Saldo Awal per 1 Januari 2025"
-   - **Reference:** "SALDO_AWAL_2025"
-
-2. **Journal Items (one per account with balance):**
-
-| Account Code | Account Name | Debit | Credit |
-|--------------|--------------|--------|--------|
-| 1.1.01 | Kas | 50,000,000 | |
-| 1.1.02 | Bank BCA | 75,000,000 | |
-| 1.3.01 | Piutang Usaha | 30,000,000 | |
-| 2.1.01 | Hutang Usaha | | 20,000,000 |
-| 2.1.02 | PPN Masukan | | 5,000,000 |
-| 3.1.01 | Modal Disetor | | 120,000,000 |
-| 3.1.02 | Laba Ditahan | | 10,000,000 |
-| **TOTAL** | | **155,000,000** | **155,000,000** |
-
-3. **Key Requirements:**
-   - **Balanced Entry:** Total Debit must equal Total Credit
-   - **Normal Balance Rules:**
-     - Asset accounts (1.x.x) → Debit balances
-     - Liability accounts (2.x.x) → Credit balances
-     - Equity accounts (3.x.x) → Credit balances
-     - Revenue accounts (4.x.x) → Credit balances (usually zero for opening)
-     - Expense accounts (5.x.x) → Debit balances (usually zero for opening)
-   - **Skip Zero-Balance Accounts:** Only include accounts with actual balances
-
-The system's balance calculation will automatically use these opening balances as the starting point for all subsequent transactions and reports.
-
-## Prerequisites
-
-- **Java 25**
-  - Linux/macOS: [SDKMAN](https://sdkman.io/) - `sdk install java 25-open`
-  - Windows: [Oracle JDK](https://www.oracle.com/java/technologies/downloads/) or [Adoptium](https://adoptium.net/)
-- **Docker** - [Get Docker](https://docs.docker.com/get-docker/)
-
-Maven wrapper (`./mvnw`) is included in the project.
-
-## Running Tests
-
-### Unit & Integration Tests
+## Quick Start
 
 ```bash
-# Run all tests
+# Prerequisites: Java 25, Docker
+
+# Run tests
 ./mvnw test
 
-# Run specific test class
-./mvnw test -Dtest=ChartOfAccountServiceTest
-```
-
-### Functional Tests (Playwright)
-
-Functional tests use Playwright for browser automation. They require Docker for Testcontainers (PostgreSQL).
-
-```bash
-# Run all functional tests (headless)
-./mvnw test -Dtest=**/functional/*Test
-
-# Run specific functional test
-./mvnw test -Dtest=ChartOfAccountSeedDataTest
-```
-
-**Playwright Configuration Options:**
-
-| Property | Default | Description |
-|----------|---------|-------------|
-| `playwright.headless` | `true` | Run browser in headless mode |
-| `playwright.slowmo` | `0` | Delay between actions in milliseconds |
-
-```bash
-# Run with visible browser
-./mvnw test -Dtest=ChartOfAccountSeedDataTest -Dplaywright.headless=false
-
-# Run with visible browser and slow motion (useful for debugging)
+# Run with visible browser (debugging)
 ./mvnw test -Dtest=ChartOfAccountSeedDataTest -Dplaywright.headless=false -Dplaywright.slowmo=100
 ```
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [User Manual](https://artivisi.com/aplikasi-akunting/) | End-user documentation (Indonesian) |
+| [Features & Roadmap](docs/01-features-and-roadmap.md) | Current features and future plans |
+| [Architecture](docs/02-architecture.md) | Tech stack, data model, infrastructure |
+| [Operations Guide](docs/03-operations-guide.md) | Deployment, release, backup/restore |
+| [Tax Compliance](docs/04-tax-compliance.md) | Indonesian tax handling |
+| [Security Testing](docs/05-penetration-testing-checklist.md) | Penetration testing checklist |
+| [Implementation Plan](docs/06-implementation-plan.md) | Detailed implementation status |
+| [ADRs](docs/adr/) | Architecture decision records |
+| [SonarCloud](https://sonarcloud.io/project/overview?id=artivisi_aplikasi-akunting) | Code quality & security analysis |
+
 ## Project Status
 
-🔄 **Phase 1: Core Accounting (MVP)** - In active development.
-
-### Phase 0: Project Setup ✅
-- ✅ Spring Boot 4.0 project structure
-- ✅ PostgreSQL with Flyway migrations (V001-V006)
-- ✅ Spring Security (session-based auth)
-- ✅ Thymeleaf + HTMX + Alpine.js UI
-- ✅ CI/CD pipeline (GitHub Actions)
-- ✅ Playwright functional testing framework
-
-### Phase 1: Core Accounting 🔄
-**Chart of Accounts (1.1):** ✅ Complete
-- ✅ Account entity with hierarchical structure
-- ✅ Account types (Asset, Liability, Equity, Revenue, Expense)
-- ✅ Pre-seeded IT Services COA (30+ accounts)
-- ✅ Account CRUD UI with create, edit, activate/deactivate
-- ✅ Soft delete implementation
-
-**Journal Entries (1.2):** ✅ Complete
-- ✅ Manual journal entry CRUD (create, edit, view)
-- ✅ Status workflow (Draft → Posted → Void)
-- ✅ Balance validation (debit = credit)
-- ✅ Account impact section (before/after balances)
-- ✅ Account validation (prevent type change/delete if has entries)
-
-**Basic Reports (1.3):** ⏳ Pending
-**Journal Templates (1.4):** ⏳ Pending
-**Transactions (1.5):** ⏳ Pending
-
-See [Implementation Plan](docs/06-implementation-plan.md) for full details.
-
-## Contributing
-
-This is currently a private project. Contributions are not being accepted at this time.
+See [Features & Roadmap](docs/01-features-and-roadmap.md) for current status and [Implementation Plan](docs/06-implementation-plan.md) for details.
 
 ## License
 
-[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
-
-This project is licensed under AGPL-3.0 to ensure that any modifications made to the software, including when offered as a service (SaaS), must be made available under the same license terms.
-
-## Contact
-
-For inquiries, please contact the project maintainer.
-
----
-
-**Note:** This project is in active development. Features and documentation are subject to change.
+[AGPL-3.0](LICENSE)

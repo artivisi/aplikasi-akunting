@@ -1,0 +1,339 @@
+# Features and Roadmap
+
+## Overview
+
+Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymeleaf + PostgreSQL with single-tenant architecture.
+
+## Target Market
+
+### Primary Users
+- Small businesses in Indonesia
+- Sole proprietors
+- Freelancers
+- Junior accountants / fresh graduates
+- Bookkeepers serving multiple clients
+
+### Target Segments
+
+| Segment | Status | Notes |
+|---------|--------|-------|
+| IT Services / Consulting | Supported | Project tracking, milestone billing |
+| Corporate Training | Supported | Project-based accounting |
+| Photography / Videography | Supported | Equipment tracking, event-based billing |
+| Home-Based Online Sellers | Supported | Multi-channel sales, marketplace integration |
+| Tuition-Only Universities | Supported | Standard service business pattern |
+
+### Not Targeted (Near-Term)
+- Universities with grant/fund accounting (requires fund dimension)
+- Complex manufacturing with WIP tracking
+- Multi-currency operations
+
+## Implemented Features
+
+### Phase 0: Project Setup (Complete)
+- Java 25 + Spring Boot 4.0 setup
+- PostgreSQL with Flyway migrations
+- Spring Security authentication
+- CI/CD pipeline with GitHub Actions
+
+### Phase 1: Core Accounting MVP (Complete)
+
+**Chart of Accounts (COA)**
+- Hierarchical account structure
+- Indonesian account naming (Aset, Kewajiban, Ekuitas, Pendapatan, Beban)
+- IT Services seed data template
+- Header vs detail accounts
+
+**Journal Template System**
+- Template-based transaction entry
+- User-defined templates (customizable)
+- System templates (payroll, depreciation, year-end closing)
+- Formula support with SpEL expressions
+- Dynamic account mapping via `accountHint`
+- Cash flow categorization (Operating, Investing, Financing)
+
+**Double-Entry Bookkeeping**
+- Transaction-centric architecture (all entries via transactions)
+- Draft → Posted → Void workflow
+- Auto-generated transaction numbers (TYPE-YYYY-seq)
+- Void with audit trail (no hard deletes)
+
+**Financial Reports**
+- Trial Balance
+- Income Statement (Laporan Laba Rugi)
+- Balance Sheet (Laporan Posisi Keuangan)
+- General Ledger
+- Account Ledger
+
+**Project Tracking**
+- Project-based profitability
+- Tag transactions by project
+- Project income statements
+
+**Dashboard KPIs**
+- Revenue trends
+- Expense breakdown
+- Monthly comparisons
+
+**Data Import/Export**
+- COA import from JSON/Excel
+- Template import from JSON
+- Excel/PDF report exports
+
+### Phase 2: Tax Compliance + Cash Flow (Complete)
+
+**Indonesian Tax Compliance**
+- PPN (VAT) tracking - Masukan/Keluaran
+- PPh 21 calculation with progressive rates
+- PPh 23 withholding tracking
+- PPh 4(2) final tax handling
+- e-Faktur data export format
+- e-Bupot export format
+
+**Fiscal Period Management**
+- Monthly period status (Open, Month Closed, Tax Filed)
+- Edit restrictions for closed periods
+- Tax deadline tracking
+
+**Tax Calendar**
+- Monthly/quarterly/annual deadlines
+- Upcoming deadline notifications
+
+**Telegram Integration**
+- Receipt photo upload via bot
+- OCR processing with Google Cloud Vision
+- Auto-transaction creation
+
+**Backup & Restore**
+- Automated daily local backup
+- Backblaze B2 offsite backup
+- Google Drive monthly archive
+- Encrypted backup with GPG
+
+**Cash Flow Statement**
+- Operating/Investing/Financing categorization
+- Auto-classification from templates
+
+### Phase 3: Payroll + RBAC (Complete)
+
+**Employee Management**
+- Employee master data
+- PTKP status handling
+- Bank account info
+- Active/inactive status
+
+**Salary Components (17 Indonesian Components)**
+- Gaji Pokok
+- Tunjangan (Transport, Makan, Jabatan, etc.)
+- BPJS Kesehatan (company + employee portions)
+- BPJS Ketenagakerjaan (JKK, JKM, JHT, JP)
+- PPh 21 deduction
+
+**Payroll Processing**
+- Monthly payroll runs
+- Auto-calculation of BPJS and PPh 21
+- Payslip generation
+- Journal entry posting
+
+**User Management & RBAC**
+- 6 roles: SUPERADMIN, OWNER, ACCOUNTANT, BOOKKEEPER, EMPLOYEE, VIEWER
+- Method-level security with Spring Security
+- Granular authority-based permissions
+
+**Employee Self-Service**
+- View own payslips
+- View tax documents (1721-A1)
+- Limited access to own data only
+
+### Phase 4: Fixed Assets (Complete)
+
+**Fixed Asset Register**
+- Asset categories with default settings
+- Acquisition tracking
+- Status management (Active, Fully Depreciated, Disposed)
+
+**Depreciation**
+- Straight-line method
+- Declining balance method
+- Monthly batch depreciation
+- Auto journal entry via templates
+
+**Asset Disposal**
+- Sell, write-off, transfer workflows
+- Gain/loss calculation
+- Disposal journal entries
+
+## Planned Features
+
+### Phase 5: Inventory & Production
+
+**Product Management**
+- Product master with unit of measure
+- Product categories
+- Optional BOM (Bill of Materials)
+
+**Inventory Transactions**
+- Stock in (purchases)
+- Stock out (sales)
+- Stock adjustments
+- Stock transfers
+
+**Stock Valuation**
+- FIFO method
+- Weighted average method
+- Perpetual inventory
+
+**Production (Simple)**
+- Production orders
+- Material consumption
+- Finished goods receipt
+- WIP tracking
+
+**COGS Integration**
+- Auto-calculate COGS on sales
+- Inventory journal entries
+
+### Future Roadmap
+
+**Phase 6: Budget Management**
+- Budget per account per period
+- Budget vs actual reports
+- Variance analysis
+- Over-budget alerts
+
+**Phase 7: Bank Reconciliation**
+- CSV import from BCA, BNI, BSI, CIMB
+- Configurable parsers
+- Exact/fuzzy/manual matching
+- Reconciliation workflow
+
+**Phase 8: Marketplace Reconciliation**
+- CSV import from Tokopedia, Shopee, Bukalapak, Lazada
+- Fee tracking
+- Shipping cost allocation
+- Net settlement calculation
+
+**Phase 9: Document Management**
+- Receipt/invoice upload
+- PDF/image storage (S3/MinIO)
+- Thumbnail generation
+- 10-year retention (Indonesian law)
+- Audit trail for document access
+
+**Phase 10: Advanced Reporting**
+- Custom report builder
+- Scheduled report generation
+- Email delivery
+- PDF/Excel templates
+
+## Multi-Industry Expansion Strategy
+
+### Architecture Vision
+
+The accounting system serves as a generic core that industry-specific applications can integrate with:
+
+```
+Domain App (Grant Mgmt, POS, etc.)
+        │
+        │ POST /api/transactions
+        ▼
+Core Accounting API
+├── COA Management
+├── Journal Templates
+├── Template Execution
+└── Reports
+```
+
+### Integration Pattern: Store and Forward (SAF)
+
+Domain apps call accounting API with:
+1. Validate business rules locally
+2. Call accounting API to create journal entries
+3. Handle failures with retry/idempotency
+
+```json
+POST /api/transactions
+{
+    "idempotencyKey": "domain-app-expense-123",
+    "templateCode": "EXPENSE-CASH",
+    "transactionDate": "2024-12-03",
+    "amount": 50000000,
+    "variables": {
+        "expenseAccount": "5.1.01",
+        "cashAccount": "1.1.01"
+    }
+}
+```
+
+### Domain Apps That Can Integrate
+
+| Domain | Features | Integration |
+|--------|----------|-------------|
+| Grant Management | Fund tracking, compliance, budgets | API calls for journal entries |
+| Inventory (Advanced) | COGS, warehouse management | Built-in module (Phase 5) |
+| POS | Sales, receipts, daily settlement | API calls |
+| Real Estate | Property, tenants, leases | API calls |
+| Manufacturing | BOM, work orders, production costing | API calls |
+
+### What Stays in Core
+
+| Feature | Notes |
+|---------|-------|
+| COA Management | UI + API |
+| Journal Templates | UI + API |
+| Template Execution | API primary |
+| Basic Reports | UI + API |
+| Payroll (Indonesian) | Built-in module |
+| Tax Compliance (Indonesian) | Built-in module |
+| Fixed Assets | Built-in module |
+| Inventory (Simple) | Built-in module (Phase 5) |
+
+### Why Inventory/Production is Built-in
+
+Unlike fund accounting, inventory transactions fit the existing journal template model:
+
+```
+Purchase raw materials:
+  Dr Raw Materials Inventory    Rp 500,000
+  Cr Cash                       Rp 500,000
+
+Sale with COGS:
+  Dr Cash                       Rp 600,000
+  Cr Sales Revenue              Rp 600,000
+
+  Dr COGS                       Rp 400,000
+  Cr Finished Goods             Rp 400,000
+```
+
+No new dimension needed on journal entries. Standard debit/credit flows.
+
+### Why Fund Accounting Requires Separate App
+
+Fund accounting requires tracking two dimensions per entry:
+- Natural account (Equipment Expense)
+- Fund (NSF Grant 2024-001)
+
+Current model has single `account_id` per journal entry. Adding `fund_id` would:
+- Pollute generic model
+- Add complexity for non-fund users
+- Require fund balance tracking
+- Need restriction validation logic
+
+Correct approach: Separate Grant Management app owns fund logic, calls Accounting API for journal recording.
+
+## Success Criteria
+
+### For Business Owners
+- Complete monthly bookkeeping without accounting knowledge
+- Tax reports generated automatically
+- Clear business financial visibility
+
+### For Bookkeepers
+- Manage 5-10 clients efficiently
+- Fast data entry with templates
+- Clear task lists and reminders
+
+### For Technical Operations
+- Single-tenant isolation per company
+- Automated backup with 3-2-1 strategy
+- < 4 hour disaster recovery
