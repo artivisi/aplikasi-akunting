@@ -856,16 +856,17 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **4. Security Headers (ZAP + Playwright)**
 - [x] ZAP passive scan checks all headers (`ZapDastTest`)
-- [x] Placeholder tests exist (`SecurityRegressionTest.SecurityHeaderTests`)
-- [ ] Assert X-Content-Type-Options = nosniff
-- [ ] Assert X-Frame-Options = DENY
-- [ ] Assert Content-Security-Policy present
-- [ ] Assert Strict-Transport-Security present (HTTPS only)
+- [x] Playwright header assertions (`SecurityRegressionTest.SecurityHeaderTests`)
+  - [x] Assert X-Content-Type-Options = nosniff
+  - [x] Assert X-Frame-Options = DENY or SAMEORIGIN
+  - [x] Assert Content-Security-Policy present with default-src
+  - [x] Assert Referrer-Policy present
+  - [ ] Assert Strict-Transport-Security present (HTTPS only, can't test locally)
 
 **5. CSRF Protection (Playwright)**
 - [x] CSRF token present in forms (`SecurityRegressionTest.shouldIncludeCsrfTokenInForms`)
 - [x] CSRF header for HTMX (`SecurityRegressionTest.shouldConfigureCsrfForHtmx`)
-- [ ] POST without CSRF token → 403
+- [x] POST without CSRF token → 403 (`SecurityRegressionTest.shouldRejectPostWithoutCsrfToken`)
 
 **6. Data Protection (JUnit + Playwright)**
 - [x] PII masking utility (`DataMaskingUtilTest.java` - 25 tests)

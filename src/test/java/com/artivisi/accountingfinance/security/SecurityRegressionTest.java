@@ -134,6 +134,23 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             assertTrue(csrfHeaderMeta.count() > 0,
                     "Should have CSRF header meta tag for HTMX integration");
         }
+
+        @Test
+        @DisplayName("Should reject POST request without CSRF token")
+        void shouldRejectPostWithoutCsrfToken() {
+            loginAsAdmin();
+
+            // Make a POST request without CSRF token using Playwright's request API
+            var apiContext = page.context().request();
+            var response = apiContext.post(baseUrl() + "/accounts",
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/x-www-form-urlencoded")
+                            .setData("code=TEST&name=Test&type=ASSET"));
+
+            // Should be rejected with 403 Forbidden
+            assertEquals(403, response.status(),
+                    "POST without CSRF token should return 403 Forbidden");
+        }
     }
 
     @Nested
@@ -207,9 +224,9 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             Response response = page.navigate(baseUrl() + "/login");
 
             Map<String, String> headers = response.headers();
-            // Note: This test documents expected behavior - implement in Phase 6.1
-            // String xContentTypeOptions = headers.get("x-content-type-options");
-            // assertEquals("nosniff", xContentTypeOptions);
+            String xContentTypeOptions = headers.get("x-content-type-options");
+            assertEquals("nosniff", xContentTypeOptions,
+                    "X-Content-Type-Options should be 'nosniff'");
         }
 
         @Test
@@ -218,9 +235,10 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             Response response = page.navigate(baseUrl() + "/login");
 
             Map<String, String> headers = response.headers();
-            // Note: This test documents expected behavior - implement in Phase 6.1
-            // String xFrameOptions = headers.get("x-frame-options");
-            // assertTrue(xFrameOptions.equals("DENY") || xFrameOptions.equals("SAMEORIGIN"));
+            String xFrameOptions = headers.get("x-frame-options");
+            assertNotNull(xFrameOptions, "X-Frame-Options header should be present");
+            assertTrue(xFrameOptions.equals("DENY") || xFrameOptions.equals("SAMEORIGIN"),
+                    "X-Frame-Options should be DENY or SAMEORIGIN, was: " + xFrameOptions);
         }
 
         @Test
@@ -229,9 +247,36 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             Response response = page.navigate(baseUrl() + "/login");
 
             Map<String, String> headers = response.headers();
-            // Note: This test documents expected behavior - implement in Phase 6.1
-            // String csp = headers.get("content-security-policy");
-            // assertNotNull(csp, "Content-Security-Policy header should be present");
+            String csp = headers.get("content-security-policy");
+            assertNotNull(csp, "Content-Security-Policy header should be present");
+            assertTrue(csp.contains("default-src"),
+                    "CSP should contain default-src directive");
+        }
+
+        @Test
+        @DisplayName("Should include Referrer-Policy header")
+        void shouldIncludeReferrerPolicy() {
+            Response response = page.navigate(baseUrl() + "/login");
+
+            Map<String, String> headers = response.headers();
+            String referrerPolicy = headers.get("referrer-policy");
+            assertNotNull(referrerPolicy, "Referrer-Policy header should be present");
+        }
+
+        @Test
+        @DisplayName("Should include X-XSS-Protection header if present")
+        void shouldIncludeXssProtection() {
+            Response response = page.navigate(baseUrl() + "/login");
+
+            Map<String, String> headers = response.headers();
+            String xssProtection = headers.get("x-xss-protection");
+            // X-XSS-Protection is deprecated in modern browsers (CSP replaces it)
+            // If present, verify it's configured correctly; if absent, that's acceptable
+            if (xssProtection != null && !xssProtection.isEmpty()) {
+                assertTrue(xssProtection.contains("1") || xssProtection.equals("0"),
+                        "X-XSS-Protection should be '1; mode=block' or '0', was: " + xssProtection);
+            }
+            // Note: Modern security relies on CSP rather than X-XSS-Protection
         }
     }
 
@@ -251,12 +296,19 @@ class SecurityRegressionTest extends PlaywrightTestBase {
 
             assertTrue(sessionCookie.isPresent(), "Session cookie should exist");
 
-            // Check httpOnly flag
+            // Check httpOnly flag - prevents JavaScript access to cookie
             assertTrue(sessionCookie.get().httpOnly,
                     "Session cookie should have httpOnly flag");
 
+            // Check sameSite flag - prevents CSRF attacks
+            // SameSite can be "Strict", "Lax", or "None"
+            var sameSite = sessionCookie.get().sameSite;
+            assertNotNull(sameSite, "Session cookie should have sameSite attribute");
+            assertTrue(sameSite.toString().equals("STRICT") || sameSite.toString().equals("LAX"),
+                    "Session cookie sameSite should be Strict or Lax, was: " + sameSite);
+
             // Note: secure flag only applies when using HTTPS
-            // sameSite check - implement in Phase 6.3
+            // In test environment (HTTP), secure flag may not be set
         }
 
         @Test
