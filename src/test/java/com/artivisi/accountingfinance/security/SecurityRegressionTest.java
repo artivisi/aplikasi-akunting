@@ -450,14 +450,76 @@ class SecurityRegressionTest extends PlaywrightTestBase {
         }
 
         @Test
-        @DisplayName("Should prevent horizontal privilege escalation")
-        void shouldPreventHorizontalPrivilegeEscalation() {
-            loginAsAdmin();
+        @DisplayName("SECURITY: Employee should NOT access other employee's profile")
+        void employeeShouldNotAccessOtherEmployeeProfile() {
+            login("employee", "admin");
 
-            navigateTo("/users");
+            // Employee user ID from V912: b0000000-0000-0000-0000-000000000002
+            // Try to access another employee's data (staff user)
+            String otherUserId = "b0000000-0000-0000-0000-000000000001"; // staff user
+
+            navigateTo("/employees/" + otherUserId);
             waitForPageLoad();
 
-            // This is a placeholder test - more comprehensive IDOR tests needed
+            // IDOR VULNERABILITY: Employee should only access their own profile
+            // Expected: 403 Forbidden or redirect to own profile
+            boolean isBlocked = page.url().contains("/error") ||
+                               page.url().contains("/403") ||
+                               page.url().contains("/self-service") ||
+                               !page.url().contains(otherUserId);
+
+            assertTrue(isBlocked,
+                    "IDOR VULNERABILITY: Employee can access other employee's profile. " +
+                    "Fix: Add ownership check in EmployeeController. Current URL: " + page.url());
+        }
+
+        @Test
+        @DisplayName("SECURITY: Employee should NOT access other user's payslips")
+        void employeeShouldNotAccessOtherUserPayslips() {
+            login("employee", "admin");
+
+            // Try to access admin's payslips
+            String adminUserId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+
+            navigateTo("/self-service/payslips?userId=" + adminUserId);
+            waitForPageLoad();
+
+            // IDOR VULNERABILITY: Should only see own payslips, not others
+            // The URL manipulation should be ignored or blocked
+            String content = page.content().toLowerCase();
+            boolean hasAccessDenied = content.contains("akses ditolak") ||
+                                      content.contains("access denied") ||
+                                      content.contains("forbidden");
+            boolean isOnErrorPage = page.url().contains("/error") || page.url().contains("/403");
+
+            // Either blocked, or the userId parameter is ignored (showing own data only)
+            assertTrue(hasAccessDenied || isOnErrorPage || !page.url().contains(adminUserId),
+                    "IDOR VULNERABILITY: Employee may access other user's payslips via URL manipulation. " +
+                    "Fix: Ignore userId parameter and always use authenticated user's ID.");
+        }
+
+        @Test
+        @DisplayName("SECURITY: Staff should NOT modify other user's transactions")
+        void staffShouldNotModifyOtherUserTransactions() {
+            login("staff", "admin");
+
+            // Try to access edit page for a transaction (staff can view but not edit)
+            String transactionId = "a0000000-0000-0000-0000-000000000001"; // draft transaction
+
+            navigateTo("/transactions/" + transactionId + "/edit");
+            waitForPageLoad();
+
+            // Staff doesn't have TRANSACTION_EDIT permission
+            String content = page.content().toLowerCase();
+            boolean hasAccessDenied = content.contains("akses ditolak") ||
+                                      content.contains("access denied") ||
+                                      content.contains("forbidden");
+            boolean isOnErrorPage = page.url().contains("/error") || page.url().contains("/403");
+            boolean isRedirected = !page.url().contains("/edit");
+
+            assertTrue(hasAccessDenied || isOnErrorPage || isRedirected,
+                    "IDOR/AUTHZ VULNERABILITY: Staff can access transaction edit page. " +
+                    "Fix: @PreAuthorize TRANSACTION_EDIT on edit methods. Current URL: " + page.url());
         }
     }
 

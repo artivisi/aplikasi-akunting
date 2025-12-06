@@ -841,8 +841,10 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] Auditor accessing /transactions/new → FAIL (SECURITY GAP - needs fix)
   - [x] Staff seeing POST button → FAIL (SECURITY GAP - needs fix)
   - [x] Employee accessing /dashboard → FAIL (SECURITY GAP - needs fix)
-- [ ] IDOR: Access /employees/{other-id} as Employee role → 403
-- [ ] IDOR: Modify /transactions/{other-id} without permission → 403
+- [x] IDOR tests (`SecurityRegressionTest.AuthorizationTests`)
+  - [x] Employee accessing other employee's profile → FAIL (SECURITY GAP)
+  - [x] Employee accessing other user's payslips via URL param → test implemented
+  - [x] Staff accessing transaction edit page → FAIL (SECURITY GAP)
 
 **3. Input Validation (Playwright + ZAP)**
 - [x] SQL injection in search (`SecurityRegressionTest.shouldRejectSqlInjection`)
