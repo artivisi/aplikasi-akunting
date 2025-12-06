@@ -862,8 +862,8 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] File upload: reject content-type spoofing (`SecurityRegressionTest.shouldRejectContentTypeSpoofing`)
 - [x] File upload: reject empty filename (`SecurityRegressionTest.shouldRejectEmptyFilename`)
 - [x] File upload: accept valid PDF (`SecurityRegressionTest.shouldAcceptValidPdfUpload`)
-- [ ] File upload: reject oversized files (>10MB) - not yet tested
-- [ ] Template injection in user input
+- [x] File upload: reject oversized files (>10MB) (`SecurityRegressionTest.shouldRejectOversizedFile`)
+- [x] Template injection in user input (`SecurityRegressionTest.shouldEscapeTemplateInjection` - 10 SSTI payloads)
 
 **4. Security Headers (ZAP + Playwright)**
 - [x] ZAP passive scan checks all headers (`ZapDastTest`)

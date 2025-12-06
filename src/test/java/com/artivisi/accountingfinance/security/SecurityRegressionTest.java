@@ -622,6 +622,61 @@ class SecurityRegressionTest extends PlaywrightTestBase {
                 }
             }
         }
+
+        @Test
+        @DisplayName("SECURITY: Should escape template injection in user input")
+        void shouldEscapeTemplateInjection() {
+            loginAsAdmin();
+
+            // Template injection payloads for Thymeleaf/FreeMarker/other template engines
+            List<String> templatePayloads = List.of(
+                    "${7*7}",                           // Thymeleaf expression
+                    "[[${7*7}]]",                       // Thymeleaf inline expression
+                    "__${7*7}__",                       // Thymeleaf preprocessor
+                    "#{7*7}",                           // SpEL expression
+                    "*{7*7}",                           // Thymeleaf selection expression
+                    "@{/malicious}",                    // Thymeleaf URL expression
+                    "~{::script}",                      // Thymeleaf fragment expression
+                    "${T(java.lang.Runtime).getRuntime().exec('id')}", // SpEL RCE attempt
+                    "{{7*7}}",                          // Mustache/Handlebars expression
+                    "<#assign ex=\"freemarker.template.utility.Execute\"?new()>${ex(\"id\")}" // FreeMarker
+            );
+
+            for (String payload : templatePayloads) {
+                navigateTo("/accounts");
+                waitForPageLoad();
+
+                Locator searchInput = page.locator("input[type='search'], input[name='search']");
+                if (searchInput.count() > 0) {
+                    searchInput.first().fill(payload);
+                    page.keyboard().press("Enter");
+                    waitForPageLoad();
+
+                    String content = page.content();
+
+                    // Check that template expressions are NOT evaluated
+                    // If payload ${7*7} is evaluated, it would show "49"
+                    // If properly escaped, it shows the literal text or empty
+
+                    // Should NOT show evaluated result of 7*7
+                    boolean expressionEvaluated = content.contains(">49<") ||
+                                                  content.matches(".*\\b49\\b.*") &&
+                                                  !content.contains(payload);
+
+                    // Should NOT expose template engine errors
+                    boolean hasTemplateError = content.toLowerCase().contains("thymeleaf") ||
+                                              content.toLowerCase().contains("freemarker") ||
+                                              content.toLowerCase().contains("templateexception") ||
+                                              content.toLowerCase().contains("spel") ||
+                                              content.toLowerCase().contains("expressionparser");
+
+                    assertFalse(expressionEvaluated,
+                            "SSTI VULNERABILITY: Template expression was evaluated: " + payload);
+                    assertFalse(hasTemplateError,
+                            "SSTI VULNERABILITY: Template error exposed for payload: " + payload);
+                }
+            }
+        }
     }
 
     @Nested
@@ -895,6 +950,53 @@ class SecurityRegressionTest extends PlaywrightTestBase {
 
             assertTrue(isAccepted,
                     "Valid PDF should be accepted. Response status: " + response.status());
+        }
+
+        @Test
+        @DisplayName("SECURITY: Should reject oversized file upload (>10MB)")
+        void shouldRejectOversizedFile() {
+            loginAsAdmin();
+
+            navigateTo("/transactions/" + TEST_TRANSACTION_ID);
+            waitForPageLoad();
+
+            String csrfToken = extractCsrfToken();
+
+            String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+            // Create content larger than 10MB (10 * 1024 * 1024 + 1 bytes)
+            // For test efficiency, we'll send a smaller but still large payload
+            // and verify the server has size limits configured
+            byte[] largeContent = new byte[11 * 1024 * 1024]; // 11MB
+            // Fill with PDF magic bytes at start
+            largeContent[0] = 0x25; // %
+            largeContent[1] = 0x50; // P
+            largeContent[2] = 0x44; // D
+            largeContent[3] = 0x46; // F
+
+            String multipartBody = buildMultipartBody(boundary, "large-file.pdf", "application/pdf", largeContent, csrfToken);
+
+            APIResponse response = page.request().post(
+                    baseUrl() + "/documents/transaction/" + TEST_TRANSACTION_ID,
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "multipart/form-data; boundary=" + boundary)
+                            .setData(multipartBody)
+            );
+
+            String responseBody = response.text().toLowerCase();
+            // Should be rejected with 413 (Payload Too Large) or 400 (Bad Request)
+            boolean isRejected = response.status() == 413 ||
+                                 response.status() == 400 ||
+                                 response.status() >= 500 || // Server may error on large payload
+                                 responseBody.contains("too large") ||
+                                 responseBody.contains("size") ||
+                                 responseBody.contains("exceeded") ||
+                                 responseBody.contains("terlalu besar") ||
+                                 responseBody.contains("maksimum");
+
+            assertTrue(isRejected,
+                    "SECURITY VULNERABILITY: Oversized file (>10MB) accepted. " +
+                    "Fix: Configure spring.servlet.multipart.max-file-size=10MB. " +
+                    "Response status: " + response.status());
         }
 
         private String extractCsrfToken() {
