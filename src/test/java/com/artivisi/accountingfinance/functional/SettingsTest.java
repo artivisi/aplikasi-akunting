@@ -462,6 +462,27 @@ class SettingsTest extends PlaywrightTestBase {
         }
 
         @Test
+        @DisplayName("Should display actual version values not Unknown")
+        void shouldDisplayActualVersionValuesNotUnknown() {
+            page.navigate(baseUrl() + "/settings/about");
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+
+            // Verify commit ID is not Unknown (should be a git hash like af1e477)
+            String commitId = page.locator("#value-commit-id").textContent();
+            assertThat(commitId).isNotEqualTo("Unknown");
+            assertThat(commitId).matches("[a-f0-9]{7,}");
+
+            // Verify branch is not Unknown
+            String branch = page.locator("#value-branch").textContent();
+            assertThat(branch).isNotEqualTo("Unknown");
+
+            // Verify build date is not Unknown (should contain date format)
+            String buildDate = page.locator("#value-build-date").textContent();
+            assertThat(buildDate).isNotEqualTo("Unknown");
+            assertThat(buildDate).contains("202"); // Should contain year 202x
+        }
+
+        @Test
         @DisplayName("Should display technology stack")
         void shouldDisplayTechnologyStack() {
             page.navigate(baseUrl() + "/settings/about");

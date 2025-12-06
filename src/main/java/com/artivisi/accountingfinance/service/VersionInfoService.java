@@ -2,10 +2,12 @@ package com.artivisi.accountingfinance.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@PropertySource(value = "classpath:git.properties", ignoreResourceNotFound = true)
 public class VersionInfoService {
 
     @Value("${git.commit.id.full:Unknown}")
