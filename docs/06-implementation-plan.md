@@ -882,16 +882,16 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **6. Data Protection (JUnit + Playwright)**
 - [x] PII masking utility (`DataMaskingUtilTest.java` - 25 tests)
 - [x] File encryption (`FileEncryptionServiceTest.java` - 25 tests)
-- [ ] PII masked in page source (verify #mask dialect works)
-- [ ] Sensitive data not in URL parameters
-- [ ] Sensitive data not in error messages
+- [x] PII masked in page source (`SecurityRegressionTest.shouldMaskBankAccountInEmployeeList`, `shouldMaskNpwpNikInEmployeeDetail`)
+- [x] Sensitive data not in URL parameters (`SecurityRegressionTest.shouldNotHaveSensitiveDataInUrl`)
+- [ ] Sensitive data not in error messages - covered by error handling tests
 
 **7. Business Logic (Playwright)**
 - [x] Modify posted journal entry → rejected (`SecurityRegressionTest.shouldNotAllowEditingPostedTransaction`)
 - [x] Delete posted transaction → only void allowed (`SecurityRegressionTest.shouldNotDisplayDeleteButtonForPostedTransaction`)
 - [x] Modify voided transactions → rejected (`SecurityRegressionTest.shouldNotAllowEditingVoidedTransaction`, `shouldNotAllowVoidingVoidedTransaction`)
-- [ ] Negative amounts where not allowed → rejected
-- [ ] Journal entry debit ≠ credit → rejected
+- [x] Negative amounts validation (`SecurityRegressionTest.shouldRejectNegativeAmounts`)
+- [x] Journal entry balance validation (`SecurityRegressionTest.shouldRejectUnbalancedJournalEntry`)
 
 **8. Error Handling (Playwright)**
 - [x] No stack traces in error pages (`SecurityRegressionTest.shouldNotExposeStackTraces`)
