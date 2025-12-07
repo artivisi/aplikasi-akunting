@@ -27,7 +27,7 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "j.account.id = :accountId AND " +
            "t.transactionDate BETWEEN :startDate AND :endDate " +
-           "ORDER BY t.transactionDate, j.journalNumber")
+           "ORDER BY t.transactionDate, t.createdAt, j.journalNumber")
     List<JournalEntry> findByAccountIdAndDateRange(
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
@@ -36,7 +36,7 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "j.account.id = :accountId AND t.status = 'POSTED' AND " +
            "t.transactionDate BETWEEN :startDate AND :endDate " +
-           "ORDER BY t.transactionDate, j.journalNumber")
+           "ORDER BY t.transactionDate, t.createdAt, j.journalNumber")
     List<JournalEntry> findPostedEntriesByAccountAndDateRange(
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
@@ -45,7 +45,7 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "j.account.id = :accountId AND t.status = 'POSTED' AND " +
            "t.transactionDate BETWEEN :startDate AND :endDate " +
-           "ORDER BY t.transactionDate, j.journalNumber")
+           "ORDER BY t.transactionDate, t.createdAt, j.journalNumber")
     Page<JournalEntry> findPostedEntriesByAccountAndDateRangePaged(
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
@@ -58,7 +58,7 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
            "(LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(j.journalNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(t.referenceNumber) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY t.transactionDate, j.journalNumber")
+           "ORDER BY t.transactionDate, t.createdAt, j.journalNumber")
     Page<JournalEntry> findPostedEntriesByAccountAndDateRangeAndSearchPaged(
             @Param("accountId") UUID accountId,
             @Param("startDate") LocalDate startDate,
@@ -76,7 +76,7 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
 
     @Query("SELECT j FROM JournalEntry j JOIN j.transaction t WHERE " +
            "t.status = 'POSTED' AND t.transactionDate BETWEEN :startDate AND :endDate " +
-           "ORDER BY t.transactionDate, j.journalNumber")
+           "ORDER BY t.transactionDate, t.createdAt, j.journalNumber")
     Page<JournalEntry> findAllPostedEntriesByDateRange(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
