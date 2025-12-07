@@ -42,9 +42,15 @@ Di bagian atas halaman, cari dan klik tombol biru **Transaksi Baru**. Form penca
 
 Di bagian atas form, ada dropdown **Template**. Klik dropdown tersebut dan pilih **Pendapatan Jasa**.
 
+![Daftar Template Tersedia](screenshots/templates-list.png)
+
 > **Apa itu Template?** Template adalah format siap pakai yang sudah diatur sebelumnya. Dengan memilih template, Anda tidak perlu mengisi semua field secara manual - aplikasi akan otomatis memilih akun yang tepat.
 
 ### Langkah 4: Isi Form Transaksi
+
+Setelah memilih template, form akan menampilkan field yang perlu diisi:
+
+![Form Transaksi dengan Template](screenshots/transactions-form.png)
 
 Isi field-field berikut:
 
@@ -92,6 +98,14 @@ Setelah berhasil, Anda akan melihat halaman detail transaksi.
 - Jumlah sesuai dengan yang Anda masukkan
 - Jurnal menunjukkan akun yang benar
 
+### Langkah 8: Cek di Dashboard
+
+Buka **Dashboard** untuk memastikan saldo sudah ter-update.
+
+![Dashboard - Verifikasi Saldo](screenshots/dashboard.png)
+
+Periksa kartu **Kas & Bank** - saldo seharusnya sudah bertambah Rp 5.000.000.
+
 ---
 
 ## Skenario 2: Terima Pembayaran dengan PPN
@@ -103,23 +117,54 @@ Setelah berhasil, Anda akan melihat halaman detail transaksi.
 - PPN (11%): Rp 1.100.000
 - Pendapatan bersih: Rp 10.000.000
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Pendapatan Jasa dengan PPN**
-4. Isi form:
-   - **Tanggal**: Tanggal uang diterima
-   - **Jumlah**: `11100000` (ketik jumlah total yang diterima)
-   - **Akun Sumber**: Bank BCA
-   - **Keterangan**: `Pembayaran invoice INV-2025-002 dari PT XYZ - termasuk PPN`
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Bank BCA           Rp 11.100.000  (uang yang diterima)
-   Kredit : Hutang PPN         Rp  1.100.000  (PPN yang harus disetor ke negara)
-   Kredit : Pendapatan Jasa    Rp 10.000.000  (pendapatan bersih)
-   ```
-6. Klik **Simpan & Posting**
+Klik menu **Transaksi** di sidebar kiri.
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik Tombol "Transaksi Baru"
+
+Klik tombol biru **Transaksi Baru** di bagian atas halaman.
+
+![Form Transaksi Baru](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Pendapatan Jasa dengan PPN"
+
+Pilih template **Pendapatan Jasa dengan PPN** dari dropdown.
+
+![Pilih Template PPN](screenshots/templates-list.png)
+
+### Langkah 4: Isi Form
+
+Isi field-field berikut:
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal uang diterima | `15 November 2025` |
+| **Jumlah** | Total yang diterima (termasuk PPN) | `11100000` |
+| **Akun Sumber** | Rekening penerima | `Bank BCA` |
+| **Keterangan** | Catatan transaksi | `Invoice INV-2025-002 PT XYZ - termasuk PPN` |
+
+### Langkah 5: Periksa Preview Jurnal
+
+Preview akan menunjukkan pemisahan PPN:
+
+```
+Debit  : Bank BCA           Rp 11.100.000  (uang yang diterima)
+Kredit : Hutang PPN         Rp  1.100.000  (PPN yang harus disetor ke negara)
+Kredit : Pendapatan Jasa    Rp 10.000.000  (pendapatan bersih)
+```
+
+### Langkah 6: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 7: Verifikasi
+
+Cek halaman detail transaksi untuk memastikan PPN tercatat dengan benar.
+
+![Detail Transaksi PPN](screenshots/transactions-detail.png)
 
 > **Catatan tentang PPN**: PPN yang Anda terima dari klien bukan milik Anda - itu adalah titipan yang harus Anda setor ke negara. Makanya dicatat sebagai "Hutang PPN".
 
@@ -131,23 +176,44 @@ Setelah berhasil, Anda akan melihat halaman detail transaksi.
 
 > **Penting**: DP belum boleh dicatat sebagai pendapatan karena pekerjaan belum selesai. DP dicatat sebagai "uang muka yang harus dikerjakan".
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Terima DP Proyek**
-4. Isi form:
-   - **Tanggal**: Tanggal uang diterima
-   - **Jumlah**: `15000000`
-   - **Akun Sumber**: Bank BCA
-   - **Proyek**: Pilih proyek terkait dari dropdown
-   - **Keterangan**: `DP 30% Proyek Website PT ABC`
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Bank BCA                    Rp 15.000.000  (uang masuk)
-   Kredit : Pendapatan Diterima Dimuka  Rp 15.000.000  (kewajiban)
-   ```
-6. Klik **Simpan & Posting**
+Klik menu **Transaksi** di sidebar.
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Terima DP Proyek"
+
+Pilih template **Terima DP Proyek** dari dropdown.
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal uang diterima | `15 November 2025` |
+| **Jumlah** | Nilai DP | `15000000` |
+| **Akun Sumber** | Rekening penerima | `Bank BCA` |
+| **Proyek** | Pilih proyek terkait | `Website PT ABC` |
+| **Keterangan** | Catatan | `DP 30% Proyek Website PT ABC` |
+
+### Langkah 5: Periksa Preview Jurnal
+
+```
+Debit  : Bank BCA                    Rp 15.000.000  (uang masuk)
+Kredit : Pendapatan Diterima Dimuka  Rp 15.000.000  (kewajiban)
+```
+
+### Langkah 6: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 7: Verifikasi
+
+![Detail Transaksi DP](screenshots/transactions-detail.png)
 
 > **Kapan DP diakui sebagai pendapatan?** Saat milestone proyek selesai. Lihat [Tracking Proyek](41-tracking-proyek.md).
 
@@ -157,17 +223,34 @@ Setelah berhasil, Anda akan melihat halaman detail transaksi.
 
 **Situasi**: Bank memberikan bunga deposito Rp 250.000.
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Pendapatan Bunga**
-4. Isi form:
-   - **Tanggal**: Tanggal bunga dikreditkan ke rekening
-   - **Jumlah**: `250000`
-   - **Akun Sumber**: Bank BCA (atau rekening yang menerima bunga)
-   - **Keterangan**: `Bunga deposito November 2025`
-5. Klik **Simpan & Posting**
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Pendapatan Bunga"
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal bunga dikreditkan | `30 November 2025` |
+| **Jumlah** | Nilai bunga | `250000` |
+| **Akun Sumber** | Rekening yang menerima | `Bank BCA` |
+| **Keterangan** | Catatan | `Bunga deposito November 2025` |
+
+### Langkah 5: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 6: Verifikasi di Buku Besar
+
+Buka menu **Buku Besar** untuk melihat mutasi rekening.
+
+![Buku Besar](screenshots/journals-list.png)
 
 ---
 
@@ -175,22 +258,39 @@ Setelah berhasil, Anda akan melihat halaman detail transaksi.
 
 **Situasi**: Klien yang sebelumnya berhutang (Anda sudah mencatat piutang) melunasi hutangnya Rp 8.000.000.
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Terima Pelunasan Piutang**
-4. Isi form:
-   - **Tanggal**: Tanggal uang diterima
-   - **Jumlah**: `8000000`
-   - **Akun Sumber**: Bank BCA
-   - **Keterangan**: `Pelunasan piutang PT ABC`
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Bank BCA        Rp 8.000.000  (uang masuk)
-   Kredit : Piutang Usaha   Rp 8.000.000  (piutang berkurang)
-   ```
-6. Klik **Simpan & Posting**
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Terima Pelunasan Piutang"
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal uang diterima | `20 November 2025` |
+| **Jumlah** | Nilai pelunasan | `8000000` |
+| **Akun Sumber** | Rekening penerima | `Bank BCA` |
+| **Keterangan** | Catatan | `Pelunasan piutang PT ABC` |
+
+### Langkah 5: Periksa Preview Jurnal
+
+```
+Debit  : Bank BCA        Rp 8.000.000  (uang masuk)
+Kredit : Piutang Usaha   Rp 8.000.000  (piutang berkurang)
+```
+
+### Langkah 6: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 7: Verifikasi
+
+![Detail Transaksi Pelunasan](screenshots/transactions-detail.png)
 
 > **Catatan**: Transaksi ini tidak menambah pendapatan karena pendapatan sudah dicatat saat piutang dibuat.
 

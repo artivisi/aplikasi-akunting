@@ -44,11 +44,15 @@ Di bagian atas halaman, klik tombol biru **Transaksi Baru**. Form pencatatan tra
 
 Di bagian atas form, ada dropdown **Template**. Klik dropdown tersebut dan pilih **Transfer Kas**.
 
+![Daftar Template](screenshots/templates-list.png)
+
 > **Template ini khusus untuk pindah uang**, bukan untuk pengeluaran atau pemasukan.
 
 ### Langkah 4: Isi Form Transaksi
 
-Isi field-field berikut:
+Setelah memilih template, isi field-field berikut:
+
+![Form Transfer](screenshots/transactions-form.png)
 
 | Field | Apa yang Diisi | Contoh |
 |-------|----------------|--------|
@@ -81,9 +85,19 @@ Kredit : Bank BCA    Rp 2.000.000  (saldo bank berkurang)
 
 Klik tombol **Simpan & Posting** untuk menyimpan transaksi.
 
-### Langkah 7: Verifikasi
+### Langkah 7: Verifikasi Transaksi
 
-Cek Dashboard atau Buku Besar untuk memastikan:
+Setelah berhasil, Anda akan melihat halaman detail transaksi.
+
+![Detail Transaksi](screenshots/transactions-detail.png)
+
+### Langkah 8: Cek di Dashboard
+
+Buka **Dashboard** untuk memverifikasi saldo.
+
+![Dashboard](screenshots/dashboard.png)
+
+Periksa:
 - Saldo Bank BCA sudah berkurang Rp 2.000.000
 - Saldo Kas Kecil sudah bertambah Rp 2.000.000
 - **Total Kas & Bank** tetap sama
@@ -94,24 +108,43 @@ Cek Dashboard atau Buku Besar untuk memastikan:
 
 **Situasi**: Anda menyetor uang tunai Rp 5.000.000 dari kas ke rekening Bank Mandiri.
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Transfer Kas**
-4. Isi form:
-   - **Tanggal**: Tanggal setoran
-   - **Jumlah**: `5000000`
-   - **Dari Akun**: Kas Kecil (karena uang tunai yang disetor)
-   - **Ke Akun**: Bank Mandiri (rekening tujuan setoran)
-   - **Keterangan**: `Setor tunai ke Bank Mandiri`
-   - **No. Referensi**: Nomor slip setoran
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Bank Mandiri   Rp 5.000.000  (saldo bank bertambah)
-   Kredit : Kas Kecil      Rp 5.000.000  (uang tunai berkurang)
-   ```
-6. Klik **Simpan & Posting**
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Transfer Kas"
+
+![Pilih Template](screenshots/templates-list.png)
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal setoran | `20 November 2025` |
+| **Jumlah** | Nilai setoran | `5000000` |
+| **Dari Akun** | Kas Kecil (uang tunai yang disetor) | `Kas Kecil` |
+| **Ke Akun** | Rekening tujuan setoran | `Bank Mandiri` |
+| **Keterangan** | Catatan | `Setor tunai ke Bank Mandiri` |
+| **No. Referensi** | Nomor slip setoran | `SETOR-20251120` |
+
+### Langkah 5: Periksa Preview Jurnal
+
+```
+Debit  : Bank Mandiri   Rp 5.000.000  (saldo bank bertambah)
+Kredit : Kas Kecil      Rp 5.000.000  (uang tunai berkurang)
+```
+
+### Langkah 6: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 7: Verifikasi
+
+![Detail Transaksi Setoran](screenshots/transactions-detail.png)
 
 > **Ingat**: "Dari Akun" adalah sumber uang (yang berkurang), "Ke Akun" adalah tujuan (yang bertambah).
 
@@ -121,19 +154,36 @@ Cek Dashboard atau Buku Besar untuk memastikan:
 
 **Situasi**: Transfer Rp 10.000.000 dari Bank BCA ke Bank Mandiri untuk operasional cabang.
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Transfer Kas**
-4. Isi form:
-   - **Tanggal**: Tanggal transfer
-   - **Jumlah**: `10000000`
-   - **Dari Akun**: Bank BCA
-   - **Ke Akun**: Bank Mandiri
-   - **Keterangan**: `Transfer operasional ke rekening Mandiri`
-   - **No. Referensi**: Nomor referensi transfer dari mobile banking
-5. Klik **Simpan & Posting**
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Transfer Kas"
+
+![Pilih Template](screenshots/templates-list.png)
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal transfer | `20 November 2025` |
+| **Jumlah** | Nilai transfer | `10000000` |
+| **Dari Akun** | Rekening sumber | `Bank BCA` |
+| **Ke Akun** | Rekening tujuan | `Bank Mandiri` |
+| **Keterangan** | Catatan | `Transfer operasional ke rekening Mandiri` |
+| **No. Referensi** | Ref dari mobile banking | `MBANK-20251120-001` |
+
+### Langkah 5: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 6: Verifikasi
+
+![Detail Transaksi Transfer](screenshots/transactions-detail.png)
 
 > **Tips**: Simpan screenshot bukti transfer dari mobile banking sebagai lampiran.
 
@@ -147,22 +197,56 @@ Cek Dashboard atau Buku Besar untuk memastikan:
 
 ### Transaksi 1: Transfer Pokok (Rp 10.000.000)
 
-1. Buat transaksi **Transfer Kas**
-2. Jumlah: `10000000`
-3. Dari: Bank BCA, Ke: Bank Mandiri
-4. Keterangan: `Transfer operasional`
-5. Simpan & Posting
+#### Langkah 1.1: Buka Menu Transaksi
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+#### Langkah 1.2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+#### Langkah 1.3: Pilih Template "Transfer Kas"
+
+![Pilih Template](screenshots/templates-list.png)
+
+#### Langkah 1.4: Isi Form
+
+| Field | Nilai |
+|-------|-------|
+| **Jumlah** | `10000000` |
+| **Dari Akun** | Bank BCA |
+| **Ke Akun** | Bank Mandiri |
+| **Keterangan** | `Transfer operasional` |
+
+#### Langkah 1.5: Simpan dan Posting
 
 ### Transaksi 2: Biaya Admin (Rp 6.500)
 
-1. Buat transaksi baru
-2. Pilih template **Beban Administrasi Bank**
-3. Jumlah: `6500`
-4. Akun Sumber: Bank BCA
-5. Keterangan: `Biaya transfer antar bank`
-6. Simpan & Posting
+#### Langkah 2.1: Klik "Transaksi Baru" Lagi
 
-**Hasil di Buku Besar**:
+![Form Transaksi Baru](screenshots/transactions-form.png)
+
+#### Langkah 2.2: Pilih Template "Beban Administrasi Bank"
+
+![Pilih Template Beban](screenshots/templates-list.png)
+
+#### Langkah 2.3: Isi Form
+
+| Field | Nilai |
+|-------|-------|
+| **Jumlah** | `6500` |
+| **Akun Sumber** | Bank BCA |
+| **Keterangan** | `Biaya transfer antar bank` |
+
+#### Langkah 2.4: Simpan dan Posting
+
+### Verifikasi di Buku Besar
+
+Buka menu **Buku Besar** untuk memverifikasi kedua transaksi tercatat.
+
+![Buku Besar](screenshots/journals-list.png)
+
+**Hasil yang diharapkan**:
 | Akun | Debit | Kredit | Keterangan |
 |------|-------|--------|------------|
 | Bank Mandiri | Rp 10.000.000 | - | Saldo bertambah |
@@ -175,21 +259,44 @@ Cek Dashboard atau Buku Besar untuk memastikan:
 
 **Situasi**: Menempatkan Rp 50.000.000 dari rekening giro ke deposito untuk mendapat bunga.
 
-### Langkah-langkah
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Transfer Kas**
-4. Isi form:
-   - **Tanggal**: Tanggal penempatan deposito
-   - **Jumlah**: `50000000`
-   - **Dari Akun**: Bank BCA (Giro)
-   - **Ke Akun**: Deposito BCA
-   - **Keterangan**: `Penempatan deposito 3 bulan @5% p.a.`
-   - **No. Referensi**: Nomor bilyet deposito
-5. Klik **Simpan & Posting**
+![Daftar Transaksi](screenshots/transactions-list.png)
 
-> **Catatan**: Pastikan akun "Deposito BCA" sudah ada di Bagan Akun. Jika belum, tambahkan dulu di menu **Akun**.
+### Langkah 2: Klik "Transaksi Baru"
+
+![Form Transaksi](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template "Transfer Kas"
+
+![Pilih Template](screenshots/templates-list.png)
+
+### Langkah 4: Isi Form
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal penempatan deposito | `1 Desember 2025` |
+| **Jumlah** | Nilai deposito | `50000000` |
+| **Dari Akun** | Rekening giro | `Bank BCA (Giro)` |
+| **Ke Akun** | Akun deposito | `Deposito BCA` |
+| **Keterangan** | Catatan | `Penempatan deposito 3 bulan @5% p.a.` |
+| **No. Referensi** | Nomor bilyet deposito | `DEP-BCA-2025-001` |
+
+### Langkah 5: Simpan dan Posting
+
+Klik **Simpan & Posting**.
+
+### Langkah 6: Verifikasi
+
+![Detail Transaksi Deposito](screenshots/transactions-detail.png)
+
+### Langkah 7: Pastikan Akun Deposito Sudah Ada
+
+Jika akun deposito belum ada, tambahkan dulu di menu **Akun**.
+
+![Daftar Akun](screenshots/accounts-list.png)
+
+> **Catatan**: Pastikan akun "Deposito BCA" sudah ada di Bagan Akun dengan tipe **Aset Lancar**.
 
 ---
 

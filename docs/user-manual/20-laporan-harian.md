@@ -74,6 +74,8 @@ Di bagian atas halaman, ada filter untuk menyaring transaksi:
 2. Di field **Sampai Tanggal**, pilih tanggal hari ini
 3. Klik tombol **Tampilkan** atau tekan Enter
 
+![Daftar Transaksi Terfilter](screenshots/transactions-list.png)
+
 ### Langkah 3: Review Daftar Transaksi
 
 Periksa daftar transaksi yang muncul:
@@ -94,7 +96,11 @@ Periksa daftar transaksi yang muncul:
 ### Langkah 4: Posting Transaksi Draft (Jika Ada)
 
 Jika ada transaksi dengan status **Draft**:
+
 1. Klik pada transaksi tersebut untuk membuka detail
+
+![Detail Transaksi](screenshots/transactions-detail.png)
+
 2. Periksa apakah data sudah benar
 3. Klik tombol **Posting** untuk memfinalkan
 
@@ -110,13 +116,15 @@ Jika ada transaksi dengan status **Draft**:
 
 Di sidebar kiri, klik menu **Buku Besar**.
 
-![Buku Besar](screenshots/ledger-list.png)
+![Buku Besar](screenshots/journals-list.png)
 
 ### Langkah 2: Pilih Akun Bank
 
 1. Di dropdown **Akun**, pilih rekening yang ingin dicek (contoh: Bank BCA)
 2. Biarkan field tanggal kosong untuk melihat sampai hari ini
 3. Klik tombol **Tampilkan**
+
+![Buku Besar Terfilter](screenshots/journals-list.png)
 
 ### Langkah 3: Lihat Saldo Akhir
 
@@ -148,12 +156,16 @@ Buka mobile banking atau cek ATM. Bandingkan angka saldo:
 
 Di sidebar kiri, klik menu **Buku Besar**.
 
+![Buku Besar](screenshots/journals-list.png)
+
 ### Langkah 2: Pilih Akun dan Periode
 
 1. Di dropdown **Akun**, pilih akun yang ingin dilihat (contoh: Bank BCA)
 2. Di field **Dari Tanggal**, pilih tanggal awal (contoh: 1 November 2025)
 3. Di field **Sampai Tanggal**, pilih tanggal akhir (contoh: 30 November 2025)
 4. Klik tombol **Tampilkan**
+
+![Buku Besar dengan Filter Periode](screenshots/journals-list.png)
 
 ### Langkah 3: Baca Tabel Mutasi
 
@@ -172,6 +184,12 @@ Tabel mutasi menampilkan:
 > - **Kredit** pada akun Bank/Kas = uang **KELUAR** (saldo berkurang)
 > - **Saldo** adalah saldo berjalan (running balance)
 
+### Langkah 4: Klik Transaksi untuk Detail
+
+Klik pada baris transaksi untuk melihat detail lengkap.
+
+![Detail Transaksi dari Buku Besar](screenshots/transactions-detail.png)
+
 ---
 
 ## Skenario 5: Cari Transaksi Draft yang Belum Diposting
@@ -182,20 +200,26 @@ Tabel mutasi menampilkan:
 
 Di sidebar kiri, klik menu **Transaksi**.
 
+![Daftar Transaksi](screenshots/transactions-list.png)
+
 ### Langkah 2: Filter Status Draft
 
 1. Di dropdown **Status**, pilih **Draft**
 2. Klik tombol **Tampilkan**
 
+![Daftar Transaksi Draft](screenshots/transactions-list.png)
+
 ### Langkah 3: Review dan Tindak Lanjuti
 
-Jika ada transaksi draft:
+Jika ada transaksi draft, klik untuk membuka detail:
+
+![Detail Transaksi Draft](screenshots/transactions-detail.png)
 
 | Kondisi Transaksi | Tindakan |
 |-------------------|----------|
-| Data sudah benar | Klik transaksi, lalu klik **Posting** |
-| Data perlu koreksi | Klik transaksi, edit data, lalu klik **Posting** |
-| Transaksi tidak valid | Klik transaksi, lalu klik **Hapus** |
+| Data sudah benar | Klik tombol **Posting** |
+| Data perlu koreksi | Edit data, lalu klik **Posting** |
+| Transaksi tidak valid | Klik tombol **Hapus** |
 
 > **Penting**: Jangan biarkan transaksi draft terlalu lama. Posting segera setelah data dikonfirmasi.
 
@@ -209,6 +233,8 @@ Jika ada transaksi draft:
 
 Di sidebar kiri, klik menu **Transaksi**.
 
+![Daftar Transaksi](screenshots/transactions-list.png)
+
 ### Langkah 2: Gunakan Kolom Pencarian
 
 1. Di kolom **Pencarian** (biasanya di kanan atas), ketik kata kunci:
@@ -218,9 +244,17 @@ Di sidebar kiri, klik menu **Transaksi**.
    - Kata dalam keterangan: `listrik`, `gaji`
 2. Tekan **Enter** atau klik ikon search
 
+![Hasil Pencarian Transaksi](screenshots/transactions-list.png)
+
 ### Langkah 3: Review Hasil Pencarian
 
 Hasil pencarian akan menampilkan transaksi yang cocok dengan kata kunci.
+
+### Langkah 4: Buka Detail Transaksi
+
+Klik pada transaksi yang ditemukan untuk melihat detail lengkap.
+
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 > **Tips Pencarian**:
 > - Gunakan kata kunci yang spesifik
@@ -235,7 +269,7 @@ Hasil pencarian akan menampilkan transaksi yang cocok dengan kata kunci.
 
 2. **Rekonsiliasi mingguan** - Cocokkan saldo aplikasi dengan saldo bank setiap akhir pekan
 
-3. **Posting langsung** - Jangan tunda posting transaksi. Semakin cepat diposting, semakin akurat datanya.
+3. **Posting langsung** - Jangan tunda posting transaksi. Semakin cepat diposted, semakin akurat datanya.
 
 4. **Simpan bukti** - Screenshot saldo bank, foto struk - sebagai dokumentasi jika ada selisih
 
