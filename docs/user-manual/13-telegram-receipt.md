@@ -68,7 +68,7 @@ Jika seseorang belum link dan mengirim struk, bot akan membalas: *"Akun belum te
 2. Anda akan melihat notifikasi **"X struk menunggu diproses"**
 3. Klik notifikasi tersebut atau buka tab **Struk Pending**
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 4. Klik struk yang baru dikirim
 5. Review gambar struk
@@ -78,13 +78,13 @@ Jika seseorang belum link dan mengirim struk, bot akan membalas: *"Akun belum te
    - **Jumlah**: `350000`
    - **Keterangan**: `Pembelian ATK - Toko ABC`
 
-![Form Transaksi](../../screenshots/transactions-form.png)
+![Form Transaksi](screenshots/transactions-form.png)
 
 7. Klik **Simpan & Posting**
 
 **Hasil**: Transaksi tercatat dengan lampiran gambar struk.
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 ## Skenario 3: Kirim Struk dengan Caption Detail
 
@@ -123,11 +123,11 @@ Caption ini akan muncul saat Anda memproses struk di aplikasi, memudahkan pengis
 1. Buka menu **Transaksi** > **Struk Pending**
 2. Anda akan melihat daftar semua struk yang belum diproses
 
-![Daftar Transaksi dengan Struk Pending](../../screenshots/transactions-list.png)
+![Daftar Transaksi dengan Struk Pending](screenshots/transactions-list.png)
 
 3. Klik struk pertama, isi form, posting
 
-![Form untuk Memproses Struk](../../screenshots/transactions-form.png)
+![Form untuk Memproses Struk](screenshots/transactions-form.png)
 
 4. Lanjut ke struk berikutnya
 5. Ulangi sampai semua struk terproses
@@ -140,7 +140,7 @@ Caption ini akan muncul saat Anda memproses struk di aplikasi, memudahkan pengis
 
 1. Di aplikasi web, buka **Struk Pending**
 
-![Daftar Struk Pending](../../screenshots/transactions-list.png)
+![Daftar Struk Pending](screenshots/transactions-list.png)
 
 2. Klik struk yang salah
 3. Klik tombol **Hapus** atau **Abaikan**
@@ -154,7 +154,7 @@ Caption ini akan muncul saat Anda memproses struk di aplikasi, memudahkan pengis
 
 1. Buka detail transaksi yang sudah ada
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 2. Di bagian **Lampiran**, klik **Tambah Lampiran**
 3. Upload file dari komputer, atau

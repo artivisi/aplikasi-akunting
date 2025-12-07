@@ -9,7 +9,7 @@ Menu Komponen Gaji digunakan untuk mengelola jenis-jenis pendapatan dan potongan
 1. Klik menu **Komponen Gaji** di sidebar
 2. Halaman daftar komponen gaji akan ditampilkan
 
-![Daftar Komponen Gaji](../../screenshots/salary-components-list.png)
+![Daftar Komponen Gaji](screenshots/salary-components-list.png)
 
 ## Daftar Komponen Gaji
 
@@ -70,7 +70,7 @@ Sistem menyediakan 17 komponen standar Indonesia:
 
 1. Klik tombol **+ Komponen Baru**
 
-![Form Komponen Gaji](../../screenshots/salary-components-form.png)
+![Form Komponen Gaji](screenshots/salary-components-form.png)
 
 2. Isi data pada form:
 
@@ -112,7 +112,7 @@ Sistem menyediakan 17 komponen standar Indonesia:
 1. Buka halaman detail komponen
 2. Klik tombol **Edit**
 
-![Form Edit Komponen](../../screenshots/salary-components-form.png)
+![Form Edit Komponen](screenshots/salary-components-form.png)
 
 3. Ubah data yang diperlukan
 4. Klik **Simpan**

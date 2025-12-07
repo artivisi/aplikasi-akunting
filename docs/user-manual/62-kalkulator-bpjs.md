@@ -12,7 +12,7 @@ Kalkulator BPJS membantu menghitung iuran BPJS (Kesehatan dan Ketenagakerjaan) b
 1. Klik menu **Kalkulator BPJS** di sidebar
 2. Halaman kalkulator akan ditampilkan
 
-![Kalkulator BPJS](../../screenshots/bpjs-calculator.png)
+![Kalkulator BPJS](screenshots/bpjs-calculator.png)
 
 ## Cara Menggunakan
 
@@ -40,7 +40,7 @@ Kalkulator BPJS membantu menghitung iuran BPJS (Kesehatan dan Ketenagakerjaan) b
 3. Klik tombol **Hitung**
 4. Hasil perhitungan akan ditampilkan
 
-![Hasil Perhitungan BPJS](../../screenshots/bpjs-calculator.png)
+![Hasil Perhitungan BPJS](screenshots/bpjs-calculator.png)
 
 ## Memahami Hasil Perhitungan
 

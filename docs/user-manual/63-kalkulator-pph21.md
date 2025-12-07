@@ -12,7 +12,7 @@ Kalkulator PPh 21 membantu menghitung Pajak Penghasilan Pasal 21 bulanan berdasa
 1. Klik menu **Kalkulator PPh 21** di sidebar
 2. Halaman kalkulator akan ditampilkan
 
-![Kalkulator PPh 21](../../screenshots/pph21-calculator.png)
+![Kalkulator PPh 21](screenshots/pph21-calculator.png)
 
 ## Cara Menggunakan
 
@@ -49,7 +49,7 @@ Kalkulator PPh 21 membantu menghitung Pajak Penghasilan Pasal 21 bulanan berdasa
 4. Klik tombol **Hitung**
 5. Hasil perhitungan akan ditampilkan
 
-![Hasil Perhitungan PPh 21](../../screenshots/pph21-calculator.png)
+![Hasil Perhitungan PPh 21](screenshots/pph21-calculator.png)
 
 ## Memahami Hasil Perhitungan
 

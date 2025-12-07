@@ -10,7 +10,7 @@ Fitur ekspor data memungkinkan Anda mengunduh seluruh data perusahaan dalam form
 
 ## Mengakses Fitur Ekspor
 
-![Halaman Pengaturan Privacy](../../screenshots/settings-privacy.png)
+![Halaman Pengaturan Privacy](screenshots/settings-privacy.png)
 
 1. Buka menu **Pengaturan** dari sidebar
 2. Scroll ke bagian **Pengaturan Lainnya**
@@ -57,7 +57,7 @@ File ZIP yang diunduh berisi:
 
 ## Cara Mengekspor Data
 
-![Halaman Pengaturan Privacy](../../screenshots/settings-privacy.png)
+![Halaman Pengaturan Privacy](screenshots/settings-privacy.png)
 
 1. Buka halaman **Ekspor Data** (lihat langkah di atas)
 2. Review statistik data yang akan diekspor

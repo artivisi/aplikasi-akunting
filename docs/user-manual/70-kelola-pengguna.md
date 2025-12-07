@@ -32,7 +32,7 @@ Halaman daftar pengguna menampilkan semua pengguna yang terdaftar dalam sistem. 
 - Mencari pengguna berdasarkan username, nama, atau email
 - Menambah pengguna baru
 
-![Daftar Pengguna](../../screenshots/users-list.png)
+![Daftar Pengguna](screenshots/users-list.png)
 
 ### Filter dan Pencarian
 
@@ -46,7 +46,7 @@ Gunakan kolom pencarian untuk mencari pengguna berdasarkan:
 1. Klik tombol **Pengguna Baru** di halaman daftar
 2. Anda akan melihat form pengguna baru:
 
-![Form Pengguna Baru](../../screenshots/users-form.png)
+![Form Pengguna Baru](screenshots/users-form.png)
 
 3. Isi informasi pengguna:
    - **Username**: Username unik untuk login (wajib)
@@ -75,7 +75,7 @@ Contoh password yang valid: `SecurePass123!`
 1. Klik link **Detail** pada baris pengguna yang ingin diedit
 2. Anda akan melihat halaman detail pengguna:
 
-![Detail Pengguna](../../screenshots/users-detail.png)
+![Detail Pengguna](screenshots/users-detail.png)
 
 3. Di halaman detail, klik tombol **Edit**
 4. Ubah informasi yang diperlukan

@@ -33,7 +33,7 @@ Ada empat laporan keuangan utama:
 3. Pilih **Tanggal**: Tanggal akhir bulan (contoh: 30 November 2025)
 4. Klik **Tampilkan**
 
-![Laporan Neraca Saldo](../../screenshots/reports-trial-balance.png)
+![Laporan Neraca Saldo](screenshots/reports-trial-balance.png)
 
 5. Periksa laporan:
    - **Total Debit** harus sama dengan **Total Kredit**
@@ -66,7 +66,7 @@ Ada empat laporan keuangan utama:
    - **Tanggal Akhir**: 30 November 2025
 4. Klik **Tampilkan**
 
-![Laporan Laba Rugi](../../screenshots/reports-income-statement.png)
+![Laporan Laba Rugi](screenshots/reports-income-statement.png)
 
 5. Review laporan:
    - **Pendapatan**: Total penerimaan dari operasional
@@ -102,7 +102,7 @@ LABA BERSIH                   Rp 27.000.000
 3. Pilih **Tanggal**: Tanggal akhir bulan
 4. Klik **Tampilkan**
 
-![Laporan Neraca](../../screenshots/reports-balance-sheet.png)
+![Laporan Neraca](screenshots/reports-balance-sheet.png)
 
 5. Periksa persamaan akuntansi:
    ```
@@ -221,7 +221,7 @@ Laporan arus kas menampilkan rekonsiliasi saldo kas akhir dengan total saldo aku
 
 1. Buka **Dashboard**
 
-![Dashboard dengan Indikator Performa](../../screenshots/dashboard.png)
+![Dashboard dengan Indikator Performa](screenshots/dashboard.png)
 
 2. Lihat indikator perubahan di setiap kartu KPI
 3. Warna hijau = naik, merah = turun

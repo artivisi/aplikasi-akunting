@@ -57,12 +57,12 @@ Net PPN = PPN Keluaran - PPN Masukan
 
 1. Klik menu **Transaksi** di sidebar
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 2. Klik tombol **Transaksi Baru**
 3. Pilih template **Pendapatan Jasa dengan PPN**
 
-![Form Transaksi](../../screenshots/transactions-form.png)
+![Form Transaksi](screenshots/transactions-form.png)
 
 4. Isi form:
    - **Tanggal**: Tanggal invoice/pembayaran
@@ -78,7 +78,7 @@ Net PPN = PPN Keluaran - PPN Masukan
    ```
 6. Klik **Simpan & Posting**
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 **Hasil**: Hutang PPN (PPN Keluaran) bertambah Rp 1.100.000.
 
@@ -90,12 +90,12 @@ Net PPN = PPN Keluaran - PPN Masukan
 
 1. Klik menu **Transaksi** di sidebar
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 2. Klik tombol **Transaksi Baru**
 3. Pilih template **Pembelian dengan PPN**
 
-![Form Transaksi](../../screenshots/transactions-form.png)
+![Form Transaksi](screenshots/transactions-form.png)
 
 4. Isi form:
    - **Tanggal**: Tanggal faktur
@@ -111,7 +111,7 @@ Net PPN = PPN Keluaran - PPN Masukan
    ```
 6. Klik **Simpan & Posting**
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 **Hasil**: PPN Masukan bertambah Rp 550.000 (dapat dikreditkan dengan PPN Keluaran).
 
@@ -123,12 +123,12 @@ Net PPN = PPN Keluaran - PPN Masukan
 
 1. Klik menu **Transaksi** di sidebar
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 2. Klik tombol **Transaksi Baru**
 3. Pilih template **Beban dengan PPN**
 
-![Form Transaksi](../../screenshots/transactions-form.png)
+![Form Transaksi](screenshots/transactions-form.png)
 
 4. Isi form:
    - **Tanggal**: Tanggal pembayaran
@@ -143,7 +143,7 @@ Net PPN = PPN Keluaran - PPN Masukan
    ```
 6. Klik **Simpan & Posting**
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 ## Skenario 4: Cek Status PPN Bulanan
 
@@ -158,7 +158,7 @@ Net PPN = PPN Keluaran - PPN Masukan
    - **Tanggal Akhir**: 30 November 2025
 4. Klik **Tampilkan**
 
-![Ringkasan PPN](../../screenshots/reports-ppn-summary.png)
+![Ringkasan PPN](screenshots/reports-ppn-summary.png)
 
 5. Review hasil:
 
@@ -184,12 +184,12 @@ Batas Setor: 15 Desember 2025
 2. Setelah mendapat bukti bayar:
 3. Klik menu **Transaksi** di sidebar
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 4. Klik tombol **Transaksi Baru**
 5. Pilih template **Setor PPN**
 
-![Form Transaksi](../../screenshots/transactions-form.png)
+![Form Transaksi](screenshots/transactions-form.png)
 
 6. Isi form:
    - **Tanggal**: Tanggal setoran
@@ -204,7 +204,7 @@ Batas Setor: 15 Desember 2025
    ```
 8. Klik **Simpan & Posting**
 
-![Detail Transaksi](../../screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 **Hasil**: Saldo Hutang PPN berkurang Rp 3.300.000.
 

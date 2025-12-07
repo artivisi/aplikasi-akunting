@@ -27,7 +27,7 @@ Komponen:
 
 1. Klik menu **Inventori** > **Bill of Materials**
 
-![Daftar BOM](../../screenshots/bom-list.png)
+![Daftar BOM](screenshots/bom-list.png)
 
 2. Klik tombol **Tambah BOM**
 3. Isi informasi BOM:
@@ -42,7 +42,7 @@ Komponen:
    - Isi jumlah yang diperlukan
    - Isi catatan (opsional)
 
-![Form BOM](../../screenshots/bom-form.png)
+![Form BOM](screenshots/bom-form.png)
 
 5. Klik **Simpan**
 
@@ -59,7 +59,7 @@ Komponen:
 1. Gunakan **Search** untuk mencari berdasarkan kode atau nama
 2. Gunakan filter **Status** untuk melihat BOM aktif/nonaktif
 
-![Filter BOM](../../screenshots/bom-list.png)
+![Filter BOM](screenshots/bom-list.png)
 
 ### Detail BOM
 
@@ -89,7 +89,7 @@ Status production order:
 
 1. Klik menu **Inventori** > **Production Order**
 
-![Daftar Production Order](../../screenshots/production-list.png)
+![Daftar Production Order](screenshots/production-list.png)
 
 2. Klik **Buat Order Baru**
 3. Isi form:
@@ -98,7 +98,7 @@ Status production order:
    - **Tanggal Order**: Tanggal perintah produksi
    - **Catatan**: Keterangan tambahan
 
-![Form Production Order](../../screenshots/production-form.png)
+![Form Production Order](screenshots/production-form.png)
 
 4. Klik **Simpan**
 
@@ -108,7 +108,7 @@ Sistem menghasilkan nomor order otomatis (PO-YYYY-NNNN).
 
 1. Buka halaman detail production order
 
-![Detail Production Order](../../screenshots/production-form.png)
+![Detail Production Order](screenshots/production-form.png)
 
 2. Klik tombol **Mulai Produksi**
 3. Konfirmasi
@@ -123,7 +123,7 @@ Status berubah menjadi **In Progress**.
 
 1. Dari halaman detail order yang sedang berjalan
 
-![Production Order In Progress](../../screenshots/production-form.png)
+![Production Order In Progress](screenshots/production-form.png)
 
 2. Klik tombol **Selesaikan Produksi**
 3. Konfirmasi
@@ -167,7 +167,7 @@ Order yang sudah **Completed** tidak dapat dibatalkan.
 
 ### Filter
 
-![Filter Production Order](../../screenshots/production-list.png)
+![Filter Production Order](screenshots/production-list.png)
 
 1. Filter berdasarkan **Status**
 2. Filter berdasarkan **BOM**

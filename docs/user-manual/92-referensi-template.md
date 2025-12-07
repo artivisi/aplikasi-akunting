@@ -1,6 +1,6 @@
 # Referensi Template
 
-![Daftar Template Jurnal](../../screenshots/templates-list.png)
+![Daftar Template Jurnal](screenshots/templates-list.png)
 
 Daftar template jurnal bawaan yang tersedia dalam aplikasi. Template dikelompokkan berdasarkan kategori.
 

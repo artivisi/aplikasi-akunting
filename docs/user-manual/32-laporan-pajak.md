@@ -41,7 +41,7 @@ Gunakan panduan ini ketika Anda:
    - **Tanggal Akhir**: 30 November 2025
 5. Klik **Tampilkan**
 
-![Ringkasan PPN](../../screenshots/reports-ppn-summary.png)
+![Ringkasan PPN](screenshots/reports-ppn-summary.png)
 
 **Hasil yang Ditampilkan**:
 
@@ -91,7 +91,7 @@ Batas setor: 15 Desember 2025
 4. Pilih periode November 2025
 5. Klik **Tampilkan**
 
-![Pemotongan PPh 23](../../screenshots/reports-pph23-withholding.png)
+![Pemotongan PPh 23](screenshots/reports-pph23-withholding.png)
 
 **Hasil yang Ditampilkan**:
 
@@ -131,7 +131,7 @@ Batas lapor: 20 Desember 2025
 4. Pilih periode
 5. Klik **Tampilkan**
 
-![Ringkasan Pajak](../../screenshots/reports-tax-summary.png)
+![Ringkasan Pajak](screenshots/reports-tax-summary.png)
 
 **Hasil yang Ditampilkan**:
 
@@ -170,7 +170,7 @@ Total Kewajiban Pajak              Rp 6.260.000
 3. Pilih periode November 2025
 4. Klik **Tampilkan**
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
 5. Review setiap transaksi:
    - **Kredit** = PPN Keluaran dari penjualan
@@ -204,7 +204,7 @@ Tanggal     Keterangan                    Debit      Kredit     Saldo
 
 1. Cetak Ringkasan PPN untuk periode masa pajak
 
-![Ringkasan PPN](../../screenshots/reports-ppn-summary.png)
+![Ringkasan PPN](screenshots/reports-ppn-summary.png)
 
 2. Catat total PPN Keluaran
 3. Catat total PPN Masukan
@@ -229,7 +229,7 @@ Tanggal     Keterangan                    Debit      Kredit     Saldo
 
 1. Cetak Laporan Pemotongan PPh 23
 
-![Pemotongan PPh 23](../../screenshots/reports-pph23-withholding.png)
+![Pemotongan PPh 23](screenshots/reports-pph23-withholding.png)
 
 2. Buat bukti potong untuk setiap vendor di e-Bupot
 3. Setor PPh 23 jika belum

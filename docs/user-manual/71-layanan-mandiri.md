@@ -15,7 +15,7 @@ Halaman ini menampilkan daftar slip gaji Anda yang sudah di-posting.
 1. Klik menu **Slip Gaji Saya** di sidebar
 2. Anda akan melihat halaman daftar slip gaji:
 
-![Slip Gaji Saya](../../screenshots/self-service-payslips.png)
+![Slip Gaji Saya](screenshots/self-service-payslips.png)
 
 3. Pilih tahun dari dropdown untuk melihat slip gaji tahun tertentu
 4. Klik **Download PDF** untuk mengunduh slip gaji dalam format PDF
@@ -36,7 +36,7 @@ Halaman ini menampilkan bukti potong PPh 21 (formulir 1721-A1) untuk keperluan p
 1. Klik menu **Bukti Potong Saya** di sidebar
 2. Anda akan melihat halaman bukti potong:
 
-![Bukti Potong PPh 21](../../screenshots/self-service-bukti-potong.png)
+![Bukti Potong PPh 21](screenshots/self-service-bukti-potong.png)
 
 3. Pilih tahun dari dropdown
 4. Jika ada data payroll untuk tahun tersebut, klik **Download PDF** untuk mengunduh bukti potong
@@ -55,7 +55,7 @@ Halaman ini menampilkan bukti potong PPh 21 (formulir 1721-A1) untuk keperluan p
 
 Halaman ini menampilkan informasi profil karyawan Anda.
 
-![Profil Saya](../../screenshots/self-service-profile.png)
+![Profil Saya](screenshots/self-service-profile.png)
 
 ### Informasi yang Ditampilkan
 

@@ -19,7 +19,7 @@ Fitur transaksi inventori mencatat pergerakan stok masuk dan keluar.
 
 1. Klik menu **Inventori** > **Pembelian**
 
-![Form Pembelian](../../screenshots/inventory-purchase.png)
+![Form Pembelian](screenshots/inventory-purchase.png)
 
 2. Isi form:
    - **Produk**: Pilih produk yang dibeli
@@ -41,7 +41,7 @@ Sistem otomatis:
 
 1. Klik menu **Inventori** > **Penjualan**
 
-![Form Penjualan](../../screenshots/inventory-sale.png)
+![Form Penjualan](screenshots/inventory-sale.png)
 
 2. Isi form:
    - **Produk**: Pilih produk yang dijual
@@ -69,7 +69,7 @@ Sistem otomatis:
 
 1. Klik menu **Inventori** > **Penyesuaian**
 
-![Form Penyesuaian](../../screenshots/inventory-adjustment.png)
+![Form Penyesuaian](screenshots/inventory-adjustment.png)
 
 2. Isi form:
    - **Produk**: Pilih produk
@@ -85,7 +85,7 @@ Sistem otomatis:
 
 Di halaman **Inventori** > **Transaksi**:
 
-![Daftar Transaksi Inventori](../../screenshots/inventory-transactions.png)
+![Daftar Transaksi Inventori](screenshots/inventory-transactions.png)
 
 1. **Produk**: Filter per produk
 2. **Tipe**: Filter per jenis transaksi

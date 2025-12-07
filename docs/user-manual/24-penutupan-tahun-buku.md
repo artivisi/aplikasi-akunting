@@ -7,7 +7,7 @@ Penutupan Tahun Buku (Fiscal Year Closing) adalah proses akhir tahun untuk menut
 1. Buka menu **Laporan**
 2. Pada bagian **Aset Tetap & Penutupan**, klik **Penutupan Tahun Buku**
 
-![Halaman Penutupan Tahun Buku](../../screenshots/reports-fiscal-closing.png)
+![Halaman Penutupan Tahun Buku](screenshots/reports-fiscal-closing.png)
 
 ## Proses Penutupan
 
@@ -52,7 +52,7 @@ Sebelum eksekusi, sistem menampilkan:
 - Laba/Rugi Bersih
 - Preview jurnal yang akan dibuat
 
-![Preview Jurnal Penutupan](../../screenshots/reports-fiscal-closing.png)
+![Preview Jurnal Penutupan](screenshots/reports-fiscal-closing.png)
 
 ### Eksekusi Penutupan
 
@@ -61,7 +61,7 @@ Sebelum eksekusi, sistem menampilkan:
 3. Klik **Eksekusi Penutupan**
 4. Konfirmasi dengan klik OK
 
-![Konfirmasi Eksekusi Penutupan](../../screenshots/reports-fiscal-closing.png)
+![Konfirmasi Eksekusi Penutupan](screenshots/reports-fiscal-closing.png)
 
 ### Status
 
@@ -74,7 +74,7 @@ Jika terjadi kesalahan, penutupan bisa dibatalkan:
 
 1. Klik **Batalkan Penutupan**
 
-![Pembatalan Penutupan](../../screenshots/reports-fiscal-closing.png)
+![Pembatalan Penutupan](screenshots/reports-fiscal-closing.png)
 
 2. Isi alasan pembatalan
 3. Klik **Batalkan Penutupan**
@@ -86,16 +86,16 @@ Jurnal penutup akan di-void dan status tahun kembali terbuka.
 Lakukan penutupan setelah:
 - Semua transaksi tahun tersebut sudah di-input
 
-![Verifikasi Transaksi](../../screenshots/transactions-list.png)
+![Verifikasi Transaksi](screenshots/transactions-list.png)
 
 - Penyesuaian akhir tahun sudah dilakukan
 - Penyusutan aset sudah dihitung
 
-![Laporan Penyusutan](../../screenshots/reports-depreciation.png)
+![Laporan Penyusutan](screenshots/reports-depreciation.png)
 
 - Laporan keuangan sudah final
 
-![Laporan Laba Rugi](../../screenshots/reports-income-statement.png)
+![Laporan Laba Rugi](screenshots/reports-income-statement.png)
 
 ## Akun yang Digunakan
 

@@ -87,7 +87,7 @@ Anda dapat mengekspor data Anda kapan saja:
 ### Ekspor Lengkap
 Untuk mengekspor seluruh data perusahaan:
 
-![Halaman Pengaturan Privacy](../../screenshots/settings-privacy.png)
+![Halaman Pengaturan Privacy](screenshots/settings-privacy.png)
 
 1. Buka **Pengaturan** > **Ekspor Data**
 2. Pilih periode yang diinginkan
@@ -102,7 +102,7 @@ Aplikasi ini mendukung hak-hak subjek data sesuai dengan GDPR (General Data Prot
 
 Anda berhak mendapatkan salinan data pribadi Anda. Administrator dapat memproses permintaan ini melalui:
 
-![Halaman Hak Subjek Data](../../screenshots/settings-data-subjects.png)
+![Halaman Hak Subjek Data](screenshots/settings-data-subjects.png)
 
 1. Buka **Pengaturan > Hak Subjek Data**
 2. Cari karyawan berdasarkan nama atau NIK
@@ -118,7 +118,7 @@ Data yang diekspor mencakup:
 
 Anda berhak meminta penghapusan data pribadi Anda. Karena kewajiban retensi perpajakan, penghapusan dilakukan melalui **anonimisasi**:
 
-![Halaman Hak Subjek Data](../../screenshots/settings-data-subjects.png)
+![Halaman Hak Subjek Data](screenshots/settings-data-subjects.png)
 
 1. Buka **Pengaturan > Hak Subjek Data**
 2. Pilih karyawan yang mengajukan permintaan

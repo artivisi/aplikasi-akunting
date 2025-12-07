@@ -8,7 +8,7 @@ Kartu stok menampilkan saldo dan riwayat transaksi untuk setiap produk.
 
 1. Klik menu **Inventori** > **Stok Barang**
 
-![Daftar Saldo Stok](../../screenshots/stock-list.png)
+![Daftar Saldo Stok](screenshots/stock-list.png)
 
 2. Tampilan menampilkan:
    - **Total Nilai Persediaan**: Nilai rupiah seluruh stok
@@ -20,7 +20,7 @@ Kartu stok menampilkan saldo dan riwayat transaksi untuk setiap produk.
 1. Gunakan **Search** untuk mencari produk
 2. Gunakan dropdown **Kategori** untuk filter
 
-![Filter Stok Barang](../../screenshots/stock-list.png)
+![Filter Stok Barang](screenshots/stock-list.png)
 
 ### Peringatan Stok Minimum
 
@@ -74,7 +74,7 @@ Tabel transaksi menampilkan:
 
 1. Klik menu **Inventori** > **Laporan** > **Saldo Stok**
 
-![Laporan Saldo Stok](../../screenshots/inventory-stock-balance.png)
+![Laporan Saldo Stok](screenshots/inventory-stock-balance.png)
 
 2. Pilih tanggal
 3. Lihat atau export ke PDF/Excel
@@ -83,7 +83,7 @@ Tabel transaksi menampilkan:
 
 1. Klik menu **Inventori** > **Laporan** > **Pergerakan Stok**
 
-![Laporan Pergerakan Stok](../../screenshots/inventory-stock-movement.png)
+![Laporan Pergerakan Stok](screenshots/inventory-stock-movement.png)
 
 2. Pilih periode (dari - sampai)
 3. Filter produk (opsional)

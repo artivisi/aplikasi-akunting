@@ -7,7 +7,7 @@ Laporan Penyusutan (Depreciation Report) digunakan untuk melaporkan penyusutan a
 1. Buka menu **Laporan**
 2. Pada bagian **Aset Tetap & Penutupan**, klik **Laporan Penyusutan**
 
-![Laporan Penyusutan Aset](../../screenshots/reports-depreciation.png)
+![Laporan Penyusutan Aset](screenshots/reports-depreciation.png)
 
 ## Komponen Laporan
 
@@ -29,7 +29,7 @@ Laporan menampilkan data berikut untuk setiap aset:
 
 Gunakan dropdown **Tahun** di bagian atas untuk melihat laporan tahun tertentu.
 
-![Memilih Tahun Laporan Penyusutan](../../screenshots/reports-depreciation.png)
+![Memilih Tahun Laporan Penyusutan](screenshots/reports-depreciation.png)
 
 ## Mencetak Laporan
 
@@ -39,7 +39,7 @@ Klik tombol **Cetak** untuk membuka versi cetak dalam format Lampiran Khusus 1A 
 
 - Pastikan semua aset tetap sudah terdaftar di menu **Aset Tetap** sebelum akhir tahun
 
-![Daftar Aset Tetap](../../screenshots/assets-list.png)
+![Daftar Aset Tetap](screenshots/assets-list.png)
 
 - Penyusutan dihitung otomatis setiap bulan oleh sistem
 - Laporan ini bisa langsung digunakan sebagai lampiran SPT Tahunan

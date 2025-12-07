@@ -36,7 +36,7 @@ Gunakan panduan ini ketika Anda:
 
 1. Klik menu **Transaksi** > filter **Status: Draft**
 
-![Daftar Transaksi](../../screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/transactions-list.png)
 
    - Posting atau hapus semua draft
 
@@ -51,7 +51,7 @@ Gunakan panduan ini ketika Anda:
 
 5. Klik menu **Laporan** > **Neraca Saldo**
 
-![Laporan Neraca Saldo](../../screenshots/reports-trial-balance.png)
+![Laporan Neraca Saldo](screenshots/reports-trial-balance.png)
 
    - Verifikasi total debit = total kredit
 
@@ -69,7 +69,7 @@ Gunakan panduan ini ketika Anda:
    - **Tanggal Akhir**: 31 Desember 2025
 3. Klik **Tampilkan**
 
-![Laporan Laba Rugi Tahunan](../../screenshots/reports-income-statement.png)
+![Laporan Laba Rugi Tahunan](screenshots/reports-income-statement.png)
 
 4. Klik **Ekspor PDF** untuk dokumentasi
 5. Klik **Ekspor Excel** untuk analisis
@@ -80,7 +80,7 @@ Gunakan panduan ini ketika Anda:
 2. Pilih **Tanggal**: 31 Desember 2025
 3. Klik **Tampilkan**
 
-![Laporan Neraca Tahunan](../../screenshots/reports-balance-sheet.png)
+![Laporan Neraca Tahunan](screenshots/reports-balance-sheet.png)
 
 4. Ekspor ke PDF dan Excel
 
@@ -90,7 +90,7 @@ Gunakan panduan ini ketika Anda:
 2. Pilih **Tanggal**: 31 Desember 2025
 3. Klik **Tampilkan**
 
-![Laporan Neraca Saldo Tahunan](../../screenshots/reports-trial-balance.png)
+![Laporan Neraca Saldo Tahunan](screenshots/reports-trial-balance.png)
 
 4. Ekspor ke PDF dan Excel
 

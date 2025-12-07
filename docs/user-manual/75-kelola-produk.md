@@ -8,7 +8,7 @@ Fitur produk memungkinkan pencatatan barang dagangan dan bahan baku untuk invent
 
 1. Klik menu **Inventori** > **Produk**
 
-![Daftar Produk](../../screenshots/products-list.png)
+![Daftar Produk](screenshots/products-list.png)
 
 2. Klik tombol **Tambah Produk**
 3. Isi form:
@@ -20,7 +20,7 @@ Fitur produk memungkinkan pencatatan barang dagangan dan bahan baku untuk invent
    - **Stok Minimum**: Batas minimum untuk peringatan
    - **Deskripsi**: Keterangan tambahan
 
-![Form Produk](../../screenshots/products-form.png)
+![Form Produk](screenshots/products-form.png)
 
 4. Klik **Simpan**
 
@@ -37,7 +37,7 @@ Fitur produk memungkinkan pencatatan barang dagangan dan bahan baku untuk invent
 2. Klik tombol **Edit**
 3. Ubah data yang diperlukan
 
-![Form Edit Produk](../../screenshots/products-form.png)
+![Form Edit Produk](screenshots/products-form.png)
 
 4. Klik **Simpan**
 
@@ -57,7 +57,7 @@ Produk nonaktif tidak muncul di dropdown transaksi.
 
 1. Klik menu **Inventori** > **Kategori**
 
-![Daftar Kategori Produk](../../screenshots/product-categories-list.png)
+![Daftar Kategori Produk](screenshots/product-categories-list.png)
 
 2. Klik tombol **Tambah Kategori**
 3. Isi form:
@@ -88,7 +88,7 @@ Di halaman daftar produk:
 2. Gunakan dropdown **Kategori** untuk filter berdasarkan kategori
 3. Klik kolom header untuk sorting
 
-![Filter dan Pencarian Produk](../../screenshots/products-list.png)
+![Filter dan Pencarian Produk](screenshots/products-list.png)
 
 ## Lihat Juga
 
