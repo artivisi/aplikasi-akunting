@@ -7,141 +7,257 @@ Gunakan panduan ini ketika Anda:
 - Ingin melihat saldo kas dan bank terkini
 - Ingin memverifikasi apakah ada transaksi yang belum diposting
 - Ingin melihat mutasi akun tertentu
+- Ingin memastikan saldo di aplikasi cocok dengan saldo bank
 
-## Konsep yang Perlu Dipahami
+## Konsep Sederhana
 
-Laporan harian membantu Anda:
-- **Monitoring** - Memastikan semua transaksi tercatat
-- **Verifikasi** - Mencocokkan saldo aplikasi dengan saldo aktual
-- **Deteksi** - Menemukan kesalahan pencatatan lebih awal
+**Laporan harian = Cek kondisi keuangan bisnis Anda hari ini.**
 
-## Skenario 1: Cek Kondisi Keuangan Hari Ini (Dashboard)
+Seperti melihat saldo di ATM atau mobile banking, laporan harian membantu Anda menjawab pertanyaan:
+- Berapa uang yang saya punya sekarang?
+- Transaksi apa saja yang sudah dicatat hari ini?
+- Apakah saldo di aplikasi cocok dengan saldo di bank?
 
-**Situasi**: Pagi hari, Anda ingin melihat ringkasan kondisi keuangan bisnis.
+Pengecekan rutin membantu Anda mendeteksi kesalahan lebih awal sebelum menjadi masalah besar.
 
-**Langkah-langkah**:
+---
 
-1. Buka aplikasi, halaman **Dashboard** akan tampil otomatis
-2. Lihat kartu-kartu KPI:
-   - **Kas & Bank** - Total saldo kas dan bank saat ini
-   - **Piutang** - Total piutang yang belum dibayar
-   - **Hutang** - Total hutang yang harus dibayar
-   - **Transaksi** - Jumlah transaksi bulan ini
-3. Untuk melihat periode lain, gunakan pemilih bulan di atas
+## Skenario 1: Cek Kondisi Keuangan (Dashboard)
 
-**Informasi yang Ditampilkan**:
+**Situasi**: Pagi hari, Anda ingin melihat ringkasan kondisi keuangan bisnis secara cepat.
 
-| Kartu | Arti |
-|-------|------|
-| Pendapatan | Total pendapatan bulan ini vs bulan lalu |
-| Beban | Total pengeluaran bulan ini vs bulan lalu |
-| Laba Bersih | Pendapatan - Beban |
-| Margin Laba | (Laba / Pendapatan) × 100% |
+### Langkah 1: Buka Dashboard
 
-## Skenario 2: Cek Transaksi Hari Ini
+Setelah login, Anda akan langsung melihat halaman **Dashboard**. Atau klik menu **Dashboard** di sidebar kiri.
 
-**Situasi**: Akhir hari kerja, Anda ingin memastikan semua transaksi sudah tercatat.
+![Dashboard Utama](screenshots/dashboard.png)
 
-**Langkah-langkah**:
+### Langkah 2: Pahami Kartu-Kartu KPI
 
-1. Klik menu **Transaksi** di sidebar
-2. Di filter **Periode**, pilih tanggal hari ini
-3. Klik **Tampilkan** atau tekan Enter
-4. Review daftar transaksi yang muncul:
-   - Periksa apakah semua transaksi hari ini sudah ada
-   - Perhatikan status transaksi (Draft/Posted)
-5. Jika ada yang kurang, catat segera
+Di Dashboard, ada beberapa kartu yang menampilkan angka penting:
 
-**Tips Verifikasi**:
-- Cocokkan dengan struk/bukti yang Anda miliki
-- Pastikan tidak ada transaksi yang masih Draft
-- Perhatikan total pengeluaran dan pemasukan
+| Kartu | Artinya | Contoh |
+|-------|---------|--------|
+| **Kas & Bank** | Total saldo semua rekening dan kas saat ini | Rp 50.000.000 |
+| **Piutang** | Uang yang belum dibayar klien kepada Anda | Rp 15.000.000 |
+| **Hutang** | Uang yang harus Anda bayar ke vendor | Rp 8.000.000 |
+| **Pendapatan** | Total pemasukan bulan ini | Rp 25.000.000 |
+| **Beban** | Total pengeluaran bulan ini | Rp 15.000.000 |
+| **Laba Bersih** | Pendapatan - Beban = Keuntungan | Rp 10.000.000 |
 
-## Skenario 3: Cek Saldo Bank
+> **Tips Membaca Dashboard**:
+> - Angka **hijau** biasanya berarti bagus (naik dari periode sebelumnya)
+> - Angka **merah** berarti perlu perhatian (turun dari periode sebelumnya)
+> - Klik pada kartu untuk melihat detail lebih lanjut
+
+### Langkah 3: Lihat Periode Lain (Opsional)
+
+Di bagian atas Dashboard, ada pemilih periode. Klik untuk melihat kondisi bulan lalu atau periode tertentu.
+
+---
+
+## Skenario 2: Cek Semua Transaksi Hari Ini
+
+**Situasi**: Akhir hari kerja, Anda ingin memastikan semua transaksi sudah tercatat dengan benar.
+
+### Langkah 1: Buka Menu Transaksi
+
+Di sidebar kiri, klik menu **Transaksi**. Anda akan melihat daftar semua transaksi.
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Filter Tanggal Hari Ini
+
+Di bagian atas halaman, ada filter untuk menyaring transaksi:
+
+1. Di field **Dari Tanggal**, pilih tanggal hari ini
+2. Di field **Sampai Tanggal**, pilih tanggal hari ini
+3. Klik tombol **Tampilkan** atau tekan Enter
+
+### Langkah 3: Review Daftar Transaksi
+
+Periksa daftar transaksi yang muncul:
+
+| Kolom | Informasi |
+|-------|-----------|
+| **Tanggal** | Kapan transaksi terjadi |
+| **No. Transaksi** | Nomor unik transaksi (TRX-2025-xxxx) |
+| **Keterangan** | Deskripsi transaksi |
+| **Jumlah** | Nilai transaksi dalam rupiah |
+| **Status** | Draft (belum final) atau Posted (sudah final) |
+
+> **Yang Perlu Dicek**:
+> - Apakah semua transaksi hari ini sudah tercatat?
+> - Apakah ada transaksi yang masih **Draft**? (harus di-posting)
+> - Apakah keterangan dan jumlah sudah benar?
+
+### Langkah 4: Posting Transaksi Draft (Jika Ada)
+
+Jika ada transaksi dengan status **Draft**:
+1. Klik pada transaksi tersebut untuk membuka detail
+2. Periksa apakah data sudah benar
+3. Klik tombol **Posting** untuk memfinalkan
+
+> **Penting**: Transaksi Draft **tidak** mempengaruhi saldo. Hanya transaksi Posted yang dihitung.
+
+---
+
+## Skenario 3: Cek Saldo Bank (Cocokkan dengan Mobile Banking)
 
 **Situasi**: Anda ingin mencocokkan saldo di aplikasi dengan saldo di mobile banking.
 
-**Langkah-langkah**:
+### Langkah 1: Buka Menu Buku Besar
 
-1. Klik menu **Buku Besar** di sidebar
-2. Di filter **Akun**, pilih rekening bank (contoh: Bank BCA)
-3. Di filter **Periode**, biarkan kosong untuk melihat sampai hari ini
-4. Klik **Tampilkan**
-5. Lihat **Saldo Akhir** di bagian bawah
-6. Bandingkan dengan saldo di mobile banking
+Di sidebar kiri, klik menu **Buku Besar**.
 
-**Jika Saldo Tidak Cocok**:
+![Buku Besar](screenshots/ledger-list.png)
 
-| Selisih | Kemungkinan Penyebab |
-|---------|---------------------|
-| Aplikasi lebih besar | Ada transaksi pengeluaran yang belum dicatat |
-| Aplikasi lebih kecil | Ada penerimaan yang belum dicatat |
-| Selisih kecil | Biaya admin bank yang belum dicatat |
+### Langkah 2: Pilih Akun Bank
 
-## Skenario 4: Lihat Mutasi Akun
+1. Di dropdown **Akun**, pilih rekening yang ingin dicek (contoh: Bank BCA)
+2. Biarkan field tanggal kosong untuk melihat sampai hari ini
+3. Klik tombol **Tampilkan**
 
-**Situasi**: Anda ingin melihat detail transaksi yang mempengaruhi akun tertentu.
+### Langkah 3: Lihat Saldo Akhir
 
-**Langkah-langkah**:
+Di bagian bawah tabel, ada **Saldo Akhir**. Ini adalah saldo menurut aplikasi.
 
-1. Klik menu **Buku Besar** di sidebar
-2. Pilih **Akun** yang ingin dilihat
-3. Pilih **Periode** (tanggal awal - tanggal akhir)
-4. Klik **Tampilkan**
-5. Tabel mutasi menampilkan:
-   - **Tanggal** - Tanggal transaksi
-   - **Keterangan** - Deskripsi transaksi
-   - **Debit** - Penambahan (untuk akun aset)
-   - **Kredit** - Pengurangan (untuk akun aset)
-   - **Saldo** - Saldo berjalan setelah transaksi
+### Langkah 4: Bandingkan dengan Saldo Bank
 
-## Skenario 5: Cek Transaksi Draft yang Belum Diposting
+Buka mobile banking atau cek ATM. Bandingkan angka saldo:
 
-**Situasi**: Anda ingin memastikan tidak ada transaksi yang masih draft.
+| Kondisi | Artinya | Yang Perlu Dilakukan |
+|---------|---------|---------------------|
+| **Saldo Cocok** | Pencatatan sudah benar | Tidak perlu tindakan |
+| **Aplikasi lebih besar** | Ada pengeluaran yang belum dicatat | Cek mutasi bank, catat pengeluaran yang terlewat |
+| **Aplikasi lebih kecil** | Ada pemasukan yang belum dicatat | Cek mutasi bank, catat pemasukan yang terlewat |
+| **Selisih kecil (ribuan)** | Kemungkinan biaya admin bank | Catat sebagai Beban Administrasi Bank |
 
-**Langkah-langkah**:
+> **Tips Rekonsiliasi**:
+> - Lakukan pengecekan minimal seminggu sekali
+> - Simpan screenshot saldo bank sebagai dokumentasi
+> - Selisih yang tidak terjelaskan bisa dicari di mutasi bank
 
-1. Klik menu **Transaksi** di sidebar
-2. Di filter **Status**, pilih **Draft**
-3. Klik **Tampilkan**
-4. Jika ada transaksi draft:
-   - Review apakah sudah benar
-   - Klik untuk membuka detail
-   - Posting jika sudah yakin, atau hapus jika tidak valid
+---
 
-> Catatan: Transaksi Draft tidak mempengaruhi saldo akun. Pastikan semua transaksi valid sudah diposting.
+## Skenario 4: Lihat Mutasi (Detail Pergerakan Uang)
+
+**Situasi**: Anda ingin melihat riwayat transaksi yang mempengaruhi akun tertentu.
+
+### Langkah 1: Buka Menu Buku Besar
+
+Di sidebar kiri, klik menu **Buku Besar**.
+
+### Langkah 2: Pilih Akun dan Periode
+
+1. Di dropdown **Akun**, pilih akun yang ingin dilihat (contoh: Bank BCA)
+2. Di field **Dari Tanggal**, pilih tanggal awal (contoh: 1 November 2025)
+3. Di field **Sampai Tanggal**, pilih tanggal akhir (contoh: 30 November 2025)
+4. Klik tombol **Tampilkan**
+
+### Langkah 3: Baca Tabel Mutasi
+
+Tabel mutasi menampilkan:
+
+| Kolom | Artinya | Contoh |
+|-------|---------|--------|
+| **Tanggal** | Kapan transaksi terjadi | 15 Nov 2025 |
+| **Keterangan** | Deskripsi transaksi | Pembayaran dari PT ABC |
+| **Debit** | Uang masuk (untuk akun bank/kas) | Rp 5.000.000 |
+| **Kredit** | Uang keluar (untuk akun bank/kas) | - |
+| **Saldo** | Saldo setelah transaksi ini | Rp 55.000.000 |
+
+> **Cara Membaca**:
+> - **Debit** pada akun Bank/Kas = uang **MASUK** (saldo bertambah)
+> - **Kredit** pada akun Bank/Kas = uang **KELUAR** (saldo berkurang)
+> - **Saldo** adalah saldo berjalan (running balance)
+
+---
+
+## Skenario 5: Cari Transaksi Draft yang Belum Diposting
+
+**Situasi**: Anda ingin memastikan tidak ada transaksi yang terlupakan (masih draft).
+
+### Langkah 1: Buka Menu Transaksi
+
+Di sidebar kiri, klik menu **Transaksi**.
+
+### Langkah 2: Filter Status Draft
+
+1. Di dropdown **Status**, pilih **Draft**
+2. Klik tombol **Tampilkan**
+
+### Langkah 3: Review dan Tindak Lanjuti
+
+Jika ada transaksi draft:
+
+| Kondisi Transaksi | Tindakan |
+|-------------------|----------|
+| Data sudah benar | Klik transaksi, lalu klik **Posting** |
+| Data perlu koreksi | Klik transaksi, edit data, lalu klik **Posting** |
+| Transaksi tidak valid | Klik transaksi, lalu klik **Hapus** |
+
+> **Penting**: Jangan biarkan transaksi draft terlalu lama. Posting segera setelah data dikonfirmasi.
+
+---
 
 ## Skenario 6: Cari Transaksi Tertentu
 
-**Situasi**: Anda ingin mencari transaksi berdasarkan nomor referensi atau keterangan.
+**Situasi**: Anda ingin mencari transaksi berdasarkan kata kunci (nama klien, nomor referensi, dll).
 
-**Langkah-langkah**:
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Di kolom **Pencarian**, ketik kata kunci:
-   - Nomor transaksi (TRX-2025-xxxx)
-   - Nomor referensi (INV-xxx, PO-xxx)
-   - Kata dalam keterangan (nama vendor, nama klien)
-3. Tekan Enter atau klik ikon search
-4. Hasil pencarian akan ditampilkan
+Di sidebar kiri, klik menu **Transaksi**.
 
-## Tips
+### Langkah 2: Gunakan Kolom Pencarian
 
-1. **Rutinkan pengecekan** - Biasakan cek transaksi di akhir hari kerja
-2. **Rekonsiliasi rutin** - Cocokkan saldo bank minimal seminggu sekali
-3. **Posting segera** - Jangan biarkan transaksi draft terlalu lama
-4. **Simpan bukti** - Lampirkan bukti transaksi untuk audit trail
+1. Di kolom **Pencarian** (biasanya di kanan atas), ketik kata kunci:
+   - Nomor transaksi: `TRX-2025-0001`
+   - Nomor referensi: `INV-001` atau `PO-2025-001`
+   - Nama klien: `PT ABC`
+   - Kata dalam keterangan: `listrik`, `gaji`
+2. Tekan **Enter** atau klik ikon search
+
+### Langkah 3: Review Hasil Pencarian
+
+Hasil pencarian akan menampilkan transaksi yang cocok dengan kata kunci.
+
+> **Tips Pencarian**:
+> - Gunakan kata kunci yang spesifik
+> - Jika tidak ketemu, coba kata kunci yang berbeda
+> - Periksa juga filter tanggal (mungkin transaksi di luar periode filter)
+
+---
+
+## Tips Praktis
+
+1. **Rutin setiap hari** - Biasakan cek transaksi di akhir hari kerja (15 menit saja cukup)
+
+2. **Rekonsiliasi mingguan** - Cocokkan saldo aplikasi dengan saldo bank setiap akhir pekan
+
+3. **Posting langsung** - Jangan tunda posting transaksi. Semakin cepat diposting, semakin akurat datanya.
+
+4. **Simpan bukti** - Screenshot saldo bank, foto struk - sebagai dokumentasi jika ada selisih
+
+5. **Perhatikan pola** - Jika selisih terus terjadi, mungkin ada jenis transaksi yang rutin terlewat (misal: biaya admin bank bulanan)
+
+---
 
 ## Troubleshooting
 
-| Masalah | Solusi |
-|---------|--------|
-| Saldo tidak update | Pastikan transaksi sudah Posted, bukan Draft |
-| Transaksi tidak muncul | Periksa filter periode dan status |
-| Dashboard kosong | Pastikan ada transaksi di periode yang dipilih |
+| Masalah | Penyebab | Solusi |
+|---------|----------|--------|
+| Saldo tidak update | Transaksi masih Draft | Posting semua transaksi draft |
+| Transaksi tidak muncul | Filter tanggal atau status tidak sesuai | Reset filter, perluas rentang tanggal |
+| Dashboard kosong | Tidak ada transaksi di periode yang dipilih | Pilih periode yang ada transaksinya |
+| Selisih dengan bank | Transaksi belum dicatat | Cek mutasi bank, catat yang terlewat |
+| Tidak bisa posting | Ada field yang belum diisi | Lengkapi semua field wajib |
+
+---
 
 ## Lihat Juga
 
-- [Mencatat Pengeluaran](11-mencatat-pengeluaran.md) - Catat transaksi yang terlewat
-- [Laporan Bulanan](21-laporan-bulanan.md) - Laporan yang lebih komprehensif
+- [Mencatat Pendapatan](10-mencatat-pendapatan.md) - Catat pemasukan yang terlewat
+- [Mencatat Pengeluaran](11-mencatat-pengeluaran.md) - Catat pengeluaran yang terlewat
 - [Transfer Antar Akun](12-transfer-antar-akun.md) - Jika ada selisih karena transfer
+- [Laporan Bulanan](21-laporan-bulanan.md) - Laporan yang lebih komprehensif

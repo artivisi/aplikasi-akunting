@@ -2,69 +2,92 @@
 
 ## Kapan Anda Membutuhkan Ini
 
-Gunakan panduan ini ketika Anda:
-- Membayar tagihan utilitas (listrik, air, internet)
+Gunakan panduan ini setiap kali Anda **mengeluarkan uang** untuk keperluan bisnis, misalnya:
+- Membayar tagihan listrik, air, internet, telepon
 - Membayar vendor atau supplier
 - Membayar gaji karyawan
 - Membayar sewa kantor
-- Membeli perlengkapan atau peralatan kantor
-- Pengeluaran operasional lainnya
+- Membeli perlengkapan kantor (kertas, tinta, dll)
+- Membayar biaya transportasi, makan, atau operasional lainnya
 
-## Konsep yang Perlu Dipahami
+## Konsep Sederhana
 
-**Beban/Pengeluaran** adalah biaya yang dikeluarkan untuk operasional bisnis. Dalam akuntansi:
-- Beban dicatat di sisi **debit**
-- Kas/Bank yang dibayarkan dicatat di sisi **kredit**
-- Jika ada PPN atau pemotongan PPh, lihat [Transaksi PPN](30-transaksi-ppn.md) dan [Transaksi PPh](31-transaksi-pph.md)
+**Pengeluaran = Uang yang keluar dari bisnis Anda.**
+
+Setiap kali Anda mengeluarkan uang, ada dua hal yang terjadi:
+1. Saldo bank/kas Anda **berkurang** (uang keluar dari rekening)
+2. Beban bisnis Anda **bertambah** (biaya operasional bertambah)
+
+Aplikasi akan mencatat kedua hal ini secara otomatis ketika Anda mengisi form transaksi.
 
 ---
 
-## Skenario 1: Bayar Tagihan Listrik
+## Skenario 1: Bayar Tagihan Listrik (Paling Umum)
 
-**Situasi**: Membayar tagihan listrik PLN sebesar Rp 850.000.
+**Situasi**: Anda membayar tagihan listrik PLN bulan November sebesar Rp 850.000 via mobile banking.
 
 ### Langkah 1: Buka Menu Transaksi
 
-Klik menu **Transaksi** di sidebar kiri untuk melihat daftar transaksi.
+Di sidebar kiri, klik menu **Transaksi**. Anda akan melihat daftar semua transaksi yang pernah dicatat.
 
 ![Daftar Transaksi](screenshots/transactions-list.png)
 
-### Langkah 2: Buat Transaksi Baru
+### Langkah 2: Klik Tombol "Transaksi Baru"
 
-Klik tombol **Transaksi Baru** di bagian atas halaman.
+Di bagian atas halaman, klik tombol biru **Transaksi Baru**. Form pencatatan transaksi akan muncul.
 
 ![Form Transaksi Baru](screenshots/transactions-form.png)
 
-### Langkah 3: Pilih Template dan Isi Form
+### Langkah 3: Pilih Template "Beban Listrik"
 
-1. Pilih template **Beban Listrik**
-2. Isi form:
-   - **Tanggal**: Tanggal pembayaran
-   - **Jumlah**: `850000`
-   - **Akun Sumber**: Pilih rekening yang digunakan (contoh: Bank BCA atau Kas Kecil)
-   - **Keterangan**: `Tagihan listrik November 2025`
-   - **No. Referensi**: Nomor tagihan PLN
+Di bagian atas form, ada dropdown **Template**. Klik dropdown tersebut dan pilih **Beban Listrik**.
 
-### Langkah 4: Periksa Preview Jurnal
+> **Tidak ada template yang cocok?** Pilih template yang paling mirip, atau gunakan template "Beban Operasional" yang lebih umum. Anda juga bisa membuat template baru di menu Template.
 
-Periksa **Preview Jurnal**:
+### Langkah 4: Isi Form Transaksi
+
+Isi field-field berikut:
+
+| Field | Apa yang Diisi | Contoh |
+|-------|----------------|--------|
+| **Tanggal** | Tanggal Anda membayar | `20 November 2025` |
+| **Jumlah** | Berapa rupiah yang dibayar (tanpa titik/koma) | `850000` |
+| **Akun Sumber** | Dari rekening/kas mana uang keluar | `Bank BCA` atau `Kas Kecil` |
+| **Keterangan** | Catatan untuk referensi nanti | `Tagihan listrik PLN November 2025` |
+| **No. Referensi** | Nomor tagihan atau bukti bayar | `PLN-12345678` |
+
+> **Tips Akun Sumber**:
+> - Pilih **Bank BCA/Mandiri/dll** jika bayar via transfer/mobile banking
+> - Pilih **Kas Kecil** jika bayar cash/tunai
+
+### Langkah 5: Periksa Preview Jurnal
+
+Di bagian bawah form, ada **Preview Jurnal**:
 
 ```
-Debit  : Beban Listrik   Rp 850.000
-Kredit : Bank BCA        Rp 850.000
+Debit  : Beban Listrik   Rp 850.000  (biaya listrik bertambah)
+Kredit : Bank BCA        Rp 850.000  (saldo bank berkurang)
 ```
 
-### Langkah 5: Simpan Transaksi
+> **Cara Membaca Preview**:
+> - **Debit Beban Listrik** = Biaya listrik bulan ini bertambah Rp 850 ribu
+> - **Kredit Bank BCA** = Uang di rekening BCA Anda berkurang Rp 850 ribu
 
-Klik **Simpan & Posting**.
+### Langkah 6: Simpan dan Posting
 
-**Hasil**: Beban Listrik bertambah, saldo Bank berkurang.
+Klik tombol **Simpan & Posting** untuk menyimpan transaksi.
+
+### Langkah 7: Verifikasi
+
+Cek Dashboard atau Laporan untuk memastikan:
+- Saldo bank sudah berkurang
+- Beban listrik tercatat
 
 ---
 
-## Skenario 2: Bayar Tagihan Internet
+## Skenario 2: Bayar Internet Bulanan
 
-**Situasi**: Membayar tagihan internet bulanan Rp 500.000.
+**Situasi**: Membayar tagihan internet kantor Rp 500.000.
 
 ### Langkah-langkah
 
@@ -80,9 +103,15 @@ Klik **Simpan & Posting**.
 
 ---
 
-## Skenario 3: Bayar Vendor dengan PPh 23
+## Skenario 3: Bayar Vendor/Supplier dengan Potongan Pajak (PPh 23)
 
-**Situasi**: Membayar vendor jasa desain Rp 5.000.000, dipotong PPh 23 (2%).
+**Situasi**: Anda menggunakan jasa desainer freelance untuk membuat logo seharga Rp 5.000.000. Menurut aturan pajak, Anda wajib memotong PPh 23 sebesar 2%.
+
+**Perhitungan**:
+- Nilai jasa: Rp 5.000.000
+- PPh 23 (2%): Rp 100.000
+- Yang dibayar ke desainer: Rp 4.900.000
+- Yang harus disetor ke negara: Rp 100.000
 
 ### Langkah-langkah
 
@@ -91,26 +120,24 @@ Klik **Simpan & Posting**.
 3. Pilih template **Pembayaran Jasa (PPh 23)**
 4. Isi form:
    - **Tanggal**: Tanggal pembayaran
-   - **Jumlah**: `5000000` (nilai bruto sebelum potong)
+   - **Jumlah**: `5000000` (nilai bruto/sebelum potong)
    - **Akun Sumber**: Bank BCA
-   - **Keterangan**: `Pembayaran jasa desain logo - CV Kreatif`
+   - **Keterangan**: `Jasa desain logo - CV Kreatif`
 5. Periksa **Preview Jurnal**:
    ```
-   Debit  : Beban Jasa Profesional   Rp 5.000.000
-   Kredit : Bank BCA                 Rp 4.900.000 (nett setelah potong)
-   Kredit : Hutang PPh 23            Rp   100.000 (2% x 5.000.000)
+   Debit  : Beban Jasa Profesional   Rp 5.000.000  (biaya jasa)
+   Kredit : Bank BCA                 Rp 4.900.000  (uang yang dibayar ke vendor)
+   Kredit : Hutang PPh 23            Rp   100.000  (pajak yang harus disetor)
    ```
 6. Klik **Simpan & Posting**
 
-**Hasil**: PPh 23 yang dipotong akan muncul di [Laporan Pajak](32-laporan-pajak.md) untuk disetor ke negara.
-
-> Catatan: Untuk detail pemotongan PPh 23, lihat [Transaksi PPh](31-transaksi-pph.md).
+> **Ingat**: PPh 23 yang Anda potong dari vendor harus disetor ke negara paling lambat tanggal 10 bulan berikutnya. Lihat [Kalender Pajak](33-kalender-pajak.md).
 
 ---
 
 ## Skenario 4: Bayar Gaji Karyawan
 
-**Situasi**: Membayar gaji karyawan Rp 8.000.000.
+**Situasi**: Membayar gaji karyawan Budi sebesar Rp 8.000.000.
 
 ### Langkah-langkah
 
@@ -118,24 +145,26 @@ Klik **Simpan & Posting**.
 2. Klik tombol **Transaksi Baru**
 3. Pilih template **Beban Gaji**
 4. Isi form:
-   - **Tanggal**: Tanggal pembayaran gaji
+   - **Tanggal**: Tanggal gaji dibayar
    - **Jumlah**: `8000000`
    - **Akun Sumber**: Bank BCA
    - **Keterangan**: `Gaji November 2025 - Budi Santoso`
 5. Periksa **Preview Jurnal**:
    ```
-   Debit  : Beban Gaji      Rp 8.000.000
-   Kredit : Bank BCA        Rp 8.000.000
+   Debit  : Beban Gaji      Rp 8.000.000  (biaya gaji)
+   Kredit : Bank BCA        Rp 8.000.000  (uang keluar)
    ```
 6. Klik **Simpan & Posting**
 
-> Catatan: Jika ada pemotongan PPh 21, gunakan template yang sesuai. Lihat [Transaksi PPh](31-transaksi-pph.md).
+> **Untuk gaji dengan potongan pajak/BPJS**: Gunakan fitur Payroll yang lebih lengkap. Lihat [Proses Payroll](64-payroll-processing.md).
 
 ---
 
-## Skenario 5: Bayar Sewa Kantor (Setahun Dimuka)
+## Skenario 5: Bayar Sewa Kantor Setahun Dimuka
 
-**Situasi**: Membayar sewa kantor Rp 24.000.000 untuk 12 bulan kedepan.
+**Situasi**: Anda membayar sewa kantor Rp 24.000.000 untuk 12 bulan kedepan (Januari-Desember 2025).
+
+> **Catatan Penting**: Sewa yang dibayar dimuka tidak langsung dicatat sebagai biaya. Ini dicatat sebagai "Aset" (uang yang masih ada nilainya), lalu dialokasikan ke biaya setiap bulan.
 
 ### Langkah-langkah
 
@@ -149,19 +178,17 @@ Klik **Simpan & Posting**.
    - **Keterangan**: `Sewa kantor Jan-Des 2025`
 5. Periksa **Preview Jurnal**:
    ```
-   Debit  : Sewa Dibayar Dimuka   Rp 24.000.000
-   Kredit : Bank BCA              Rp 24.000.000
+   Debit  : Sewa Dibayar Dimuka   Rp 24.000.000  (aset/uang muka)
+   Kredit : Bank BCA              Rp 24.000.000  (uang keluar)
    ```
 6. Klik **Simpan & Posting**
-7. Buat **Jadwal Amortisasi** untuk mengalokasikan beban ke setiap bulan. Lihat [Jadwal Amortisasi](53-jadwal-amortisasi.md).
-
-**Hasil**: Sewa dicatat sebagai aset (dibayar dimuka), lalu diamortisasi Rp 2.000.000/bulan ke Beban Sewa.
+7. **Langkah Tambahan**: Buat jadwal amortisasi agar setiap bulan otomatis dicatat biaya sewa Rp 2.000.000. Lihat [Jadwal Amortisasi](53-jadwal-amortisasi.md).
 
 ---
 
-## Skenario 6: Beli ATK/Perlengkapan Kantor
+## Skenario 6: Beli Perlengkapan Kantor (ATK)
 
-**Situasi**: Membeli perlengkapan kantor (kertas, tinta printer, dll) Rp 350.000 tunai.
+**Situasi**: Anda membeli kertas, tinta printer, dan alat tulis senilai Rp 350.000 secara tunai.
 
 ### Langkah-langkah
 
@@ -171,15 +198,22 @@ Klik **Simpan & Posting**.
 4. Isi form:
    - **Tanggal**: Tanggal pembelian
    - **Jumlah**: `350000`
-   - **Akun Sumber**: Kas Kecil
-   - **Keterangan**: `Beli kertas HVS dan tinta printer`
+   - **Akun Sumber**: **Kas Kecil** (karena bayar tunai)
+   - **Keterangan**: `Beli kertas HVS, tinta printer, dan pulpen`
 5. Klik **Simpan & Posting**
+
+> **Tips**: Jangan lupa foto struk dan lampirkan ke transaksi. Lihat [Telegram Receipt](13-telegram-receipt.md).
 
 ---
 
-## Skenario 7: Bayar Vendor dengan PPN
+## Skenario 7: Bayar dengan PPN (Pembelian dari Vendor PKP)
 
-**Situasi**: Membayar pembelian software subscription Rp 1.110.000 (sudah termasuk PPN 11%).
+**Situasi**: Anda membeli software subscription seharga Rp 1.110.000 (sudah termasuk PPN 11%) dari vendor yang PKP (Pengusaha Kena Pajak).
+
+**Perhitungan**:
+- Total bayar: Rp 1.110.000
+- PPN (11%): Rp 110.000
+- Harga barang: Rp 1.000.000
 
 ### Langkah-langkah
 
@@ -188,24 +222,24 @@ Klik **Simpan & Posting**.
 3. Pilih template **Pembelian dengan PPN**
 4. Isi form:
    - **Tanggal**: Tanggal pembayaran
-   - **Jumlah**: `1110000` (nilai inklusif PPN)
+   - **Jumlah**: `1110000` (nilai total termasuk PPN)
    - **Akun Sumber**: Bank BCA
    - **Keterangan**: `Subscription Adobe Creative Cloud`
 5. Periksa **Preview Jurnal**:
    ```
-   Debit  : Beban Software      Rp 1.000.000 (DPP)
-   Debit  : PPN Masukan         Rp   110.000 (dapat dikreditkan)
-   Kredit : Bank BCA            Rp 1.110.000
+   Debit  : Beban Software      Rp 1.000.000  (biaya software)
+   Debit  : PPN Masukan         Rp   110.000  (PPN yang bisa diklaim)
+   Kredit : Bank BCA            Rp 1.110.000  (uang keluar)
    ```
 6. Klik **Simpan & Posting**
 
-**Hasil**: PPN Masukan dapat dikreditkan dengan PPN Keluaran. Lihat [Laporan Pajak](32-laporan-pajak.md).
+> **Apa itu PPN Masukan?** Ini adalah PPN yang Anda bayar saat membeli barang/jasa. PPN ini bisa dikurangkan dari PPN yang Anda tagihkan ke klien, sehingga Anda tidak perlu setor penuh ke negara.
 
 ---
 
-## Skenario 8: Pengeluaran Terkait Proyek
+## Skenario 8: Pengeluaran untuk Proyek Tertentu
 
-**Situasi**: Membayar biaya hosting Rp 500.000 untuk proyek klien tertentu.
+**Situasi**: Anda membayar biaya hosting Rp 500.000 khusus untuk proyek website klien PT ABC.
 
 ### Langkah-langkah
 
@@ -216,33 +250,44 @@ Klik **Simpan & Posting**.
    - **Tanggal**: Tanggal pembayaran
    - **Jumlah**: `500000`
    - **Akun Sumber**: Bank BCA
-   - **Proyek**: Pilih proyek terkait (contoh: PRJ-2025-001)
-   - **Keterangan**: `Biaya hosting untuk Proyek Website PT ABC`
+   - **Proyek**: Pilih **PRJ-2025-001 - Website PT ABC** dari dropdown
+   - **Keterangan**: `Biaya hosting untuk website PT ABC`
 5. Klik **Simpan & Posting**
 
-**Hasil**: Pengeluaran akan masuk ke analisis profitabilitas proyek. Lihat [Analisis Profitabilitas](43-analisis-profitabilitas.md).
+> **Kenapa pilih proyek?** Agar biaya ini masuk ke perhitungan profitabilitas proyek. Anda bisa lihat apakah proyek ini untung atau rugi di [Analisis Profitabilitas](43-analisis-profitabilitas.md).
 
 ---
 
-## Tips
+## Tips Praktis
 
-1. **Kategorikan dengan tepat** - Pilih template yang sesuai agar laporan akurat
-2. **Simpan bukti** - Foto struk dan lampirkan ke transaksi. Lihat [Telegram Receipt](13-telegram-receipt.md)
-3. **Gunakan proyek** - Hubungkan pengeluaran ke proyek untuk tracking biaya
-4. **Amortisasi** - Untuk pembayaran dimuka, buat jadwal amortisasi
+1. **Catat segera** - Jangan menumpuk struk. Catat pengeluaran segera setelah membayar.
+
+2. **Foto dan simpan struk** - Gunakan fitur [Telegram Receipt](13-telegram-receipt.md) untuk foto struk dari HP dan langsung masuk ke sistem.
+
+3. **Pilih template yang tepat** - Template menentukan akun mana yang digunakan. Pilih yang paling sesuai dengan jenis pengeluaran.
+
+4. **Hubungkan ke proyek** - Jika pengeluaran terkait proyek klien tertentu, selalu pilih proyeknya agar bisa tracking profitabilitas.
+
+5. **Pisahkan pribadi dan bisnis** - Jangan mencampur pengeluaran pribadi dengan pengeluaran bisnis.
+
+---
 
 ## Troubleshooting
 
-| Masalah | Solusi |
-|---------|--------|
-| Template tidak sesuai | Buat template baru atau duplikat yang ada. Lihat [Kelola Template](51-kelola-template.md) |
-| Lupa hubungkan ke proyek | Edit transaksi draft, atau void dan buat ulang |
-| PPh tidak terpotong | Gunakan template dengan PPh, atau edit formula template |
+| Masalah | Penyebab | Solusi |
+|---------|----------|--------|
+| Template tidak ada | Belum dibuat | Buat template baru di menu Template |
+| Saldo tidak berubah | Transaksi masih Draft | Buka transaksi dan klik Posting |
+| Lupa pilih proyek | Sudah Posted | Void transaksi, buat ulang dengan proyek yang benar |
+| PPh tidak terpotong otomatis | Menggunakan template biasa | Gunakan template dengan PPh 23 |
+| Akun sumber tidak muncul | Akun tidak aktif atau bukan tipe Kas/Bank | Cek di menu Akun, pastikan aktif dan tipe benar |
+
+---
 
 ## Lihat Juga
 
-- [Transaksi PPN](30-transaksi-ppn.md) - Pembelian dengan PPN
+- [Transaksi PPN](30-transaksi-ppn.md) - Detail pembelian dengan PPN
 - [Transaksi PPh](31-transaksi-pph.md) - Pemotongan PPh 23/21
-- [Jadwal Amortisasi](53-jadwal-amortisasi.md) - Beban dibayar dimuka
-- [Telegram Receipt](13-telegram-receipt.md) - Lampirkan bukti pembayaran
-- [Tracking Proyek](41-tracking-proyek.md) - Hubungkan ke proyek
+- [Jadwal Amortisasi](53-jadwal-amortisasi.md) - Untuk sewa atau asuransi dibayar dimuka
+- [Telegram Receipt](13-telegram-receipt.md) - Kirim foto struk dari HP
+- [Tracking Proyek](41-tracking-proyek.md) - Menghubungkan biaya ke proyek
