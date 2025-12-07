@@ -33,9 +33,13 @@ public class ScreenshotCapture {
             String section
     ) {}
 
-    // Seed data codes for detail pages (from V004__app_seed_data.sql)
-    // Only TEMPLATE_ID exists in production seed data
+    // Seed data IDs for detail pages
+    // Template from V004__app_seed_data.sql
     private static final String TEMPLATE_ID = "e0000000-0000-0000-0000-000000000001"; // Pendapatan Jasa Konsultasi
+    // Test data from V905__profitability_test_data.sql (loaded via SPRING_FLYWAY_LOCATIONS)
+    private static final String TRANSACTION_ID = "90500000-0000-0000-1000-000000000001"; // TRX-PRJ-T001-01
+    private static final String CLIENT_CODE = "CLI-001"; // PT ABC Technology
+    private static final String PROJECT_CODE = "PRJ-TEST-001"; // Website Development ABC
 
     public static List<PageDefinition> getPageDefinitions() {
         return List.of(
@@ -64,8 +68,8 @@ public class ScreenshotCapture {
             // Transactions
             new PageDefinition("transactions-list", "Daftar Transaksi", "/transactions", true,
                     "Daftar transaksi dengan filter status, periode, dan proyek", "mencatat-pengeluaran"),
-            new PageDefinition("transactions-detail", "Detail Transaksi", "/transactions", true,
-                    "Daftar transaksi (detail requires data)", "mencatat-pendapatan"),
+            new PageDefinition("transactions-detail", "Detail Transaksi", "/transactions/" + TRANSACTION_ID, true,
+                    "Detail transaksi dengan jurnal dan audit trail", "mencatat-pendapatan"),
             new PageDefinition("transactions-form", "Form Transaksi", "/transactions/new", true,
                     "Form untuk membuat transaksi baru", "mencatat-pendapatan"),
 
@@ -90,16 +94,16 @@ public class ScreenshotCapture {
             // Clients
             new PageDefinition("clients-list", "Daftar Klien", "/clients", true,
                     "Daftar klien dengan pencarian", "kelola-klien"),
-            new PageDefinition("clients-detail", "Detail Klien", "/clients", true,
-                    "Daftar klien (detail requires data)", "kelola-klien"),
+            new PageDefinition("clients-detail", "Detail Klien", "/clients/" + CLIENT_CODE, true,
+                    "Detail klien dengan daftar proyek", "kelola-klien"),
             new PageDefinition("clients-form", "Form Klien", "/clients/new", true,
                     "Form untuk menambah klien baru", "kelola-klien"),
 
             // Projects
             new PageDefinition("projects-list", "Daftar Proyek", "/projects", true,
                     "Daftar proyek dengan filter status dan klien", "tracking-proyek"),
-            new PageDefinition("projects-detail", "Detail Proyek", "/projects", true,
-                    "Daftar proyek (detail requires data)", "tracking-proyek"),
+            new PageDefinition("projects-detail", "Detail Proyek", "/projects/" + PROJECT_CODE, true,
+                    "Detail proyek dengan milestone dan termin pembayaran", "tracking-proyek"),
             new PageDefinition("projects-form", "Form Proyek", "/projects/new", true,
                     "Form untuk membuat proyek baru", "setup-proyek"),
 
