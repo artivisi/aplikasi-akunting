@@ -1,7 +1,5 @@
 package com.artivisi.accountingfinance.config;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -12,9 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.csrf.InvalidCsrfTokenException;
-import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
@@ -52,9 +47,6 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            )
-            .exceptionHandling(ex -> ex
-                .accessDeniedHandler(accessDeniedHandler())
             )
             // Security headers configuration
             .headers(headers -> headers
@@ -98,32 +90,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
-        return (HttpServletRequest request, HttpServletResponse response,
-                org.springframework.security.access.AccessDeniedException accessDeniedException) -> {
-
-            // Check if this is a browser request (Accept: text/html)
-            String acceptHeader = request.getHeader("Accept");
-            boolean isBrowserRequest = acceptHeader != null && acceptHeader.contains("text/html");
-
-            // For browser requests, forward to error page (including CSRF failures)
-            if (isBrowserRequest) {
-                request.getRequestDispatcher("/error/403").forward(request, response);
-                return;
-            }
-
-            // For API/AJAX requests, return 403 JSON response
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            if (accessDeniedException instanceof InvalidCsrfTokenException ||
-                accessDeniedException instanceof MissingCsrfTokenException) {
-                response.getWriter().write("{\"error\":\"CSRF token invalid or missing\",\"status\":403}");
-            } else {
-                response.getWriter().write("{\"error\":\"Access denied\",\"status\":403}");
-            }
-        };
-    }
-
 }
+

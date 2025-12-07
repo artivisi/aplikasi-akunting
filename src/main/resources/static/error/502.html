@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>502 - Layanan Tidak Tersedia</title>
+    <style>
+        :root {
+            --primary-600: #4654ac;
+            --primary-700: #2e3192;
+            --gray-50: #f9fafb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --amber-100: #fef3c7;
+            --amber-600: #d97706;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: var(--gray-50);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 28rem;
+            width: 100%;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .icon-wrapper {
+            width: 6rem;
+            height: 6rem;
+            background-color: var(--amber-100);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .icon {
+            width: 3rem;
+            height: 3rem;
+            color: var(--amber-600);
+        }
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 1rem;
+        }
+        p {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.15s;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: var(--primary-600);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-700);
+        }
+        .btn-secondary {
+            background-color: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+        .btn-secondary:hover {
+            background-color: var(--gray-50);
+        }
+        .btn svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body id="error-502-page">
+    <div class="container">
+        <!-- Error Icon -->
+        <div class="icon-wrapper">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+            </svg>
+        </div>
+
+        <!-- Error Message -->
+        <h1>502</h1>
+        <h2>Layanan Tidak Tersedia</h2>
+        <p>
+            Aplikasi sedang tidak dapat dijangkau. Hal ini mungkin disebabkan oleh
+            pemeliharaan sistem atau restart aplikasi. Silakan coba lagi dalam beberapa saat.
+        </p>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button onclick="location.reload()" class="btn btn-primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Muat Ulang
+            </button>
+            <a href="/" class="btn btn-secondary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Ke Halaman Utama
+            </a>
+        </div>
+    </div>
+</body>
+</html>

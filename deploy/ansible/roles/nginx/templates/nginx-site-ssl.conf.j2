@@ -34,6 +34,13 @@ server {
     access_log /var/log/nginx/{{ app_name }}_access.log api_log;
     error_log /var/log/nginx/{{ app_name }}_error.log warn;
 
+    # Custom error pages for nginx errors (when app is down)
+    error_page 502 503 504 /error/502.html;
+    location = /error/502.html {
+        root {{ app_home }}/static;
+        internal;
+    }
+
     location / {
         proxy_pass http://localhost:{{ app_port }};
         proxy_set_header Host $host;

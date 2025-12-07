@@ -5,11 +5,11 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -18,9 +18,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Exception handler for REST/API controllers.
+ * Returns JSON error responses for API requests.
+ * Lower priority than WebExceptionHandler so HTML requests get HTML pages.
+ */
 @RestControllerAdvice
+@Order(2)
 @Slf4j
-public class GlobalExceptionHandler {
+public class RestExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
@@ -90,8 +96,11 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    @ExceptionHandler({
+        org.springframework.security.access.AccessDeniedException.class,
+        org.springframework.security.authorization.AuthorizationDeniedException.class
+    })
+    public ResponseEntity<ErrorResponse> handleAccessDenied(RuntimeException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse(
