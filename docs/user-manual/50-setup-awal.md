@@ -30,35 +30,54 @@ Aplikasi menyediakan bagan akun standar untuk perusahaan jasa IT:
 | Pendapatan | Pendapatan Jasa, Pendapatan Lain |
 | Beban | Gaji, Sewa, Listrik, Internet |
 
+---
+
 ## Skenario 1: Review Bagan Akun Bawaan
 
 **Situasi**: Pertama kali login, Anda ingin melihat akun yang sudah tersedia.
 
-**Langkah-langkah**:
+### Langkah 1: Buka Menu Akun
 
-1. Klik menu **Akun** di sidebar
-2. Lihat daftar akun yang tersedia
-3. Gunakan filter untuk menyaring:
-   - **Tipe**: Aset, Kewajiban, Ekuitas, Pendapatan, Beban
-   - **Pencarian**: Cari berdasarkan kode atau nama
-4. Review apakah akun-akun sudah sesuai kebutuhan
+Klik menu **Akun** di sidebar kiri untuk melihat daftar akun.
+
+![Daftar Akun](screenshots/accounts-list.png)
+
+### Langkah 2: Gunakan Filter
+
+Gunakan filter untuk menyaring akun:
+- **Tipe**: Aset, Kewajiban, Ekuitas, Pendapatan, Beban
+- **Pencarian**: Cari berdasarkan kode atau nama
+
+### Langkah 3: Review Kelengkapan
+
+Review apakah akun-akun sudah sesuai kebutuhan bisnis Anda.
+
+---
 
 ## Skenario 2: Tambah Akun Bank Baru
 
 **Situasi**: Anda membuka rekening baru di Bank Mandiri dan ingin menambahkannya.
 
-**Langkah-langkah**:
+### Langkah 1: Buka Form Akun Baru
 
 1. Klik menu **Akun** di sidebar
 2. Klik tombol **Akun Baru**
-3. Isi informasi:
-   - **Kode**: `1.1.12` (sesuaikan dengan struktur yang ada)
-   - **Nama**: `Bank Mandiri`
-   - **Tipe**: `Aset`
-   - **Sub Tipe**: `Kas & Bank`
-   - **Deskripsi**: `Rekening operasional Bank Mandiri`
-   - **Saldo Normal**: `Debit`
-4. Klik **Simpan**
+
+![Form Akun Baru](screenshots/accounts-form.png)
+
+### Langkah 2: Isi Informasi Akun
+
+Lengkapi form dengan data berikut:
+- **Kode**: `1.1.12` (sesuaikan dengan struktur yang ada)
+- **Nama**: `Bank Mandiri`
+- **Tipe**: `Aset`
+- **Sub Tipe**: `Kas & Bank`
+- **Deskripsi**: `Rekening operasional Bank Mandiri`
+- **Saldo Normal**: `Debit`
+
+### Langkah 3: Simpan
+
+Klik **Simpan** untuk menyimpan akun baru.
 
 **Catatan**: Kode akun harus unik dan mengikuti struktur:
 - 1.x.xx = Aset
@@ -67,11 +86,13 @@ Aplikasi menyediakan bagan akun standar untuk perusahaan jasa IT:
 - 4.x.xx = Pendapatan
 - 5.x.xx = Beban
 
+---
+
 ## Skenario 3: Tambah Akun Beban Baru
 
 **Situasi**: Anda perlu akun khusus untuk mencatat biaya marketing.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Akun** di sidebar
 2. Klik tombol **Akun Baru**
@@ -84,11 +105,13 @@ Aplikasi menyediakan bagan akun standar untuk perusahaan jasa IT:
    - **Saldo Normal**: `Debit`
 4. Klik **Simpan**
 
+---
+
 ## Skenario 4: Input Saldo Awal (Migrasi)
 
 **Situasi**: Anda pindah dari sistem lain dan perlu input saldo awal per 1 Januari 2025.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Siapkan neraca saldo dari sistem lama per tanggal cut-off
 2. Klik menu **Transaksi** di sidebar
@@ -115,11 +138,13 @@ Kredit : Modal              Rp 90.000.000
 - Pastikan total debit = total kredit
 - Verifikasi dengan Neraca Saldo setelah input
 
+---
+
 ## Skenario 5: Import Bagan Akun dari File
 
 **Situasi**: Anda memiliki daftar akun dalam file Excel/JSON dan ingin mengimpornya.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Siapkan file dengan format yang sesuai:
    - JSON atau Excel
@@ -143,11 +168,13 @@ Kredit : Modal              Rp 90.000.000
 ]
 ```
 
+---
+
 ## Skenario 6: Nonaktifkan Akun yang Tidak Dipakai
 
 **Situasi**: Ada akun bawaan yang tidak relevan untuk bisnis Anda.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Akun** di sidebar
 2. Cari akun yang ingin dinonaktifkan
@@ -160,6 +187,8 @@ Kredit : Modal              Rp 90.000.000
 - Akun tidak muncul di dropdown saat membuat transaksi
 - Data historis tetap tersimpan
 - Akun tetap muncul di laporan jika ada saldo
+
+---
 
 ## Skenario 7: Setup Telegram Bot
 
@@ -184,11 +213,13 @@ Lihat [Setup Telegram Bot](55-setup-telegram.md) untuk:
 
 Lihat [Telegram Receipt](13-telegram-receipt.md) untuk panduan penggunaan.
 
+---
+
 ## Skenario 8: Backup Data
 
 **Situasi**: Anda ingin membuat backup data sebelum melakukan perubahan besar.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Pengaturan** di sidebar
 2. Pilih tab **Backup**
@@ -199,6 +230,8 @@ Lihat [Telegram Receipt](13-telegram-receipt.md) untuk panduan penggunaan.
 - Sebelum import data baru
 - Sebelum tutup buku tahunan
 - Secara berkala (minimal bulanan)
+
+---
 
 ## Tips
 

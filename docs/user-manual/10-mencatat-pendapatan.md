@@ -14,35 +14,58 @@ Gunakan panduan ini ketika Anda:
 - Kas/Bank yang diterima dicatat di sisi **debit**
 - Jika ada PPN, lihat [Transaksi PPN](30-transaksi-ppn.md)
 
+---
+
 ## Skenario 1: Terima Pembayaran Jasa (Tanpa PPN)
 
 **Situasi**: Klien membayar invoice jasa konsultasi sebesar Rp 5.000.000 via transfer bank.
 
-**Langkah-langkah**:
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Pendapatan Jasa**
-4. Isi form:
+Klik menu **Transaksi** di sidebar kiri untuk melihat daftar transaksi.
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Buat Transaksi Baru
+
+Klik tombol **Transaksi Baru** di bagian atas halaman. Form transaksi akan muncul.
+
+![Form Transaksi Baru](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template dan Isi Form
+
+1. Pilih template **Pendapatan Jasa** dari dropdown
+2. Isi form:
    - **Tanggal**: Tanggal uang diterima
    - **Jumlah**: `5000000`
    - **Akun Sumber**: Pilih rekening bank penerima (contoh: Bank BCA)
    - **Keterangan**: `Pembayaran invoice INV-2025-001 - Konsultasi IT`
    - **No. Referensi**: `INV-2025-001`
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Bank BCA           Rp 5.000.000
-   Kredit : Pendapatan Jasa    Rp 5.000.000
-   ```
-6. Klik **Simpan & Posting**
+
+### Langkah 4: Periksa Preview Jurnal
+
+Periksa **Preview Jurnal** untuk memastikan entri sudah benar:
+
+```
+Debit  : Bank BCA           Rp 5.000.000
+Kredit : Pendapatan Jasa    Rp 5.000.000
+```
+
+### Langkah 5: Simpan Transaksi
+
+Klik **Simpan & Posting** untuk menyimpan dan memposting transaksi. Detail transaksi akan ditampilkan.
+
+![Detail Transaksi](screenshots/transactions-detail.png)
 
 **Hasil**: Saldo Bank BCA bertambah Rp 5.000.000, Pendapatan Jasa bertambah Rp 5.000.000.
+
+---
 
 ## Skenario 2: Terima Pembayaran Jasa dengan PPN
 
 **Situasi**: Klien membayar invoice jasa sebesar Rp 11.100.000 (sudah termasuk PPN 11%).
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -64,11 +87,13 @@ Gunakan panduan ini ketika Anda:
 
 > Catatan: Untuk detail perhitungan PPN, lihat [Transaksi PPN](30-transaksi-ppn.md).
 
+---
+
 ## Skenario 3: Terima DP (Down Payment) Proyek
 
 **Situasi**: Klien membayar DP 30% untuk proyek senilai Rp 50.000.000.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -88,11 +113,13 @@ Gunakan panduan ini ketika Anda:
 
 **Hasil**: DP dicatat sebagai kewajiban (pendapatan diterima dimuka). Pendapatan akan diakui saat milestone selesai. Lihat [Tracking Proyek](41-tracking-proyek.md).
 
+---
+
 ## Skenario 4: Terima Pendapatan Bunga
 
 **Situasi**: Bank memberikan bunga deposito Rp 250.000.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -104,11 +131,13 @@ Gunakan panduan ini ketika Anda:
    - **Keterangan**: `Bunga deposito November 2025`
 5. Klik **Simpan & Posting**
 
+---
+
 ## Skenario 5: Terima Pelunasan Piutang
 
 **Situasi**: Klien yang sebelumnya berutang melunasi piutang Rp 8.000.000.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -126,6 +155,8 @@ Gunakan panduan ini ketika Anda:
 6. Klik **Simpan & Posting**
 
 **Hasil**: Saldo Piutang Usaha berkurang, Kas bertambah.
+
+---
 
 ## Tips
 

@@ -17,35 +17,56 @@ Gunakan panduan ini ketika Anda:
 - Kas/Bank yang dibayarkan dicatat di sisi **kredit**
 - Jika ada PPN atau pemotongan PPh, lihat [Transaksi PPN](30-transaksi-ppn.md) dan [Transaksi PPh](31-transaksi-pph.md)
 
+---
+
 ## Skenario 1: Bayar Tagihan Listrik
 
 **Situasi**: Membayar tagihan listrik PLN sebesar Rp 850.000.
 
-**Langkah-langkah**:
+### Langkah 1: Buka Menu Transaksi
 
-1. Klik menu **Transaksi** di sidebar
-2. Klik tombol **Transaksi Baru**
-3. Pilih template **Beban Listrik**
-4. Isi form:
+Klik menu **Transaksi** di sidebar kiri untuk melihat daftar transaksi.
+
+![Daftar Transaksi](screenshots/transactions-list.png)
+
+### Langkah 2: Buat Transaksi Baru
+
+Klik tombol **Transaksi Baru** di bagian atas halaman.
+
+![Form Transaksi Baru](screenshots/transactions-form.png)
+
+### Langkah 3: Pilih Template dan Isi Form
+
+1. Pilih template **Beban Listrik**
+2. Isi form:
    - **Tanggal**: Tanggal pembayaran
    - **Jumlah**: `850000`
    - **Akun Sumber**: Pilih rekening yang digunakan (contoh: Bank BCA atau Kas Kecil)
    - **Keterangan**: `Tagihan listrik November 2025`
    - **No. Referensi**: Nomor tagihan PLN
-5. Periksa **Preview Jurnal**:
-   ```
-   Debit  : Beban Listrik   Rp 850.000
-   Kredit : Bank BCA        Rp 850.000
-   ```
-6. Klik **Simpan & Posting**
+
+### Langkah 4: Periksa Preview Jurnal
+
+Periksa **Preview Jurnal**:
+
+```
+Debit  : Beban Listrik   Rp 850.000
+Kredit : Bank BCA        Rp 850.000
+```
+
+### Langkah 5: Simpan Transaksi
+
+Klik **Simpan & Posting**.
 
 **Hasil**: Beban Listrik bertambah, saldo Bank berkurang.
+
+---
 
 ## Skenario 2: Bayar Tagihan Internet
 
 **Situasi**: Membayar tagihan internet bulanan Rp 500.000.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -57,11 +78,13 @@ Gunakan panduan ini ketika Anda:
    - **Keterangan**: `Internet kantor November 2025`
 5. Klik **Simpan & Posting**
 
+---
+
 ## Skenario 3: Bayar Vendor dengan PPh 23
 
 **Situasi**: Membayar vendor jasa desain Rp 5.000.000, dipotong PPh 23 (2%).
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -83,11 +106,13 @@ Gunakan panduan ini ketika Anda:
 
 > Catatan: Untuk detail pemotongan PPh 23, lihat [Transaksi PPh](31-transaksi-pph.md).
 
+---
+
 ## Skenario 4: Bayar Gaji Karyawan
 
 **Situasi**: Membayar gaji karyawan Rp 8.000.000.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -106,11 +131,13 @@ Gunakan panduan ini ketika Anda:
 
 > Catatan: Jika ada pemotongan PPh 21, gunakan template yang sesuai. Lihat [Transaksi PPh](31-transaksi-pph.md).
 
+---
+
 ## Skenario 5: Bayar Sewa Kantor (Setahun Dimuka)
 
 **Situasi**: Membayar sewa kantor Rp 24.000.000 untuk 12 bulan kedepan.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -130,11 +157,13 @@ Gunakan panduan ini ketika Anda:
 
 **Hasil**: Sewa dicatat sebagai aset (dibayar dimuka), lalu diamortisasi Rp 2.000.000/bulan ke Beban Sewa.
 
+---
+
 ## Skenario 6: Beli ATK/Perlengkapan Kantor
 
 **Situasi**: Membeli perlengkapan kantor (kertas, tinta printer, dll) Rp 350.000 tunai.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -146,11 +175,13 @@ Gunakan panduan ini ketika Anda:
    - **Keterangan**: `Beli kertas HVS dan tinta printer`
 5. Klik **Simpan & Posting**
 
+---
+
 ## Skenario 7: Bayar Vendor dengan PPN
 
 **Situasi**: Membayar pembelian software subscription Rp 1.110.000 (sudah termasuk PPN 11%).
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -170,11 +201,13 @@ Gunakan panduan ini ketika Anda:
 
 **Hasil**: PPN Masukan dapat dikreditkan dengan PPN Keluaran. Lihat [Laporan Pajak](32-laporan-pajak.md).
 
+---
+
 ## Skenario 8: Pengeluaran Terkait Proyek
 
 **Situasi**: Membayar biaya hosting Rp 500.000 untuk proyek klien tertentu.
 
-**Langkah-langkah**:
+### Langkah-langkah
 
 1. Klik menu **Transaksi** di sidebar
 2. Klik tombol **Transaksi Baru**
@@ -188,6 +221,8 @@ Gunakan panduan ini ketika Anda:
 5. Klik **Simpan & Posting**
 
 **Hasil**: Pengeluaran akan masuk ke analisis profitabilitas proyek. Lihat [Analisis Profitabilitas](43-analisis-profitabilitas.md).
+
+---
 
 ## Tips
 
