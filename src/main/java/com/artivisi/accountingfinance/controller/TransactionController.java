@@ -157,10 +157,17 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable UUID id, Model model) {
+    public String detail(@PathVariable UUID id,
+                         @RequestParam(required = false) Boolean created,
+                         Model model) {
         Transaction transaction = transactionService.findByIdWithJournalEntries(id);
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("transaction", transaction);
+
+        // Show success message if redirected from template execution
+        if (Boolean.TRUE.equals(created)) {
+            model.addAttribute("successMessage", "Transaksi berhasil dibuat dari template");
+        }
 
         // Calculate totals from journal entries
         java.math.BigDecimal totalDebit = transaction.getJournalEntries().stream()

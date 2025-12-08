@@ -56,7 +56,6 @@ public class TemplateExecutionEngine {
 
         return new ExecutionResult(
                 saved.getId(),
-                saved.getJournalEntries().get(0).getJournalNumber(),
                 saved.getJournalEntries()
         );
     }
@@ -265,7 +264,6 @@ public class TemplateExecutionEngine {
 
     public record ExecutionResult(
             UUID transactionId,
-            String journalNumber,
             List<JournalEntry> entries
     ) {}
 

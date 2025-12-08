@@ -22,9 +22,8 @@ public class TemplateExecutePage {
     private static final String TOTAL_DEBIT = "#total-debit";
     private static final String TOTAL_CREDIT = "#total-credit";
     private static final String BALANCE_STATUS = "#balance-status";
-    private static final String JOURNAL_NUMBER = "#journal-number";
-    private static final String VIEW_JOURNAL_BUTTON = "#btn-view-journal";
     private static final String ERROR_MESSAGE = "#error-message";
+    private static final String TRANSACTION_NUMBER = "#transaction-number";
 
     public TemplateExecutePage(Page page, String baseUrl) {
         this.page = page;
@@ -111,21 +110,16 @@ public class TemplateExecutePage {
         assertThat(page.locator(BALANCE_STATUS)).containsText("Jurnal Balance");
     }
 
-    public void assertJournalNumberVisible() {
-        assertThat(page.locator(JOURNAL_NUMBER)).isVisible();
+    public void assertRedirectedToTransactionDetail() {
+        // Wait for redirect to complete
+        page.waitForURL("**/transactions/**");
+        // Verify we're on transaction detail page by checking for transaction number element
+        assertThat(page.locator(TRANSACTION_NUMBER)).isVisible();
     }
 
-    public String getJournalNumber() {
-        return page.locator(JOURNAL_NUMBER).textContent();
-    }
-
-    public void assertViewJournalButtonVisible() {
-        assertThat(page.locator(VIEW_JOURNAL_BUTTON)).isVisible();
-    }
-
-    public void clickViewJournalButton() {
-        page.click(VIEW_JOURNAL_BUTTON);
-        page.waitForLoadState();
+    public void assertSuccessMessageVisible() {
+        // Check for the success message on the transaction detail page
+        assertThat(page.locator("text=Transaksi berhasil dibuat dari template")).isVisible();
     }
 
     public void assertErrorMessageVisible() {

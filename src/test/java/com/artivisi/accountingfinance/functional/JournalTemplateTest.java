@@ -206,14 +206,14 @@ class JournalTemplateTest extends PlaywrightTestBase {
             templateExecutePage.clickPreviewButton();
             templateExecutePage.clickExecuteButton();
 
-            templateExecutePage.assertJournalNumberVisible();
-            String journalNumber = templateExecutePage.getJournalNumber();
-            assertThat(journalNumber).startsWith("JE-");
+            // Should redirect to transaction detail page with success message
+            templateExecutePage.assertRedirectedToTransactionDetail();
+            templateExecutePage.assertSuccessMessageVisible();
         }
 
         @Test
-        @DisplayName("Should display view journal button after execution")
-        void shouldDisplayViewJournalButtonAfterExecution() {
+        @DisplayName("Should redirect to transaction detail after execution")
+        void shouldRedirectToTransactionDetailAfterExecution() {
             templateExecutePage.navigate(INCOME_CONSULTING_TEMPLATE_ID);
 
             templateExecutePage.fillTransactionDate("2025-06-30");
@@ -222,7 +222,7 @@ class JournalTemplateTest extends PlaywrightTestBase {
             templateExecutePage.clickPreviewButton();
             templateExecutePage.clickExecuteButton();
 
-            templateExecutePage.assertViewJournalButtonVisible();
+            templateExecutePage.assertRedirectedToTransactionDetail();
         }
     }
 
