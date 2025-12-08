@@ -250,12 +250,86 @@ Batas Lapor: 20 Desember 2025
 4. Isi form sesuai hasil perhitungan PPh 21
 5. Atau buat template kustom dengan nilai PPh yang sudah dihitung
 
+## Skenario 8: Setor PPh yang Tertunda dari Periode Lalu
+
+**Situasi**: Anda sudah memotong PPh 23 dari vendor bulan lalu, tapi belum disetor ke negara. Sekarang baru mau bayar.
+
+**Pertanyaan Umum**: 
+- "Apakah ini dicatat sebagai beban pajak di bulan ini?"
+- "Pakai akun Beban Pajak Lainnya atau Beban PPh 25?"
+
+**Jawaban**: **TIDAK!** Ini bukan beban, hanya menyetor hutang lama.
+
+### Penjelasan
+
+**Saat memotong PPh 23 bulan lalu:**
+```
+Debit  : Beban Jasa Konsultan  Rp 5.000.000
+Kredit : Bank                  Rp 4.900.000 (bayar ke vendor)
+Kredit : Hutang PPh 23         Rp   100.000 ← SUDAH tercatat sebagai hutang
+```
+
+Hutang PPh 23 **sudah ada di neraca** sejak bulan lalu. Ketika Anda setor sekarang, Anda cuma **melunasi hutang**, bukan menciptakan beban baru.
+
+### Perbedaan Penting: Hutang vs Beban
+
+| Akun | Jenis | Kapan Digunakan |
+|------|-------|-----------------|
+| **Hutang PPh 23** (2.1.21) | Liabilitas | PPh yang dipotong dari vendor (akan disetor) |
+| **Beban PPh 25** (5.9.02) | Beban | Angsuran pajak perusahaan sendiri bulanan |
+| **Beban PPh 29** (5.9.03) | Beban | Pajak perusahaan sendiri akhir tahun |
+
+**PPh 23 bukan beban Anda** - itu pajak vendor yang Anda potong dan tahan untuk disetor ke negara.
+
+### Dampak ke Laporan Keuangan
+
+**Laporan bulan lalu (sudah benar):**
+- Beban Jasa: Rp 5.000.000 ✓
+- Hutang PPh 23 di Neraca: Rp 100.000 ✓
+
+**Laporan bulan ini (saat setor):**
+- Tidak ada beban baru ✓
+- Hanya: Kas berkurang & Hutang berkurang ✓
+
+**Ini transaksi NERACA saja** (Aset vs Liabilitas), tidak mempengaruhi Laba Rugi.
+
+### Langkah-langkah
+
+1. Klik menu **Transaksi** di sidebar
+2. Klik tombol **Transaksi Baru**
+3. Pilih template **Setor PPh 23**
+4. Isi form:
+   - **Tanggal**: Tanggal penyetoran (bulan ini)
+   - **Jumlah**: `100000` (sesuai hutang)
+   - **Akun Sumber**: Bank BCA (atau bank yang digunakan)
+   - **Keterangan**: `Setor PPh 23 periode November 2024 (terlambat disetor)`
+   - **No. Referensi**: Nomor NTPN atau bukti setor
+5. Periksa **Preview Jurnal**:
+   ```
+   Debit  : Hutang PPh 23       Rp 100.000  ← Hapus hutang lama
+   Kredit : Bank BCA            Rp 100.000  ← Kas keluar
+   ```
+6. Klik **Simpan & Posting**
+
+**Hasil**: 
+- Hutang PPh 23 di neraca berkurang ✓
+- Tidak ada beban di laba rugi bulan ini ✓
+- Penyetoran tercatat dengan tanggal aktual ✓
+
+> **Penting**: 
+> - **Jangan** gunakan "Beban PPh 25" atau "Beban Pajak Lainnya" untuk setor PPh 23
+> - PPh 23 = Hutang (sudah tercatat saat pemotongan)
+> - PPh 25/29 = Beban (pajak perusahaan sendiri)
+> - Setor hutang ≠ menciptakan beban baru
+
 ## Tips
 
 1. **DPP untuk PPh 23** - Hitung PPh dari nilai sebelum PPN
 2. **Threshold** - Beberapa jasa memiliki batas minimal untuk pemotongan
 3. **Bukti potong** - Wajib memberikan bukti potong ke vendor
 4. **Tepat waktu** - Setor max tanggal 10, lapor max tanggal 20 bulan berikutnya
+5. **Hutang PPh lama** - Bayar menggunakan template "Setor PPh 23/21/4(2)", bukan akun beban
+6. **Bedakan**: Hutang PPh (dari pemotongan) vs Beban PPh (pajak perusahaan)
 
 ## Kewajiban Pelaporan
 

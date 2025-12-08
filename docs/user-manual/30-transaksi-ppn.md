@@ -223,12 +223,72 @@ Batas Setor: 15 Desember 2025
 
 > Catatan: Template menggunakan formula `amount / 1.11` untuk menghitung DPP dari nilai inklusif. Jika nilai DPP sudah diketahui, kalikan dengan 1.11 untuk mendapat nilai inklusif.
 
+## Skenario 7: Bayar PPN yang Tertunda dari Periode Lalu
+
+**Situasi**: Anda sudah mencatat pendapatan dengan PPN tahun lalu, tapi PPN-nya belum dibayar. Sekarang baru mau bayar.
+
+**Pertanyaan Umum**: 
+- "Apakah ini dicatat sebagai beban pajak di tahun ini?"
+- "Pakai akun Beban Pajak Lainnya?"
+
+**Jawaban**: **TIDAK!** Ini bukan beban baru, hanya membayar hutang lama.
+
+### Penjelasan
+
+**Saat pendapatan dicatat tahun lalu:**
+```
+Debit  : Piutang/Bank         Rp 11.100.000
+Kredit : Pendapatan           Rp 10.000.000
+Kredit : Hutang PPN           Rp  1.100.000  ← SUDAH tercatat sebagai hutang
+```
+
+Hutang PPN **sudah ada di neraca** sejak tahun lalu. Ketika Anda bayar sekarang, Anda cuma **melunasi hutang**, bukan menciptakan beban baru.
+
+### Dampak ke Laporan Keuangan
+
+**Laporan tahun lalu (sudah benar):**
+- Pendapatan: Rp 10.000.000 ✓
+- Hutang PPN di Neraca: Rp 1.100.000 ✓
+
+**Laporan tahun ini (saat bayar):**
+- Tidak ada pendapatan baru ✓
+- Tidak ada beban baru ✓
+- Hanya: Kas berkurang & Hutang berkurang ✓
+
+**Ini transaksi NERACA saja** (Aset vs Liabilitas), tidak mempengaruhi Laba Rugi.
+
+### Langkah-langkah
+
+1. Klik menu **Transaksi** di sidebar
+2. Klik tombol **Transaksi Baru**
+3. Pilih template **Setor PPN**
+4. Isi form:
+   - **Tanggal**: Tanggal pembayaran (tahun ini)
+   - **Jumlah**: `1100000` (sesuai hutang)
+   - **Akun Sumber**: Bank CIMB (atau bank yang digunakan)
+   - **Keterangan**: `Setor PPN periode November 2024 (terlambat dibayar)`
+   - **No. Referensi**: Nomor NTPN atau bukti setor
+5. Periksa **Preview Jurnal**:
+   ```
+   Debit  : Hutang PPN         Rp 1.100.000  ← Hapus hutang lama
+   Kredit : Bank CIMB          Rp 1.100.000  ← Kas keluar
+   ```
+6. Klik **Simpan & Posting**
+
+**Hasil**: 
+- Hutang PPN di neraca berkurang ke nol ✓
+- Tidak ada beban di laba rugi tahun ini ✓
+- Pembayaran tercatat dengan tanggal aktual ✓
+
+> **Penting**: Jangan gunakan akun "Beban Pajak Lainnya" karena itu akan membuat beban baru di tahun ini dan membuat laporan keuangan salah. PPN yang sudah dicatat sebagai hutang tahun lalu harus dibayar menggunakan template "Setor PPN" yang mendebit Hutang PPN, bukan akun beban.
+
 ## Tips
 
 1. **Simpan faktur pajak** - Faktur pajak adalah bukti untuk mengkreditkan PPN Masukan
 2. **Rekonsiliasi bulanan** - Cek saldo akun PPN sebelum menyetor
 3. **Catat nomor faktur** - Selalu catat nomor faktur pajak di referensi
 4. **Batas waktu** - Setor PPN paling lambat tanggal 15 bulan berikutnya
+5. **Hutang PPN lama** - Bayar menggunakan template "Setor PPN", bukan "Beban Pajak"
 
 ## Kewajiban Pelaporan
 
