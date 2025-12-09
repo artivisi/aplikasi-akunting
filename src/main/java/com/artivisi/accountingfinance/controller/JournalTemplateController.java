@@ -164,74 +164,14 @@ public class JournalTemplateController {
         return "templates/form";
     }
 
-    @GetMapping("/{id}/execute")
-    public String executePage(@PathVariable UUID id, Model model) {
-        JournalTemplate template = journalTemplateService.findByIdWithLines(id);
-        model.addAttribute("currentPage", "templates");
-        model.addAttribute("template", template);
-
-        // For DETAILED templates, extract unique formula variable names
-        // Variables are simple identifiers like "kas", "bankBca", etc. (not "amount" or expressions)
-        // Use LinkedHashMap to preserve order while deduplicating by variable name
-        java.util.Map<String, FormulaVariable> uniqueVariables = new java.util.LinkedHashMap<>();
-        for (JournalTemplateLine line : template.getLines()) {
-            String formula = line.getFormula();
-            if (isSimpleVariable(formula) && !"amount".equalsIgnoreCase(formula)) {
-                String varName = formula.trim();
-                if (!uniqueVariables.containsKey(varName)) {
-                    String label = line.getDescription() != null
-                            ? line.getDescription()
-                            : (line.getAccount() != null ? line.getAccount().getAccountName() : varName);
-                    uniqueVariables.put(varName, new FormulaVariable(varName, label));
-                }
-            }
-        }
-        java.util.List<FormulaVariable> formulaVariables = new java.util.ArrayList<>(uniqueVariables.values());
-        model.addAttribute("formulaVariables", formulaVariables);
-        model.addAttribute("isDetailedTemplate", !formulaVariables.isEmpty());
-
-        // Collect lines that require dynamic account selection (account is null)
-        java.util.List<DynamicAccountLine> dynamicAccountLines = new java.util.ArrayList<>();
-        for (JournalTemplateLine line : template.getLines()) {
-            if (line.getAccount() == null) {
-                String hint = line.getAccountHint() != null ? line.getAccountHint() : "Pilih akun";
-                dynamicAccountLines.add(new DynamicAccountLine(
-                        line.getLineOrder(),
-                        line.getPosition().name(),
-                        hint
-                ));
-            }
-        }
-        model.addAttribute("dynamicAccountLines", dynamicAccountLines);
-        model.addAttribute("hasDynamicAccounts", !dynamicAccountLines.isEmpty());
-
-        // Pass accounts list for dynamic selection
-        if (!dynamicAccountLines.isEmpty()) {
-            model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
-        }
-
-        return "templates/execute";
-    }
-
-    public record DynamicAccountLine(int lineOrder, String position, String hint) {}
-
     /**
-     * Check if formula is a simple variable name (identifier only).
+     * Redirect to consolidated transaction form.
+     * The template execute functionality has been merged into the transaction form.
      */
-    private boolean isSimpleVariable(String formula) {
-        if (formula == null || formula.isBlank()) return false;
-        String trimmed = formula.trim();
-        if (trimmed.isEmpty()) return false;
-        char first = trimmed.charAt(0);
-        if (!Character.isLetter(first) && first != '_') return false;
-        for (int i = 1; i < trimmed.length(); i++) {
-            char c = trimmed.charAt(i);
-            if (!Character.isLetterOrDigit(c) && c != '_') return false;
-        }
-        return true;
+    @GetMapping("/{id}/execute")
+    public String executePage(@PathVariable UUID id) {
+        return "redirect:/transactions/new?templateId=" + id;
     }
-
-    public record FormulaVariable(String name, String label) {}
 
     // Form POST Endpoints
 

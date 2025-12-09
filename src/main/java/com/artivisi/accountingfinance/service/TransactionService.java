@@ -10,6 +10,7 @@ import com.artivisi.accountingfinance.entity.Project;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.entity.TransactionAccountMapping;
 import com.artivisi.accountingfinance.entity.TransactionSequence;
+import com.artivisi.accountingfinance.entity.TransactionVariable;
 import com.artivisi.accountingfinance.enums.JournalPosition;
 import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.enums.TransactionStatus;
@@ -89,8 +90,24 @@ public class TransactionService {
 
     @Transactional
     public Transaction create(Transaction transaction, Map<UUID, UUID> accountMappings) {
-        String transactionNumber = generateTransactionNumber();
-        transaction.setTransactionNumber(transactionNumber);
+        return create(transaction, accountMappings, null, null);
+    }
+
+    /**
+     * Create a transaction with optional variables for DETAILED templates.
+     * Variables are stored in the transaction_variables table for use during posting.
+     *
+     * @param transaction the transaction entity
+     * @param accountMappings map of template line ID to account ID for dynamic account selection
+     * @param variables map of variable name to value for DETAILED templates (can be null)
+     * @param stringAccountMappings unused, kept for API compatibility
+     */
+    @Transactional
+    public Transaction create(Transaction transaction, Map<UUID, UUID> accountMappings,
+                              Map<String, BigDecimal> variables, Map<String, String> stringAccountMappings) {
+        // Transaction number is NOT generated here - it will be generated when posting
+        // This avoids gaps in numbering when drafts are deleted
+        transaction.setTransactionNumber(null);
         transaction.setStatus(TransactionStatus.DRAFT);
 
         JournalTemplate template = journalTemplateService.findByIdWithLines(transaction.getJournalTemplate().getId());
@@ -119,6 +136,14 @@ public class TransactionService {
             }
         }
 
+        // Store variables for DETAILED templates (used during posting)
+        if (variables != null && !variables.isEmpty()) {
+            for (Map.Entry<String, BigDecimal> entry : variables.entrySet()) {
+                TransactionVariable variable = new TransactionVariable(entry.getKey(), entry.getValue());
+                transaction.addVariable(variable);
+            }
+        }
+
         journalTemplateService.recordUsage(template.getId());
         return transactionRepository.save(transaction);
     }
@@ -144,8 +169,21 @@ public class TransactionService {
     @Transactional
     public Transaction post(UUID id, String postedBy) {
         Transaction transaction = findById(id);
-        // Use default context with transaction amount
-        FormulaContext context = FormulaContext.of(transaction.getAmount());
+
+        // Build context from stored variables (for DETAILED templates) or use amount (for SIMPLE)
+        FormulaContext context;
+        if (!transaction.getVariables().isEmpty()) {
+            // DETAILED template - use stored variables
+            Map<String, BigDecimal> variables = new HashMap<>();
+            for (TransactionVariable tv : transaction.getVariables()) {
+                variables.put(tv.getVariableName(), tv.getVariableValue());
+            }
+            context = FormulaContext.of(transaction.getAmount(), variables);
+        } else {
+            // SIMPLE template - use transaction amount
+            context = FormulaContext.of(transaction.getAmount());
+        }
+
         return postWithContext(transaction, postedBy, context);
     }
 
@@ -168,6 +206,12 @@ public class TransactionService {
     private Transaction postWithContext(Transaction transaction, String postedBy, FormulaContext context) {
         if (!transaction.isDraft()) {
             throw new IllegalStateException("Only draft transactions can be posted");
+        }
+
+        // Generate transaction number at posting time (not at draft creation)
+        // This avoids gaps in numbering when drafts are deleted
+        if (transaction.getTransactionNumber() == null) {
+            transaction.setTransactionNumber(generateTransactionNumber());
         }
 
         // Check if transaction already has journal entries (created via TemplateExecutionEngine)
@@ -336,7 +380,8 @@ public class TransactionService {
         JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
 
         Transaction transaction = new Transaction();
-        transaction.setTransactionNumber(generateTransactionNumber());
+        // Transaction number will be generated when posting
+        transaction.setTransactionNumber(null);
         transaction.setTransactionDate(draft.getTransactionDate() != null ? draft.getTransactionDate() : LocalDate.now());
         transaction.setJournalTemplate(template);
         transaction.setAmount(amount != null ? amount : draft.getAmount());

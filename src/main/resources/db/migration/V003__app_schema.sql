@@ -250,7 +250,7 @@ CREATE INDEX idx_milestones_status ON project_milestones(status);
 
 CREATE TABLE transactions (
     id UUID PRIMARY KEY,
-    transaction_number VARCHAR(50) NOT NULL UNIQUE,
+    transaction_number VARCHAR(50) UNIQUE,  -- Generated when posting, null for drafts
     transaction_date DATE NOT NULL,
     id_journal_template UUID NOT NULL REFERENCES journal_templates(id),
     id_project UUID REFERENCES projects(id),
@@ -323,6 +323,22 @@ CREATE TABLE transaction_account_mappings (
 
 CREATE INDEX idx_tam_transaction ON transaction_account_mappings(id_transaction);
 CREATE INDEX idx_tam_template_line ON transaction_account_mappings(id_template_line);
+
+-- ============================================
+-- Transaction Variables (for DETAILED templates)
+-- ============================================
+
+CREATE TABLE transaction_variables (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_transaction UUID NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+    variable_name VARCHAR(100) NOT NULL,
+    variable_value DECIMAL(19, 2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uk_trx_variable UNIQUE (id_transaction, variable_name)
+);
+
+CREATE INDEX idx_tv_transaction ON transaction_variables(id_transaction);
 
 -- ============================================
 -- Journal Entries

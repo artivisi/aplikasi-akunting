@@ -34,9 +34,10 @@ import java.util.List;
 @NoArgsConstructor
 public class Transaction extends BaseEntity {
 
-    @NotBlank(message = "Transaction number is required")
+    // Transaction number is generated when posting (not at draft creation)
+    // to avoid gaps when drafts are deleted
     @Size(max = 50, message = "Transaction number must not exceed 50 characters")
-    @Column(name = "transaction_number", nullable = false, unique = true, length = 50)
+    @Column(name = "transaction_number", unique = true, length = 50)
     private String transactionNumber;
 
     @NotNull(message = "Transaction date is required")
@@ -55,7 +56,7 @@ public class Transaction extends BaseEntity {
     private Project project;
 
     @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    @DecimalMin(value = "0", message = "Amount must be non-negative")
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
@@ -103,11 +104,20 @@ public class Transaction extends BaseEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TransactionVariable> variables = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<JournalEntry> journalEntries = new ArrayList<>();
 
     public void addAccountMapping(TransactionAccountMapping mapping) {
         accountMappings.add(mapping);
         mapping.setTransaction(this);
+    }
+
+    public void addVariable(TransactionVariable variable) {
+        variables.add(variable);
+        variable.setTransaction(this);
     }
 
     public void addJournalEntry(JournalEntry entry) {

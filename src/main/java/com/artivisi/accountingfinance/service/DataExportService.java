@@ -111,6 +111,7 @@ public class DataExportService {
             addTextEntry(zos, "17_invoices.csv", exportInvoices());
             addTextEntry(zos, "18_transactions.csv", exportTransactions());
             addTextEntry(zos, "19_transaction_account_mappings.csv", exportTransactionAccountMappings());
+            addTextEntry(zos, "19a_transaction_variables.csv", exportTransactionVariables());
             addTextEntry(zos, "20_journal_entries.csv", exportJournalEntries());
 
             // 21-24: Payroll and amortization
@@ -608,11 +609,13 @@ public class DataExportService {
     // ============================================
     private String exportTransactions() {
         StringBuilder csv = new StringBuilder();
-        csv.append("transaction_number,transaction_date,template_name,project_code,amount,description,");
+        // Added transaction_id (UUID) to handle drafts with null transaction_number
+        csv.append("transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,");
         csv.append("reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at\n");
 
-        List<Transaction> transactions = transactionRepository.findAll(Sort.by("transactionNumber"));
+        List<Transaction> transactions = transactionRepository.findAll(Sort.by("createdAt"));
         for (Transaction t : transactions) {
+            csv.append(t.getId()).append(",");
             csv.append(escapeCsv(t.getTransactionNumber())).append(",");
             csv.append(t.getTransactionDate() != null ? t.getTransactionDate().format(DATE_FORMATTER) : "").append(",");
             csv.append(t.getJournalTemplate() != null ? escapeCsv(t.getJournalTemplate().getTemplateName()) : "").append(",");
@@ -638,11 +641,13 @@ public class DataExportService {
     // ============================================
     private String exportTransactionAccountMappings() {
         StringBuilder csv = new StringBuilder();
-        csv.append("transaction_number,template_name,line_order,account_code,amount\n");
+        // Use transaction_id (UUID) as primary key for linking (handles null transaction_number)
+        csv.append("transaction_id,transaction_number,template_name,line_order,account_code,amount\n");
 
-        List<Transaction> transactions = transactionRepository.findAll(Sort.by("transactionNumber"));
+        List<Transaction> transactions = transactionRepository.findAll(Sort.by("createdAt"));
         for (Transaction t : transactions) {
             for (TransactionAccountMapping tam : t.getAccountMappings()) {
+                csv.append(t.getId()).append(",");
                 csv.append(escapeCsv(t.getTransactionNumber())).append(",");
                 csv.append(t.getJournalTemplate() != null ? escapeCsv(t.getJournalTemplate().getTemplateName()) : "").append(",");
                 csv.append(tam.getTemplateLine() != null ? tam.getTemplateLine().getLineOrder() : "").append(",");
@@ -654,17 +659,38 @@ public class DataExportService {
     }
 
     // ============================================
+    // 19a: Transaction Variables (for DETAILED templates)
+    // ============================================
+    private String exportTransactionVariables() {
+        StringBuilder csv = new StringBuilder();
+        csv.append("transaction_id,transaction_number,variable_name,variable_value\n");
+
+        List<Transaction> transactions = transactionRepository.findAll(Sort.by("createdAt"));
+        for (Transaction t : transactions) {
+            for (TransactionVariable tv : t.getVariables()) {
+                csv.append(t.getId()).append(",");
+                csv.append(escapeCsv(t.getTransactionNumber())).append(",");
+                csv.append(escapeCsv(tv.getVariableName())).append(",");
+                csv.append(tv.getVariableValue()).append("\n");
+            }
+        }
+        return csv.toString();
+    }
+
+    // ============================================
     // 20: Journal Entries
     // ============================================
     private String exportJournalEntries() {
         StringBuilder csv = new StringBuilder();
-        csv.append("journal_number,journal_date,transaction_number,description,status,");
+        // Use transaction_id (UUID) as primary key for linking (handles null transaction_number)
+        csv.append("journal_number,journal_date,transaction_id,transaction_number,description,status,");
         csv.append("account_code,debit_amount,credit_amount,posted_at,voided_at,void_reason\n");
 
         List<JournalEntry> entries = journalEntryRepository.findAll(Sort.by("journalNumber"));
         for (JournalEntry je : entries) {
             csv.append(escapeCsv(je.getJournalNumber())).append(",");
             csv.append(je.getJournalDate().format(DATE_FORMATTER)).append(",");
+            csv.append(je.getTransaction().getId()).append(",");
             csv.append(escapeCsv(je.getTransaction().getTransactionNumber())).append(",");
             csv.append(escapeCsv(je.getDescription())).append(",");
             csv.append(je.getStatus()).append(",");
@@ -796,11 +822,13 @@ public class DataExportService {
     // ============================================
     private String exportTaxTransactionDetails() {
         StringBuilder csv = new StringBuilder();
-        csv.append("transaction_number,tax_type,counterparty_name,counterparty_npwp,counterparty_nik,");
+        // Use transaction_id (UUID) as primary key for linking
+        csv.append("transaction_id,transaction_number,tax_type,counterparty_name,counterparty_npwp,counterparty_nik,");
         csv.append("counterparty_nitku,tax_object_code,dpp,tax_amount,faktur_number,faktur_date\n");
 
         List<TaxTransactionDetail> details = taxTransactionDetailRepository.findAll();
         for (TaxTransactionDetail ttd : details) {
+            csv.append(ttd.getTransaction() != null ? ttd.getTransaction().getId() : "").append(",");
             csv.append(ttd.getTransaction() != null ? escapeCsv(ttd.getTransaction().getTransactionNumber()) : "").append(",");
             csv.append(ttd.getTaxType()).append(",");
             csv.append(escapeCsv(ttd.getCounterpartyName())).append(",");

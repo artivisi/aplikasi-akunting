@@ -166,7 +166,7 @@ class TransactionServiceTest {
     class CreateTransactionTests {
 
         @Test
-        @DisplayName("create should generate transaction number and set DRAFT status")
+        @DisplayName("create should set DRAFT status with null transaction number")
         void createShouldGenerateNumberAndSetDraftStatus() {
             JournalTemplate template = journalTemplateService.findById(INCOME_CONSULTING_TEMPLATE_ID);
 
@@ -179,8 +179,9 @@ class TransactionServiceTest {
             Transaction saved = transactionService.create(transaction, null);
 
             assertThat(saved.getId()).isNotNull();
-            assertThat(saved.getTransactionNumber()).isNotNull();
-            assertThat(saved.getTransactionNumber()).startsWith("TRX-");
+            // Transaction number is NOT generated at create time (avoids gaps when drafts deleted)
+            // It will be generated when posting
+            assertThat(saved.getTransactionNumber()).isNull();
             assertThat(saved.getStatus()).isEqualTo(TransactionStatus.DRAFT);
         }
 
@@ -552,7 +553,8 @@ class TransactionServiceTest {
 
             assertThat(transaction).isNotNull();
             assertThat(transaction.getId()).isNotNull();
-            assertThat(transaction.getTransactionNumber()).startsWith("TRX-");
+            // Transaction number is null at draft stage - generated when posting
+            assertThat(transaction.getTransactionNumber()).isNull();
             assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.DRAFT);
             assertThat(transaction.getDescription()).isEqualTo("Transaction from draft");
             assertThat(transaction.getReferenceNumber()).isEqualTo("REF-DRAFT-001");
@@ -609,7 +611,7 @@ class TransactionServiceTest {
     class TransactionNumberGenerationTests {
 
         @Test
-        @DisplayName("should generate unique transaction numbers")
+        @DisplayName("should generate unique transaction numbers when posting")
         void shouldGenerateUniqueTransactionNumbers() {
             JournalTemplate template = journalTemplateService.findById(INCOME_CONSULTING_TEMPLATE_ID);
 
@@ -628,11 +630,21 @@ class TransactionServiceTest {
             Transaction saved1 = transactionService.create(tx1, null);
             Transaction saved2 = transactionService.create(tx2, null);
 
-            assertThat(saved1.getTransactionNumber()).isNotEqualTo(saved2.getTransactionNumber());
+            // Transaction numbers are null for drafts - generated when posting
+            assertThat(saved1.getTransactionNumber()).isNull();
+            assertThat(saved2.getTransactionNumber()).isNull();
+
+            // Post both to get transaction numbers
+            Transaction posted1 = transactionService.post(saved1.getId(), "testuser");
+            Transaction posted2 = transactionService.post(saved2.getId(), "testuser");
+
+            assertThat(posted1.getTransactionNumber()).isNotNull();
+            assertThat(posted2.getTransactionNumber()).isNotNull();
+            assertThat(posted1.getTransactionNumber()).isNotEqualTo(posted2.getTransactionNumber());
         }
 
         @Test
-        @DisplayName("should generate sequential transaction numbers")
+        @DisplayName("should generate sequential transaction numbers when posting")
         void shouldGenerateSequentialNumbers() {
             JournalTemplate template = journalTemplateService.findById(INCOME_CONSULTING_TEMPLATE_ID);
 
@@ -651,9 +663,13 @@ class TransactionServiceTest {
             Transaction saved1 = transactionService.create(tx1, null);
             Transaction saved2 = transactionService.create(tx2, null);
 
+            // Post both to get transaction numbers
+            Transaction posted1 = transactionService.post(saved1.getId(), "testuser");
+            Transaction posted2 = transactionService.post(saved2.getId(), "testuser");
+
             // Extract numbers from transaction numbers (format: TRX-YYYY-NNNNN)
-            String num1 = saved1.getTransactionNumber().replaceAll("\\D+", "");
-            String num2 = saved2.getTransactionNumber().replaceAll("\\D+", "");
+            String num1 = posted1.getTransactionNumber().replaceAll("\\D+", "");
+            String num2 = posted2.getTransactionNumber().replaceAll("\\D+", "");
 
             // Second should be greater
             assertThat(Long.parseLong(num2)).isGreaterThan(Long.parseLong(num1));

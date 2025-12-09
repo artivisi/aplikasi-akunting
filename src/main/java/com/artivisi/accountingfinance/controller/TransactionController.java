@@ -5,9 +5,11 @@ import com.artivisi.accountingfinance.dto.VoidTransactionDto;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.Invoice;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
+import com.artivisi.accountingfinance.entity.JournalTemplateLine;
 import com.artivisi.accountingfinance.entity.Project;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.TemplateCategory;
+import com.artivisi.accountingfinance.enums.TemplateType;
 import jakarta.persistence.EntityNotFoundException;
 import com.artivisi.accountingfinance.enums.TransactionStatus;
 import com.artivisi.accountingfinance.security.Permission;
@@ -139,7 +141,9 @@ public class TransactionController {
         model.addAttribute("projects", projectService.findActiveProjects());
 
         if (templateId != null) {
-            model.addAttribute("selectedTemplate", journalTemplateService.findByIdWithLines(templateId));
+            JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
+            model.addAttribute("selectedTemplate", template);
+            addDetailedTemplateAttributes(template, model);
         }
 
         // Pre-fill from invoice if provided (for invoice payment flow)
@@ -197,15 +201,18 @@ public class TransactionController {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("isEdit", true);
         model.addAttribute("transaction", transaction);
-        model.addAttribute("selectedTemplate", template); // Add this for form to work properly
+        model.addAttribute("selectedTemplate", template);
         model.addAttribute("templates", journalTemplateService.findAll());
         model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
         model.addAttribute("projects", projectService.findActiveProjects());
-        
+
         // Add initial values for Alpine.js
         model.addAttribute("initialAmount", transaction.getAmount() != null ? transaction.getAmount() : BigDecimal.ZERO);
         model.addAttribute("initialDescription", transaction.getDescription() != null ? transaction.getDescription() : "");
-        
+
+        // Add DETAILED template support
+        addDetailedTemplateAttributes(template, model);
+
         return "transactions/form";
     }
 
@@ -273,18 +280,7 @@ public class TransactionController {
             @RequestParam(required = false) MultiValueMap<String, String> params,
             Model model) {
         JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
-        
-        var context = new TemplateExecutionEngine.ExecutionContext(
-                java.time.LocalDate.now(),
-                amount,
-                "Preview"
-        );
-        
-        var previewResult = templateExecutionEngine.preview(template, context);
-        
-        // Apply account mappings for template lines with null accounts
-        java.util.List<TemplateExecutionEngine.PreviewEntry> entries = previewResult.entries();
-        
+
         // Extract accountMapping parameters from params
         java.util.Map<String, String> accountMapping = new java.util.HashMap<>();
         for (String key : params.keySet()) {
@@ -296,14 +292,44 @@ public class TransactionController {
                 }
             }
         }
-        
+
+        // Extract variable parameters for DETAILED templates (var_xxx=value)
+        java.util.Map<String, BigDecimal> variables = new java.util.HashMap<>();
+        for (String key : params.keySet()) {
+            if (key.startsWith("var_")) {
+                String varName = key.substring(4);
+                String value = params.getFirst(key);
+                if (value != null && !value.isEmpty()) {
+                    // Parse formatted number (remove dots as thousand separators)
+                    String cleanValue = value.replaceAll("[^0-9]", "");
+                    if (!cleanValue.isEmpty()) {
+                        variables.put(varName, new BigDecimal(cleanValue));
+                    }
+                }
+            }
+        }
+
+        var context = new TemplateExecutionEngine.ExecutionContext(
+                java.time.LocalDate.now(),
+                amount,
+                "Preview",
+                null,
+                variables.isEmpty() ? null : variables,
+                accountMapping.isEmpty() ? null : accountMapping
+        );
+
+        var previewResult = templateExecutionEngine.preview(template, context);
+
+        // Apply account mappings for template lines with null accounts
+        java.util.List<TemplateExecutionEngine.PreviewEntry> entries = previewResult.entries();
+
         if (!accountMapping.isEmpty()) {
             // Match entries to template lines by order and create new entries with mapped accounts
             java.util.List<TemplateExecutionEngine.PreviewEntry> mappedEntries = new java.util.ArrayList<>();
             for (int i = 0; i < Math.min(template.getLines().size(), previewResult.entries().size()); i++) {
                 var templateLine = template.getLines().get(i);
                 var entry = previewResult.entries().get(i);
-                
+
                 // If template line has no account, apply mapping
                 if (templateLine.getAccount() == null) {
                     String mappedAccountId = accountMapping.get(templateLine.getId().toString());
@@ -323,11 +349,11 @@ public class TransactionController {
             }
             entries = mappedEntries;
         }
-        
+
         model.addAttribute("entries", entries);
         model.addAttribute("totalDebit", previewResult.totalDebit());
         model.addAttribute("totalCredit", previewResult.totalCredit());
-        
+
         return "fragments/transaction-preview";
     }
 
@@ -336,7 +362,17 @@ public class TransactionController {
     @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_CREATE + "')")
     public ResponseEntity<Transaction> apiCreate(@Valid @RequestBody TransactionDto dto) {
         Transaction transaction = mapDtoToEntity(dto);
-        Transaction saved = transactionService.create(transaction, dto.accountMappings());
+
+        // Convert UUID-keyed accountMappings to String-keyed for TemplateExecutionEngine
+        java.util.Map<String, String> stringAccountMappings = null;
+        if (dto.accountMappings() != null && !dto.accountMappings().isEmpty()) {
+            stringAccountMappings = new java.util.HashMap<>();
+            for (var entry : dto.accountMappings().entrySet()) {
+                stringAccountMappings.put(entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+
+        Transaction saved = transactionService.create(transaction, dto.accountMappings(), dto.variables(), stringAccountMappings);
 
         // If this is an invoice payment, link transaction to invoice and mark as paid
         if (dto.invoiceId() != null) {
@@ -387,13 +423,13 @@ public class TransactionController {
 
     private Transaction mapDtoToEntity(TransactionDto dto) {
         Transaction transaction = new Transaction();
-        
+
         // Set transactionNumber if provided (for updates - it comes from existing record)
         // For creates, this will be null and generated by the service
         if (dto.transactionNumber() != null) {
             transaction.setTransactionNumber(dto.transactionNumber());
         }
-        
+
         transaction.setTransactionDate(dto.transactionDate());
         transaction.setAmount(dto.amount());
         transaction.setDescription(dto.description());
@@ -412,4 +448,52 @@ public class TransactionController {
 
         return transaction;
     }
+
+    /**
+     * Add attributes for DETAILED template support (formula variables).
+     */
+    private void addDetailedTemplateAttributes(JournalTemplate template, Model model) {
+        // Check if template is DETAILED type
+        boolean isDetailedTemplate = template.getTemplateType() == TemplateType.DETAILED;
+        model.addAttribute("isDetailedTemplate", isDetailedTemplate);
+
+        if (isDetailedTemplate) {
+            // Extract unique formula variable names
+            // Variables are simple identifiers like "kas", "bankBca", etc. (not "amount" or expressions)
+            java.util.Map<String, FormulaVariable> uniqueVariables = new java.util.LinkedHashMap<>();
+            for (JournalTemplateLine line : template.getLines()) {
+                String formula = line.getFormula();
+                if (isSimpleVariable(formula) && !"amount".equalsIgnoreCase(formula)) {
+                    String varName = formula.trim();
+                    if (!uniqueVariables.containsKey(varName)) {
+                        String label = line.getDescription() != null
+                                ? line.getDescription()
+                                : (line.getAccount() != null ? line.getAccount().getAccountName() : varName);
+                        uniqueVariables.put(varName, new FormulaVariable(varName, label));
+                    }
+                }
+            }
+            model.addAttribute("formulaVariables", new java.util.ArrayList<>(uniqueVariables.values()));
+        } else {
+            model.addAttribute("formulaVariables", java.util.List.of());
+        }
+    }
+
+    /**
+     * Check if formula is a simple variable name (identifier only).
+     */
+    private boolean isSimpleVariable(String formula) {
+        if (formula == null || formula.isBlank()) return false;
+        String trimmed = formula.trim();
+        if (trimmed.isEmpty()) return false;
+        char first = trimmed.charAt(0);
+        if (!Character.isLetter(first) && first != '_') return false;
+        for (int i = 1; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '_') return false;
+        }
+        return true;
+    }
+
+    public record FormulaVariable(String name, String label) {}
 }

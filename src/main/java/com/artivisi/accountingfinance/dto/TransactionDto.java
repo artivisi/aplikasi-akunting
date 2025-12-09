@@ -26,7 +26,7 @@ public record TransactionDto(
         UUID invoiceId,
 
         @NotNull(message = "Amount is required")
-        @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+        @DecimalMin(value = "0", message = "Amount must be non-negative")
         BigDecimal amount,
 
         @NotBlank(message = "Description is required")
@@ -40,5 +40,8 @@ public record TransactionDto(
 
         String status,
 
-        Map<UUID, UUID> accountMappings
+        Map<UUID, UUID> accountMappings,
+
+        // For DETAILED templates - variable values keyed by variable name
+        Map<String, BigDecimal> variables
 ) {}

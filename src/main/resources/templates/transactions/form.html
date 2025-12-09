@@ -130,10 +130,10 @@
                                     No. Transaksi
                                 </label>
                                 <input type="text" id="transactionNumber" name="transactionNumber"
-                                       th:value="${isEdit ? transaction.transactionNumber : '(Auto-generated)'}"
+                                       th:value="${isEdit and transaction.transactionNumber != null ? transaction.transactionNumber : '(Dibuat saat posting)'}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
                                        readonly>
-                                <p class="text-xs text-gray-500 mt-1">Nomor otomatis berdasarkan urutan</p>
+                                <p class="text-xs text-gray-500 mt-1">Nomor dibuat otomatis saat posting</p>
                             </div>
 
                             <!-- Transaction Date -->
@@ -147,8 +147,8 @@
                                        required>
                             </div>
 
-                            <!-- Amount -->
-                            <div>
+                            <!-- Amount (only for SIMPLE templates) -->
+                            <div th:if="${isDetailedTemplate != true}">
                                 <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
                                     Jumlah <span class="text-red-500">*</span>
                                 </label>
@@ -163,6 +163,28 @@
                                            required>
                                     <input type="hidden" name="amount" :value="amount">
                                 </div>
+                            </div>
+
+                            <!-- Variable inputs for DETAILED templates -->
+                            <div th:if="${isDetailedTemplate == true}" class="md:col-span-2">
+                                <h3 class="text-sm font-semibold text-gray-700 mb-3">Saldo per Akun</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-1">
+                                    <div th:each="fv : ${formulaVariables}" class="relative">
+                                        <label th:for="${'var_' + fv.name()}" class="block text-xs font-medium text-gray-600 mb-1 truncate" th:text="${fv.label()}" th:title="${fv.label()}">Variable Label</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">Rp</span>
+                                            <input type="text"
+                                                   th:id="${'var_' + fv.name()}"
+                                                   th:name="${'var_' + fv.name()}"
+                                                   th:data-var-name="${fv.name()}"
+                                                   class="var-input w-full pl-8 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-right font-mono"
+                                                   placeholder="0"
+                                                   @input="$dispatch('var-changed')">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Hidden amount field for DETAILED (set to 0, actual values come from variables) -->
+                                <input type="hidden" name="amount" value="0">
                             </div>
 
                             <!-- Dynamic Account Selection (for template lines with null accounts) -->
@@ -264,12 +286,12 @@
                             </div>
 
                             <!-- Journal Lines Preview (works for both new and edit mode) -->
-                            <div id="preview-content" 
+                            <div id="preview-content"
                                  th:if="${selectedTemplate != null}"
                                  hx-get="/transactions/preview"
                                  th:hx-vals="${'{&quot;templateId&quot;: &quot;' + selectedTemplate.id + '&quot;}'}"
-                                 hx-trigger="load, amount-changed from:body, account-changed from:body"
-                                 hx-include="[name='amount'], [name^='accountMapping']">
+                                 hx-trigger="load, amount-changed from:body, account-changed from:body, var-changed from:body"
+                                 hx-include="[name='amount'], [name^='accountMapping'], [name^='var_']">
                                 <div class="p-8 text-center text-gray-500">
                                     <div class="animate-pulse">Memuat preview...</div>
                                 </div>
@@ -392,7 +414,7 @@
                 function getFormData() {
                     const projectSelect = document.getElementById('project');
                     const projectId = projectSelect?.value || null;
-                    
+
                     // Collect account mappings for dynamic template lines
                     const accountMappings = {};
                     document.querySelectorAll('select[name^="accountMapping"]').forEach(select => {
@@ -402,7 +424,20 @@
                             accountMappings[match[1]] = select.value;
                         }
                     });
-                    
+
+                    // Collect variable values for DETAILED templates
+                    const variables = {};
+                    document.querySelectorAll('input.var-input').forEach(input => {
+                        const varName = input.dataset.varName;
+                        if (varName && input.value) {
+                            // Parse formatted number (remove dots as thousand separators)
+                            const cleanValue = input.value.replace(/[^0-9]/g, '');
+                            if (cleanValue) {
+                                variables[varName] = parseInt(cleanValue);
+                            }
+                        }
+                    });
+
                     const data = {
                         templateId: templateId,
                         transactionDate: document.getElementById('transactionDate').value,
@@ -413,10 +448,15 @@
                         projectId: projectId || null,
                         accountMappings: accountMappings
                     };
-                    
+
+                    // Include variables for DETAILED templates
+                    if (Object.keys(variables).length > 0) {
+                        data.variables = variables;
+                    }
+
                     // Note: transactionNumber is NOT included - it's auto-generated by server on create
                     // and carried over automatically on update
-                    
+
                     // Include invoiceId if paying an invoice
                     if (invoiceId) {
                         data.invoiceId = invoiceId;

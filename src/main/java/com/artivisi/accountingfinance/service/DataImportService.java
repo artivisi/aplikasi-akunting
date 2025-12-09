@@ -85,7 +85,7 @@ public class DataImportService {
     private Map<String, SalaryComponent> salaryComponentMap;
     private Map<String, User> userMap;
     private Map<String, PayrollRun> payrollRunMap;
-    private Map<String, Transaction> transactionMap;
+    private Map<UUID, Transaction> transactionMap;  // Keyed by UUID to handle null transaction_number
     private Map<String, AmortizationSchedule> amortizationScheduleMap;
     private Map<TaxDeadlineType, TaxDeadline> taxDeadlineMap;
     private Map<String, ProjectMilestone> milestoneMap;
@@ -196,7 +196,7 @@ public class DataImportService {
             "clients", "projects", "project_milestones", "project_payment_terms",
             "fiscal_periods", "tax_deadlines", "tax_deadline_completions",
             "company_bank_accounts", "merchant_mappings", "employees", "invoices",
-            "transactions", "transaction_account_mappings", "tax_transaction_details", "documents",
+            "transactions", "transaction_account_mappings", "transaction_variables", "tax_transaction_details", "documents",
             "journal_entries", "payroll_runs", "payroll_details",
             "amortization_schedules", "amortization_entries", "draft_transactions",
             "users", "user_roles", "user_template_preferences", "telegram_user_links", "audit_logs",
@@ -209,13 +209,13 @@ public class DataImportService {
             Map.entry("01_company_config.csv", List.of("company_config")),
             // COA change invalidates all journal entries and transactions
             Map.entry("02_chart_of_accounts.csv", List.of(
-                    "journal_entries", "transaction_account_mappings", "tax_transaction_details",
+                    "journal_entries", "transaction_account_mappings", "transaction_variables", "tax_transaction_details",
                     "transactions", "amortization_entries", "amortization_schedules",
                     "documents", "chart_of_accounts")),
             Map.entry("03_salary_components.csv", List.of("employee_salary_components", "salary_components")),
             // Template change invalidates transactions, merchant mappings, payment terms
             Map.entry("04_journal_templates.csv", List.of(
-                    "journal_entries", "transaction_account_mappings", "tax_transaction_details",
+                    "journal_entries", "transaction_account_mappings", "transaction_variables", "tax_transaction_details",
                     "transactions", "merchant_mappings", "project_payment_terms",
                     "user_template_preferences", "journal_template_tags", "journal_template_lines", "journal_templates")),
             Map.entry("07_clients.csv", List.of("invoices", "projects", "clients")),
@@ -226,7 +226,7 @@ public class DataImportService {
             Map.entry("14_merchant_mappings.csv", List.of("merchant_mappings")),
             Map.entry("15_employees.csv", List.of("payroll_details", "employee_salary_components", "employees")),
             Map.entry("17_invoices.csv", List.of("invoices")),
-            Map.entry("18_transactions.csv", List.of("journal_entries", "transaction_account_mappings", "tax_transaction_details", "documents", "transactions")),
+            Map.entry("18_transactions.csv", List.of("journal_entries", "transaction_account_mappings", "transaction_variables", "tax_transaction_details", "documents", "transactions")),
             Map.entry("21_payroll_runs.csv", List.of("payroll_details", "payroll_runs")),
             Map.entry("23_amortization_schedules.csv", List.of("amortization_entries", "amortization_schedules")),
             Map.entry("27_draft_transactions.csv", List.of("draft_transactions")),
@@ -328,7 +328,7 @@ public class DataImportService {
 
         transactionMap = new HashMap<>();
         for (Transaction t : transactionRepository.findAll()) {
-            transactionMap.put(t.getTransactionNumber(), t);
+            transactionMap.put(t.getId(), t);
         }
 
         amortizationScheduleMap = new HashMap<>();
@@ -369,6 +369,7 @@ public class DataImportService {
                 case "17_invoices.csv" -> importInvoices(content);
                 case "18_transactions.csv" -> importTransactions(content);
                 case "19_transaction_account_mappings.csv" -> importTransactionAccountMappings(content);
+                case "19a_transaction_variables.csv" -> importTransactionVariables(content);
                 case "20_journal_entries.csv" -> importJournalEntries(content);
                 case "21_payroll_runs.csv" -> importPayrollRuns(content);
                 case "22_payroll_details.csv" -> importPayrollDetails(content);
@@ -966,46 +967,53 @@ public class DataImportService {
 
     private int importTransactions(String content) {
         List<String[]> rows = parseCsv(content);
-        // CSV columns: transaction_number,transaction_date,template_name,project_code,amount,description,
+        // CSV columns: transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,
         //   reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
         for (String[] row : rows) {
             Transaction t = new Transaction();
-            t.setTransactionNumber(getField(row, 0));
-            t.setTransactionDate(parseDate(getField(row, 1)));
+            // Column 0 is transaction_id (UUID) - used for linking, not set on entity (auto-generated)
+            String txId = getField(row, 0);
+            String txNumber = getField(row, 1);
+            if (!txNumber.isEmpty()) {
+                t.setTransactionNumber(txNumber);
+            }
+            t.setTransactionDate(parseDate(getField(row, 2)));
 
-            String templateName = getField(row, 2);
+            String templateName = getField(row, 3);
             if (!templateName.isEmpty()) {
                 t.setJournalTemplate(templateMap.get(templateName));
             }
-            String projectCode = getField(row, 3);
+            String projectCode = getField(row, 4);
             if (!projectCode.isEmpty()) {
                 t.setProject(projectMap.get(projectCode));
             }
-            t.setAmount(parseBigDecimal(getField(row, 4)));
-            t.setDescription(getField(row, 5));
-            t.setReferenceNumber(getField(row, 6));
-            t.setNotes(getField(row, 7));
-            t.setStatus(TransactionStatus.valueOf(getField(row, 8)));
+            t.setAmount(parseBigDecimal(getField(row, 5)));
+            t.setDescription(getField(row, 6));
+            t.setReferenceNumber(getField(row, 7));
+            t.setNotes(getField(row, 8));
+            t.setStatus(TransactionStatus.valueOf(getField(row, 9)));
 
-            String voidReason = getField(row, 9);
+            String voidReason = getField(row, 10);
             if (!voidReason.isEmpty()) {
                 t.setVoidReason(VoidReason.valueOf(voidReason));
             }
-            t.setVoidNotes(getField(row, 10));
-            t.setVoidedAt(parseDateTime(getField(row, 11)));
-            t.setVoidedBy(getField(row, 12));
-            t.setPostedAt(parseDateTime(getField(row, 13)));
-            t.setPostedBy(getField(row, 14));
-            // column 15 = created_at (ignored, auto-generated)
+            t.setVoidNotes(getField(row, 11));
+            t.setVoidedAt(parseDateTime(getField(row, 12)));
+            t.setVoidedBy(getField(row, 13));
+            t.setPostedAt(parseDateTime(getField(row, 14)));
+            t.setPostedBy(getField(row, 15));
+            // column 16 = created_at (ignored, auto-generated)
 
             transactionRepository.save(t);
-            transactionMap.put(t.getTransactionNumber(), t);
+            // Map by original UUID from export for linking related records
+            transactionMap.put(UUID.fromString(txId), t);
         }
         return rows.size();
     }
 
     private int importTransactionAccountMappings(String content) {
         List<String[]> rows = parseCsv(content);
+        // CSV columns: transaction_id,transaction_number,template_name,line_order,account_code,amount
         // Need to get template lines by template + line_order
         Map<String, JournalTemplateLine> lineMap = new HashMap<>();
         for (JournalTemplateLine line : templateLineRepository.findAll()) {
@@ -1014,16 +1022,16 @@ public class DataImportService {
         }
 
         for (String[] row : rows) {
-            String txNumber = getField(row, 0);
-            Transaction tx = transactionMap.get(txNumber);
+            String txId = getField(row, 0);
+            Transaction tx = transactionMap.get(UUID.fromString(txId));
             if (tx == null) continue;
 
-            String templateName = getField(row, 1);
-            Integer lineOrder = parseInteger(getField(row, 2));
+            String templateName = getField(row, 2);
+            Integer lineOrder = parseInteger(getField(row, 3));
             String lineKey = templateName + "_" + lineOrder;
             JournalTemplateLine line = lineMap.get(lineKey);
 
-            String accountCode = getField(row, 3);
+            String accountCode = getField(row, 4);
             ChartOfAccount account = accountMap.get(accountCode);
 
             if (line != null && account != null) {
@@ -1031,7 +1039,7 @@ public class DataImportService {
                 tam.setTransaction(tx);
                 tam.setTemplateLine(line);
                 tam.setAccount(account);
-                tam.setAmount(parseBigDecimal(getField(row, 4)));
+                tam.setAmount(parseBigDecimal(getField(row, 5)));
                 entityManager.persist(tam);
             }
         }
@@ -1039,14 +1047,35 @@ public class DataImportService {
         return rows.size();
     }
 
-    private int importJournalEntries(String content) {
+    private int importTransactionVariables(String content) {
         List<String[]> rows = parseCsv(content);
+        // CSV columns: transaction_id,transaction_number,variable_name,variable_value
 
         for (String[] row : rows) {
-            String txNumber = getField(row, 2);
-            Transaction transaction = transactionMap.get(txNumber);
+            String txId = getField(row, 0);
+            Transaction tx = transactionMap.get(UUID.fromString(txId));
+            if (tx == null) continue;
+
+            TransactionVariable tv = new TransactionVariable();
+            tv.setTransaction(tx);
+            tv.setVariableName(getField(row, 2));
+            tv.setVariableValue(parseBigDecimal(getField(row, 3)));
+            entityManager.persist(tv);
+        }
+        entityManager.flush();
+        return rows.size();
+    }
+
+    private int importJournalEntries(String content) {
+        List<String[]> rows = parseCsv(content);
+        // CSV columns: journal_number,journal_date,transaction_id,transaction_number,description,status,
+        //   account_code,debit_amount,credit_amount,posted_at,voided_at,void_reason
+
+        for (String[] row : rows) {
+            String txId = getField(row, 2);
+            Transaction transaction = transactionMap.get(UUID.fromString(txId));
             if (transaction == null) {
-                log.warn("Transaction not found for journal entry: {}", txNumber);
+                log.warn("Transaction not found for journal entry, txId: {}", txId);
                 continue;
             }
 
@@ -1054,15 +1083,15 @@ public class DataImportService {
             je.setJournalNumber(getField(row, 0));
             je.setTransaction(transaction);
 
-            String accountCode = getField(row, 5);
+            String accountCode = getField(row, 6);
             if (!accountCode.isEmpty()) {
                 je.setAccount(accountMap.get(accountCode));
             }
-            je.setDebitAmount(parseBigDecimal(getField(row, 6)));
-            je.setCreditAmount(parseBigDecimal(getField(row, 7)));
-            je.setPostedAt(parseDateTime(getField(row, 8)));
-            je.setVoidedAt(parseDateTime(getField(row, 9)));
-            je.setVoidReason(getField(row, 10));
+            je.setDebitAmount(parseBigDecimal(getField(row, 7)));
+            je.setCreditAmount(parseBigDecimal(getField(row, 8)));
+            je.setPostedAt(parseDateTime(getField(row, 9)));
+            je.setVoidedAt(parseDateTime(getField(row, 10)));
+            je.setVoidReason(getField(row, 11));
 
             journalEntryRepository.save(je);
         }
@@ -1185,24 +1214,26 @@ public class DataImportService {
 
     private int importTaxTransactionDetails(String content) {
         List<String[]> rows = parseCsv(content);
+        // CSV columns: transaction_id,transaction_number,tax_type,counterparty_name,counterparty_npwp,counterparty_nik,
+        //   counterparty_nitku,tax_object_code,dpp,tax_amount,faktur_number,faktur_date
 
         for (String[] row : rows) {
-            String txNumber = getField(row, 0);
-            Transaction tx = transactionMap.get(txNumber);
+            String txId = getField(row, 0);
+            Transaction tx = transactionMap.get(UUID.fromString(txId));
             if (tx == null) continue;
 
             TaxTransactionDetail ttd = new TaxTransactionDetail();
             ttd.setTransaction(tx);
-            ttd.setTaxType(TaxType.valueOf(getField(row, 1)));
-            ttd.setCounterpartyName(getField(row, 2));
-            ttd.setCounterpartyNpwp(getField(row, 3));
-            ttd.setCounterpartyNik(getField(row, 4));
-            ttd.setCounterpartyNitku(getField(row, 5));
-            ttd.setTaxObjectCode(getField(row, 6));
-            ttd.setDpp(parseBigDecimal(getField(row, 7)));
-            ttd.setTaxAmount(parseBigDecimal(getField(row, 8)));
-            ttd.setFakturNumber(getField(row, 9));
-            ttd.setFakturDate(parseDate(getField(row, 10)));
+            ttd.setTaxType(TaxType.valueOf(getField(row, 2)));
+            ttd.setCounterpartyName(getField(row, 3));
+            ttd.setCounterpartyNpwp(getField(row, 4));
+            ttd.setCounterpartyNik(getField(row, 5));
+            ttd.setCounterpartyNitku(getField(row, 6));
+            ttd.setTaxObjectCode(getField(row, 7));
+            ttd.setDpp(parseBigDecimal(getField(row, 8)));
+            ttd.setTaxAmount(parseBigDecimal(getField(row, 9)));
+            ttd.setFakturNumber(getField(row, 10));
+            ttd.setFakturDate(parseDate(getField(row, 11)));
 
             taxTransactionDetailRepository.save(ttd);
         }
