@@ -8,5 +8,7 @@ pulumi/Pulumi.*.yaml
 ansible/inventory.ini
 ansible/group_vars/all.yml
 ansible/group_vars/gcp-credentials.yml
+ansible/group_vars/gcp-credentials.json
+ansible/get-pip.py
 !ansible/inventory.ini.example
 !ansible/group_vars/all.yml.example
