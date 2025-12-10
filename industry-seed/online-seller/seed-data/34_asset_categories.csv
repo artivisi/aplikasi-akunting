@@ -1,0 +1,4 @@
+code,name,description,depreciation_method,useful_life_months,depreciation_rate,asset_account_code,accumulated_depreciation_account_code,depreciation_expense_account_code,active
+GUDANG,Peralatan Gudang,Rak palet trolley dan peralatan gudang lainnya,STRAIGHT_LINE,48,,1.2.01,1.2.02,5.4.10,true
+KOMPUTER,Komputer & Printer,Laptop desktop printer dan perangkat keras IT,STRAIGHT_LINE,48,,1.2.03,1.2.04,5.4.10,true
+KENDARAAN,Kendaraan Operasional,Motor mobil untuk pengiriman dan operasional,STRAIGHT_LINE,96,,1.2.05,1.2.06,5.4.10,true
