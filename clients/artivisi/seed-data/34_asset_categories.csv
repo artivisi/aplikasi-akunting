@@ -1,5 +1,0 @@
-code,name,description,depreciation_method,useful_life_months,depreciation_rate,asset_account_code,accumulated_depreciation_account_code,depreciation_expense_account_code,active
-KOMPUTER,Peralatan Komputer,"Laptop, desktop, monitor, printer, dan perangkat keras IT lainnya",STRAIGHT_LINE,48,,1.2.01,1.2.02,5.1.18,true
-KENDARAAN,Kendaraan,"Mobil, motor, dan alat transportasi perusahaan",STRAIGHT_LINE,96,,1.2.03,1.2.04,5.1.18,true
-PERALATAN,Peralatan Kantor,"Meja, kursi, lemari, dan furnitur kantor lainnya",STRAIGHT_LINE,48,,1.2.05,1.2.06,5.1.18,true
-MESIN,Mesin,Mesin produksi dan peralatan berat,DECLINING_BALANCE,96,25.00,1.2.07,1.2.08,5.1.18,true
