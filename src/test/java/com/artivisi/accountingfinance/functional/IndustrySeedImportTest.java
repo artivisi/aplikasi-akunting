@@ -63,8 +63,8 @@ class IndustrySeedImportTest extends PlaywrightTestBase {
     private static final int EXPECTED_COA_COUNT = 75;
     // Templates: 37 non-system imported + 4 system templates preserved from V004
     // (Post Gaji Bulanan, Penyusutan Aset Tetap, Pelepasan Aset Tetap, Jurnal Penutup Tahun)
-    // Inventory templates are in V004a (test-only), not loaded for this test
-    private static final int EXPECTED_TEMPLATE_COUNT = 41;
+    // + 4 inventory templates from V900 test migration
+    private static final int EXPECTED_TEMPLATE_COUNT = 45;
     // Salary components: 17 in seed file
     private static final int EXPECTED_SALARY_COMPONENT_COUNT = 17;
     // Tax deadlines: 8 in seed file

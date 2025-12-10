@@ -66,7 +66,8 @@ class OnlineSellerSeedImportTest extends PlaywrightTestBase {
     // COA: 87 accounts in seed file
     private static final int EXPECTED_COA_COUNT = 87;
     // Templates: 37 non-system imported + 4 system templates preserved from V004
-    private static final int EXPECTED_TEMPLATE_COUNT = 41;
+    // + 2 from V900 test migration (2 templates overwritten by CSV import)
+    private static final int EXPECTED_TEMPLATE_COUNT = 43;
     // Salary components: 17 in seed file
     private static final int EXPECTED_SALARY_COMPONENT_COUNT = 17;
     // Tax deadlines: 8 in seed file
