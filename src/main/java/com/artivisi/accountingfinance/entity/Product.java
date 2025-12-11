@@ -72,8 +72,8 @@ public class Product {
     @Column(name = "track_inventory", nullable = false)
     private boolean trackInventory = true;
 
-    @Column(name = "minimum_stock", precision = 15, scale = 4)
-    private BigDecimal minimumStock;
+    @Column(name = "minimum_stock", nullable = false, precision = 15, scale = 4)
+    private BigDecimal minimumStock = BigDecimal.ZERO;
 
     // Pricing (for sales)
     @Column(name = "selling_price", precision = 19, scale = 2)

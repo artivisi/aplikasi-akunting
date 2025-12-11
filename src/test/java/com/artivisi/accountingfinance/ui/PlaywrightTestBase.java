@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
+@ActiveProfiles("functional")
 public abstract class PlaywrightTestBase {
 
     protected static Playwright playwright;

@@ -21,7 +21,7 @@ import java.util.zip.ZipOutputStream;
  * For other industries (online-seller, coffee-shop), create separate initializers.
  */
 @TestConfiguration
-@Profile("test")
+@Profile("functional")
 @RequiredArgsConstructor
 @Slf4j
 public class ServiceTestDataInitializer {

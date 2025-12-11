@@ -7,7 +7,7 @@
     <title>Laporan Mutasi Stok</title>
 </head>
 <body>
-    <h1 layout:fragment="page-title">Laporan Mutasi Stok</h1>
+    <h1 layout:fragment="page-title" th:id="page-title">Laporan Mutasi Stok</h1>
 
     <div layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
         <div class="max-w-7xl">
@@ -88,7 +88,7 @@
             <!-- Report Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table th:id="report-table" class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>

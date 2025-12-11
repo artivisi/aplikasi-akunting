@@ -42,7 +42,12 @@ public class InventoryReportPage {
     }
 
     public InventoryReportPage navigateStockMovement() {
-        page.navigate(baseUrl + "/inventory/reports/stock-movement");
+        // Default: show all transactions from start of 2024
+        return navigateStockMovement("2024-01-01", "2024-12-31");
+    }
+
+    public InventoryReportPage navigateStockMovement(String startDate, String endDate) {
+        page.navigate(baseUrl + "/inventory/reports/stock-movement?startDate=" + startDate + "&endDate=" + endDate);
         page.waitForLoadState();
         return this;
     }
@@ -54,7 +59,12 @@ public class InventoryReportPage {
     }
 
     public InventoryReportPage navigateProfitability() {
-        page.navigate(baseUrl + "/inventory/reports/profitability");
+        // Default: show all transactions from start of 2024
+        return navigateProfitability("2024-01-01", "2024-12-31");
+    }
+
+    public InventoryReportPage navigateProfitability(String startDate, String endDate) {
+        page.navigate(baseUrl + "/inventory/reports/profitability?startDate=" + startDate + "&endDate=" + endDate);
         page.waitForLoadState();
         return this;
     }

@@ -43,7 +43,9 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
 | Templates | `src/main/resources/templates/` |
-| Migrations | `src/main/resources/db/migration/` |
+| Migrations (Production) | `src/main/resources/db/migration/` (V001-V004) |
+| Test Migrations (Integration) | `src/test/resources/db/test/integration/` (V900-V912) |
+| Industry Seed Packs | `industry-seed/{it-service,online-seller}/` (loaded via DataImportService) |
 | Functional Tests | `src/test/java/.../functional/` |
 | Infrastructure (Pulumi) | `deploy/pulumi/` |
 | Configuration (Ansible) | `deploy/ansible/` |
@@ -72,8 +74,11 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ## Database
 
 - PostgreSQL via Testcontainers (tests)
-- Flyway migrations: V001-V004
-- Seed data: IT Services COA, admin user (admin/admin)
+- Production migrations: V001-V004 (schema + minimal bootstrap)
+- Test data:
+  - Functional tests: NO migrations - all data loaded via `@TestConfiguration` initializers from industry-seed/ packs
+  - Integration tests: V900-V912 (preloaded data for unit/service/security tests)
+- Industry seed packs: `industry-seed/{it-service,online-seller}/seed-data/` (COA, templates, products, etc.)
 
 ## Architecture
 
