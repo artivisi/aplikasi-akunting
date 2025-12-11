@@ -1,52 +1,214 @@
-# User Manual Creation Guideline #
+# User Manual Creation Guideline
 
-## Content and Structure ##
+## Finalized Structure
 
-1. Initial app setup. 
-   - What do the user see after the app is properly installed with bare bones setup (no seed preload)
-   - Elaboration on what industry seed available, and how to import it. This section can be technical, because the intended audience is system administrator with Java app familiarity who previously setup the app in the first place. 
-   - List of features that are common to all industries (general ledger, journal template, tax, payroll). Only short summary, and links to detailed explanation later on
-   - User management
+```
+1. Setup Awal & Administrasi
+   - Tampilan aplikasi baru (bare bones, no seed)
+   - Import seed data industri
+   - Master data umum (COA, Klien, Supplier)
+   - User management & roles
    - Telegram integration
-   - Data security (encrypted document and PII)
 
-2. Basic accounting tutorial. Explanation on core concepts of accounting, accounting life cycle. Intended audience is business owners who are well versed in their business operation, but have no accounting background at all. Explain how to record daily transaction (paying utility bills, issuing invoice, receiving payments, purchasing from supplier/vendors), how to journal them, and how it will end up in financial report. Explain about adjustments (rent amortization, cost adjustments for  period end reporting) and closings. This section is expected to be beefy and will become the crown jewel of the user manual.
+2. Tutorial Dasar Akuntansi ⭐ (Crown Jewel)
+   - Konsep dasar akuntansi
+   - Siklus akuntansi
+   - Transaksi harian (pendapatan, pengeluaran, transfer)
+   - Jurnal dan buku besar
+   - Penyesuaian (amortisasi, koreksi)
+   - Tutup buku dan laporan keuangan
 
-3. Fixed assets. How to record them, what is depreciation, how to calculate, how to use automated journal schedule to record depreciation. What is the economic lifetime of each asset category according to Indonesian regulation.
+3. Aset Tetap
+   - Konsep depresiasi
+   - Kategori aset & masa manfaat (regulasi Indonesia)
+   - Pencatatan pembelian aset
+   - Jadwal depresiasi otomatis
 
-4. Tax transactions. Explain about various taxes in Indonesia. PPh 21, 23, 25, PPn, etc. Which tax types are applicable to their businesses, how to calculate them, and how the app can help to calculate, journal, and report them properly. Add references to tax regulation with links to the actual official regulation docs. Fiscal period management should go in this section as well.
+4. Perpajakan
+   - Jenis pajak di Indonesia (PPh 21/23/25/4(2), PPN)
+   - Transaksi PPN (keluaran, masukan)
+   - Transaksi PPh (pemotongan, penyetoran)
+   - Periode fiskal & pelaporan
+   - Referensi regulasi pajak
 
-5. Payroll. How to setup payroll, salary component elaboration, tax and bpjs obligation. How the app will help them do these. Add notes about tax deductibility of allowance types. Which one is tax deductible, which one is not. Refer to latest Indonesian tax regulation. 
+5. Penggajian
+   - Setup komponen gaji
+   - BPJS (Kesehatan, Ketenagakerjaan)
+   - PPh 21 karyawan (refer to section 4)
+   - Proses penggajian bulanan
+   - Bukti potong 1721-A1
+   - Layanan mandiri karyawan
+   - Catatan tax deductibility
 
-Actually, I'm a bit hesitant on which one should go first, tax or payroll, from the continuity standpoint.
+6. Pengantar Industri
+   - Jenis industri di dunia
+   - Industri yang didukung aplikasi
+   - Perbedaan praktik akuntansi per industri
 
-6. Industry types explanation. What are types available in the whole world, which one are we currently supporting in the app. Why are we differentiating among them, in terms of accounting practices.
+7. Industri Jasa (Service)
+   - Karakteristik industri jasa
+   - Client & Project Management
+   - Template transaksi jasa
+   - Invoice & penagihan berbasis milestone
+   - Laporan profitabilitas proyek/klien
+   - Komponen gaji, aset, pajak khas jasa
 
-7. Detailed explanation on Service Industry. Why this is the simplest, what are the transactions, how we solve them using templates, what templates are available, how to create new template (with example), what are the reports, what do we expect to see in the reports, how we analyze the reports to improve our business. What are the salary components, asset types, taxes, that commonly applied to service industry.
+8. Industri Dagang (Trading/Seller)
+   - Karakteristik industri dagang
+   - Manajemen produk & kategori
+   - Metode penilaian persediaan (FIFO, rata-rata)
+   - Transaksi pembelian & penjualan
+   - HPP dan margin
+   - Laporan persediaan & profitabilitas produk
+   - Komponen gaji, aset, pajak khas dagang
 
-8. Detailed explanation on trading (seller) industry. Same as above.
+9. Industri Manufaktur (Manufacturing) [TBD]
+   - Karakteristik manufaktur
+   - Bill of Materials (BOM)
+   - Production Order workflow
+   - Konsumsi komponen & penerimaan barang jadi
+   - Kalkulasi biaya produksi
+   - Laporan produksi
+   - Komponen gaji, aset, pajak khas manufaktur
 
-9. Detailed explanation on manufacturing industry. Same as above.
+10. Industri Pendidikan (Campus/Education) [TBD]
+    - Karakteristik institusi pendidikan
+    - Manajemen mahasiswa & tagihan SPP
+    - Penerimaan pembayaran & cicilan
+    - Beasiswa & potongan
+    - Laporan piutang per mahasiswa
+    - Laporan pendapatan per program studi
 
-10. Lampiran
+11. Keamanan & Kepatuhan Data
+    - Enkripsi dokumen dan PII
+    - Audit log keamanan
+    - Kebijakan data (GDPR/UU PDP)
+    - Ekspor data subjek (DSAR)
 
-    * Glosarium
-    * Referensi Template
-    * Referensi Amortisasi dan Depresiasi Otomatis
+12. Lampiran
+    - Glosarium
+    - Referensi Template per Industri
+    - Referensi Jadwal Amortisasi & Depresiasi
+    - Referensi Akun per Industri
+```
 
-## General guideline ##
+## Content Guidelines
 
-- All sections will have the following structure:
+### Section Structure
 
-    * Concept explanation, universal, can be exercised manually (with pen and paper) or Excel spreadsheet
-    * Detailed step by step instruction with screenshot to execute the concept in the app. Screenshot content must reflect the case study (description and amount in screenshot correspond to case study being explained).
-    * Expected result after execution. What the user expect to see in the app, provide menu direction and screenshot to display execution result.
+All sections will follow this structure:
 
-- All screenshots required should already covered in our comprehensive functional tests. We only need to add screenshot taking statement in appropriate places. If there is any specific scenario that has not been covered yet, add one as functional test, not merely screenshot generator.
+1. **Concept explanation** - Universal, can be exercised manually (pen & paper) or Excel spreadsheet
+2. **Step-by-step instruction** - Detailed with screenshots to execute the concept in the app
+3. **Expected result** - What the user expects to see, with menu direction and screenshot
 
-- All contents in Bahasa Indonesia
+### Screenshot Requirements
 
-## Things to discuss ##
+- All screenshots must reflect the case study being explained (description and amount must correspond)
+- Screenshots must come from functional tests, not standalone screenshot generator
+- If a specific scenario is not covered by existing tests, add it as a functional test first
+- Screenshot filename convention: `{section}-{subsection}-{description}.png`
 
-* Where to put Client Management and Project Management
-* Where to put Administrasi & Keamanan
+### Language
+
+- All content in Bahasa Indonesia
+- Technical terms may use English with Indonesian explanation in parentheses
+- Use consistent terminology throughout (refer to Glosarium)
+
+## Implementation Status
+
+| Section | Functional Tests | Screenshots | Content |
+|---------|------------------|-------------|---------|
+| 1. Setup Awal | ✅ Service, Seller | ⏳ | ⏳ |
+| 2. Tutorial Akuntansi | ✅ Service | ⏳ | ⏳ |
+| 3. Aset Tetap | ✅ V913 data | ⏳ | ⏳ |
+| 4. Perpajakan | ✅ Service | ⏳ | ⏳ |
+| 5. Penggajian | ✅ Service | ⏳ | ⏳ |
+| 6. Pengantar Industri | N/A | N/A | ⏳ |
+| 7. Industri Jasa | ✅ ServiceAccountingTest, etc. | ⏳ | ⏳ |
+| 8. Industri Dagang | ✅ SellerInventoryTest, etc. | ⏳ | ⏳ |
+| 9. Industri Manufaktur | ❌ TBD (Phase 4) | ❌ | ❌ |
+| 10. Industri Pendidikan | ❌ TBD (Phase 5) | ❌ | ❌ |
+| 11. Keamanan | ✅ SecurityRegressionTest | ⏳ | ⏳ |
+| 12. Lampiran | N/A | N/A | ⏳ |
+
+## File Naming Convention
+
+Markdown files:
+```
+docs/user-manual/
+├── 01-setup-awal.md
+├── 02-tutorial-akuntansi.md
+├── 03-aset-tetap.md
+├── 04-perpajakan.md
+├── 05-penggajian.md
+├── 06-pengantar-industri.md
+├── 07-industri-jasa.md
+├── 08-industri-dagang.md
+├── 09-industri-manufaktur.md  [TBD]
+├── 10-industri-pendidikan.md  [TBD]
+├── 11-keamanan-kepatuhan.md
+├── 12-lampiran-glosarium.md
+├── 12-lampiran-template.md
+├── 12-lampiran-amortisasi.md
+└── 12-lampiran-akun.md
+```
+
+## Migration from Current Structure
+
+Current 43 files (00-92) will be consolidated into the new structure:
+
+| Old File | New Location |
+|----------|--------------|
+| 00-pendahuluan.md | 01-setup-awal.md |
+| 01-konsep-dasar.md | 02-tutorial-akuntansi.md |
+| 10-mencatat-pendapatan.md | 02-tutorial-akuntansi.md |
+| 11-mencatat-pengeluaran.md | 02-tutorial-akuntansi.md |
+| 12-transfer-antar-akun.md | 02-tutorial-akuntansi.md |
+| 13-telegram-receipt.md | 01-setup-awal.md (Telegram section) |
+| 20-laporan-harian.md | 02-tutorial-akuntansi.md |
+| 21-laporan-bulanan.md | 02-tutorial-akuntansi.md |
+| 22-laporan-tahunan.md | 02-tutorial-akuntansi.md |
+| 23-laporan-penyusutan.md | 03-aset-tetap.md |
+| 24-penutupan-tahun-buku.md | 02-tutorial-akuntansi.md |
+| 30-transaksi-ppn.md | 04-perpajakan.md |
+| 31-transaksi-pph.md | 04-perpajakan.md |
+| 32-laporan-pajak.md | 04-perpajakan.md |
+| 33-kalender-pajak.md | 04-perpajakan.md |
+| 40-setup-proyek.md | 07-industri-jasa.md |
+| 41-tracking-proyek.md | 07-industri-jasa.md |
+| 42-invoice-penagihan.md | 07-industri-jasa.md |
+| 43-analisis-profitabilitas.md | 07-industri-jasa.md |
+| 50-setup-awal.md | 01-setup-awal.md |
+| 51-kelola-template.md | 02-tutorial-akuntansi.md or 12-lampiran |
+| 52-kelola-klien.md | 07-industri-jasa.md |
+| 53-jadwal-amortisasi.md | 03-aset-tetap.md |
+| 54-kelola-periode-fiskal.md | 04-perpajakan.md |
+| 55-setup-telegram.md | 01-setup-awal.md |
+| 60-kelola-karyawan.md | 05-penggajian.md |
+| 61-komponen-gaji.md | 05-penggajian.md |
+| 62-kalkulator-bpjs.md | 05-penggajian.md |
+| 63-kalkulator-pph21.md | 05-penggajian.md |
+| 64-payroll-processing.md | 05-penggajian.md |
+| 70-kelola-pengguna.md | 01-setup-awal.md |
+| 71-layanan-mandiri.md | 05-penggajian.md |
+| 75-kelola-produk.md | 08-industri-dagang.md |
+| 76-transaksi-inventori.md | 08-industri-dagang.md |
+| 77-kartu-stok.md | 08-industri-dagang.md |
+| 78-produksi-bom.md | 09-industri-manufaktur.md |
+| 79-analisis-profitabilitas-produk.md | 08-industri-dagang.md |
+| 80-kebijakan-data.md | 11-keamanan-kepatuhan.md |
+| 81-ekspor-data.md | 11-keamanan-kepatuhan.md |
+| 82-keamanan.md | 11-keamanan-kepatuhan.md |
+| 90-glosarium.md | 12-lampiran-glosarium.md |
+| 91-referensi-akun.md | 12-lampiran-akun.md |
+| 92-referensi-template.md | 12-lampiran-template.md |
+
+## Next Steps
+
+1. Update `UserManualGenerator.java` to reflect new structure
+2. Update `ScreenshotCapture.java` page definitions to align with new sections
+3. Consolidate markdown files according to migration table
+4. Add screenshot capture statements to functional tests
+5. Write/revise content for each section
+6. Generate and review HTML output
