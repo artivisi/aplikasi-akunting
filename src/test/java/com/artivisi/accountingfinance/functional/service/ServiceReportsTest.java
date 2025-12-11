@@ -10,6 +10,8 @@ import com.artivisi.accountingfinance.functional.page.CashFlowPage;
 import com.artivisi.accountingfinance.functional.page.IncomeStatementPage;
 import com.artivisi.accountingfinance.functional.page.JournalLedgerPage;
 import com.artivisi.accountingfinance.functional.page.TrialBalancePage;
+import com.artivisi.accountingfinance.functional.util.CsvLoader;
+import com.artivisi.accountingfinance.functional.util.TransactionRow;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
 import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -80,53 +83,41 @@ public class ServiceReportsTest extends PlaywrightTestBase {
 
     @BeforeAll
     public void setupTestTransactions() {
-        // Get accounts from seed data (IT Service COA)
-        ChartOfAccount cash = accountRepository.findByAccountCode("1.1.01").orElseThrow(() ->
-            new RuntimeException("Cash account 1.1.01 not found"));
-        ChartOfAccount capital = accountRepository.findByAccountCode("3.1.01").orElseThrow(() ->
-            new RuntimeException("Capital account 3.1.01 not found"));
-        ChartOfAccount consultingRevenue = accountRepository.findByAccountCode("4.1.01").orElseThrow(() ->
-            new RuntimeException("Consulting revenue account 4.1.01 not found"));
-        ChartOfAccount trainingRevenue = accountRepository.findByAccountCode("4.1.02").orElseThrow(() ->
-            new RuntimeException("Training revenue account 4.1.02 not found"));
-        ChartOfAccount softwareExpense = accountRepository.findByAccountCode("5.2.01").orElseThrow(() ->
-            new RuntimeException("Software expense account 5.2.01 not found"));
-        ChartOfAccount cloudExpense = accountRepository.findByAccountCode("5.2.02").orElseThrow(() ->
-            new RuntimeException("Cloud expense account 5.2.02 not found"));
+        // Load transactions from CSV (same data as ServiceTransactionExecutionTest)
+        List<TransactionRow> transactions = CsvLoader.loadTransactions("service/transactions.csv");
 
-        // Get any template (we just need a template reference for transactions)
-        JournalTemplate template = templateRepository.findAll().stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("No templates found"));
+        // Create transactions programmatically using CSV data
+        for (TransactionRow txRow : transactions) {
+            // Get template by name
+            JournalTemplate template = templateRepository.findByTemplateName(txRow.templateName())
+                .orElseThrow(() -> new RuntimeException("Template not found: " + txRow.templateName()));
 
-        // Transaction 1: Capital injection Rp 500,000,000
-        Transaction tx1 = createTransaction(template, LocalDate.of(2024, 1, 1),
-            "Setoran Modal Awal 2024", "CAP-2024-001", BigDecimal.valueOf(500000000));
-        createJournalEntry(tx1, cash, BigDecimal.valueOf(500000000), BigDecimal.ZERO);
-        createJournalEntry(tx1, capital, BigDecimal.ZERO, BigDecimal.valueOf(500000000));
+            // Parse amount from inputs (e.g., "amount:500000000")
+            BigDecimal amount = parseAmount(txRow.inputs());
 
-        // Transaction 2: Consulting revenue Rp 196,200,000
-        Transaction tx2 = createTransaction(template, LocalDate.of(2024, 1, 15),
-            "Konsultasi Core Banking - Milestone 1", "INV-2024-001", BigDecimal.valueOf(196200000));
-        createJournalEntry(tx2, cash, BigDecimal.valueOf(196200000), BigDecimal.ZERO);
-        createJournalEntry(tx2, consultingRevenue, BigDecimal.ZERO, BigDecimal.valueOf(196200000));
+            // Create transaction
+            Transaction tx = createTransaction(template, LocalDate.parse(txRow.date()),
+                txRow.description(), txRow.reference(), amount);
 
-        // Transaction 3: Software expense Rp 3,330,000
-        Transaction tx3 = createTransaction(template, LocalDate.of(2024, 1, 15),
-            "JetBrains IntelliJ License 2024", "JB-2024-001", BigDecimal.valueOf(3330000));
-        createJournalEntry(tx3, softwareExpense, BigDecimal.valueOf(3330000), BigDecimal.ZERO);
-        createJournalEntry(tx3, cash, BigDecimal.ZERO, BigDecimal.valueOf(3330000));
+            // Get debit and credit accounts from CSV
+            ChartOfAccount debitAccount = accountRepository.findByAccountCode(txRow.expectedDebitAccount())
+                .orElseThrow(() -> new RuntimeException("Debit account not found: " + txRow.expectedDebitAccount()));
+            ChartOfAccount creditAccount = accountRepository.findByAccountCode(txRow.expectedCreditAccount())
+                .orElseThrow(() -> new RuntimeException("Credit account not found: " + txRow.expectedCreditAccount()));
 
-        // Transaction 4: Cloud expense Rp 5,550,000
-        Transaction tx4 = createTransaction(template, LocalDate.of(2024, 1, 31),
-            "AWS Cloud Services Jan 2024", "AWS-2024-001", BigDecimal.valueOf(5550000));
-        createJournalEntry(tx4, cloudExpense, BigDecimal.valueOf(5550000), BigDecimal.ZERO);
-        createJournalEntry(tx4, cash, BigDecimal.ZERO, BigDecimal.valueOf(5550000));
+            // Create journal entries
+            createJournalEntry(tx, debitAccount, amount, BigDecimal.ZERO);
+            createJournalEntry(tx, creditAccount, BigDecimal.ZERO, amount);
+        }
+    }
 
-        // Transaction 5: Training revenue Rp 163,500,000
-        Transaction tx5 = createTransaction(template, LocalDate.of(2024, 2, 28),
-            "IT Security Training - Full Payment", "INV-2024-002", BigDecimal.valueOf(163500000));
-        createJournalEntry(tx5, cash, BigDecimal.valueOf(163500000), BigDecimal.ZERO);
-        createJournalEntry(tx5, trainingRevenue, BigDecimal.ZERO, BigDecimal.valueOf(163500000));
+    private BigDecimal parseAmount(String inputs) {
+        // Parse "amount:500000000" format
+        String[] parts = inputs.split(":");
+        if (parts.length == 2 && parts[0].equals("amount")) {
+            return new BigDecimal(parts[1]);
+        }
+        throw new RuntimeException("Cannot parse amount from inputs: " + inputs);
     }
 
     private Transaction createTransaction(JournalTemplate template, LocalDate date, String description, String reference, BigDecimal amount) {
