@@ -36,10 +36,10 @@ public class ScreenshotCapture {
     // Seed data IDs for detail pages
     // Template from V004__app_seed_data.sql
     private static final String TEMPLATE_ID = "e0000000-0000-0000-0000-000000000001"; // Pendapatan Jasa Konsultasi
-    // Test data from V905__profitability_test_data.sql (loaded via SPRING_FLYWAY_LOCATIONS)
-    private static final String TRANSACTION_ID = "90500000-0000-0000-1000-000000000001"; // TRX-PRJ-T001-01
-    private static final String CLIENT_CODE = "CLI-001"; // PT ABC Technology
-    private static final String PROJECT_CODE = "PRJ-TEST-001"; // Website Development ABC
+    // Test data from V810/V811 Service Industry migrations
+    private static final String TRANSACTION_ID = "51400001-0000-0000-0000-000000000001"; // TRX-2024-0001 (Service)
+    private static final String CLIENT_CODE = "CLI-001"; // PT Bank Mandiri
+    private static final String PROJECT_CODE = "PRJ-2024-001"; // Core Banking Consultation
 
     public static List<PageDefinition> getPageDefinitions() {
         return List.of(

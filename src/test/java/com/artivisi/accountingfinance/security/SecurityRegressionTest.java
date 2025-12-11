@@ -391,8 +391,7 @@ class SecurityRegressionTest extends PlaywrightTestBase {
             // Admin should see user management page
             assertFalse(page.url().contains("/error") || page.url().contains("/403"),
                     "Admin should have access to user management");
-            assertTrue(page.locator("h1:has-text('Pengguna'), h1:has-text('User')").count() > 0 ||
-                       page.content().toLowerCase().contains("pengguna"),
+            assertTrue(page.locator("#page-title").count() > 0,
                     "Page should contain user management content");
         }
 

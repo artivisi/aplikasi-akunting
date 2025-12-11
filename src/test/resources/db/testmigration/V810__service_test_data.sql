@@ -103,14 +103,19 @@ VALUES
     ('51310005-0000-0000-0000-000000000001', '51300003-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 5000000, '2024-01-01', 'Gaji pokok 2024');
 
 -- ============================================
--- Test Users (Operator and Auditor)
+-- Test Users (for functional and security tests)
+-- Valid roles: ADMIN, OWNER, ACCOUNTANT, STAFF, AUDITOR, EMPLOYEE
 -- ============================================
 INSERT INTO users (id, username, password, full_name, email, active, created_at, updated_at)
 VALUES
-    ('51600001-0000-0000-0000-000000000001', 'operator', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Operator Test', 'operator@artivisi.com', TRUE, NOW(), NOW()),
-    ('51600002-0000-0000-0000-000000000001', 'auditor', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Auditor Test', 'auditor@artivisi.com', TRUE, NOW(), NOW());
+    ('51600001-0000-0000-0000-000000000001', 'accountant', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Accountant Test', 'accountant@artivisi.com', TRUE, NOW(), NOW()),
+    ('51600002-0000-0000-0000-000000000001', 'auditor', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Auditor Test', 'auditor@artivisi.com', TRUE, NOW(), NOW()),
+    ('51600003-0000-0000-0000-000000000001', 'staff', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Staff User', 'staff@artivisi.com', TRUE, NOW(), NOW()),
+    ('51600004-0000-0000-0000-000000000001', 'employee', '$2a$10$mMan.18CFTqJA/FVpkJr3OgCD0uTuhF9Enjf99QHm9tWPJH.nCj5S', 'Employee User', 'employee@artivisi.com', TRUE, NOW(), NOW());
 
 INSERT INTO user_roles (id, id_user, role, created_at, created_by)
 VALUES
-    ('51610001-0000-0000-0000-000000000001', '51600001-0000-0000-0000-000000000001', 'OPERATOR', NOW(), 'system'),
-    ('51610002-0000-0000-0000-000000000001', '51600002-0000-0000-0000-000000000001', 'AUDITOR', NOW(), 'system');
+    ('51610001-0000-0000-0000-000000000001', '51600001-0000-0000-0000-000000000001', 'ACCOUNTANT', NOW(), 'system'),
+    ('51610002-0000-0000-0000-000000000001', '51600002-0000-0000-0000-000000000001', 'AUDITOR', NOW(), 'system'),
+    ('51610003-0000-0000-0000-000000000001', '51600003-0000-0000-0000-000000000001', 'STAFF', NOW(), 'system'),
+    ('51610004-0000-0000-0000-000000000001', '51600004-0000-0000-0000-000000000001', 'EMPLOYEE', NOW(), 'system');
