@@ -7,7 +7,7 @@
     <title>Laporan Profitabilitas Produk</title>
 </head>
 <body>
-    <h1 layout:fragment="page-title">Laporan Profitabilitas Produk</h1>
+    <h1 layout:fragment="page-title" th:id="page-title">Laporan Profitabilitas Produk</h1>
 
     <div layout:fragment="content" class="h-full flex flex-col overflow-y-auto">
         <div class="max-w-7xl">
@@ -69,26 +69,26 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div class="text-sm text-gray-500">Total Pendapatan</div>
-                    <div class="text-xl font-bold text-blue-600" th:text="${'Rp ' + #numbers.formatDecimal(report.totalRevenue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+                    <div th:id="total-revenue" class="text-xl font-bold text-blue-600" th:text="${'Rp ' + #numbers.formatDecimal(report.totalRevenue(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div class="text-sm text-gray-500">Total HPP</div>
-                    <div class="text-xl font-bold text-red-600" th:text="${'Rp ' + #numbers.formatDecimal(report.totalCogs(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+                    <div th:id="total-cogs" class="text-xl font-bold text-red-600" th:text="${'Rp ' + #numbers.formatDecimal(report.totalCogs(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div class="text-sm text-gray-500">Total Margin</div>
-                    <div class="text-xl font-bold" th:classappend="${report.totalMargin() >= 0} ? 'text-green-600' : 'text-red-600'" th:text="${'Rp ' + #numbers.formatDecimal(report.totalMargin(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+                    <div th:id="total-gross-profit" class="text-xl font-bold" th:classappend="${report.totalMargin() >= 0} ? 'text-green-600' : 'text-red-600'" th:text="${'Rp ' + #numbers.formatDecimal(report.totalMargin(), 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div class="text-sm text-gray-500">Margin %</div>
-                    <div class="text-xl font-bold" th:classappend="${report.totalMarginPercent >= 0} ? 'text-green-600' : 'text-red-600'" th:text="${#numbers.formatDecimal(report.totalMarginPercent, 0, 'COMMA', 1, 'POINT') + '%'}">0%</div>
+                    <div th:id="gross-margin-percent" class="text-xl font-bold" th:classappend="${report.totalMarginPercent >= 0} ? 'text-green-600' : 'text-red-600'" th:text="${#numbers.formatDecimal(report.totalMarginPercent, 0, 'COMMA', 1, 'POINT') + '%'}">0%</div>
                 </div>
             </div>
 
             <!-- Report Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table th:id="report-table" class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>

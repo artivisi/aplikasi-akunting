@@ -263,8 +263,8 @@ public class SellerTransactionExecutionTest extends PlaywrightTestBase {
         // Click submit button using ID
         page.locator("#btn-submit").click();
 
-        // Wait for success redirect to transaction list
-        page.waitForURL("**/inventory/transactions");
+        // Wait for success redirect to transaction detail page
+        page.waitForURL("**/inventory/transactions/*");
         waitForPageLoad();
 
         // Take screenshot of transaction list if requested

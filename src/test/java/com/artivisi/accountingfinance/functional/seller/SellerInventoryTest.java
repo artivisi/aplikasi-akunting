@@ -1,14 +1,9 @@
 package com.artivisi.accountingfinance.functional.seller;
 
-import com.artivisi.accountingfinance.entity.CostingMethod;
-import com.artivisi.accountingfinance.entity.Product;
-import com.artivisi.accountingfinance.entity.ProductCategory;
 import com.artivisi.accountingfinance.functional.page.InventoryStockPage;
 import com.artivisi.accountingfinance.functional.page.InventoryTransactionListPage;
 import com.artivisi.accountingfinance.functional.page.ProductCategoryListPage;
 import com.artivisi.accountingfinance.functional.page.ProductListPage;
-import com.artivisi.accountingfinance.repository.ProductCategoryRepository;
-import com.artivisi.accountingfinance.repository.ProductRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-
-import java.math.BigDecimal;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -36,10 +29,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 public class SellerInventoryTest extends PlaywrightTestBase {
 
     @Autowired
-    private ProductCategoryRepository categoryRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
+    private SellerTestDataHelper testDataHelper;
 
     // Page Objects
     private ProductListPage productListPage;
@@ -57,81 +47,8 @@ public class SellerInventoryTest extends PlaywrightTestBase {
 
     @BeforeAll
     public void setupProductsAndCategories() {
-        // Create categories (check if exists first to avoid duplicates)
-        ProductCategory smartphone = categoryRepository.findByCode("PHONE")
-            .orElseGet(() -> {
-                ProductCategory cat = new ProductCategory();
-                cat.setCode("PHONE");
-                cat.setName("Smartphone");
-                cat.setActive(true);
-                return categoryRepository.save(cat);
-            });
-
-        ProductCategory accessories = categoryRepository.findByCode("ACC")
-            .orElseGet(() -> {
-                ProductCategory cat = new ProductCategory();
-                cat.setCode("ACC");
-                cat.setName("Accessories");
-                cat.setActive(true);
-                return categoryRepository.save(cat);
-            });
-
-        // Create products matching CSV transaction codes (check if exists first)
-        if (productRepository.findByCode("IP15PRO").isEmpty()) {
-            Product iphone = new Product();
-            iphone.setCode("IP15PRO");
-            iphone.setName("iPhone 15 Pro");
-            iphone.setDescription("Apple iPhone 15 Pro 256GB");
-            iphone.setUnit("pcs");
-            iphone.setCostingMethod(CostingMethod.FIFO);
-            iphone.setCategory(smartphone);
-            iphone.setSellingPrice(BigDecimal.valueOf(19000000));
-            iphone.setTrackInventory(true);
-            iphone.setActive(true);
-            productRepository.save(iphone);
-        }
-
-        if (productRepository.findByCode("SGS24").isEmpty()) {
-            Product samsung = new Product();
-            samsung.setCode("SGS24");
-            samsung.setName("Samsung Galaxy S24");
-            samsung.setDescription("Samsung Galaxy S24 Ultra 512GB");
-            samsung.setUnit("pcs");
-            samsung.setCostingMethod(CostingMethod.FIFO);
-            samsung.setCategory(smartphone);
-            samsung.setSellingPrice(BigDecimal.valueOf(14000000));
-            samsung.setTrackInventory(true);
-            samsung.setActive(true);
-            productRepository.save(samsung);
-        }
-
-        if (productRepository.findByCode("USBC").isEmpty()) {
-            Product usbCable = new Product();
-            usbCable.setCode("USBC");
-            usbCable.setName("USB Cable Type-C 1M");
-            usbCable.setDescription("USB Type-C cable 1 meter");
-            usbCable.setUnit("pcs");
-            usbCable.setCostingMethod(CostingMethod.WEIGHTED_AVERAGE);
-            usbCable.setCategory(accessories);
-            usbCable.setSellingPrice(BigDecimal.valueOf(50000));
-            usbCable.setTrackInventory(true);
-            usbCable.setActive(true);
-            productRepository.save(usbCable);
-        }
-
-        if (productRepository.findByCode("CASE").isEmpty()) {
-            Product phoneCase = new Product();
-            phoneCase.setCode("CASE");
-            phoneCase.setName("Phone Case Universal");
-            phoneCase.setDescription("Universal phone protective case");
-            phoneCase.setUnit("pcs");
-            phoneCase.setCostingMethod(CostingMethod.WEIGHTED_AVERAGE);
-            phoneCase.setCategory(accessories);
-            phoneCase.setSellingPrice(BigDecimal.valueOf(35000));
-            phoneCase.setTrackInventory(true);
-            phoneCase.setActive(true);
-            productRepository.save(phoneCase);
-        }
+        // Use shared helper to create products and categories
+        testDataHelper.setupProductsAndCategories();
     }
 
     @Test

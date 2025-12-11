@@ -20,7 +20,7 @@ import java.util.zip.ZipOutputStream;
  * This initializer is scoped to seller industry tests only.
  */
 @TestConfiguration
-@Profile("test")
+@Profile("functional")
 @RequiredArgsConstructor
 @Slf4j
 public class SellerTestDataInitializer {

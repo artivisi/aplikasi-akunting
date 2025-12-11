@@ -1050,7 +1050,7 @@ CREATE TABLE products (
     id_category UUID REFERENCES product_categories(id),
     costing_method VARCHAR(20) NOT NULL DEFAULT 'WEIGHTED_AVERAGE',
     track_inventory BOOLEAN NOT NULL DEFAULT TRUE,
-    minimum_stock DECIMAL(15, 4),
+    minimum_stock DECIMAL(15, 4) NOT NULL DEFAULT 0,
     selling_price DECIMAL(19, 2),
     id_inventory_account UUID REFERENCES chart_of_accounts(id),
     id_cogs_account UUID REFERENCES chart_of_accounts(id),
