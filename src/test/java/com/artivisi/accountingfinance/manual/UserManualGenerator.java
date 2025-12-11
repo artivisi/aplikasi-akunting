@@ -668,7 +668,7 @@ public class UserManualGenerator {
     public static void main(String[] args) throws IOException {
         Path markdownDir = Paths.get("docs", "user-manual");
         Path outputDir = Paths.get("target", "user-manual");
-        Path screenshotsDir = Paths.get("target", "user-manual", "screenshots");
+        Path screenshotsDir = Paths.get("target", "screenshots");
 
         UserManualGenerator generator = new UserManualGenerator(markdownDir, outputDir, screenshotsDir);
         generator.generate();

@@ -48,13 +48,9 @@ jobs:
       - name: Install Playwright browsers
         run: ./mvnw exec:java -Dexec.mainClass="com.microsoft.playwright.CLI" -Dexec.classpathScope=test -Dexec.args="install --with-deps chromium"
 
-      - name: Capture screenshots using SpringBootTest
+      - name: Run functional tests (generates screenshots to target/screenshots/)
         if: ${{ github.event.inputs.skip_screenshots != 'true' }}
-        run: ./mvnw test -Dtest="ScreenshotCaptureTest#shouldCaptureAllPageScreenshots"
-
-      - name: Generate printable PDF samples using SpringBootTest
-        if: ${{ github.event.inputs.skip_screenshots != 'true' }}
-        run: ./mvnw test -Dtest="PrintablePreviewTest"
+        run: ./mvnw test -Dtest="Service*Test,Seller*Test"
 
       - name: Generate user manual
         run: ./mvnw exec:java -Dexec.mainClass="com.artivisi.accountingfinance.manual.UserManualGenerator" -Dexec.classpathScope=test
