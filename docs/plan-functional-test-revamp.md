@@ -195,62 +195,71 @@ Grouped by feature area but not by industry/complexity.
 
 ### Key Principle: No Duplication
 
-Test migrations load master data (COA, templates, salary, tax) from **industry seed packs** via SQL `COPY` commands. This ensures:
+Master data (COA, templates, products, salary, tax) is loaded from **industry seed packs** via `DataImportService` in `@TestConfiguration` initializers. This ensures:
 1. Single source of truth for seed data
-2. Tests validate the same data users will import
+2. Tests validate the same data users will import in production
 3. No drift between production seeds and test data
+4. Uses production code path (DataImportService) for imports
 
-### New Directory Structure
+### Directory Structure
 ```
 src/test/resources/db/
-├── testmigration/
-│   ├── V800__base_test_infrastructure.sql    # Test users (operator, auditor, etc.)
-│   │
-│   ├── V810__load_service_seed.sql           # COPY from industry-seed/it-service/
-│   ├── V811__service_transactions.sql        # Clients, projects, transactions
-│   │
-│   ├── V820__load_seller_seed.sql            # COPY from industry-seed/online-seller/
-│   ├── V821__seller_transactions.sql         # Products, purchases, sales
-│   │
-│   ├── V830__load_coffee_seed.sql            # COPY from industry-seed/coffee-shop/
-│   ├── V831__coffee_production.sql           # BOM, production orders, sales
-│   │
-│   ├── V840__load_campus_seed.sql            # COPY from industry-seed/campus/
-│   └── V841__campus_transactions.sql         # Students, billing, payments
+├── migration/                    # Production migrations (V001-V004)
+└── test/
+    ├── functional/               # V800 only (base test users: admin, operator, auditor)
+    └── integration/              # V900-V912 (for unit/service/security tests)
+
+industry-seed/                    # Industry seed packs (imported by initializers)
+├── it-service/seed-data/         # IT Service COA, templates, etc.
+├── online-seller/seed-data/      # Online Seller COA, products, etc.
+└── coffee-shop/seed-data/        # Coffee Shop COA, BOM, etc.
+
+src/test/resources/testdata/      # Additional test-specific data
+├── service/transactions.csv      # Service transactions for CSV-driven tests
+├── seller/transactions.csv       # Seller inventory transactions
+└── seller/expected-inventory.csv # Expected stock levels after transactions
 ```
 
-### Loading Seed Data in Test Migrations
+### Loading Master Data via Initializers
 
-**V810 - Load IT Service Seed (Example)**
-```sql
--- Load COA from industry seed pack
-\COPY chart_of_accounts FROM '../../industry-seed/it-service/seed-data/01_chart_of_accounts.csv'
-    WITH (FORMAT csv, HEADER true);
+Each industry test package has a `@TestConfiguration` initializer that loads seed data:
 
--- Load templates
-\COPY journal_templates FROM '../../industry-seed/it-service/seed-data/04_journal_templates.csv'
-    WITH (FORMAT csv, HEADER true);
+**Example: SellerTestDataInitializer.java**
+```java
+@TestConfiguration
+@Profile("functional")
+@RequiredArgsConstructor
+public class SellerTestDataInitializer {
+    private final DataImportService dataImportService;
 
--- Load salary components
-\COPY salary_components FROM '../../industry-seed/it-service/seed-data/06_salary_components.csv'
-    WITH (FORMAT csv, HEADER true);
+    @PostConstruct
+    public void importSellerTestData() {
+        // Load industry seed pack (COA, templates, products, etc.)
+        byte[] seedZip = createZipFromDirectory("industry-seed/online-seller/seed-data");
+        dataImportService.importAllData(seedZip);
 
--- Load tax deadlines
-\COPY tax_deadlines FROM '../../industry-seed/it-service/seed-data/07_tax_deadlines.csv'
-    WITH (FORMAT csv, HEADER true);
+        // Load test-specific data (clients, fiscal periods, employees)
+        byte[] testDataZip = createZipFromTestData("src/test/resources/testdata/seller");
+        dataImportService.importAllData(testDataZip);
+    }
+}
 ```
 
-**Note:** If PostgreSQL `\COPY` doesn't work in Flyway, use Java-based migration (V810__LoadServiceSeed.java) that reads CSV files programmatically.
+**Key Benefits:**
+- Uses production `DataImportService` (validates import functionality)
+- No SQL migrations needed for master data (V810/V820 eliminated)
+- Industry seed packs are identical to what users import
+- Test-specific data (clients, employees) in testdata/ directory
 
 ### Test Data Design per Industry
 
-#### Service Industry Test Data (V810-V811)
+#### Service Industry Test Data
 
-**V810 - Load Seed Data**
-- Loads from `industry-seed/it-service/seed-data/`
-- 75 COA accounts, 37+ templates, 17 salary components, 8 tax deadlines
+**Master Data (loaded by ServiceTestDataInitializer)**
+- Industry seed: `industry-seed/it-service/seed-data/` (75 COA accounts, 37+ templates, 17 salary components, 8 tax deadlines)
+- Test data: `testdata/service/` (clients, projects, employees, fiscal periods)
 
-**V811 - Test Transactions**
+**Transaction Data (loaded from CSV in tests)**
 ```
 Company: PT ArtiVisi Intermedia (IT Consulting)
 Fiscal Year: 2024 (Jan-Dec)
