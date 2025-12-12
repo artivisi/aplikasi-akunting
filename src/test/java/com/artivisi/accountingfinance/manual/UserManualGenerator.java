@@ -137,21 +137,21 @@ public class UserManualGenerator {
             // 8. INDUSTRI DAGANG (TRADING/SELLER)
             new SectionGroup("industri-dagang", "Industri Dagang", "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z", List.of(
                 new Section("karakteristik-dagang", "Karakteristik Industri Dagang", "08-industri-dagang.md", List.of()),
-                new Section("manajemen-produk", "Manajemen Produk", "08-industri-dagang.md", List.of("products-list", "products-form", "product-categories-list")),
+                new Section("manajemen-produk", "Manajemen Produk", "08-industri-dagang.md", List.of("seller/product-list")),
                 new Section("metode-persediaan", "Metode Penilaian Persediaan", "08-industri-dagang.md", List.of()),
-                new Section("transaksi-pembelian", "Transaksi Pembelian", "08-industri-dagang.md", List.of("inventory-purchase")),
-                new Section("transaksi-penjualan", "Transaksi Penjualan", "08-industri-dagang.md", List.of("inventory-sale")),
-                new Section("laporan-persediaan", "Laporan Persediaan", "08-industri-dagang.md", List.of("stock-list", "inventory-transactions", "inventory-stock-balance", "inventory-stock-movement")),
-                new Section("profitabilitas-produk", "Profitabilitas Produk", "08-industri-dagang.md", List.of("inventory-reports-profitability"))
+                new Section("transaksi-pembelian", "Transaksi Pembelian", "08-industri-dagang.md", List.of()),
+                new Section("transaksi-penjualan", "Transaksi Penjualan", "08-industri-dagang.md", List.of()),
+                new Section("laporan-persediaan", "Laporan Persediaan", "08-industri-dagang.md", List.of("seller/report-stock-balance", "seller/report-stock-movement")),
+                new Section("profitabilitas-produk", "Profitabilitas Produk", "08-industri-dagang.md", List.of("seller/report-product-profitability"))
             )),
 
-            // 9. INDUSTRI MANUFAKTUR [TBD]
+            // 9. INDUSTRI MANUFAKTUR
             new SectionGroup("industri-manufaktur", "Industri Manufaktur", "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z", List.of(
                 new Section("karakteristik-manufaktur", "Karakteristik Manufaktur", "09-industri-manufaktur.md", List.of()),
-                new Section("bill-of-materials", "Bill of Materials (BOM)", "09-industri-manufaktur.md", List.of("bom-list", "bom-form")),
-                new Section("production-order", "Production Order", "09-industri-manufaktur.md", List.of("production-list", "production-form")),
-                new Section("kalkulasi-biaya", "Kalkulasi Biaya Produksi", "09-industri-manufaktur.md", List.of()),
-                new Section("laporan-produksi", "Laporan Produksi", "09-industri-manufaktur.md", List.of("inventory-reports"))
+                new Section("bill-of-materials", "Bill of Materials (BOM)", "09-industri-manufaktur.md", List.of("coffee/bom-list", "coffee/bom-detail-croissant")),
+                new Section("production-order", "Production Order", "09-industri-manufaktur.md", List.of("coffee/production-order-list", "coffee/production-order-detail-croissant")),
+                new Section("kalkulasi-biaya", "Kalkulasi Biaya Produksi", "09-industri-manufaktur.md", List.of("coffee/report-product-profitability")),
+                new Section("laporan-produksi", "Laporan Produksi", "09-industri-manufaktur.md", List.of("coffee/report-production-list", "coffee/report-stock-balance"))
             )),
 
             // 10. INDUSTRI PENDIDIKAN [TBD]

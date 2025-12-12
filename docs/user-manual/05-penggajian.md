@@ -102,12 +102,14 @@ Buka menu **Penggajian** > **Karyawan**.
 ### Tarif BPJS 2024
 
 **BPJS Kesehatan:**
+
 | Pihak | Tarif | Batas UMR |
 |-------|-------|-----------|
 | Perusahaan | 4% | Maks 12 juta |
 | Karyawan | 1% | Maks 12 juta |
 
 **BPJS Ketenagakerjaan:**
+
 | Program | Perusahaan | Karyawan |
 |---------|------------|----------|
 | JHT | 3.7% | 2% |

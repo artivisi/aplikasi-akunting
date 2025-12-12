@@ -41,6 +41,33 @@ public class ServiceAccountingTest extends PlaywrightTestBase {
     }
 
     @Test
+    @DisplayName("Should capture login and dashboard screenshots for manual")
+    void shouldCaptureLoginAndDashboardScreenshots() {
+        // Capture login page
+        navigateTo("/login");
+        waitForPageLoad();
+        takeManualScreenshot("login");
+
+        // Login and capture dashboard
+        page.fill("input[name='username']", "admin");
+        page.fill("input[name='password']", "admin");
+        page.click("button[type='submit']");
+        page.waitForURL("**/dashboard");
+        waitForPageLoad();
+        takeManualScreenshot("dashboard");
+
+        // Capture users list page
+        navigateTo("/users");
+        waitForPageLoad();
+        takeManualScreenshot("users-list");
+
+        // Capture user form page (edit admin user)
+        page.click("[data-testid='edit-user-admin']");
+        waitForPageLoad();
+        takeManualScreenshot("users-form");
+    }
+
+    @Test
     @DisplayName("Should display Chart of Accounts with seed data")
     void shouldDisplayChartOfAccounts() {
         loginAsAdmin();

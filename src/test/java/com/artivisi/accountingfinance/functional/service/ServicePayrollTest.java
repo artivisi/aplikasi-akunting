@@ -186,4 +186,49 @@ public class ServicePayrollTest extends PlaywrightTestBase {
         takeManualScreenshot("pph21-calculator");
     }
 
+    @Test
+    @DisplayName("Should display employee self-service payslips page")
+    void shouldDisplaySelfServicePayslips() {
+        // Login as employee (assuming employee user exists in test data)
+        login("employee", "employee");
+        navigateTo("/self-service/payslips");
+        waitForPageLoad();
+
+        // Verify page loads
+        assertThat(page.locator("h1").first()).isVisible();
+
+        // Take screenshot for user manual (needed for 05-penggajian.md)
+        takeManualScreenshot("self-service-payslips");
+    }
+
+    @Test
+    @DisplayName("Should display employee self-service tax certificate page")
+    void shouldDisplaySelfServiceBuktiPotong() {
+        // Login as employee
+        login("employee", "employee");
+        navigateTo("/self-service/bukti-potong");
+        waitForPageLoad();
+
+        // Verify page loads
+        assertThat(page.locator("h1").first()).isVisible();
+
+        // Take screenshot for user manual (needed for 05-penggajian.md)
+        takeManualScreenshot("self-service-bukti-potong");
+    }
+
+    @Test
+    @DisplayName("Should display employee self-service profile page")
+    void shouldDisplaySelfServiceProfile() {
+        // Login as employee
+        login("employee", "employee");
+        navigateTo("/self-service/profile");
+        waitForPageLoad();
+
+        // Verify page loads
+        assertThat(page.locator("h1").first()).isVisible();
+
+        // Take screenshot for user manual (needed for 05-penggajian.md)
+        takeManualScreenshot("self-service-profile");
+    }
+
 }

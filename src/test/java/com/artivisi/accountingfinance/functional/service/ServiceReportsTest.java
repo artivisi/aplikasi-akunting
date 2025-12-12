@@ -292,4 +292,18 @@ public class ServiceReportsTest extends PlaywrightTestBase {
         // Take screenshot for user manual
         takeManualScreenshot("reports-fiscal-closing");
     }
+
+    @Test
+    @DisplayName("Should display depreciation report for fixed assets")
+    void shouldDisplayDepreciationReport() {
+        loginAsAdmin();
+        navigateTo("/reports/depreciation?year=2024");
+        waitForPageLoad();
+
+        // Verify page loads (check page content or h1)
+        assertThat(page.locator("h1").first()).isVisible();
+
+        // Take screenshot for user manual (needed for 03-aset-tetap.md)
+        takeManualScreenshot("reports-depreciation");
+    }
 }
