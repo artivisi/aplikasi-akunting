@@ -25,7 +25,7 @@ Supplier → Purchase → Inventory → Sale → Customer
 
 Buka menu **Inventori** > **Produk**.
 
-![Daftar Produk](screenshots/products-list.png)
+![Daftar Produk](screenshots/seller/product-list.png)
 
 ### Menambah Produk Baru
 
@@ -47,7 +47,7 @@ Buka menu **Inventori** > **Produk**.
 
 Buka menu **Inventori** > **Kategori**.
 
-![Daftar Kategori](screenshots/product-categories-list.png)
+![Daftar Kategori](screenshots/coffee/product-category-list.png)
 
 ---
 
@@ -58,22 +58,43 @@ Buka menu **Inventori** > **Kategori**.
 Barang yang masuk lebih dulu, keluar lebih dulu.
 
 **Contoh:**
-| Tanggal | Transaksi | Qty | Harga | Total |
-|---------|-----------|-----|-------|-------|
-| 1 Jan | Beli | 10 | 100.000 | 1.000.000 |
-| 5 Jan | Beli | 10 | 110.000 | 1.100.000 |
-| 10 Jan | Jual | 15 | - | HPP = 10×100.000 + 5×110.000 = 1.550.000 |
+
+| Tanggal | Transaksi | Qty | Harga/Unit | Total |
+|---------|-----------|-----|------------|-------|
+| 1 Jan | Beli | 10 | Rp 100.000 | Rp 1.000.000 |
+| 5 Jan | Beli | 10 | Rp 110.000 | Rp 1.100.000 |
+| 10 Jan | Jual | 15 | - | - |
+
+**Perhitungan HPP (10 Jan):**
+- 10 unit dari pembelian 1 Jan @ Rp 100.000 = Rp 1.000.000
+- 5 unit dari pembelian 5 Jan @ Rp 110.000 = Rp 550.000
+- **Total HPP = Rp 1.550.000**
+
+**Sisa Stok:**
+- 5 unit @ Rp 110.000 = Rp 550.000
 
 ### Weighted Average
 
 Harga rata-rata tertimbang.
 
 **Contoh:**
-| Tanggal | Transaksi | Qty | Harga | Total | Avg Cost |
-|---------|-----------|-----|-------|-------|----------|
-| 1 Jan | Beli | 10 | 100.000 | 1.000.000 | 100.000 |
-| 5 Jan | Beli | 10 | 110.000 | 1.100.000 | 105.000 |
-| 10 Jan | Jual | 15 | - | HPP = 15×105.000 = 1.575.000 | - |
+
+| Tanggal | Transaksi | Qty | Harga/Unit | Total | Avg Cost |
+|---------|-----------|-----|------------|-------|----------|
+| 1 Jan | Beli | 10 | Rp 100.000 | Rp 1.000.000 | Rp 100.000 |
+| 5 Jan | Beli | 10 | Rp 110.000 | Rp 1.100.000 | Rp 105.000 |
+| 10 Jan | Jual | 15 | - | - | - |
+
+**Perhitungan Average Cost (5 Jan):**
+- Total nilai: Rp 1.000.000 + Rp 1.100.000 = Rp 2.100.000
+- Total qty: 10 + 10 = 20 unit
+- **Average = Rp 2.100.000 / 20 = Rp 105.000/unit**
+
+**Perhitungan HPP (10 Jan):**
+- 15 unit @ Rp 105.000 = **Rp 1.575.000**
+
+**Sisa Stok:**
+- 5 unit @ Rp 105.000 = Rp 525.000
 
 ---
 
@@ -315,25 +336,25 @@ Dr. HPP                         Rp  96.000.000
 
 Buka menu **Inventori** > **Stok**.
 
-![Stok Barang](screenshots/stock-list.png)
+![Stok Barang](screenshots/coffee/inventory-stock-list.png)
 
 ### Transaksi Inventori
 
 Buka menu **Inventori** > **Transaksi**.
 
-![Transaksi Inventori](screenshots/inventory-transactions.png)
+![Transaksi Inventori](screenshots/coffee/inventory-transactions-list.png)
 
 ### Laporan Saldo Stok
 
 Buka menu **Inventori** > **Laporan** > **Saldo Stok**.
 
-![Saldo Stok](screenshots/inventory-stock-balance.png)
+![Saldo Stok](screenshots/seller/report-stock-balance.png)
 
 ### Laporan Mutasi Stok
 
 Buka menu **Inventori** > **Laporan** > **Mutasi Stok**.
 
-![Mutasi Stok](screenshots/inventory-stock-movement.png)
+![Mutasi Stok](screenshots/seller/report-stock-movement.png)
 
 Menampilkan kartu stok per produk:
 - Tanggal transaksi
@@ -350,7 +371,7 @@ Menampilkan kartu stok per produk:
 
 Buka menu **Inventori** > **Laporan** > **Profitabilitas Produk**.
 
-![Profitabilitas Produk](screenshots/inventory-reports-profitability.png)
+![Profitabilitas Produk](screenshots/seller/report-product-profitability.png)
 
 Metrik per produk:
 - Total penjualan (revenue)

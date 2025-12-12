@@ -6,6 +6,7 @@ import com.artivisi.accountingfinance.entity.ProductCategory;
 import com.artivisi.accountingfinance.functional.util.CsvLoader;
 import com.artivisi.accountingfinance.functional.util.ExpectedInventoryRow;
 import com.artivisi.accountingfinance.functional.util.InventoryTransactionRow;
+import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
 import com.artivisi.accountingfinance.repository.ProductCategoryRepository;
 import com.artivisi.accountingfinance.repository.ProductRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
@@ -49,9 +50,12 @@ public class SellerTransactionExecutionTest extends PlaywrightTestBase {
 
     @Autowired
     private ProductCategoryRepository categoryRepository;
-    
+
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private JournalTemplateRepository templateRepository;
 
     @BeforeAll
     public void setupProductsAndCategories() {
@@ -380,5 +384,33 @@ public class SellerTransactionExecutionTest extends PlaywrightTestBase {
 
         // Verify report loads
         assertThat(page.locator("#page-title")).containsText("Profitabilitas Produk");
+    }
+
+    /**
+     * Capture template screenshots for Online Seller industry manual.
+     */
+    @Test
+    @Order(10)
+    @DisplayName("Capture template screenshots")
+    void captureTemplateScreenshots() {
+        loginAsAdmin();
+
+        // Navigate to template list
+        page.navigate("http://localhost:" + port + "/templates");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("seller/templates-list");
+
+        // Find first template (should be from online-seller seed data)
+        var firstTemplate = templateRepository.findAll().stream()
+            .filter(t -> t.getCategory().name().equals("INCOME"))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No INCOME template found"));
+
+        // Navigate to template detail
+        page.navigate("http://localhost:" + port + "/templates/" + firstTemplate.getId());
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("seller/templates-detail");
     }
 }

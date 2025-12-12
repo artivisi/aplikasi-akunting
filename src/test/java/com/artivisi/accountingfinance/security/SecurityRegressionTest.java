@@ -397,6 +397,9 @@ class SecurityRegressionTest extends PlaywrightTestBase {
                     "Admin should have access to user management");
             assertTrue(page.locator("#page-title").count() > 0,
                     "Page should contain user management content");
+
+            // Take screenshot for user manual
+            takeManualScreenshot("users-list");
         }
 
         @Test
@@ -1459,6 +1462,73 @@ class SecurityRegressionTest extends PlaywrightTestBase {
                 assertTrue(properlyProtected,
                         "NPWP and NIK should be masked in employee detail page");
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("User Manual Screenshots")
+    class UserManualScreenshots {
+
+        @Test
+        @DisplayName("Should capture user form screenshot")
+        void shouldCaptureUserForm() {
+            loginAsAdmin();
+
+            navigateTo("/users/new");
+            waitForPageLoad();
+
+            // Verify form loads
+            assertTrue(page.locator("#page-title").count() > 0);
+
+            // Take screenshot for user manual
+            takeManualScreenshot("users-form");
+        }
+
+        @Test
+        @DisplayName("Should capture audit logs screenshot")
+        void shouldCaptureAuditLogs() {
+            loginAsAdmin();
+
+            navigateTo("/settings/audit-logs");
+            waitForPageLoad();
+
+            // Verify page loads
+            assertTrue(page.locator("#page-title").count() > 0);
+
+            // Take screenshot for user manual
+            takeManualScreenshot("settings-audit-logs");
+        }
+
+        @Test
+        @DisplayName("Should capture data subjects screenshot")
+        void shouldCaptureDataSubjects() {
+            loginAsAdmin();
+
+            navigateTo("/settings/data-subjects");
+            waitForPageLoad();
+
+            // Verify page loads
+            assertTrue(page.locator("#page-title").count() > 0 ||
+                      page.locator("h1").count() > 0);
+
+            // Take screenshot for user manual
+            takeManualScreenshot("settings-data-subjects");
+        }
+
+        @Test
+        @DisplayName("Should capture privacy settings screenshot")
+        void shouldCapturePrivacySettings() {
+            loginAsAdmin();
+
+            navigateTo("/settings/privacy");
+            waitForPageLoad();
+
+            // Verify page loads
+            assertTrue(page.locator("#page-title").count() > 0 ||
+                      page.locator("h1").count() > 0);
+
+            // Take screenshot for user manual
+            takeManualScreenshot("settings-privacy");
         }
     }
 }

@@ -141,8 +141,8 @@ public class ServiceTransactionExecutionTest extends PlaywrightTestBase {
             .verifyPageTitle()
             .verifyRevenueSectionVisible();
 
-        // Take screenshot for user manual
-        takeManualScreenshot("service/report-income-statement");
+        // Take screenshot for user manual (after transactions are executed)
+        takeManualScreenshot("service/reports-income-statement");
     }
 
     /**
@@ -161,8 +161,8 @@ public class ServiceTransactionExecutionTest extends PlaywrightTestBase {
             .verifyLiabilitySectionVisible()
             .verifyEquitySectionVisible();
 
-        // Take screenshot for user manual
-        takeManualScreenshot("service/report-balance-sheet");
+        // Take screenshot for user manual (after transactions are executed)
+        takeManualScreenshot("service/reports-balance-sheet");
     }
 
     /**
@@ -179,8 +179,74 @@ public class ServiceTransactionExecutionTest extends PlaywrightTestBase {
             .verifyPageTitle()
             .verifyContentVisible();
 
-        // Take screenshot for user manual
+        // Take screenshot for user manual (after transactions are executed)
         takeManualScreenshot("service/transaction-list");
+    }
+
+    /**
+     * Capture list screenshots for IT Service industry manual and tutorial.
+     * These screenshots are used in both 02-tutorial-akuntansi.md and 07-industri-jasa.md.
+     * Taken AFTER all transactions are executed so screenshots have data.
+     */
+    @Test
+    @Order(5)
+    @DisplayName("Capture list and detail screenshots")
+    void captureListScreenshots() {
+        loginAsAdmin();
+
+        // Dashboard (has widgets with data)
+        page.navigate("http://localhost:" + port + "/dashboard");
+        page.waitForLoadState();
+        page.waitForTimeout(1000);
+        takeManualScreenshot("service/dashboard");
+
+        // Chart of Accounts list (from seed data)
+        page.navigate("http://localhost:" + port + "/accounts");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/accounts-list");
+
+        // Clients list (from test data)
+        page.navigate("http://localhost:" + port + "/clients");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/clients-list");
+
+        // Projects list (from test data)
+        page.navigate("http://localhost:" + port + "/projects");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/projects-list");
+
+        // Template list (from seed data)
+        page.navigate("http://localhost:" + port + "/templates");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/templates-list");
+
+        // Find first template for detail view
+        var firstTemplate = templateRepository.findAll().stream()
+            .filter(t -> t.getCategory().name().equals("INCOME"))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No INCOME template found"));
+
+        // Template detail
+        page.navigate("http://localhost:" + port + "/templates/" + firstTemplate.getId());
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/templates-detail");
+
+        // Journals list (from executed transactions)
+        page.navigate("http://localhost:" + port + "/journals");
+        page.waitForLoadState();
+        page.waitForSelector("#page-title", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+        takeManualScreenshot("service/journals-list");
+
+        // Trial Balance (after transactions)
+        page.navigate("http://localhost:" + port + "/reports/trial-balance?startDate=2024-01-01&endDate=2024-03-31");
+        page.waitForLoadState();
+        page.waitForTimeout(2000); // Wait for report to render
+        takeManualScreenshot("service/reports-trial-balance");
     }
 
     /**

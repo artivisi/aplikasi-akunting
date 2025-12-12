@@ -11,6 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 /**
  * Service Industry Accounting Tests
  * Tests COA, templates, and transaction functionality for IT Services / PKP company.
@@ -53,6 +55,9 @@ public class ServiceAccountingTest extends PlaywrightTestBase {
             .verifyAccountExists("1.1.01")  // Kas
             .verifyAccountExists("4.1.01")  // Pendapatan Jasa Konsultasi
             .verifyAccountExists("5.2.01"); // Beban Software & Lisensi
+
+        // Take screenshot for user manual (generic version)
+        takeManualScreenshot("accounts-list");
     }
 
     @Test
@@ -106,4 +111,75 @@ public class ServiceAccountingTest extends PlaywrightTestBase {
         trialBalancePage.navigate()
             .verifyPageTitle();
     }
+
+    @Test
+    @DisplayName("Should display account form")
+    void shouldDisplayAccountForm() {
+        loginAsAdmin();
+        navigateTo("/accounts/new");
+        waitForPageLoad();
+
+        // Verify account form page loads
+        assertThat(page.locator("#page-title")).containsText("Akun");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("accounts-form");
+    }
+
+    @Test
+    @DisplayName("Should display transaction form")
+    void shouldDisplayTransactionForm() {
+        loginAsAdmin();
+        navigateTo("/transactions/new");
+        waitForPageLoad();
+
+        // Verify transaction form page loads
+        assertThat(page.locator("#page-title")).containsText("Transaksi");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("transactions-form");
+    }
+
+    @Test
+    @DisplayName("Should display fiscal periods list")
+    void shouldDisplayFiscalPeriodsList() {
+        loginAsAdmin();
+        navigateTo("/fiscal-periods");
+        waitForPageLoad();
+
+        // Verify fiscal periods page loads
+        assertThat(page.locator("#page-title")).containsText("Periode");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("fiscal-periods-list");
+    }
+
+    @Test
+    @DisplayName("Should display amortization list")
+    void shouldDisplayAmortizationList() {
+        loginAsAdmin();
+        navigateTo("/amortization");
+        waitForPageLoad();
+
+        // Verify amortization page loads
+        assertThat(page.locator("#page-title")).containsText("Amortisasi");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("amortization-list");
+    }
+
+    @Test
+    @DisplayName("Should display amortization form")
+    void shouldDisplayAmortizationForm() {
+        loginAsAdmin();
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        // Verify amortization form page loads
+        assertThat(page.locator("#page-title")).containsText("Amortisasi");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("amortization-form");
+    }
+
 }

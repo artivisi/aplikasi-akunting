@@ -33,6 +33,9 @@ public class ServiceTaxComplianceTest extends PlaywrightTestBase {
 
         taxCalendarPage.navigate()
             .verifyPageTitle();
+
+        // Take screenshot for user manual
+        takeManualScreenshot("tax-calendar");
     }
 
     @Test
@@ -44,6 +47,9 @@ public class ServiceTaxComplianceTest extends PlaywrightTestBase {
 
         // Verify PPN report page loads using ID
         assertThat(page.locator("#page-title")).containsText("PPN");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("reports-ppn-summary");
     }
 
     @Test
@@ -77,5 +83,22 @@ public class ServiceTaxComplianceTest extends PlaywrightTestBase {
 
         // Verify tax summary page loads using ID
         assertThat(page.locator("#page-title")).containsText("Pajak");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("reports-tax-summary");
+    }
+
+    @Test
+    @DisplayName("Should display tax calendar yearly view")
+    void shouldDisplayTaxCalendarYearly() {
+        loginAsAdmin();
+        navigateTo("/tax-calendar/yearly");
+        waitForPageLoad();
+
+        // Verify yearly view loads (if exists)
+        assertThat(page.locator("#page-title")).isVisible();
+
+        // Take screenshot for user manual
+        takeManualScreenshot("tax-calendar-yearly");
     }
 }

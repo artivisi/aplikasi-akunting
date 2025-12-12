@@ -9,7 +9,7 @@ Setelah instalasi, aplikasi menampilkan tampilan bare-bones dengan data minimal:
 - Tahun fiskal aktif
 - Tidak ada COA, template, atau data master lainnya
 
-![Dashboard Bare Bones](screenshots/dashboard.png)
+![Dashboard Bare Bones](screenshots/service/dashboard.png)
 
 ## Import Industry Seed Data
 
@@ -116,7 +116,7 @@ Buka menu **Akun** untuk melihat daftar akun.
 
 Template menentukan akun-akun yang terlibat dalam suatu jenis transaksi.
 
-![Daftar Template](screenshots/templates-list.png)
+![Daftar Template](screenshots/service/templates-list.png)
 
 Lihat [Referensi Template](12-lampiran-template.md) untuk daftar lengkap template standar.
 

@@ -1,6 +1,6 @@
 # Referensi Template
 
-![Daftar Template](screenshots/templates-list.png)
+![Daftar Template](screenshots/service/templates-list.png)
 
 Daftar template transaksi standar yang tersedia dalam seed data. Template mempermudah pencatatan transaksi karena akun-akun sudah dikonfigurasi.
 

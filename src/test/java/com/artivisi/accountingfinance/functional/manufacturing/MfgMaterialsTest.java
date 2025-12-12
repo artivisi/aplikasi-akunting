@@ -96,4 +96,18 @@ public class MfgMaterialsTest extends PlaywrightTestBase {
         // Verify raw materials have stock from purchases using data-testid
         assertThat(page.locator("[data-testid='stock-product-name-KOPI-ARABICA']")).containsText("Biji Kopi Arabica");
     }
+
+    @Test
+    @DisplayName("Should display product form")
+    void shouldDisplayProductForm() {
+        loginAsAdmin();
+        navigateTo("/products/new");
+        waitForPageLoad();
+
+        // Verify product form page loads
+        assertThat(page.locator("h1")).containsText("Produk");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("products-form");
+    }
 }

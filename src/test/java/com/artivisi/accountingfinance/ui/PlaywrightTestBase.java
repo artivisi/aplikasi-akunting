@@ -35,7 +35,7 @@ public abstract class PlaywrightTestBase {
     protected LoginAttemptService loginAttemptService;
 
     protected static final Path SCREENSHOTS_DIR = Paths.get("target/screenshots");
-    protected static final Path MANUAL_SCREENSHOTS_DIR = Paths.get("target/screenshots");
+    protected static final Path MANUAL_SCREENSHOTS_DIR = Paths.get("target", "user-manual", "screenshots");
 
     // Configure via system properties:
     // -Dplaywright.headless=false  (default: true)

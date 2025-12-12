@@ -39,6 +39,9 @@ public class ServicePayrollTest extends PlaywrightTestBase {
             .verifyPageTitle()
             .verifyTableVisible()
             .verifyEmployeeCount(3);
+
+        // Take screenshot for user manual
+        takeManualScreenshot("employees-list");
     }
 
     @Test
@@ -67,6 +70,9 @@ public class ServicePayrollTest extends PlaywrightTestBase {
 
         payrollListPage.navigate()
             .verifyPageTitle();
+
+        // Take screenshot for user manual
+        takeManualScreenshot("payroll-list");
     }
 
     @Test
@@ -91,6 +97,9 @@ public class ServicePayrollTest extends PlaywrightTestBase {
 
         // Verify payroll detail page loads
         assertThat(page.locator("#page-title")).containsText("Payroll");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("payroll-detail");
     }
 
     @Test
@@ -102,5 +111,79 @@ public class ServicePayrollTest extends PlaywrightTestBase {
 
         // Verify salary components page loads using ID
         assertThat(page.locator("#page-title")).containsText("Komponen");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("salary-components-list");
     }
+
+    @Test
+    @DisplayName("Should display salary component form")
+    void shouldDisplaySalaryComponentForm() {
+        loginAsAdmin();
+        navigateTo("/salary-components/new");
+        waitForPageLoad();
+
+        // Verify form page loads
+        assertThat(page.locator("#page-title")).containsText("Komponen");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("salary-components-form");
+    }
+
+    @Test
+    @DisplayName("Should display employee form")
+    void shouldDisplayEmployeeForm() {
+        loginAsAdmin();
+        navigateTo("/employees/new");
+        waitForPageLoad();
+
+        // Verify form page loads
+        assertThat(page.locator("#page-title")).containsText("Karyawan");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("employees-form");
+    }
+
+    @Test
+    @DisplayName("Should display payroll form")
+    void shouldDisplayPayrollForm() {
+        loginAsAdmin();
+        navigateTo("/payroll/new");
+        waitForPageLoad();
+
+        // Verify form page loads
+        assertThat(page.locator("#page-title")).containsText("Payroll");
+
+        // Take screenshot for user manual
+        takeManualScreenshot("payroll-form");
+    }
+
+    @Test
+    @DisplayName("Should display BPJS calculator")
+    void shouldDisplayBpjsCalculator() {
+        loginAsAdmin();
+        navigateTo("/bpjs-calculator");
+        waitForPageLoad();
+
+        // Verify calculator page loads
+        assertThat(page.locator("#page-title")).isVisible();
+
+        // Take screenshot for user manual
+        takeManualScreenshot("bpjs-calculator");
+    }
+
+    @Test
+    @DisplayName("Should display PPh 21 calculator")
+    void shouldDisplayPph21Calculator() {
+        loginAsAdmin();
+        navigateTo("/pph21-calculator");
+        waitForPageLoad();
+
+        // Verify calculator page loads
+        assertThat(page.locator("#page-title")).isVisible();
+
+        // Take screenshot for user manual
+        takeManualScreenshot("pph21-calculator");
+    }
+
 }

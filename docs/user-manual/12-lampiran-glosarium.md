@@ -1,6 +1,6 @@
 # Glosarium
 
-![Dashboard Aplikasi](screenshots/dashboard.png)
+![Dashboard Aplikasi](screenshots/service/dashboard.png)
 
 ## Istilah Akuntansi
 

@@ -15,7 +15,7 @@ Akuntansi adalah proses **mencatat, mengklasifikasi, dan melaporkan** transaksi 
 - Membuat keputusan bisnis yang tepat
 - Memenuhi kewajiban pelaporan pajak
 
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](screenshots/service/dashboard.png)
 
 ---
 
@@ -77,7 +77,7 @@ Anda membayar tagihan listrik Rp 500.000.
 
 Bagan akun adalah daftar semua akun yang digunakan untuk mencatat transaksi.
 
-![Daftar Akun](screenshots/accounts-list.png)
+![Daftar Akun](screenshots/service/accounts-list.png)
 
 ### Struktur Kode Akun
 
@@ -125,12 +125,9 @@ Setiap kali Anda **menerima uang**:
 
 1. Buka menu **Transaksi**
 
-![Daftar Transaksi](screenshots/transactions-list.png)
+![Daftar Transaksi](screenshots/service/transaction-list.png)
 
 2. Klik **Transaksi Baru**
-
-![Form Transaksi](screenshots/transactions-form.png)
-
 3. Pilih template yang sesuai (contoh: "Pendapatan Jasa")
 4. Isi field:
    - **Tanggal**: Tanggal uang diterima
@@ -139,7 +136,7 @@ Setiap kali Anda **menerima uang**:
 5. Review preview jurnal
 6. Klik **Simpan & Posting**
 
-![Detail Transaksi](screenshots/transactions-detail.png)
+![Detail Transaksi](screenshots/service/01-setoran-modal-awal-20-result.png)
 
 ---
 
@@ -292,7 +289,7 @@ Saat memindahkan uang antar rekening:
 
 Jurnal adalah catatan debit/kredit yang dihasilkan dari transaksi.
 
-![Daftar Jurnal](screenshots/journals-list.png)
+![Daftar Jurnal](screenshots/service/journals-list.png)
 
 Aplikasi ini menggunakan pendekatan **transaction-centric** - Anda mencatat transaksi, sistem otomatis membuat jurnal yang benar.
 
@@ -346,7 +343,7 @@ Untuk beban yang dibayar dimuka (sewa tahunan, asuransi, dll):
 
 Daftar saldo semua akun. Total debit harus sama dengan total kredit.
 
-![Neraca Saldo](screenshots/reports-trial-balance.png)
+![Neraca Saldo](screenshots/service/reports-trial-balance.png)
 
 **Kapan digunakan**: Untuk validasi bahwa pembukuan balance.
 
@@ -354,7 +351,7 @@ Daftar saldo semua akun. Total debit harus sama dengan total kredit.
 
 Menampilkan pendapatan, beban, dan laba/rugi periode tertentu.
 
-![Laba Rugi](screenshots/reports-income-statement.png)
+![Laba Rugi](screenshots/service/reports-income-statement.png)
 
 **Struktur**:
 ```
@@ -368,7 +365,7 @@ LABA BERSIH         Rp 20.000.000
 
 Menampilkan posisi keuangan pada tanggal tertentu.
 
-![Neraca](screenshots/reports-balance-sheet.png)
+![Neraca](screenshots/service/reports-balance-sheet.png)
 
 **Struktur**:
 ```

@@ -26,7 +26,7 @@ Klien → Proposal → Kontrak → Proyek → Milestone → Invoice → Pembayar
 
 Buka menu **Klien** > **Daftar Klien**.
 
-![Daftar Klien](screenshots/clients-list.png)
+![Daftar Klien](screenshots/service/clients-list.png)
 
 ### Detail Klien
 
@@ -36,13 +36,9 @@ Klik klien untuk melihat:
 - History invoice
 - Total revenue dari klien
 
-![Detail Klien](screenshots/clients-detail.png)
-
 ### Menambah Klien Baru
 
 1. Klik **Klien Baru**
-
-![Form Klien](screenshots/clients-form.png)
 
 2. Isi:
    - Kode klien (unik)
@@ -61,13 +57,11 @@ Klik klien untuk melihat:
 
 Buka menu **Proyek** > **Daftar Proyek**.
 
-![Daftar Proyek](screenshots/projects-list.png)
+![Daftar Proyek](screenshots/service/projects-list.png)
 
 ### Detail Proyek
 
-![Detail Proyek](screenshots/projects-detail.png)
-
-Informasi yang ditampilkan:
+Klik pada proyek untuk melihat detail. Informasi yang ditampilkan:
 - Status proyek
 - Progress milestone
 - Total nilai kontrak
@@ -77,8 +71,6 @@ Informasi yang ditampilkan:
 ### Menambah Proyek Baru
 
 1. Klik **Proyek Baru**
-
-![Form Proyek](screenshots/projects-form.png)
 
 2. Isi:
    - Kode proyek
@@ -134,11 +126,11 @@ Saat milestone selesai, pendapatan dapat diakui proporsional sesuai bobot.
 
 Buka menu **Pengaturan** > **Template**.
 
-![Daftar Template](screenshots/templates-list.png)
+![Daftar Template](screenshots/service/templates-list.png)
 
 ### Detail Template
 
-![Detail Template](screenshots/templates-detail.png)
+![Detail Template](screenshots/service/templates-detail.png)
 
 ---
 
@@ -248,9 +240,7 @@ Dr. 1.1.02 Bank BCA                     Rp 163.500.000
 
 ### Melihat Daftar Invoice
 
-Buka menu **Invoice** > **Daftar Invoice**.
-
-![Daftar Invoice](screenshots/invoices-list.png)
+Buka menu **Invoice** > **Daftar Invoice** untuk melihat semua invoice yang telah dibuat.
 
 ### Membuat Invoice
 
@@ -297,9 +287,7 @@ Dr. Bank                    xxx
 
 ### Laporan Profitabilitas Proyek
 
-Buka menu **Laporan** > **Profitabilitas Proyek**.
-
-![Profitabilitas Proyek](screenshots/reports-project-profitability.png)
+Buka menu **Laporan** > **Profitabilitas Proyek** untuk melihat analisis margin per proyek.
 
 Metrik yang ditampilkan:
 - Total revenue proyek
@@ -309,9 +297,7 @@ Metrik yang ditampilkan:
 
 ### Laporan Profitabilitas Klien
 
-Buka menu **Laporan** > **Profitabilitas Klien**.
-
-![Profitabilitas Klien](screenshots/reports-client-profitability.png)
+Buka menu **Laporan** > **Profitabilitas Klien** untuk melihat analisis revenue dan margin per klien.
 
 Agregasi per klien:
 - Total revenue dari klien

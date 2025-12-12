@@ -83,10 +83,10 @@ public class UserManualGenerator {
             new SectionGroup("tutorial-akuntansi", "Tutorial Dasar Akuntansi", "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", List.of(
                 new Section("konsep-dasar", "Konsep Dasar Akuntansi", "02-tutorial-akuntansi.md", List.of()),
                 new Section("siklus-akuntansi", "Siklus Akuntansi", "02-tutorial-akuntansi.md", List.of()),
-                new Section("transaksi-harian", "Transaksi Harian", "02-tutorial-akuntansi.md", List.of("transactions-form", "transactions-detail", "transactions-list")),
-                new Section("jurnal-buku-besar", "Jurnal & Buku Besar", "02-tutorial-akuntansi.md", List.of("journals-list")),
+                new Section("transaksi-harian", "Transaksi Harian", "02-tutorial-akuntansi.md", List.of("service/transaction-list")),
+                new Section("jurnal-buku-besar", "Jurnal & Buku Besar", "02-tutorial-akuntansi.md", List.of("service/journals-list")),
                 new Section("penyesuaian", "Penyesuaian", "02-tutorial-akuntansi.md", List.of("amortization-list", "amortization-form")),
-                new Section("laporan-keuangan", "Laporan Keuangan", "02-tutorial-akuntansi.md", List.of("reports-trial-balance", "reports-balance-sheet", "reports-income-statement")),
+                new Section("laporan-keuangan", "Laporan Keuangan", "02-tutorial-akuntansi.md", List.of("service/reports-trial-balance", "service/reports-balance-sheet", "service/reports-income-statement")),
                 new Section("tutup-buku", "Tutup Buku", "02-tutorial-akuntansi.md", List.of("reports-fiscal-closing"))
             )),
 
@@ -101,7 +101,7 @@ public class UserManualGenerator {
             // 4. PERPAJAKAN
             new SectionGroup("perpajakan", "Perpajakan", "M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z", List.of(
                 new Section("jenis-pajak", "Jenis Pajak di Indonesia", "04-perpajakan.md", List.of()),
-                new Section("transaksi-ppn", "Transaksi PPN", "04-perpajakan.md", List.of("transactions-form", "reports-ppn-summary")),
+                new Section("transaksi-ppn", "Transaksi PPN", "04-perpajakan.md", List.of("reports-ppn-summary")),
                 new Section("transaksi-pph", "Transaksi PPh", "04-perpajakan.md", List.of("reports-pph23-withholding", "reports-tax-summary")),
                 new Section("periode-fiskal", "Periode Fiskal", "04-perpajakan.md", List.of("fiscal-periods-list")),
                 new Section("kalender-pajak", "Kalender Pajak", "04-perpajakan.md", List.of("tax-calendar", "tax-calendar-yearly"))
@@ -127,11 +127,11 @@ public class UserManualGenerator {
             // 7. INDUSTRI JASA (SERVICE)
             new SectionGroup("industri-jasa", "Industri Jasa", "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z", List.of(
                 new Section("karakteristik-jasa", "Karakteristik Industri Jasa", "07-industri-jasa.md", List.of()),
-                new Section("client-management", "Client Management", "07-industri-jasa.md", List.of("clients-list", "clients-detail", "clients-form")),
-                new Section("project-management", "Project Management", "07-industri-jasa.md", List.of("projects-list", "projects-detail", "projects-form")),
-                new Section("template-jasa", "Template Transaksi Jasa", "07-industri-jasa.md", List.of("templates-list", "templates-detail")),
-                new Section("invoice-penagihan", "Invoice & Penagihan", "07-industri-jasa.md", List.of("invoices-list")),
-                new Section("profitabilitas-proyek", "Profitabilitas Proyek", "07-industri-jasa.md", List.of("reports-project-profitability", "reports-client-profitability"))
+                new Section("client-management", "Client Management", "07-industri-jasa.md", List.of("service/clients-list")),
+                new Section("project-management", "Project Management", "07-industri-jasa.md", List.of("service/projects-list")),
+                new Section("template-jasa", "Template Transaksi Jasa", "07-industri-jasa.md", List.of("service/templates-list", "service/templates-detail")),
+                new Section("invoice-penagihan", "Invoice & Penagihan", "07-industri-jasa.md", List.of()),
+                new Section("profitabilitas-proyek", "Profitabilitas Proyek", "07-industri-jasa.md", List.of())
             )),
 
             // 8. INDUSTRI DAGANG (TRADING/SELLER)
@@ -175,7 +175,7 @@ public class UserManualGenerator {
             // 12. LAMPIRAN
             new SectionGroup("lampiran", "Lampiran", "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", List.of(
                 new Section("glosarium", "Glosarium", "12-lampiran-glosarium.md", List.of()),
-                new Section("referensi-template", "Referensi Template", "12-lampiran-template.md", List.of("templates-list")),
+                new Section("referensi-template", "Referensi Template", "12-lampiran-template.md", List.of("service/templates-list")),
                 new Section("referensi-amortisasi", "Referensi Amortisasi & Depresiasi", "12-lampiran-amortisasi.md", List.of()),
                 new Section("referensi-akun", "Referensi Akun", "12-lampiran-akun.md", List.of("accounts-list"))
             ))
@@ -200,19 +200,9 @@ public class UserManualGenerator {
         Path outputScreenshotsDir = outputDir.resolve("screenshots");
         Files.createDirectories(outputScreenshotsDir);
 
-        // Copy screenshots if they exist
+        // Copy screenshots recursively if they exist
         if (Files.exists(screenshotsDir)) {
-            try (var files = Files.list(screenshotsDir)) {
-                files.filter(p -> p.toString().endsWith(".png"))
-                     .forEach(p -> {
-                         try {
-                             Files.copy(p, outputScreenshotsDir.resolve(p.getFileName()),
-                                     StandardCopyOption.REPLACE_EXISTING);
-                         } catch (IOException e) {
-                             System.err.println("Failed to copy screenshot: " + e.getMessage());
-                         }
-                     });
-            }
+            copyScreenshotsRecursively(screenshotsDir, outputScreenshotsDir);
         }
 
         // Generate HTML
@@ -221,6 +211,26 @@ public class UserManualGenerator {
         Files.writeString(indexPath, html, StandardCharsets.UTF_8);
 
         System.out.println("User manual generated: " + indexPath);
+    }
+
+    /**
+     * Recursively copy screenshot directories and files
+     */
+    private void copyScreenshotsRecursively(Path source, Path target) throws IOException {
+        try (var stream = Files.walk(source)) {
+            stream.forEach(sourcePath -> {
+                try {
+                    Path targetPath = target.resolve(source.relativize(sourcePath));
+                    if (Files.isDirectory(sourcePath)) {
+                        Files.createDirectories(targetPath);
+                    } else if (sourcePath.toString().endsWith(".png")) {
+                        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Failed to copy: " + sourcePath + " - " + e.getMessage());
+                }
+            });
+        }
     }
 
     private String generateHtml() throws IOException {

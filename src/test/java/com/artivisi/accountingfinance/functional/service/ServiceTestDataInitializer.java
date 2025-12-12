@@ -66,6 +66,8 @@ public class ServiceTestDataInitializer {
             addTestFileToZip(zos, testDir, "projects.csv", "08_projects.csv");
             addTestFileToZip(zos, testDir, "fiscal-periods.csv", "11_fiscal_periods.csv");
             addTestFileToZip(zos, testDir, "employees.csv", "15_employees.csv");
+            addTestFileToZip(zos, testDir, "21_payroll_runs.csv", "21_payroll_runs.csv");
+            addTestFileToZip(zos, testDir, "22_payroll_details.csv", "22_payroll_details.csv");
         }
         
         return baos.toByteArray();
