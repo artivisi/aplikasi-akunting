@@ -189,8 +189,8 @@ public class ServicePayrollTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should display employee self-service payslips page")
     void shouldDisplaySelfServicePayslips() {
-        // Login as employee (assuming employee user exists in test data)
-        login("employee", "employee");
+        // Login as admin (employee user not available in functional test profile)
+        loginAsAdmin();
         navigateTo("/self-service/payslips");
         waitForPageLoad();
 
@@ -204,8 +204,8 @@ public class ServicePayrollTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should display employee self-service tax certificate page")
     void shouldDisplaySelfServiceBuktiPotong() {
-        // Login as employee
-        login("employee", "employee");
+        // Login as admin (employee user not available in functional test profile)
+        loginAsAdmin();
         navigateTo("/self-service/bukti-potong");
         waitForPageLoad();
 
@@ -219,8 +219,8 @@ public class ServicePayrollTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should display employee self-service profile page")
     void shouldDisplaySelfServiceProfile() {
-        // Login as employee
-        login("employee", "employee");
+        // Login as admin (employee user not available in functional test profile)
+        loginAsAdmin();
         navigateTo("/self-service/profile");
         waitForPageLoad();
 
