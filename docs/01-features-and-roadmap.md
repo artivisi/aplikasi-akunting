@@ -17,16 +17,18 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 
 | Segment | Status | Notes |
 |---------|--------|-------|
-| IT Services / Consulting | Supported | Project tracking, milestone billing |
-| Corporate Training | Supported | Project-based accounting |
-| Photography / Videography | Supported | Equipment tracking, event-based billing |
-| Home-Based Online Sellers | Supported | Multi-channel sales, marketplace integration |
-| Tuition-Only Universities | Supported | Standard service business pattern |
+| IT Services / Consulting | ✅ Supported | Project tracking, milestone billing |
+| Online Sellers (Marketplace) | ✅ Supported | Inventory, COGS, multi-channel sales |
+| Manufacturing (Coffee/F&B) | ✅ Supported | BOM, production orders, cost accumulation |
+| Education (Universities) | ✅ Supported | Student billing, scholarships, receivables |
+| Corporate Training | ✅ Supported | Project-based accounting |
+| Photography / Videography | ✅ Supported | Equipment tracking, event-based billing |
 
 ### Not Targeted (Near-Term)
 - Universities with grant/fund accounting (requires fund dimension)
-- Complex manufacturing with WIP tracking
+- Complex manufacturing with WIP tracking (current: simple BOM-based)
 - Multi-currency operations
+- Advanced marketplace reconciliation (CSV parsing, automated fee extraction)
 
 ## Implemented Features
 
@@ -191,6 +193,35 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - Auto-COGS calculation on sales posting
 - Margin calculation per transaction
 - Product profitability report
+
+### Industry Seed Packs & User Manuals (Complete)
+
+**Industry Seed Packs**
+- IT Services (PT ArtiVisi Intermedia) - 75 COA, 37 templates, payroll components
+- Online Seller (Toko Gadget Murah) - 80 COA, marketplace-specific accounts
+- Manufacturing (Kedai Kopi Nusantara) - 90 COA, 33 templates, BOM products
+- Education (STMIK Tazkia) - 87 COA, 31 templates, student billing
+
+**User Manual (15 files, 12-section structure)**
+- Setup & Administration
+- Basic Accounting Tutorial (crown jewel)
+- Fixed Assets & Depreciation
+- Tax Compliance
+- Payroll & BPJS
+- Industry Overview
+- Service Industry Guide
+- Trading Industry Guide
+- Manufacturing Industry Guide
+- Education Industry Guide
+- Security & Compliance
+- 4 Appendices (Glossary, Templates, Amortization, Accounts)
+
+**Functional Tests**
+- Service: 24 tests (billing, payments, reports)
+- Seller: 28 tests (inventory, sales, COGS)
+- Manufacturing: 44 tests (BOM, production, costing)
+- Campus: 19 tests (billing, scholarships, receivables)
+- Total: 115 industry-specific functional tests
 
 ### Phase 6: Security Hardening (In Progress)
 

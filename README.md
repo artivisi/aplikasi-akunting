@@ -2,6 +2,20 @@
 
 Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymeleaf + PostgreSQL.
 
+**Production-ready features:**
+- ✅ Core accounting (Chart of Accounts, journal entries, financial reports)
+- ✅ Indonesian tax compliance (PPN, PPh 21/23/4(2), e-Faktur, e-Bupot)
+- ✅ Payroll with BPJS and automatic PPh 21 calculation
+- ✅ Fixed assets with depreciation (straight-line, declining balance)
+- ✅ Inventory & simple production (FIFO/weighted average, BOM, production orders)
+- ✅ Security hardening (field-level encryption, audit logging, RBAC)
+
+**Industry support:**
+- IT Services & Consulting
+- Online Sellers (marketplace integration ready)
+- Manufacturing (coffee shops, F&B with BOM)
+- Education (universities, student billing & scholarships)
+
 ## Quick Start
 
 ```bash
@@ -30,7 +44,11 @@ Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymel
 
 ## Project Status
 
-See [Features & Roadmap](docs/01-features-and-roadmap.md) for current status and [Implementation Plan](docs/06-implementation-plan.md) for details.
+**Current Phase:** Phase 6 (Security Hardening) - 8 of 10 subsections complete
+
+**Completed:** Core accounting MVP, tax compliance, payroll, fixed assets, inventory & production, 4 industry seed packs, comprehensive user manual (15 files), 115 functional tests
+
+See [Features & Roadmap](docs/01-features-and-roadmap.md) for complete feature list and [Implementation Plan](docs/06-implementation-plan.md) for detailed status.
 
 ## License
 

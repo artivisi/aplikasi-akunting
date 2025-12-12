@@ -98,43 +98,147 @@ ansible-playbook -i inventory.ini deploy.yml
 
 ### Version Convention
 
-Calendar versioning (CalVer): `YYYY.MM-RELEASE`
+Calendar versioning (CalVer): `YYYY.MM[.PATCH]-RELEASE`
 
 Examples:
 - `2025.11-RELEASE` (Monthly release)
-- `2025.11.1-RELEASE` (Patch release)
+- `2025.11.1-RELEASE` (Patch release within same month)
+- `2025.11.2-RELEASE` (Second patch release)
 
 ### Release Steps
 
-1. **Update pom.xml version**
-   ```xml
-   <version>2025.11-RELEASE</version>
-   ```
+Follow these steps in order:
 
-2. **Build and test**
-   ```bash
-   ./mvnw clean package
-   java -jar target/accounting-finance-2025.11-RELEASE.jar
-   ```
+#### 1. Prepare Release Notes
 
-3. **Commit and tag**
-   ```bash
-   git add pom.xml
-   git commit -m "Release version 2025.11-RELEASE"
-   git tag -a 2025.11-RELEASE -m "Release version 2025.11-RELEASE"
-   git push origin main
-   git push origin 2025.11-RELEASE
-   ```
+```bash
+# Copy template
+cp docs/releases/TEMPLATE.md docs/releases/2025.12-RELEASE.md
 
-4. **Deploy**
-   ```bash
-   ansible-playbook -i inventory.ini deploy.yml
-   ```
+# Edit release notes
+# Fill in:
+# - Highlights
+# - What's New (features by category)
+# - Improvements
+# - Bug Fixes
+# - Breaking Changes (if any)
+# - Migration Guide
+# - Known Issues
+# - Dependencies
+```
 
-5. **Prepare next iteration**
-   ```xml
-   <version>2025.12-SNAPSHOT</version>
-   ```
+Get commits since last release for reference:
+```bash
+git log 2025.11-RELEASE..HEAD --oneline
+```
+
+#### 2. Update pom.xml Version
+
+```bash
+# Open pom.xml and update version
+<version>2025.12-RELEASE</version>
+```
+
+#### 3. Build and Test
+
+```bash
+# Clean build with tests
+./mvnw clean package
+
+# Verify JAR was created
+ls -lh target/accounting-finance-2025.12-RELEASE.jar
+
+# Optional: Quick smoke test locally
+java -jar target/accounting-finance-2025.12-RELEASE.jar
+# Visit http://localhost:10000 and verify login works
+# Ctrl+C to stop
+```
+
+#### 4. Commit Release Files
+
+```bash
+# Stage release files
+git add pom.xml docs/releases/2025.12-RELEASE.md
+
+# Commit with release message
+git commit -m "release: bump version to 2025.12-RELEASE
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+
+# Verify commit
+git log --oneline -1
+```
+
+#### 5. Create Git Tag
+
+```bash
+# Create annotated tag
+git tag -a 2025.12-RELEASE -m "Release 2025.12
+
+See docs/releases/2025.12-RELEASE.md for full release notes."
+
+# Verify tag
+git tag -l | tail -5
+```
+
+#### 6. Push to Remote
+
+```bash
+# Push commits and tags
+git push origin main
+git push origin 2025.12-RELEASE
+
+# Verify on GitHub
+# Check: https://github.com/<username>/<repo>/releases
+```
+
+#### 7. Create GitHub Release (Optional)
+
+Using GitHub CLI:
+```bash
+gh release create 2025.12-RELEASE \
+  --title "Release 2025.12" \
+  --notes-file docs/releases/2025.12-RELEASE.md \
+  target/accounting-finance-2025.12-RELEASE.jar
+```
+
+Or manually via GitHub web UI:
+1. Go to repository → Releases → Draft a new release
+2. Choose tag: `2025.12-RELEASE`
+3. Release title: `Release 2025.12`
+4. Copy-paste from `docs/releases/2025.12-RELEASE.md`
+5. Attach JAR file from `target/`
+6. Publish release
+
+#### 8. Prepare Next Development Iteration
+
+```bash
+# Update pom.xml to next SNAPSHOT version
+<version>2025.12-SNAPSHOT</version>
+
+# Commit
+git add pom.xml
+git commit -m "chore: prepare for next development iteration"
+git push origin main
+```
+
+**Note:** For production deployment, see the "Deployment Process" section above.
+
+### Release Checklist
+
+Use this checklist for each release:
+
+- [ ] All tests passing (`./mvnw test`)
+- [ ] Release notes created in `docs/releases/`
+- [ ] Version updated in `pom.xml`
+- [ ] JAR built successfully (`./mvnw clean package`)
+- [ ] Release files committed
+- [ ] Git tag created
+- [ ] Changes pushed to GitHub
+- [ ] GitHub Release created (optional)
+- [ ] Next SNAPSHOT version prepared
 
 ### GitHub Actions (Optional)
 

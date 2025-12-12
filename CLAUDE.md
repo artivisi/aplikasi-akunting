@@ -38,7 +38,6 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Implementation Plan | `docs/06-implementation-plan.md` |
 | ADRs | `docs/adr/` |
 | User Manual | `docs/user-manual/*.md` (15 files, 12-section structure) |
-| User Manual Guidelines | `docs/user-manual-creation-guidelines.md` |
 | Entities | `src/main/java/.../entity/` |
 | Services | `src/main/java/.../service/` |
 | Controllers | `src/main/java/.../controller/` |
@@ -125,8 +124,8 @@ User Manual (12-section structure complete):
 - 06-pengantar-industri.md: Industry Overview
 - 07-industri-jasa.md: Service Industry
 - 08-industri-dagang.md: Trading Industry
-- 09-industri-manufaktur.md: Manufacturing [Ready for documentation - tests complete]
-- 10-industri-pendidikan.md: Education [TBD - pending tests]
+- 09-industri-manufaktur.md: Manufacturing
+- 10-industri-pendidikan.md: Education
 - 11-keamanan-kepatuhan.md: Security & Compliance
 - 12-lampiran-*.md: Appendices (glosarium, template, amortisasi, akun)
 
@@ -135,6 +134,13 @@ Manufacturing Tests Status:
 - Functional tests: ✅ 44 tests passing (MfgBomTest, MfgProductionTest, MfgCostingTest, etc.)
 - Test pattern: All using data-testid locators (zero text/CSS/positional locators)
 - Test data initializer: CoffeeTestDataInitializer loads seed pack
-- Ready for: User manual screenshots and documentation
+- User manual: ✅ Complete (09-industri-manufaktur.md)
+
+Campus/Education Tests Status:
+- Campus seed pack: ✅ Complete (industry-seed/campus/)
+- Functional tests: ✅ 19 tests passing (CampusBillingTest, CampusPaymentTest, CampusScholarshipTest, CampusReportsTest)
+- Test pattern: All using data-testid locators (zero text/CSS/positional locators)
+- Test data initializer: CampusTestDataInitializer loads seed pack
+- User manual: ✅ Complete (10-industri-pendidikan.md with 9 screenshots)
 
 See `docs/06-implementation-plan.md` for full plan

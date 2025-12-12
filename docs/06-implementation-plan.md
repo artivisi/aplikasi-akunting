@@ -12,14 +12,14 @@
 | Phase | Focus | Status |
 |-------|-------|--------|
 | **0** | Project Setup | ✅ Complete |
-| **1** | Core Accounting (MVP) - IT Services | ✅ Complete |
+| **1** | Core Accounting (MVP) + 4 Industry Seed Packs | ✅ Complete |
 | **2** | Tax Compliance + Cash Flow | ✅ Complete |
 | **3** | Payroll + RBAC + Self-Service | ✅ Complete |
 | **4** | Fixed Assets | ✅ Complete |
 | **5** | Inventory & Production | ✅ Complete |
 | **6** | Security Hardening | 🔄 In Progress |
 | **7** | API Foundation | ⏳ Not Started |
-| **8** | Online Seller Support | ⏳ Not Started |
+| **8** | Advanced Marketplace Features | ⏳ Not Started |
 | **9** | Bank Reconciliation | ⏳ Not Started |
 | **10** | Analytics & Insights | ⏳ Not Started |
 | **11+** | Budget, Advanced Features | ⏳ Not Started |
@@ -170,11 +170,10 @@
 - [x] Pending amortization entries count widget (dashboard widget with total/overdue/due this month)
 
 ### 1.11 Comprehensive User Manual ✅
-- [x] 14 chapters in docs/user-manual/*.md
-- [x] ScreenshotCapture.java with 26 page definitions
-- [x] UserManualGenerator.java with scrollable TOC
-- [x] GitHub Action for auto-deploy to GitHub Pages
-- [x] Playwright-based screenshot capture
+- [x] 15 files in docs/user-manual/*.md (12 sections + 4 appendices)
+- [x] Industry-specific guides: Service, Trading, Manufacturing, Education
+- [x] Playwright functional tests generate screenshots automatically
+- [x] Screenshots stored in target/user-manual/screenshots/
 
 ### 1.12 Data Import ✅
 - [x] COA import from JSON file
@@ -946,8 +945,6 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Goal:** Expose REST API for external integrations, mobile apps, and domain-specific applications
 
-**Strategy document:** `docs/08-multi-industry-expansion-strategy.md`
-
 ### 7.1 API Core
 - [ ] Transaction entity: add `idempotency_key` column (unique, nullable)
 - [ ] ApiKey entity (hashed key, name, permissions, created_at, last_used_at, active)
@@ -990,11 +987,13 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 8: Online Seller Support
+## Phase 8: Advanced Marketplace Features
 
-**Goal:** Support online sellers with marketplace reconciliation and seller-specific features
+**Goal:** Advanced marketplace settlement reconciliation and automation (basic seller accounting is already supported via industry seed packs)
 
 **Target users:** Tokopedia, Shopee, Bukalapak, Lazada sellers
+
+**Note:** Basic online seller accounting (COA, inventory, COGS) is already complete via the "Online Seller" industry seed pack. This phase adds automated CSV reconciliation and fee extraction.
 
 ### 8.1 Marketplace Reconciliation
 - [ ] Marketplace parser config entity
@@ -1119,10 +1118,17 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Over-budget highlighting
 - [ ] PDF/Excel export
 
-### Additional Industry Templates
+### Industry Seed Packs ✅
+- [x] IT Services seed pack (75 COA, 37 templates, 17 salary components)
+- [x] Online Seller seed pack (80 COA, marketplace-specific accounts)
+- [x] Manufacturing seed pack (Coffee Shop - 90 COA, 33 templates, BOM products)
+- [x] Education seed pack (Campus - 87 COA, 31 templates, student billing)
+- [x] Functional tests for all 4 industries (115 total tests)
+- [x] User manuals for all 4 industries
+
+### Additional Industry Templates (Future)
 - [ ] Photography COA and journal templates
 - [ ] General Freelancer COA and journal templates
-- [ ] Industry-specific salary component templates
 
 ### Account Balances (Materialized) - Performance Optimization
 
