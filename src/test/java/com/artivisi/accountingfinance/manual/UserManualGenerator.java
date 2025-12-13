@@ -154,14 +154,14 @@ public class UserManualGenerator {
                 new Section("laporan-produksi", "Laporan Produksi", "09-industri-manufaktur.md", List.of("coffee/report-production-list", "coffee/report-stock-balance"))
             )),
 
-            // 10. INDUSTRI PENDIDIKAN [TBD]
+            // 10. INDUSTRI PENDIDIKAN
             new SectionGroup("industri-pendidikan", "Industri Pendidikan", "M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222", List.of(
-                new Section("karakteristik-pendidikan", "Karakteristik Institusi Pendidikan", "10-industri-pendidikan.md", List.of()),
-                new Section("manajemen-mahasiswa", "Manajemen Mahasiswa", "10-industri-pendidikan.md", List.of()),
-                new Section("tagihan-spp", "Tagihan SPP", "10-industri-pendidikan.md", List.of()),
-                new Section("pembayaran-cicilan", "Pembayaran & Cicilan", "10-industri-pendidikan.md", List.of()),
-                new Section("beasiswa", "Beasiswa & Potongan", "10-industri-pendidikan.md", List.of()),
-                new Section("laporan-pendidikan", "Laporan Pendidikan", "10-industri-pendidikan.md", List.of())
+                new Section("karakteristik-pendidikan", "Karakteristik Industri Pendidikan", "10-industri-pendidikan.md", List.of()),
+                new Section("coa-pendidikan", "Chart of Accounts Khusus Pendidikan", "10-industri-pendidikan.md", List.of()),
+                new Section("template-pendidikan", "Template Transaksi Pendidikan", "10-industri-pendidikan.md", List.of()),
+                new Section("transaksi-harian", "Transaksi Harian: Contoh Praktis", "10-industri-pendidikan.md", List.of()),
+                new Section("laporan-keuangan", "Laporan Keuangan Khusus Pendidikan", "10-industri-pendidikan.md", List.of()),
+                new Section("laporan-piutang", "Laporan Piutang Mahasiswa", "10-industri-pendidikan.md", List.of())
             )),
 
             // 11. KEAMANAN & KEPATUHAN DATA
@@ -678,7 +678,7 @@ public class UserManualGenerator {
     public static void main(String[] args) throws IOException {
         Path markdownDir = Paths.get("docs", "user-manual");
         Path outputDir = Paths.get("target", "user-manual");
-        Path screenshotsDir = Paths.get("target", "screenshots");
+        Path screenshotsDir = Paths.get("target", "user-manual", "screenshots");
 
         UserManualGenerator generator = new UserManualGenerator(markdownDir, outputDir, screenshotsDir);
         generator.generate();
