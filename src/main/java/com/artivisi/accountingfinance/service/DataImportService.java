@@ -485,7 +485,7 @@ public class DataImportService {
 
     private String getField(String[] row, int index) {
         if (index >= row.length) return "";
-        return row[index];
+        return row[index].trim();
     }
 
     private BigDecimal parseBigDecimal(String value) {
