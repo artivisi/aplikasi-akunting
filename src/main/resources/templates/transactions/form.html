@@ -200,7 +200,7 @@
                                             <span class="inline-flex items-center justify-center w-5 h-5 ml-1 rounded-full bg-blue-100 text-blue-700 font-bold text-xs" 
                                                   title="Akun dipilih saat input transaksi">?</span>
                                         </label>
-                                        <select th:id="${'accountMapping_' + line.id}" 
+                                        <select th:id="${'accountMapping_' + line.id}"
                                                 th:name="${'accountMapping[' + line.id + ']'}"
                                                 @change="$dispatch('account-changed')"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
@@ -208,7 +208,8 @@
                                             <option value="">Pilih akun</option>
                                             <option th:each="acc : ${accounts}"
                                                     th:value="${acc.id}"
-                                                    th:text="${acc.accountCode + ' - ' + acc.accountName}">Account</option>
+                                                    th:text="${acc.accountCode + ' - ' + acc.accountName}"
+                                                    th:selected="${isEdit and transaction != null and #lists.toList(transaction.accountMappings).?[templateLine.id == line.id and account.id == acc.id].size() > 0}">Account</option>
                                         </select>
                                         <p th:if="${line.description != null and !#strings.isEmpty(line.description)}" 
                                            class="text-xs text-gray-500 mt-1" 

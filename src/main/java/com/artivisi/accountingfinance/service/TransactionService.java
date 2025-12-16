@@ -88,6 +88,11 @@ public class TransactionService {
                 .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
     }
 
+    public Transaction findByIdWithMappingsAndVariables(UUID id) {
+        return transactionRepository.findByIdWithMappingsAndVariables(id)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
+    }
+
     @Transactional
     public Transaction create(Transaction transaction, Map<UUID, UUID> accountMappings) {
         return create(transaction, accountMappings, null, null);

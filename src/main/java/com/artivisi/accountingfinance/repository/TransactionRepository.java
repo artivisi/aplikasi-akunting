@@ -49,6 +49,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT t FROM Transaction t LEFT JOIN FETCH t.journalEntries WHERE t.id = :id")
     Optional<Transaction> findByIdWithJournalEntries(@Param("id") UUID id);
 
+    @Query("SELECT t FROM Transaction t " +
+           "LEFT JOIN FETCH t.accountMappings am " +
+           "LEFT JOIN FETCH am.templateLine " +
+           "LEFT JOIN FETCH am.account " +
+           "LEFT JOIN FETCH t.variables " +
+           "WHERE t.id = :id")
+    Optional<Transaction> findByIdWithMappingsAndVariables(@Param("id") UUID id);
+
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = :status")
     long countByStatus(@Param("status") TransactionStatus status);
 

@@ -190,7 +190,7 @@ public class TransactionController {
     @GetMapping("/{id}/edit")
     @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_EDIT + "')")
     public String edit(@PathVariable UUID id, Model model) {
-        Transaction transaction = transactionService.findById(id);
+        Transaction transaction = transactionService.findByIdWithMappingsAndVariables(id);
         if (!transaction.isDraft()) {
             return "redirect:/transactions/" + id;
         }
