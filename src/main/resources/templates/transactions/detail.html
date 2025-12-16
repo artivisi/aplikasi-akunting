@@ -225,28 +225,44 @@
 
                     <!-- Journal Lines -->
                     <div class="divide-y divide-gray-100">
-                        <!-- Empty state for draft transactions -->
-                        <div th:if="${transaction.journalEntries.isEmpty()}" class="px-6 py-12 text-center">
+                        <!-- Preview for draft transactions (before posting) -->
+                        <div th:if="${transaction.status.name() == 'DRAFT' and transaction.journalEntries.isEmpty()}">
+                            <!-- Hidden fields for amount -->
+                            <input type="hidden" id="preview-amount" name="amount" th:value="${transaction.amount}">
+                            <!-- Hidden fields for account mappings -->
+                            <th:block th:each="mapping : ${transaction.accountMappings}">
+                                <input type="hidden"
+                                       th:name="${'accountMapping[' + mapping.templateLine.id + ']'}"
+                                       th:value="${mapping.account.id}"
+                                       class="preview-mapping">
+                            </th:block>
+                            <!-- Hidden fields for variables -->
+                            <th:block th:each="variable : ${transaction.variables}">
+                                <input type="hidden"
+                                       th:name="${'var_' + variable.variableName}"
+                                       th:value="${variable.variableValue}"
+                                       class="preview-variable">
+                            </th:block>
+                            <div id="journal-preview-content"
+                                 hx-get="/transactions/preview"
+                                 th:hx-vals="${'{&quot;templateId&quot;: &quot;' + transaction.journalTemplate.id + '&quot;}'}"
+                                 hx-trigger="load"
+                                 hx-include="#preview-amount, .preview-mapping, .preview-variable">
+                                <div class="px-6 py-8 text-center text-gray-500">
+                                    <div class="animate-pulse">Memuat preview jurnal...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty state for void or other transactions without journal entries -->
+                        <div th:if="${transaction.status.name() != 'DRAFT' and transaction.journalEntries.isEmpty()}" class="px-6 py-12 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Jurnal belum dibuat</h3>
-                            <p class="mt-1 text-sm text-gray-500">Jurnal entry akan dibuat otomatis saat transaksi di-posting</p>
-                            <div class="mt-6" sec:authorize="hasAuthority('TRANSACTION_POST')">
-                                <button th:if="${transaction.status.name() == 'DRAFT'}"
-                                        hx-post="/transactions/api/{id}/post"
-                                        th:hx-post="@{/transactions/api/{id}/post(id=${transaction.id})}"
-                                        hx-target="#transaction-detail"
-                                        hx-swap="outerHTML"
-                                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Posting Transaksi
-                                </button>
-                            </div>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">Jurnal tidak tersedia</h3>
+                            <p class="mt-1 text-sm text-gray-500">Transaksi ini tidak memiliki jurnal entry</p>
                         </div>
-                        
+
                         <div th:each="entry, iterStat : ${transaction.journalEntries}"
                              th:id="'journal-entry-' + ${iterStat.index}"
                              th:classappend="${transaction.status.name() == 'VOID'} ? 'opacity-50'"
