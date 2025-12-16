@@ -1,21 +1,30 @@
 <!-- Journal Lines with Calculated Amounts -->
 <div id="preview-lines" class="divide-y divide-gray-100">
-    <div th:each="entry, stat : ${entries}" th:data-row-index="${stat.index}" class="grid grid-cols-12 gap-4 px-4 py-3 items-center preview-row">
-        <div class="col-span-6 preview-account">
-            <span class="text-sm text-gray-500 preview-account-code" th:text="${entry.accountCode}">1.1.01</span>
+    <div th:each="entry, stat : ${entries}"
+         th:id="${'journal-entry-' + stat.index}"
+         th:data-row-index="${stat.index}"
+         class="grid grid-cols-12 gap-4 px-4 py-3 items-center journal-entry-row">
+        <div class="col-span-6">
+            <span th:id="${'entry-account-code-' + stat.index}"
+                  class="text-sm text-gray-500"
+                  th:text="${entry.accountCode}">1.1.01</span>
             <span class="text-sm text-gray-500 mx-2">-</span>
-            <span class="text-sm text-gray-800 preview-account-name" th:text="${entry.accountName}">Account Name</span>
+            <span th:id="${'entry-account-name-' + stat.index}"
+                  class="text-sm text-gray-800"
+                  th:text="${entry.accountName}">Account Name</span>
         </div>
-        <div class="col-span-3 text-right text-sm font-mono preview-debit"
+        <div class="col-span-3 text-right text-sm font-mono"
              th:classappend="${entry.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'">
-            <span th:if="${entry.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+            <span th:id="${'entry-debit-' + stat.index}"
+                  th:if="${entry.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                 Rp <span th:text="${#numbers.formatInteger(entry.debitAmount, 0, 'POINT')}">0</span>
             </span>
             <span th:unless="${entry.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
         </div>
-        <div class="col-span-3 text-right text-sm font-mono preview-credit"
+        <div class="col-span-3 text-right text-sm font-mono"
              th:classappend="${entry.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-gray-900' : 'text-gray-400'">
-            <span th:if="${entry.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+            <span th:id="${'entry-credit-' + stat.index}"
+                  th:if="${entry.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                 Rp <span th:text="${#numbers.formatInteger(entry.creditAmount, 0, 'POINT')}">0</span>
             </span>
             <span th:unless="${entry.creditAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
@@ -24,12 +33,12 @@
 </div>
 
 <!-- Journal Totals -->
-<div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-t border-gray-200">
+<div id="journal-totals" class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-t border-gray-200">
     <div class="col-span-6 text-sm font-semibold text-gray-700">Total</div>
-    <div class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
+    <div id="total-debit" class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
         Rp <span th:text="${#numbers.formatInteger(totalDebit, 0, 'POINT')}">0</span>
     </div>
-    <div class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
+    <div id="total-credit" class="col-span-3 text-right text-sm font-mono font-semibold text-gray-900">
         Rp <span th:text="${#numbers.formatInteger(totalCredit, 0, 'POINT')}">0</span>
     </div>
 </div>
