@@ -209,7 +209,7 @@
                                             <option th:each="acc : ${accounts}"
                                                     th:value="${acc.id}"
                                                     th:text="${acc.accountCode + ' - ' + acc.accountName}"
-                                                    th:selected="${isEdit and transaction != null and #lists.toList(transaction.accountMappings).?[templateLine.id == line.id and account.id == acc.id].size() > 0}">Account</option>
+                                                    th:selected="${isEdit and transaction != null and #lists.toList(transaction.accountMappings).?[templateLine.id == #vars.line.id and account.id == #vars.acc.id].size() > 0}">Account</option>
                                         </select>
                                         <p th:if="${line.description != null and !#strings.isEmpty(line.description)}" 
                                            class="text-xs text-gray-500 mt-1" 
