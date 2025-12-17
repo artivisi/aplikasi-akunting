@@ -106,6 +106,7 @@
                       x-data="{
                           amount: parseInt($el.dataset.amount) || 0,
                           description: $el.dataset.description || '',
+                          submitting: false,
                           formatCurrency(value) {
                               return new Intl.NumberFormat('id-ID').format(value);
                           },
@@ -342,23 +343,33 @@
                         <div class="flex items-center space-x-3">
                             <!-- Save as Draft -->
                             <button id="btn-simpan-draft" type="button"
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    :disabled="submitting"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="submitting" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg x-show="!submitting" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                     </svg>
-                                    Simpan Draft
+                                    <span x-text="submitting ? 'Menyimpan...' : 'Simpan Draft'">Simpan Draft</span>
                                 </span>
                             </button>
 
                             <!-- Save and Post -->
                             <button id="btn-simpan-posting" type="button"
-                                    class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                                    :disabled="submitting"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="submitting" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg x-show="!submitting" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    Simpan &amp; Posting
+                                    <span x-text="submitting ? 'Memproses...' : 'Simpan &amp; Posting'">Simpan &amp; Posting</span>
                                 </span>
                             </button>
                         </div>
@@ -467,6 +478,12 @@
 
                 // Save Draft
                 document.getElementById('btn-simpan-draft')?.addEventListener('click', async function() {
+                    const form = document.getElementById('form-transaksi');
+                    const alpineData = Alpine.$data(form);
+
+                    if (alpineData.submitting) return; // Prevent double-click
+                    alpineData.submitting = true;
+
                     const data = getFormData();
                     console.log('Saving draft with data:', JSON.stringify(data));
 
@@ -499,11 +516,19 @@
                     } catch (err) {
                         console.error('Exception:', err);
                         alert('Gagal menyimpan: ' + err.message);
+                    } finally {
+                        alpineData.submitting = false;
                     }
                 });
 
                 // Save and Post
                 document.getElementById('btn-simpan-posting')?.addEventListener('click', async function() {
+                    const form = document.getElementById('form-transaksi');
+                    const alpineData = Alpine.$data(form);
+
+                    if (alpineData.submitting) return; // Prevent double-click
+                    alpineData.submitting = true;
+
                     const data = getFormData();
 
                     try {
@@ -547,6 +572,8 @@
                         }
                     } catch (err) {
                         alert('Gagal menyimpan: ' + err.message);
+                    } finally {
+                        alpineData.submitting = false;
                     }
                 });
             });
