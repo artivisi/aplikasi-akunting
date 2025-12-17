@@ -34,10 +34,10 @@
                 <div class="col-span-2">No. Transaksi</div>
                 <div class="col-span-1">Tanggal</div>
                 <div class="col-span-3">Keterangan</div>
-                <div class="col-span-2">Kategori</div>
+                <div class="col-span-1">Kategori</div>
                 <div class="col-span-2 text-right">Jumlah</div>
                 <div class="col-span-1 text-center">Status</div>
-                <div class="col-span-1 text-center">Aksi</div>
+                <div class="col-span-2 text-center">Aksi</div>
             </div>
 
             <!-- Empty State -->
@@ -91,15 +91,16 @@
     </div>
 
     <!-- Single Transaction Row Fragment -->
-    <a th:fragment="row(trx)"
-       th:id="${'trx-row-' + trx.id}"
-       th:href="@{/transactions/{id}(id=${trx.id})}"
-       th:classappend="${trx.status.name() == 'DRAFT'} ? 'bg-amber-50/30 hover:bg-amber-50' : (${trx.status.name() == 'VOID'} ? 'opacity-60 hover:bg-gray-50' : 'hover:bg-gray-50')"
-       class="grid grid-cols-12 gap-4 px-4 py-3 transition-colors items-center cursor-pointer"
-       th:data-testid="${'trx-row-' + trx.transactionNumber}">
+    <div th:fragment="row(trx)"
+         th:id="${'trx-row-' + trx.id}"
+         th:classappend="${trx.status.name() == 'DRAFT'} ? 'bg-amber-50/30 hover:bg-amber-50' : (${trx.status.name() == 'VOID'} ? 'opacity-60 hover:bg-gray-50' : 'hover:bg-gray-50')"
+         class="grid grid-cols-12 gap-4 px-4 py-3 transition-colors items-center trx-row"
+         th:data-testid="${'trx-row-' + trx.transactionNumber}">
         <div class="col-span-2">
-            <p th:classappend="${trx.status.name() == 'VOID'} ? 'line-through'"
-               class="text-sm font-medium text-gray-900" th:text="${trx.transactionNumber}">TRX-2025-0001</p>
+            <a th:href="@{/transactions/{id}(id=${trx.id})}"
+               th:classappend="${trx.status.name() == 'VOID'} ? 'line-through'"
+               class="text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline"
+               th:text="${trx.transactionNumber}">TRX-2025-0001</a>
             <p class="text-xs text-gray-500" th:text="${trx.journalTemplate?.category?.name()}">Category</p>
         </div>
         <div class="col-span-1 text-sm text-gray-600" th:text="${#temporals.format(trx.transactionDate, 'dd MMM')}">01 Jan</div>
@@ -109,7 +110,7 @@
             <p th:if="${trx.status.name() == 'VOID'}" class="text-xs text-red-500 truncate" th:text="'Void: ' + ${trx.voidReason?.indonesianName}">Void reason</p>
             <p th:unless="${trx.status.name() == 'VOID'}" class="text-xs text-gray-500 truncate" th:text="${trx.referenceNumber}">Reference</p>
         </div>
-        <div class="col-span-2">
+        <div class="col-span-1">
             <span th:classappend="${trx.journalTemplate?.category?.name() == 'INCOME'} ? 'bg-green-100 text-green-800' : (${trx.journalTemplate?.category?.name() == 'EXPENSE'} ? 'bg-red-100 text-red-800' : (${trx.journalTemplate?.category?.name() == 'TRANSFER'} ? 'bg-purple-100 text-purple-800' : (${trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'bg-blue-100 text-blue-800' : 'bg-cyan-100 text-cyan-800')))"
                   class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
                 <span th:classappend="${trx.journalTemplate?.category?.name() == 'INCOME'} ? 'bg-green-500' : (${trx.journalTemplate?.category?.name() == 'EXPENSE'} ? 'bg-red-500' : (${trx.journalTemplate?.category?.name() == 'TRANSFER'} ? 'bg-purple-500' : (${trx.journalTemplate?.category?.name() == 'PAYMENT'} ? 'bg-blue-500' : 'bg-cyan-500')))"
@@ -130,7 +131,7 @@
                   class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                   th:text="${trx.status.name()}">Status</span>
         </div>
-        <div class="col-span-1 flex justify-center space-x-1" onclick="event.stopPropagation();">
+        <div class="col-span-2 flex justify-center space-x-1" onclick="event.stopPropagation();">
             <!-- View -->
             <a th:href="@{/transactions/{id}(id=${trx.id})}"
                class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
@@ -183,6 +184,6 @@
                 </svg>
             </a>
         </div>
-    </a>
+    </div>
 </body>
 </html>
