@@ -336,6 +336,10 @@ public class FixedAssetService {
                     case "ASET_TETAP":
                         accountMappings.put(line.getId(), asset.getAssetAccount().getId());
                         break;
+                    default:
+                        log.warn("Unrecognized account hint '{}' in depreciation template line {}",
+                                LogSanitizer.sanitize(line.getAccountHint()), line.getId());
+                        break;
                 }
             }
         }
@@ -446,6 +450,10 @@ public class FixedAssetService {
                         break;
                     case "ASET_TETAP":
                         accountMappings.put(line.getId(), asset.getAssetAccount().getId());
+                        break;
+                    default:
+                        log.warn("Unrecognized account hint '{}' in disposal template line {}",
+                                LogSanitizer.sanitize(line.getAccountHint()), line.getId());
                         break;
                 }
             }

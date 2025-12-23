@@ -40,8 +40,6 @@ public class ReportService {
         BigDecimal totalDebit = BigDecimal.ZERO;
         BigDecimal totalCredit = BigDecimal.ZERO;
 
-        LocalDate periodStart = asOfDate.withDayOfMonth(1);
-
         for (ChartOfAccount account : accounts) {
             BigDecimal debit = journalEntryRepository.sumDebitByAccountAndDateRange(
                     account.getId(), LocalDate.of(1900, 1, 1), asOfDate);

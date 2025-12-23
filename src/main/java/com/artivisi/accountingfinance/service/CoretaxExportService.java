@@ -109,7 +109,6 @@ public class CoretaxExportService {
     private void createEFakturSheet(Workbook workbook, List<TaxTransactionDetail> details, CompanyConfig config, String sheetName) {
         Sheet sheet = workbook.createSheet("DATA");
         CellStyle headerStyle = createHeaderStyle(workbook);
-        CellStyle dateStyle = createDateStyle(workbook);
         CellStyle numberStyle = createNumberStyle(workbook);
 
         // Header row
