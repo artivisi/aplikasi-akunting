@@ -88,8 +88,3 @@ regexes = [
 commits = [
     # Add specific commit hashes to ignore if needed
 ]
-
-# Entropy settings
-[rules.entropy]
-# Reduce false positives from high-entropy strings
-min = 4.5
