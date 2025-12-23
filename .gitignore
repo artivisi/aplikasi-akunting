@@ -49,3 +49,4 @@ clients/artivisi/artivisi-seed-data.zip
 .env.*.local
 
 .DS_Store
+logs
