@@ -1797,7 +1797,13 @@ public class DataImportService {
             }
 
             Path targetPath = rootLocation.resolve(storagePath);
-            Files.createDirectories(targetPath.getParent());
+
+            // Create parent directories if needed
+            Path parent = targetPath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
             Files.write(targetPath, content);
             count++;
         }

@@ -119,9 +119,9 @@ public class TelegramBotService {
 
         if (existingLink.isPresent() && existingLink.get().isLinked()) {
             sendMessage(chatId, String.format(
-                    "Halo %s! Akun Telegram Anda sudah terhubung.\n\n" +
-                    "Kirim foto struk untuk diproses.\n" +
-                    "Ketik /status untuk melihat draft pending.\n" +
+                    "Halo %s! Akun Telegram Anda sudah terhubung.%n%n" +
+                    "Kirim foto struk untuk diproses.%n" +
+                    "Ketik /status untuk melihat draft pending.%n" +
                     "Ketik /help untuk bantuan.", firstName));
             return;
         }
