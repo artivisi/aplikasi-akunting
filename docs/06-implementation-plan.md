@@ -804,9 +804,6 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] OWASP ZAP full scan (weekly schedule, on-demand)
   - [x] Spider + active scan
   - [x] Custom rules in `.zap/rules.tsv`
-- [x] Nuclei vulnerability scanner
-  - [x] Custom templates for Spring Boot
-  - [x] CVE detection templates
 
 #### 6.9.5 Container Security
 - [ ] Trivy container scanning
