@@ -134,13 +134,13 @@ public class TelegramBotService {
         }
 
         sendMessage(chatId, String.format(
-                "Selamat datang %s!\n\n" +
-                "Untuk menghubungkan akun:\n" +
-                "1. Login ke aplikasi akunting\n" +
-                "2. Buka Pengaturan > Telegram\n" +
-                "3. Klik 'Hubungkan Telegram'\n" +
-                "4. Kirim kode verifikasi yang muncul dengan:\n" +
-                "   /link KODE_ANDA\n\n" +
+                "Selamat datang %s!%n%n" +
+                "Untuk menghubungkan akun:%n" +
+                "1. Login ke aplikasi akunting%n" +
+                "2. Buka Pengaturan > Telegram%n" +
+                "3. Klik 'Hubungkan Telegram'%n" +
+                "4. Kirim kode verifikasi yang muncul dengan:%n" +
+                "   /link KODE_ANDA%n%n" +
                 "Atau klik link yang muncul di aplikasi.", firstName));
     }
 
@@ -170,10 +170,10 @@ public class TelegramBotService {
         telegramLinkRepository.save(link);
 
         sendMessage(chatId, String.format(
-                "Akun berhasil terhubung! 🎉\n\n" +
-                "Halo %s, sekarang Anda dapat:\n" +
-                "• Kirim foto struk untuk diproses otomatis\n" +
-                "• Ketik /status untuk cek draft pending\n\n" +
+                "Akun berhasil terhubung! 🎉%n%n" +
+                "Halo %s, sekarang Anda dapat:%n" +
+                "• Kirim foto struk untuk diproses otomatis%n" +
+                "• Ketik /status untuk cek draft pending%n%n" +
                 "Kirim foto struk pertama Anda!", firstName));
     }
 
@@ -190,7 +190,7 @@ public class TelegramBotService {
             sendMessage(chatId, "Tidak ada draft yang menunggu review. 👍");
         } else {
             sendMessage(chatId, String.format(
-                    "Anda memiliki %d draft menunggu review.\n\n" +
+                    "Anda memiliki %d draft menunggu review.%n%n" +
                     "Buka aplikasi untuk mereview dan approve.", pendingCount));
         }
     }
