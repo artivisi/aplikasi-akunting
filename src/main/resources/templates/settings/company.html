@@ -174,14 +174,12 @@
                 <div th:if="${config.companyLogoPath}" class="mb-4">
                     <p class="text-sm text-gray-600 mb-2">Logo saat ini:</p>
                     <div class="flex items-center gap-4">
-                        <img th:src="@{/settings/company/logo}"
+                        <img id="company-logo-preview" th:src="@{/settings/company/logo}"
                              alt="Company Logo"
-                             class="h-16 w-auto object-contain border rounded p-1"
-                             onerror="this.style.display='none'">
-                        <form th:action="@{/settings/company/logo/delete}" method="post" class="inline">
+                             class="h-16 w-auto object-contain border rounded p-1">
+                        <form id="form-delete-logo" th:action="@{/settings/company/logo/delete}" method="post" class="inline">
                             <button id="btn-delete-logo" type="submit"
-                                    class="text-sm text-red-600 hover:text-red-800"
-                                    onclick="return confirm('Hapus logo perusahaan?')">
+                                    class="text-sm text-red-600 hover:text-red-800">
                                 Hapus Logo
                             </button>
                         </form>
@@ -318,5 +316,15 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-delete-logo')?.addEventListener('submit', function(e) {
+                if (!confirm('Hapus logo perusahaan?')) e.preventDefault();
+            });
+            document.getElementById('company-logo-preview')?.addEventListener('error', function() {
+                this.style.display = 'none';
+            });
+        </script>
+    </th:block>
 </body>
 </html>

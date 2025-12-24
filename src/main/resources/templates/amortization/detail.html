@@ -107,10 +107,9 @@
                         Posting Semua Pending
                     </button>
                 </form>
-                <form th:if="${schedule.active}"
+                <form th:if="${schedule.active}" id="form-cancel"
                       th:action="@{/amortization/{id}/cancel(id=${schedule.id})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Batalkan jadwal ini?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
                         Batalkan
                     </button>
@@ -126,5 +125,14 @@
             <th:block th:insert="~{amortization/fragments/entry-table :: table}"/>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-cancel')?.addEventListener('submit', function(e) {
+                if (!confirm('Batalkan jadwal ini?')) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
 </body>
 </html>

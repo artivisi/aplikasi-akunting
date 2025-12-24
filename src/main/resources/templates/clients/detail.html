@@ -86,10 +86,9 @@
                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                     Edit
                 </a>
-                <form th:if="${client.active}"
+                <form th:if="${client.active}" id="form-deactivate"
                       th:action="@{/clients/{code}/deactivate(code=${client.code})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Nonaktifkan klien ini?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
                         Nonaktifkan
                     </button>
@@ -128,5 +127,14 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-deactivate')?.addEventListener('submit', function(e) {
+                if (!confirm('Nonaktifkan klien ini?')) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
 </body>
 </html>

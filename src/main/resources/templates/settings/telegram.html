@@ -77,9 +77,8 @@
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-gray-200">
-                        <form th:action="@{/settings/telegram/unlink}" method="post">
+                        <form id="form-unlink-telegram" th:action="@{/settings/telegram/unlink}" method="post">
                             <button type="submit"
-                                    onclick="return confirm('Yakin ingin memutus hubungan dengan akun Telegram ini?')"
                                     class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
@@ -104,7 +103,7 @@
                         <h3 class="text-sm font-medium text-blue-800 mb-2">Kode Verifikasi Anda</h3>
                         <div class="flex items-center justify-between bg-white rounded-lg px-4 py-3 border border-blue-300">
                             <span class="text-2xl font-mono font-bold text-blue-600 tracking-widest" th:text="${verificationCode}">123456</span>
-                            <button onclick="copyCode()" class="text-blue-600 hover:text-blue-800">
+                            <button id="btn-copy-code" type="button" class="text-blue-600 hover:text-blue-800">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
@@ -201,10 +200,18 @@
     </div>
 
     <th:block layout:fragment="scripts">
-        <script th:if="${verificationCode}" th:attr="nonce=${cspNonce}">
-            function copyCode() {
-                navigator.clipboard.writeText('[[${verificationCode}]]');
-                alert('Kode berhasil disalin!');
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-unlink-telegram')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin memutus hubungan dengan akun Telegram ini?')) e.preventDefault();
+            });
+            /*<![CDATA[*/
+            var verificationCode = /*[[${verificationCode}]]*/ null;
+            /*]]>*/
+            if (verificationCode) {
+                document.getElementById('btn-copy-code')?.addEventListener('click', function() {
+                    navigator.clipboard.writeText(verificationCode);
+                    alert('Kode berhasil disalin!');
+                });
             }
         </script>
     </th:block>

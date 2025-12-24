@@ -85,8 +85,7 @@
 
             <!-- Template Search Autocomplete -->
             <div sec:authorize="hasAuthority('TRANSACTION_CREATE')"
-                 x-data="searchFilterState"
-                 @click.outside="closeDropdown"
+                 id="template-search-container"
                  class="relative w-full lg:w-80">
                 <div class="relative">
                     <input id="template-search"
@@ -94,11 +93,10 @@
                            data-testid="search-input"
                            placeholder="Cari template transaksi..."
                            autocomplete="off"
-                           @focus="openDropdown"
-                           @input="updateHasQuery"
                            hx-get="/transactions/templates/search"
                            hx-trigger="keyup changed delay:300ms, focus"
                            hx-target="#template-search-results"
+                           hx-swap="innerHTML"
                            hx-include="[name='q']"
                            name="q"
                            class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
@@ -108,11 +106,9 @@
                 </div>
 
                 <!-- Results dropdown (populated by HTMX) -->
-                <div x-show="open" x-cloak data-testid="search-dropdown"
-                     class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
-                    <div id="template-search-results">
-                        <!-- HTMX will populate this -->
-                    </div>
+                <div id="template-search-results" data-testid="search-dropdown"
+                     class="hidden absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
+                    <!-- HTMX will populate this -->
                 </div>
             </div>
         </div>
@@ -123,13 +119,56 @@
 
     <!-- Page Scripts -->
     <th:block layout:fragment="scripts">
-        <script th:attr="nonce=${cspNonce}">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
             // Auto-reload transaction list when transactions are updated (e.g., from Quick Transaction)
             document.addEventListener('transactionsUpdated', function() {
                 // Trigger HTMX request to reload the transaction table
-                const filterForm = document.getElementById('filter-form');
+                var filterForm = document.getElementById('filter-form');
                 if (filterForm) {
                     htmx.trigger(filterForm, 'submit');
+                }
+            });
+            // Stop propagation on action buttons to prevent row click
+            document.getElementById('transactions-list-content').addEventListener('click', function(e) {
+                if (e.target.closest('.trx-actions')) {
+                    e.stopPropagation();
+                }
+            });
+
+            // Template search dropdown show/hide
+            var searchResults = document.getElementById('template-search-results');
+            var searchInput = document.getElementById('template-search');
+            var searchContainer = document.getElementById('template-search-container');
+
+            function showDropdown() {
+                if (searchResults) searchResults.classList.remove('hidden');
+            }
+            function hideDropdown() {
+                if (searchResults) searchResults.classList.add('hidden');
+            }
+
+            // Show dropdown when HTMX swaps content
+            if (searchResults) {
+                searchResults.addEventListener('htmx:afterSwap', showDropdown);
+            }
+
+            // Also show on input focus
+            if (searchInput) {
+                searchInput.addEventListener('focus', showDropdown);
+            }
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (searchContainer && !searchContainer.contains(e.target)) {
+                    hideDropdown();
+                }
+            });
+
+            // Hide dropdown on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideDropdown();
+                    if (searchInput) searchInput.blur();
                 }
             });
         </script>

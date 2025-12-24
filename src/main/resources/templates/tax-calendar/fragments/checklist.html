@@ -78,7 +78,7 @@
                     </div>
                     <div th:if="${status.completed}">
                         <form th:action="@{/tax-calendar/uncomplete/{id}(id=${status.completion.id})}" method="post"
-                              onsubmit="return confirm('Yakin ingin menghapus status selesai?');">
+                              class="form-uncomplete">
                             <input type="hidden" name="year" th:value="${status.year}">
                             <input type="hidden" name="month" th:value="${status.month}">
                             <button type="submit"
@@ -129,7 +129,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4">
-                <button type="button" onclick="closeModal()"
+                <button type="button" id="btn-modal-cancel"
                         class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                     Batal
                 </button>
@@ -157,9 +157,21 @@
         });
     });
 
+    // Add confirm dialog for uncomplete forms
+    document.querySelectorAll('.form-uncomplete').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Yakin ingin menghapus status selesai?')) {
+                e.preventDefault();
+            }
+        });
+    });
+
     function closeModal() {
         document.getElementById('complete-modal').classList.add('hidden');
     }
+
+    // Close modal button
+    document.getElementById('btn-modal-cancel')?.addEventListener('click', closeModal);
 
     // Close modal on escape key
     document.addEventListener('keydown', function(e) {

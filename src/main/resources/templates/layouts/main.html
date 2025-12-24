@@ -223,7 +223,7 @@
                             </svg>
                         </summary>
                         <div class="pl-4 space-y-1">
-                            <a sec:authorize="hasAuthority('COA_VIEW')" id="nav-coa" th:href="@{/accounts}"
+                            <a sec:authorize="hasAuthority('ACCOUNT_VIEW')" id="nav-coa" th:href="@{/accounts}"
                                th:classappend="${#strings.equals(currentPage, 'accounts')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                                class="flex items-center px-3 py-2 rounded-lg transition-colors">Bagan Akun</a>
                             <a sec:authorize="hasAuthority('TEMPLATE_VIEW')" id="nav-templates" th:href="@{/templates}"
@@ -438,7 +438,7 @@
                             </svg>
                         </summary>
                         <div class="pl-4 space-y-1">
-                            <a sec:authorize="hasAuthority('COA_VIEW')" th:href="@{/accounts}"
+                            <a sec:authorize="hasAuthority('ACCOUNT_VIEW')" th:href="@{/accounts}"
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Bagan Akun</a>
                             <a sec:authorize="hasAuthority('TEMPLATE_VIEW')" th:href="@{/templates}"
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Template Jurnal</a>

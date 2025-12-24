@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="id">
 <body>
-    <!-- Template Search Results Fragment -->
-    <div th:fragment="results" id="template-search-results" class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+    <!-- Template Search Results Fragment - content only, container in list.html -->
+    <th:block th:fragment="results">
         <div th:if="${templates.isEmpty()}" class="px-4 py-3 text-sm text-gray-500 text-center">
             Tidak ada template ditemukan
         </div>
@@ -53,6 +53,6 @@
                 </a>
             </div>
         </div>
-    </div>
+    </th:block>
 </body>
 </html>

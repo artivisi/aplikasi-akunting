@@ -67,5 +67,19 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.querySelectorAll('.form-deactivate-account').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Nonaktifkan akun ini?')) e.preventDefault();
+                });
+            });
+            document.querySelectorAll('.form-delete-account').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Hapus akun ini?')) e.preventDefault();
+                });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

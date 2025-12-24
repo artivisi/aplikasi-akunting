@@ -162,20 +162,22 @@ public class QuickTransactionTest extends PlaywrightTestBase {
         if (frequentCount > 0 || recentCount > 0) {
             page.locator("[data-testid^='template-frequent-'], [data-testid^='template-recent-']").first().click();
 
-            // Wait for form to load
+            // Wait for form to load and Alpine.js to initialize
             page.getByTestId("quick-transaction-form").waitFor();
+            page.waitForTimeout(500); // Allow time for Alpine.js to bind event handlers
 
             // Fill form
             quickTransactionModal.fillAmount("7500000");
             quickTransactionModal.fillDescription("Test Quick Transaction - Automated");
 
-            // Submit
+            // Submit and wait for navigation (form redirects to /transactions/{id} on success)
             quickTransactionModal.submit();
 
-            // Wait for modal to close
-            page.waitForTimeout(1000);
+            // Wait for the page to navigate away from dashboard (form redirects on success)
+            page.waitForURL(url -> url.contains("/transactions/"),
+                new com.microsoft.playwright.Page.WaitForURLOptions().setTimeout(10000));
 
-            // Navigate to transaction list
+            // Now navigate to transaction list to verify it appears there
             page.navigate(baseUrl() + "/transactions");
             page.waitForLoadState();
 

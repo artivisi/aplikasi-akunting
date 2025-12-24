@@ -143,8 +143,7 @@
                                 </a>
                                 <!-- Delete button -->
                                 <form th:action="@{/projects/{projectCode}/milestones/{id}/delete(projectCode=${project.code}, id=${milestone.id})}"
-                                      method="post" class="inline"
-                                      onsubmit="return confirm('Hapus milestone ini?')">
+                                      method="post" class="inline form-delete-milestone">
                                     <button type="submit" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="Hapus">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -198,8 +197,7 @@
                         <div class="flex items-center gap-2" th:if="${project.status.name() == 'ACTIVE'}">
                             <!-- Generate Invoice -->
                             <form th:action="@{/projects/{projectCode}/payment-terms/{id}/generate-invoice(projectCode=${project.code}, id=${term.id})}"
-                                  method="post" class="inline"
-                                  onsubmit="return confirm('Buat invoice dari termin ini?')">
+                                  method="post" class="inline form-generate-invoice">
                                 <button type="submit" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Buat Invoice">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -215,8 +213,7 @@
                             </a>
                             <!-- Delete -->
                             <form th:action="@{/projects/{projectCode}/payment-terms/{id}/delete(projectCode=${project.code}, id=${term.id})}"
-                                  method="post" class="inline"
-                                  onsubmit="return confirm('Hapus termin pembayaran ini?')">
+                                  method="post" class="inline form-delete-term">
                                 <button type="submit" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="Hapus">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -239,18 +236,16 @@
                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                     Edit
                 </a>
-                <form th:if="${project.status.name() == 'ACTIVE'}"
+                <form th:if="${project.status.name() == 'ACTIVE'}" id="form-complete"
                       th:action="@{/projects/{code}/complete(code=${project.code})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Tandai proyek ini selesai?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
                         Selesaikan
                     </button>
                 </form>
-                <form th:if="${project.status.name() == 'ACTIVE'}"
+                <form th:if="${project.status.name() == 'ACTIVE'}" id="form-archive"
                       th:action="@{/projects/{code}/archive(code=${project.code})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Arsipkan proyek ini?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
                         Arsipkan
                     </button>
@@ -265,5 +260,30 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.querySelectorAll('.form-delete-milestone').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Hapus milestone ini?')) e.preventDefault();
+                });
+            });
+            document.querySelectorAll('.form-generate-invoice').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Buat invoice dari termin ini?')) e.preventDefault();
+                });
+            });
+            document.querySelectorAll('.form-delete-term').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Hapus termin pembayaran ini?')) e.preventDefault();
+                });
+            });
+            document.getElementById('form-complete')?.addEventListener('submit', function(e) {
+                if (!confirm('Tandai proyek ini selesai?')) e.preventDefault();
+            });
+            document.getElementById('form-archive')?.addEventListener('submit', function(e) {
+                if (!confirm('Arsipkan proyek ini?')) e.preventDefault();
+            });
+        </script>
+    </th:block>
 </body>
 </html>

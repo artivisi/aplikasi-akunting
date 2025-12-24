@@ -143,32 +143,44 @@
                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">Edit</a>
 
                     <!-- Start Production (only for DRAFT) -->
-                    <form th:if="${order.status.name() == 'DRAFT'}" th:action="@{/inventory/production/{id}/start(id=${order.id})}" method="post" class="inline"
-                          onsubmit="return confirm('Mulai produksi? Pastikan semua komponen tersedia.')">
+                    <form th:if="${order.status.name() == 'DRAFT'}" id="form-start" th:action="@{/inventory/production/{id}/start(id=${order.id})}" method="post" class="inline">
                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Mulai Produksi</button>
                     </form>
 
                     <!-- Complete Production (only for IN_PROGRESS) -->
-                    <form th:if="${order.status.name() == 'IN_PROGRESS'}" th:action="@{/inventory/production/{id}/complete(id=${order.id})}" method="post" class="inline"
-                          onsubmit="return confirm('Selesaikan produksi? Komponen akan dikurangi dari stok dan produk jadi akan ditambahkan.')">
+                    <form th:if="${order.status.name() == 'IN_PROGRESS'}" id="form-complete" th:action="@{/inventory/production/{id}/complete(id=${order.id})}" method="post" class="inline">
                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Selesaikan Produksi</button>
                     </form>
 
                     <!-- Cancel (for DRAFT or IN_PROGRESS) -->
-                    <form th:if="${order.status.name() == 'DRAFT' || order.status.name() == 'IN_PROGRESS'}"
-                          th:action="@{/inventory/production/{id}/cancel(id=${order.id})}" method="post" class="inline"
-                          onsubmit="return confirm('Yakin ingin membatalkan order ini?')">
+                    <form th:if="${order.status.name() == 'DRAFT' || order.status.name() == 'IN_PROGRESS'}" id="form-cancel"
+                          th:action="@{/inventory/production/{id}/cancel(id=${order.id})}" method="post" class="inline">
                         <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Batalkan</button>
                     </form>
 
                     <!-- Delete (only for DRAFT) -->
-                    <form th:if="${order.status.name() == 'DRAFT'}" th:action="@{/inventory/production/{id}/delete(id=${order.id})}" method="post" class="inline"
-                          onsubmit="return confirm('Yakin ingin menghapus order ini?')">
+                    <form th:if="${order.status.name() == 'DRAFT'}" id="form-delete" th:action="@{/inventory/production/{id}/delete(id=${order.id})}" method="post" class="inline">
                         <button type="submit" class="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50">Hapus</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-start')?.addEventListener('submit', function(e) {
+                if (!confirm('Mulai produksi? Pastikan semua komponen tersedia.')) e.preventDefault();
+            });
+            document.getElementById('form-complete')?.addEventListener('submit', function(e) {
+                if (!confirm('Selesaikan produksi? Komponen akan dikurangi dari stok dan produk jadi akan ditambahkan.')) e.preventDefault();
+            });
+            document.getElementById('form-cancel')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin membatalkan order ini?')) e.preventDefault();
+            });
+            document.getElementById('form-delete')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin menghapus order ini?')) e.preventDefault();
+            });
+        </script>
+    </th:block>
 </body>
 </html>
