@@ -391,8 +391,11 @@
     <!-- Print Controls -->
     <div class="print-controls">
         <a th:href="@{/invoices/{invoiceNumber}(invoiceNumber=${invoice.invoiceNumber})}" class="btn-back">Kembali</a>
-        <button onclick="window.print()" class="btn-print">Cetak Invoice</button>
+        <button id="btn-print" class="btn-print">Cetak Invoice</button>
     </div>
+    <script th:attr="nonce=${cspNonce}">
+        document.getElementById('btn-print').addEventListener('click', function() { window.print(); });
+    </script>
 
     <div class="invoice-container">
         <!-- Header -->

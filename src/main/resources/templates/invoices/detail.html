@@ -96,10 +96,9 @@
                 </a>
 
                 <!-- Send (only draft) -->
-                <form th:if="${invoice.status.name() == 'DRAFT'}"
+                <form th:if="${invoice.status.name() == 'DRAFT'}" id="form-send"
                       th:action="@{/invoices/{invoiceNumber}/send(invoiceNumber=${invoice.invoiceNumber})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Kirim invoice ini ke klien?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
                         Kirim
                     </button>
@@ -113,20 +112,18 @@
                 </a>
 
                 <!-- Cancel (not paid) -->
-                <form th:if="${invoice.status.name() != 'PAID' && invoice.status.name() != 'CANCELLED'}"
+                <form th:if="${invoice.status.name() != 'PAID' && invoice.status.name() != 'CANCELLED'}" id="form-cancel"
                       th:action="@{/invoices/{invoiceNumber}/cancel(invoiceNumber=${invoice.invoiceNumber})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Batalkan invoice ini?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
                         Batalkan
                     </button>
                 </form>
 
                 <!-- Delete (draft or cancelled) -->
-                <form th:if="${invoice.status.name() == 'DRAFT' || invoice.status.name() == 'CANCELLED'}"
+                <form th:if="${invoice.status.name() == 'DRAFT' || invoice.status.name() == 'CANCELLED'}" id="form-delete"
                       th:action="@{/invoices/{invoiceNumber}/delete(invoiceNumber=${invoice.invoiceNumber})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Hapus invoice ini?')">
+                      method="post" class="inline">
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                         Hapus
                     </button>
@@ -134,5 +131,24 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-send')?.addEventListener('submit', function(e) {
+                if (!confirm('Kirim invoice ini ke klien?')) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('form-cancel')?.addEventListener('submit', function(e) {
+                if (!confirm('Batalkan invoice ini?')) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('form-delete')?.addEventListener('submit', function(e) {
+                if (!confirm('Hapus invoice ini?')) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
 </body>
 </html>

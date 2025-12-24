@@ -55,8 +55,7 @@
                 </div>
 
                 <button type="submit" id="btn-import"
-                        class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                        onclick="return confirm('PERINGATAN: Seluruh data akan dihapus dan diganti dengan data dari file. Lanjutkan?');">
+                        class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
                     Import Data
                 </button>
             </form>
@@ -92,5 +91,14 @@
             </a>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('btn-import')?.closest('form')?.addEventListener('submit', function(e) {
+                if (!confirm('PERINGATAN: Seluruh data akan dihapus dan diganti dengan data dari file. Lanjutkan?')) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
 </body>
 </html>

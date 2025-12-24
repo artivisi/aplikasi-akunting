@@ -40,8 +40,7 @@
                 </form>
 
                 <!-- Post Button -->
-                <form th:if="${payrollRun.canPost()}" th:action="@{/payroll/{id}/post(id=${payrollRun.id})}" method="post"
-                      onsubmit="return confirm('Posting payroll akan membuat jurnal. Lanjutkan?')">
+                <form th:if="${payrollRun.canPost()}" id="form-post" th:action="@{/payroll/{id}/post(id=${payrollRun.id})}" method="post">
                     <button type="submit" id="btn-post"
                             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Post ke Jurnal
@@ -49,8 +48,7 @@
                 </form>
 
                 <!-- Cancel Button -->
-                <form th:if="${payrollRun.canCancel()}" th:action="@{/payroll/{id}/cancel(id=${payrollRun.id})}" method="post"
-                      onsubmit="return confirm('Yakin ingin membatalkan payroll ini?')">
+                <form th:if="${payrollRun.canCancel()}" id="form-cancel" th:action="@{/payroll/{id}/cancel(id=${payrollRun.id})}" method="post">
                     <button type="submit" id="btn-cancel"
                             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                         Batalkan
@@ -58,8 +56,7 @@
                 </form>
 
                 <!-- Delete Button (draft only) -->
-                <form th:if="${payrollRun.isDraft()}" th:action="@{/payroll/{id}/delete(id=${payrollRun.id})}" method="post"
-                      onsubmit="return confirm('Yakin ingin menghapus payroll ini?')">
+                <form th:if="${payrollRun.isDraft()}" id="form-delete" th:action="@{/payroll/{id}/delete(id=${payrollRun.id})}" method="post">
                     <button type="submit" id="btn-delete"
                             class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         Hapus
@@ -235,5 +232,18 @@
             </ul>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-post')?.addEventListener('submit', function(e) {
+                if (!confirm('Posting payroll akan membuat jurnal. Lanjutkan?')) e.preventDefault();
+            });
+            document.getElementById('form-cancel')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin membatalkan payroll ini?')) e.preventDefault();
+            });
+            document.getElementById('form-delete')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin menghapus payroll ini?')) e.preventDefault();
+            });
+        </script>
+    </th:block>
 </body>
 </html>

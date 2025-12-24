@@ -13,9 +13,8 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-4">
-                <select name="year"
-                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                        onchange="window.location.href='/tax-calendar/yearly?year=' + this.value">
+                <select id="year-select" name="year"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                     <option th:each="y : ${#numbers.sequence(2020, 2030)}"
                             th:value="${y}"
                             th:text="${y}"
@@ -67,5 +66,12 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('year-select')?.addEventListener('change', function() {
+                window.location.href = '/tax-calendar/yearly?year=' + this.value;
+            });
+        </script>
+    </th:block>
 </body>
 </html>

@@ -19,8 +19,7 @@
                 <div class="flex items-center gap-4">
                     <form th:action="@{/inventory/reports/valuation}" method="get" class="flex items-center gap-2">
                         <select id="categoryId" name="categoryId"
-                                class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
-                                onchange="this.form.submit()">
+                                class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm auto-submit">
                             <option value="">Semua Kategori</option>
                             <option th:each="cat : ${categories}"
                                     th:value="${cat.id}" th:text="${cat.name}"
@@ -113,5 +112,12 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.querySelectorAll('.auto-submit').forEach(el => {
+                el.addEventListener('change', function() { this.form.submit(); });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

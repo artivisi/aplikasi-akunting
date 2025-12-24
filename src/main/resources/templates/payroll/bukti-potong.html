@@ -17,7 +17,6 @@
             <div class="flex items-center space-x-4">
                 <label for="year-select" class="text-sm font-medium text-gray-700">Tahun:</label>
                 <select id="year-select" name="year"
-                        onchange="window.location.href='/payroll/bukti-potong?year=' + this.value"
                         class="rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option th:each="y : ${yearOptions}" th:value="${y}" th:text="${y}" th:selected="${y == selectedYear}">2025</option>
                 </select>
@@ -98,5 +97,12 @@
             </ul>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('year-select')?.addEventListener('change', function() {
+                window.location.href = '/payroll/bukti-potong?year=' + this.value;
+            });
+        </script>
+    </th:block>
 </body>
 </html>

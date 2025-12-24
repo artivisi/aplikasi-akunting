@@ -66,8 +66,11 @@
 <body>
     <div class="print-controls">
         <a th:href="@{/reports/ppn-summary(startDate=${startDate}, endDate=${endDate})}" class="btn btn-back">Kembali</a>
-        <button onclick="window.print()" class="btn btn-print">Cetak</button>
+        <button id="btn-print" class="btn btn-print">Cetak</button>
     </div>
+    <script th:attr="nonce=${cspNonce}">
+        document.getElementById('btn-print').addEventListener('click', function() { window.print(); });
+    </script>
 
     <div class="container">
         <!-- Header -->

@@ -36,9 +36,8 @@
             <!-- Year Filter -->
             <div class="flex items-center space-x-4">
                 <label for="year-filter" class="text-sm font-medium text-gray-700">Tahun:</label>
-                <form th:action="@{/self-service/bukti-potong}" method="get" class="flex items-center space-x-2">
-                    <select id="year-filter" name="year" class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm"
-                            onchange="this.form.submit()">
+                <form id="form-filter" th:action="@{/self-service/bukti-potong}" method="get" class="flex items-center space-x-2">
+                    <select id="year-filter" name="year" class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm auto-submit">
                         <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
                                 th:selected="${y == selectedYear}">2025</option>
                     </select>
@@ -84,5 +83,12 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.querySelectorAll('.auto-submit').forEach(el => {
+                el.addEventListener('change', function() { this.form.submit(); });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

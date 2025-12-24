@@ -37,8 +37,7 @@
                 <form th:action="@{/reports/fiscal-closing}" method="get" class="flex items-center gap-2">
                     <label for="year" class="text-sm font-medium text-gray-700">Tahun:</label>
                     <select id="year" name="year"
-                            class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                            onchange="this.form.submit()">
+                            class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 auto-submit">
                         <option th:each="y : ${#numbers.sequence(2020, 2030)}"
                                 th:value="${y}" th:text="${y}"
                                 th:selected="${y == year}">2024</option>
@@ -127,8 +126,7 @@
             <!-- Action Buttons -->
             <div id="action-buttons" class="flex gap-4">
                 <div th:unless="${preview.alreadyClosed()}">
-                    <form id="execute-form" th:action="@{/reports/fiscal-closing/{year}/execute(year=${year})}" method="post"
-                          onsubmit="return confirm('Apakah Anda yakin ingin menutup tahun buku ' + [[${year}]] + '?')">
+                    <form id="form-execute" th:action="@{/reports/fiscal-closing/{year}/execute(year=${year})}" method="post">
                         <button id="btn-execute" type="submit"
                                 th:disabled="${#lists.isEmpty(preview.entries())}"
                                 class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -140,7 +138,7 @@
                     </form>
                 </div>
                 <div th:if="${preview.alreadyClosed()}">
-                    <button id="btn-reverse" type="button" onclick="document.getElementById('reverseModal').classList.remove('hidden')"
+                    <button id="btn-reverse" type="button"
                             class="inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
@@ -177,7 +175,7 @@
                                       placeholder="Jelaskan alasan pembatalan..."></textarea>
                         </div>
                         <div class="flex justify-end gap-2">
-                            <button id="btn-cancel-reverse" type="button" onclick="document.getElementById('reverseModal').classList.add('hidden')"
+                            <button id="btn-cancel-reverse" type="button"
                                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                                 Batal
                             </button>
@@ -191,5 +189,24 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            var year = /*[[${year}]]*/ 2024;
+            document.getElementById('form-execute')?.addEventListener('submit', function(e) {
+                if (!confirm('Apakah Anda yakin ingin menutup tahun buku ' + year + '?')) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('btn-reverse')?.addEventListener('click', function() {
+                document.getElementById('reverseModal').classList.remove('hidden');
+            });
+            document.getElementById('btn-cancel-reverse')?.addEventListener('click', function() {
+                document.getElementById('reverseModal').classList.add('hidden');
+            });
+            document.querySelectorAll('.auto-submit').forEach(el => {
+                el.addEventListener('change', function() { this.form.submit(); });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

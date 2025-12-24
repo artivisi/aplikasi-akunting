@@ -105,10 +105,9 @@
             </a>
             <div class="flex items-center gap-2">
                 <!-- Close Month Button -->
-                <form th:if="${period.canCloseMonth()}"
+                <form th:if="${period.canCloseMonth()}" id="form-close-month"
                       th:action="@{/fiscal-periods/{id}/close-month(id=${period.id})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Tutup bulan untuk periode ini? Jurnal tidak bisa diposting ke periode ini setelah ditutup.')">
+                      method="post" class="inline">
                     <button type="submit"
                             data-testid="btn-close-month"
                             class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors">
@@ -117,10 +116,9 @@
                 </form>
 
                 <!-- File Tax Button -->
-                <form th:if="${period.canFileTax()}"
+                <form th:if="${period.canFileTax()}" id="form-file-tax"
                       th:action="@{/fiscal-periods/{id}/file-tax(id=${period.id})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Tandai SPT sudah dilaporkan? Periode tidak bisa dibuka kembali setelah ini.')">
+                      method="post" class="inline">
                     <button type="submit"
                             data-testid="btn-file-tax"
                             class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
@@ -129,10 +127,9 @@
                 </form>
 
                 <!-- Reopen Button -->
-                <form th:if="${period.canReopen()}"
+                <form th:if="${period.canReopen()}" id="form-reopen"
                       th:action="@{/fiscal-periods/{id}/reopen(id=${period.id})}"
-                      method="post" class="inline"
-                      onsubmit="return confirm('Buka kembali periode ini?')">
+                      method="post" class="inline">
                     <button type="submit"
                             data-testid="btn-reopen"
                             class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
@@ -142,5 +139,24 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-close-month')?.addEventListener('submit', function(e) {
+                if (!confirm('Tutup bulan untuk periode ini? Jurnal tidak bisa diposting ke periode ini setelah ditutup.')) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('form-file-tax')?.addEventListener('submit', function(e) {
+                if (!confirm('Tandai SPT sudah dilaporkan? Periode tidak bisa dibuka kembali setelah ini.')) {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('form-reopen')?.addEventListener('submit', function(e) {
+                if (!confirm('Buka kembali periode ini?')) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
 </body>
 </html>

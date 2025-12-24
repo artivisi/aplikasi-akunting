@@ -347,20 +347,20 @@
                     </div>
                 </div>
 
-                <!-- Additional Settings -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <!-- Additional Settings (only for edit mode) -->
+                <div th:if="${isEdit}" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
                     <div class="p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Pengaturan Tambahan</h2>
 
                         <div class="space-y-4">
-                            <!-- Active Status (only for edit) -->
-                            <div th:if="${isEdit}" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <!-- Active Status -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                 <div>
                                     <p class="text-sm font-medium text-gray-700">Status Template</p>
                                     <p class="text-xs text-gray-500">Template non-aktif tidak akan muncul di pilihan transaksi</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="isActive" class="sr-only peer" checked>
+                                    <input type="checkbox" name="isActive" class="sr-only peer" th:checked="${template?.active != false}">
                                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                                     <span class="ms-3 text-sm font-medium text-gray-700">Aktif</span>
                                 </label>
@@ -829,7 +829,7 @@
                                 <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full p-6">
                                     <div class="flex items-center justify-between mb-4">
                                         <h3 id="preview-modal-title" class="text-lg font-semibold text-gray-900">Preview Template: ${templateName}</h3>
-                                        <button type="button" id="btn-preview-close-x" onclick="document.getElementById('previewModal').remove()" class="text-gray-400 hover:text-gray-600">
+                                        <button type="button" id="btn-preview-close-x" class="text-gray-400 hover:text-gray-600">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
@@ -888,7 +888,7 @@
                                             : '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span class="text-sm font-medium">Jurnal tidak seimbang! Debit: ' + this.formatNumber(totalDebit) + ', Kredit: ' + this.formatNumber(totalCredit) + '</span>'}
                                     </div>
                                     <div class="mt-6 flex justify-end">
-                                        <button type="button" id="btn-preview-close" onclick="document.getElementById('previewModal').remove()" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+                                        <button type="button" id="btn-preview-close" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
                                             Tutup
                                         </button>
                                     </div>
@@ -901,6 +901,11 @@
                     const div = document.createElement('div');
                     div.innerHTML = html;
                     document.body.appendChild(div.firstElementChild);
+
+                    // Add event listeners for close buttons (CSP-safe)
+                    const closeModal = () => document.getElementById('previewModal')?.remove();
+                    document.getElementById('btn-preview-close-x')?.addEventListener('click', closeModal);
+                    document.getElementById('btn-preview-close')?.addEventListener('click', closeModal);
                 },
 
                 formatNumber(num) {

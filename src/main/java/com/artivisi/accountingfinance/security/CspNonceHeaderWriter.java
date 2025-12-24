@@ -36,10 +36,11 @@ public class CspNonceHeaderWriter implements HeaderWriter {
         // Style hashes for Alpine's internal inline styles:
         // - sha256-bsV5JivYxvGywDAZ22EZJKBFip65Ng9xoJVLbBg7bdo= = "display: none;" (x-cloak, x-show)
         // - sha256-ou12T4Lu3K6jhM7FOB2jdcFVyGsRVXgY4K7kE4tesk0= = "overflow: hidden;" (x-collapse)
+        // - sha256-faU7yAF8NxuMTNEwVmBz+VcYeIoBQ2EMHW3WaVxCvnk= = HTMX indicator styles
         String cspPolicy = String.format(
             "default-src 'self'; " +
             "script-src 'self' 'nonce-%s' https://cdn.jsdelivr.net https://unpkg.com; " +
-            "style-src 'self' 'nonce-%s' 'sha256-bsV5JivYxvGywDAZ22EZJKBFip65Ng9xoJVLbBg7bdo=' 'sha256-ou12T4Lu3K6jhM7FOB2jdcFVyGsRVXgY4K7kE4tesk0=' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+            "style-src 'self' 'nonce-%s' 'sha256-bsV5JivYxvGywDAZ22EZJKBFip65Ng9xoJVLbBg7bdo=' 'sha256-ou12T4Lu3K6jhM7FOB2jdcFVyGsRVXgY4K7kE4tesk0=' 'sha256-faU7yAF8NxuMTNEwVmBz+VcYeIoBQ2EMHW3WaVxCvnk=' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
             "img-src 'self' data: blob:; " +
             "connect-src 'self'; " +

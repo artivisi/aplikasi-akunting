@@ -78,12 +78,11 @@
                     </a>
 
                     <!-- Activate/Deactivate -->
-                    <form sec:authorize="hasAuthority('ACCOUNT_EDIT')" th:if="${account.active}" th:action="@{/accounts/{id}/deactivate(id=${account.id})}" method="post" class="inline">
+                    <form sec:authorize="hasAuthority('ACCOUNT_EDIT')" th:if="${account.active}" th:action="@{/accounts/{id}/deactivate(id=${account.id})}" method="post" class="inline form-deactivate-account">
                         <button th:id="'btn-deactivate-' + ${#strings.replace(account.accountCode, '.', '-')}"
                                 type="submit"
                                 class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
-                                title="Nonaktifkan"
-                                onclick="return confirm('Nonaktifkan akun ini?')">
+                                title="Nonaktifkan">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                             </svg>
@@ -104,12 +103,11 @@
                     <form sec:authorize="hasAuthority('ACCOUNT_DELETE')" th:if="${#lists.isEmpty(account.children)}"
                           th:action="@{/accounts/{id}/delete(id=${account.id})}"
                           method="post"
-                          class="inline">
+                          class="inline form-delete-account">
                         <button th:id="'btn-delete-' + ${#strings.replace(account.accountCode, '.', '-')}"
                                 type="submit"
                                 class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                title="Hapus"
-                                onclick="return confirm('Hapus akun ini?')">
+                                title="Hapus">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>

@@ -90,13 +90,19 @@
                 <div class="flex gap-3">
                     <a th:if="${bom.active}" th:href="@{/inventory/bom/{id}/edit(id=${bom.id})}"
                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">Edit</a>
-                    <form th:if="${bom.active}" th:action="@{/inventory/bom/{id}/delete(id=${bom.id})}" method="post" class="inline"
-                          onsubmit="return confirm('Yakin ingin menonaktifkan BOM ini?')">
+                    <form th:if="${bom.active}" id="form-delete" th:action="@{/inventory/bom/{id}/delete(id=${bom.id})}" method="post" class="inline">
                         <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Nonaktifkan</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('form-delete')?.addEventListener('submit', function(e) {
+                if (!confirm('Yakin ingin menonaktifkan BOM ini?')) e.preventDefault();
+            });
+        </script>
+    </th:block>
 </body>
 </html>
