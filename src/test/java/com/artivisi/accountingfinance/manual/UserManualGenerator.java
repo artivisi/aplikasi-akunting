@@ -113,8 +113,13 @@ public class UserManualGenerator {
                 new Section("kelola-karyawan", "Kelola Karyawan", "05-penggajian.md", List.of("employees-list", "employees-form")),
                 new Section("bpjs", "BPJS", "05-penggajian.md", List.of("bpjs-calculator")),
                 new Section("pph21-karyawan", "PPh 21 Karyawan", "05-penggajian.md", List.of("pph21-calculator")),
+                new Section("kapan-menggunakan-payroll", "Kapan Menggunakan Fitur Payroll?", "05-penggajian.md", List.of()),
                 new Section("proses-penggajian", "Proses Penggajian", "05-penggajian.md", List.of("payroll-list", "payroll-form", "payroll-detail")),
-                new Section("layanan-mandiri", "Layanan Mandiri Karyawan", "05-penggajian.md", List.of("self-service-payslips", "self-service-bukti-potong", "self-service-profile"))
+                new Section("pembayaran-kewajiban", "Pembayaran Kewajiban Payroll", "05-penggajian.md", List.of("service/payroll-lifecycle-bayar-gaji-form", "service/payroll-lifecycle-bayar-bpjs-form", "service/payroll-lifecycle-setor-pph21-form")),
+                new Section("layanan-mandiri", "Layanan Mandiri Karyawan", "05-penggajian.md", List.of("self-service-payslips", "self-service-bukti-potong", "self-service-profile")),
+                new Section("bukti-potong-pph21", "Bukti Potong PPh 21", "05-penggajian.md", List.of()),
+                new Section("contoh-payroll-lengkap", "Contoh Lengkap: Proses Payroll Januari 2025", "05-penggajian.md", List.of()),
+                new Section("tips-penggajian", "Tips Penggajian", "05-penggajian.md", List.of())
             )),
 
             // 6. PENGANTAR INDUSTRI
