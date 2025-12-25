@@ -11,6 +11,7 @@ This directory contains Architecture Decision Records documenting significant te
 | [003](003-tax-compliance.md) | Tax & Compliance | Accepted |
 | [004](004-feature-scope.md) | Feature Scope | Accepted |
 | [005](005-infrastructure.md) | Infrastructure | Accepted |
+| [006](006-offline-mode-deferral.md) | Offline Mode Deferral | Deferred |
 
 ## Quick Reference
 
