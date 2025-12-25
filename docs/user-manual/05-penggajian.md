@@ -163,6 +163,56 @@ Buka menu **Penggajian** > **Kalkulator PPh 21**.
 
 ---
 
+## Kapan Menggunakan Fitur Payroll?
+
+### Gunakan Fitur Payroll Untuk:
+
+✅ Gaji karyawan tetap/kontrak dengan kewajiban BPJS
+✅ Perusahaan wajib potong PPh 21
+✅ Butuh bukti potong 1721-A1 untuk karyawan
+✅ Karyawan perlu akses slip gaji online
+✅ Tracking komponen gaji detail (tunjangan, potongan)
+
+### Gunakan Transaksi "Bayar Beban Gaji" Untuk:
+
+✅ Bayar kontraktor lepas (tanpa BPJS/PPh 21)
+✅ Bonus di luar payroll reguler
+✅ Penarikan dana pemilik (bukan gaji karyawan)
+✅ Pembayaran ad-hoc yang tidak perlu slip gaji
+
+### Perbedaan Akuntansi
+
+| Aspek | Fitur Payroll | Transaksi Simple |
+|-------|---------------|------------------|
+| **Jurnal** | 5 baris (pisah hutang) | 2 baris (langsung bayar) |
+| **Beban** | Gaji bruto + BPJS perusahaan | Nominal transfer saja |
+| **Kewajiban** | Hutang Gaji, BPJS, PPh 21 | Tidak ada hutang |
+| **Kalkulasi** | Otomatis BPJS + PPh 21 | Manual |
+| **Tax compliance** | Otomatis hitung & lapor | Tanggung jawab manual |
+| **Slip gaji** | Generate otomatis | Tidak ada |
+| **Bukti potong** | Generate 1721-A1 | Tidak ada |
+
+### Contoh Jurnal: Payroll vs Simple
+
+**Fitur Payroll** (otomatis):
+```
+Dr. Beban Gaji              30.000.000
+Dr. Beban BPJS Perusahaan    3.432.000
+    Cr. Hutang Gaji             26.250.000
+    Cr. Hutang BPJS              6.432.000
+    Cr. Hutang PPh 21              750.000
+```
+
+**Transaksi Simple**:
+```
+Dr. Beban Gaji              10.000.000
+    Cr. Bank                    10.000.000
+```
+
+**Kesimpulan:** Gunakan fitur payroll untuk karyawan tetap. Gunakan transaksi simple hanya untuk pembayaran ad-hoc yang tidak perlu tracking BPJS/PPh 21.
+
+---
+
 ## Proses Penggajian
 
 ### Melihat Daftar Payroll
@@ -241,6 +291,89 @@ Dr. Hutang Gaji             xxx
 
 ---
 
+## Pembayaran Kewajiban Payroll
+
+Setelah posting payroll, ada 3 kewajiban yang harus dibayar:
+
+### 1. Bayar Gaji ke Karyawan
+
+**Kapan:** 1-5 hari kerja setelah akhir bulan
+**Template:** Bayar Hutang Gaji
+
+1. Buka menu **Transaksi** > **Transaksi Baru**
+2. Pilih template **Bayar Hutang Gaji**
+3. Isi:
+   - Tanggal pembayaran
+   - Jumlah: Total gaji bersih (dari payroll detail)
+   - Deskripsi: "Transfer gaji [bulan] [tahun]"
+   - Referensi: Nomor transaksi bank
+4. Pilih akun bank
+5. Klik **Simpan & Posting**
+
+Jurnal:
+```
+Dr. Hutang Gaji             xxx
+    Cr. Bank                    xxx
+```
+
+### 2. Bayar BPJS ke Institusi
+
+**Kapan:** Maksimal tanggal 10 bulan berikutnya
+**Template:** Bayar Hutang BPJS
+
+1. Buka menu **Transaksi** > **Transaksi Baru**
+2. Pilih template **Bayar Hutang BPJS**
+3. Isi:
+   - Tanggal pembayaran (maks tgl 10)
+   - Jumlah: Total BPJS (perusahaan + karyawan)
+   - Deskripsi: "Pembayaran BPJS [bulan] [tahun]"
+   - Referensi: Nomor billing BPJS
+4. Pilih akun bank
+5. Klik **Simpan & Posting**
+
+Jurnal:
+```
+Dr. Hutang BPJS             xxx
+    Cr. Bank                    xxx
+```
+
+**Catatan:** Bayar ke BPJS Kesehatan dan BPJS Ketenagakerjaan melalui e-DABU atau virtual account.
+
+### 3. Setor PPh 21 ke Kas Negara
+
+**Kapan:** Maksimal tanggal 10 bulan berikutnya
+**Template:** Setor PPh 21
+
+1. Buka menu **Transaksi** > **Transaksi Baru**
+2. Pilih template **Setor PPh 21**
+3. Isi:
+   - Tanggal penyetoran (maks tgl 10)
+   - Jumlah: Total PPh 21 yang dipotong
+   - Deskripsi: "Penyetoran PPh 21 [bulan] [tahun]"
+   - Referensi: Nomor bukti setor (BPN)
+4. Pilih akun bank
+5. Klik **Simpan & Posting**
+
+Jurnal:
+```
+Dr. Hutang PPh 21           xxx
+    Cr. Bank                    xxx
+```
+
+**Catatan:** Bayar melalui e-Billing DJP, lalu lapor SPT Masa PPh 21 maks tanggal 20.
+
+### Timeline Kewajiban Payroll
+
+| Tanggal | Aktivitas | Template | Deadline |
+|---------|-----------|----------|----------|
+| 25-31 | Posting payroll (jurnal dibuat) | Post Gaji Bulanan | Akhir bulan |
+| 1-5 | Transfer gaji ke rekening karyawan | Bayar Hutang Gaji | - |
+| Maks 10 | Bayar BPJS ke institusi | Bayar Hutang BPJS | **Wajib** |
+| Maks 10 | Setor PPh 21 ke kas negara | Setor PPh 21 | **Wajib** |
+| Maks 20 | Lapor SPT Masa PPh 21 | (Eksternal DJP) | **Wajib** |
+
+---
+
 ## Layanan Mandiri Karyawan
 
 ### Fitur Self-Service
@@ -288,6 +421,137 @@ Karyawan dengan role EMPLOYEE dapat mengakses:
 - PKP
 - PPh 21 terutang
 - PPh 21 dipotong
+
+---
+
+## Contoh Lengkap: Proses Payroll Januari 2025
+
+### Skenario
+
+Perusahaan IT memiliki 3 karyawan:
+- **Budi Santoso** - Developer, gaji Rp 10.000.000
+- **Dewi Lestari** - Designer, gaji Rp 10.000.000
+- **Agus Wijaya** - Project Manager, gaji Rp 10.000.000
+
+### Data Payroll
+
+| Item | Rumus | Jumlah |
+|------|-------|--------|
+| **Gaji Bruto** | 3 × Rp 10.000.000 | Rp 30.000.000 |
+| **BPJS Perusahaan** | Kes 4% + TK (JHT 3.7%, JKK 0.24%, JKM 0.3%, JP 2%) | Rp 3.432.000 |
+| **BPJS Karyawan** | Kes 1% + JHT 2% + JP 1% | Rp 3.000.000 |
+| **PPh 21** | Progresif setelah PTKP | Rp 750.000 |
+| **Gaji Bersih** | Bruto - BPJS Karyawan - PPh 21 | Rp 26.250.000 |
+
+### Langkah 1: Posting Payroll (31 Januari 2025)
+
+1. Buka **Penggajian** > **Payroll**
+2. Klik payroll bulan Januari
+3. Pastikan status APPROVED
+4. Klik **Posting**
+
+**Jurnal Otomatis:**
+```
+Dr. Beban Gaji                   30.000.000
+Dr. Beban BPJS Perusahaan         3.432.000
+    Cr. Hutang Gaji                  26.250.000
+    Cr. Hutang BPJS                   6.432.000 (perusahaan + karyawan)
+    Cr. Hutang PPh 21                   750.000
+```
+
+**Penjelasan:**
+- **Beban total perusahaan:** Rp 33.432.000 (masuk P&L bulan Januari)
+- **Kewajiban total:** Rp 33.432.000 (hutang di neraca)
+- **Uang belum keluar** dari bank (masih status hutang)
+
+### Langkah 2: Bayar Gaji (1 Februari 2025)
+
+1. Buka **Transaksi** > **Transaksi Baru**
+2. Pilih template **Bayar Hutang Gaji**
+3. Isi:
+   - Jumlah: Rp 26.250.000
+   - Deskripsi: "Transfer gaji Januari 2025"
+   - Pilih Bank BCA
+4. Klik **Simpan & Posting**
+
+**Jurnal:**
+```
+Dr. Hutang Gaji                  26.250.000
+    Cr. Bank BCA                     26.250.000
+```
+
+**Efek:**
+- ✅ Hutang Gaji lunas
+- ✅ Karyawan terima transfer
+- ⏳ Hutang BPJS masih Rp 6.432.000
+- ⏳ Hutang PPh 21 masih Rp 750.000
+
+### Langkah 3: Bayar BPJS (10 Februari 2025)
+
+1. Buka **Transaksi** > **Transaksi Baru**
+2. Pilih template **Bayar Hutang BPJS**
+3. Isi:
+   - Jumlah: Rp 6.432.000
+   - Deskripsi: "Pembayaran BPJS Januari 2025"
+   - Referensi: Nomor billing BPJS
+   - Pilih Bank BCA
+4. Klik **Simpan & Posting**
+
+**Jurnal:**
+```
+Dr. Hutang BPJS                   6.432.000
+    Cr. Bank BCA                      6.432.000
+```
+
+**Efek:**
+- ✅ Hutang BPJS lunas
+- ✅ Kewajiban BPJS selesai
+- ⏳ Hutang PPh 21 masih Rp 750.000
+
+### Langkah 4: Setor PPh 21 (10 Februari 2025)
+
+1. Buka **Transaksi** > **Transaksi Baru**
+2. Pilih template **Setor PPh 21**
+3. Isi:
+   - Jumlah: Rp 750.000
+   - Deskripsi: "Penyetoran PPh 21 Januari 2025"
+   - Referensi: Nomor BPN dari e-Billing
+   - Pilih Bank BCA
+4. Klik **Simpan & Posting**
+
+**Jurnal:**
+```
+Dr. Hutang PPh 21                   750.000
+    Cr. Bank BCA                        750.000
+```
+
+**Efek:**
+- ✅ Hutang PPh 21 lunas
+- ✅ Semua kewajiban payroll selesai
+
+### Ringkasan Kas Keluar
+
+| Tanggal | Item | Bank BCA | Status |
+|---------|------|----------|--------|
+| 1 Feb | Transfer gaji | (Rp 26.250.000) | ✅ |
+| 10 Feb | Bayar BPJS | (Rp 6.432.000) | ✅ |
+| 10 Feb | Setor PPh 21 | (Rp 750.000) | ✅ |
+| **Total** | **Kas Keluar** | **(Rp 33.432.000)** | - |
+
+**Validasi:** Total kas keluar = Total beban payroll ✅ (akuntansi akrual benar!)
+
+### Langkah 5: Lapor SPT Masa PPh 21 (20 Februari 2025)
+
+1. Login ke **DJP Online** (pajak.go.id)
+2. Pilih **e-Filing** > **SPT Masa PPh 21**
+3. Input data dari aplikasi:
+   - Jumlah pegawai: 3 orang
+   - PPh 21 dipotong: Rp 750.000
+   - PPh 21 disetor: Rp 750.000 (lihat dari jurnal Setor PPh 21)
+   - Nomor BPN: Dari referensi transaksi
+4. Submit SPT
+
+**Catatan:** Aplikasi belum generate SPT otomatis, input manual ke DJP Online.
 
 ---
 

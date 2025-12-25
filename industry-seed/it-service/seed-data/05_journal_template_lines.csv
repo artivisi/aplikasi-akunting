@@ -30,11 +30,11 @@ Bayar Beban Cloud & Server,1,5.1.20,,DEBIT,amount,Beban cloud & server
 Bayar Beban Cloud & Server,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Bayar Beban Software & Lisensi,1,5.1.21,,DEBIT,amount,Beban software & lisensi
 Bayar Beban Software & Lisensi,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Bayar Beban Telekomunikasi,1,5.1.05,,DEBIT,amount,Beban telekomunikasi
+Bayar Beban Telekomunikasi,1,5.1.06,,DEBIT,amount,Beban telekomunikasi
 Bayar Beban Telekomunikasi,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Bayar Beban Listrik,1,5.1.06,,DEBIT,amount,Beban listrik
+Bayar Beban Listrik,1,5.1.07,,DEBIT,amount,Beban listrik
 Bayar Beban Listrik,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Bayar Beban Sewa,1,5.1.04,,DEBIT,amount,Beban sewa
+Bayar Beban Sewa,1,5.1.05,,DEBIT,amount,Beban sewa
 Bayar Beban Sewa,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Bayar Beban Operasional,1,5.1.99,,DEBIT,amount,Beban operasional lainnya
 Bayar Beban Operasional,2,,BANK,CREDIT,amount,Pembayaran dari bank
@@ -44,7 +44,7 @@ Pembelian dengan PPN,3,,BANK,CREDIT,amount,Pembayaran dari bank
 Pembayaran Jasa dengan PPh 23,1,,BEBAN,DEBIT,amount,Beban jasa
 Pembayaran Jasa dengan PPh 23,2,,BANK,CREDIT,amount * 0.98,Pembayaran dari bank (netto)
 Pembayaran Jasa dengan PPh 23,3,2.1.21,,CREDIT,amount * 0.02,Hutang PPh 23
-Pembayaran Sewa dengan PPh 4(2),1,5.1.04,,DEBIT,amount,Beban sewa
+Pembayaran Sewa dengan PPh 4(2),1,5.1.05,,DEBIT,amount,Beban sewa
 Pembayaran Sewa dengan PPh 4(2),2,,BANK,CREDIT,amount * 0.90,Pembayaran dari bank (netto)
 Pembayaran Sewa dengan PPh 4(2),3,2.1.22,,CREDIT,amount * 0.10,Hutang PPh 4(2)
 Karyawan Reimburse Pengeluaran,1,,BEBAN,DEBIT,amount,Beban yang dibayar karyawan
@@ -71,6 +71,11 @@ Bayar PPh 25,1,5.9.02,,DEBIT,amount,Beban PPh 25
 Bayar PPh 25,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Bayar PPh 29,1,5.9.03,,DEBIT,amount,Beban PPh 29
 Bayar PPh 29,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Post Gaji Bulanan,1,5.1.01,,DEBIT,grossSalary,Beban gaji karyawan
+Post Gaji Bulanan,2,5.1.04,,DEBIT,companyBpjs,Beban BPJS perusahaan
+Post Gaji Bulanan,3,2.1.10,,CREDIT,netPay,Hutang gaji karyawan
+Post Gaji Bulanan,4,2.1.13,,CREDIT,totalBpjs,Hutang BPJS
+Post Gaji Bulanan,5,2.1.20,,CREDIT,pph21,Hutang PPh 21
 Bayar Hutang Gaji,1,2.1.10,,DEBIT,amount,Hutang gaji
 Bayar Hutang Gaji,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Bayar Hutang BPJS,1,2.1.13,,DEBIT,amount,Hutang BPJS
