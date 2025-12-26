@@ -233,6 +233,11 @@ function registerAlpineComponents() {
             this.amount = parseInt(e.target.value.replace(/\D/g, '')) || 0
             // Re-format the display
             e.target.value = this.amount > 0 ? new Intl.NumberFormat('id-ID').format(this.amount) : ''
+            // Sync hidden input immediately (before HTMX reads it)
+            const hiddenInput = document.getElementById('amountHidden')
+            if (hiddenInput) {
+                hiddenInput.value = this.amount
+            }
             // Trigger HTMX preview update
             this.$dispatch('amount-changed')
         },

@@ -217,4 +217,50 @@ public class TransactionFormPage {
         }
         return result;
     }
+
+    /**
+     * Wait for preview to load after amount change.
+     * HTMX loads the preview asynchronously.
+     */
+    public TransactionFormPage waitForPreviewUpdate() {
+        // Wait for HTMX to finish loading
+        page.waitForTimeout(1000);
+        page.locator("#total-debit").waitFor();
+        return this;
+    }
+
+    /**
+     * Get the total debit amount from preview.
+     * Returns the numeric value parsed from "Rp X.XXX.XXX" format.
+     */
+    public long getPreviewTotalDebit() {
+        String text = page.locator("#total-debit").textContent();
+        return parseRupiahAmount(text);
+    }
+
+    /**
+     * Get the total credit amount from preview.
+     * Returns the numeric value parsed from "Rp X.XXX.XXX" format.
+     */
+    public long getPreviewTotalCredit() {
+        String text = page.locator("#total-credit").textContent();
+        return parseRupiahAmount(text);
+    }
+
+    /**
+     * Parse Rupiah formatted amount to long.
+     * "Rp 3.333.333" -> 3333333
+     */
+    private long parseRupiahAmount(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+        // Remove "Rp " prefix and thousand separators
+        String cleaned = text.replace("Rp", "").replace(".", "").trim();
+        try {
+            return Long.parseLong(cleaned);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 }

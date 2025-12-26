@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.functional;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.functional.page.DashboardPage;
 import com.artivisi.accountingfinance.functional.page.QuickTransactionModal;
+import com.artivisi.accountingfinance.functional.page.TransactionFormPage;
 import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
 import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
 import com.artivisi.accountingfinance.repository.TransactionRepository;
@@ -233,5 +234,45 @@ public class QuickTransactionTest extends PlaywrightTestBase {
         assertThat(quickTransactionModal.isModalVisible())
             .as("Modal should be closed after ESC")
             .isFalse();
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Full form: Preview should update when amount is entered")
+    void previewUpdatesOnAmountEntry() {
+        // Get a SIMPLE template with fixed accounts (not dynamic) - fetch with lines to avoid lazy loading
+        JournalTemplate template = templateRepository.findAllWithLines()
+            .stream()
+            .filter(t -> t.getLines() != null && !t.getLines().isEmpty())
+            .filter(t -> t.getLines().stream().allMatch(line -> line.getAccount() != null))
+            .findFirst()
+            .orElse(null);
+
+        if (template == null) {
+            // Skip if no suitable template found
+            return;
+        }
+
+        // Navigate to full transaction form
+        TransactionFormPage formPage = new TransactionFormPage(page, baseUrl());
+        formPage.navigateWithTemplate(template.getId());
+
+        // Enter amount
+        formPage.fillAmount("5000000");
+
+        // Wait for preview to update via HTMX
+        formPage.waitForPreviewUpdate();
+
+        // Verify preview shows the entered amount
+        long totalDebit = formPage.getPreviewTotalDebit();
+        long totalCredit = formPage.getPreviewTotalCredit();
+
+        assertThat(totalDebit)
+            .as("Preview total debit should match entered amount")
+            .isEqualTo(5_000_000L);
+
+        assertThat(totalCredit)
+            .as("Preview total credit should match entered amount")
+            .isEqualTo(5_000_000L);
     }
 }
