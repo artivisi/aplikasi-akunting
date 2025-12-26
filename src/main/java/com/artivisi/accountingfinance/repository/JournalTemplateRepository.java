@@ -37,6 +37,9 @@ public interface JournalTemplateRepository extends JpaRepository<JournalTemplate
     @Query("SELECT t FROM JournalTemplate t LEFT JOIN FETCH t.lines l LEFT JOIN FETCH l.account WHERE t.id = :id")
     java.util.Optional<JournalTemplate> findByIdWithLines(@Param("id") UUID id);
 
+    @Query("SELECT DISTINCT t FROM JournalTemplate t LEFT JOIN FETCH t.lines l LEFT JOIN FETCH l.account WHERE t.active = true AND t.isCurrentVersion = true ORDER BY t.templateName ASC")
+    List<JournalTemplate> findAllWithLines();
+
     @Query("SELECT t FROM JournalTemplate t LEFT JOIN FETCH t.lines l LEFT JOIN FETCH l.account WHERE t.templateName = :name AND t.isCurrentVersion = true")
     java.util.Optional<JournalTemplate> findByTemplateNameWithLines(@Param("name") String templateName);
 

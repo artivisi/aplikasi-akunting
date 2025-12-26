@@ -138,7 +138,7 @@ public class TransactionController {
             Model model) {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("isEdit", false);
-        model.addAttribute("templates", journalTemplateService.findAll());
+        model.addAttribute("templates", journalTemplateService.findAllWithLines());
         model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
         model.addAttribute("projects", projectService.findActiveProjects());
 

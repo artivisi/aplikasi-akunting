@@ -21,23 +21,38 @@
             </nav>
 
             <!-- No Template Selected State -->
-            <div th:if="${selectedTemplate == null and !isEdit}" class="mb-6 p-6 bg-amber-50 rounded-lg border border-amber-200">
-                <div class="text-center">
-                    <svg class="w-12 h-12 text-amber-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <h3 class="text-lg font-semibold text-amber-800 mb-2">Pilih Template</h3>
-                    <p class="text-sm text-amber-600 mb-4">Pilih template jurnal untuk membuat transaksi baru</p>
-                    <div class="flex flex-wrap justify-center gap-2">
-                        <a th:each="tpl : ${templates}"
-                           th:href="@{/transactions/new(templateId=${tpl.id})}"
-                           th:classappend="${tpl.category.name() == 'INCOME'} ? 'border-green-300 hover:bg-green-50' : (${tpl.category.name() == 'EXPENSE'} ? 'border-red-300 hover:bg-red-50' : (${tpl.category.name() == 'TRANSFER'} ? 'border-purple-300 hover:bg-purple-50' : 'border-blue-300 hover:bg-blue-50'))"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg transition-colors">
+            <div th:if="${selectedTemplate == null and !isEdit}" class="mb-6">
+                <div class="p-4 bg-amber-50 rounded-lg border border-amber-200 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-amber-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <h3 class="text-sm font-semibold text-amber-800">Pilih Template Jurnal</h3>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <a th:each="tpl : ${templates}"
+                       th:href="@{/transactions/new(templateId=${tpl.id})}"
+                       th:classappend="${tpl.category.name() == 'INCOME'} ? 'border-green-200 hover:border-green-400 hover:bg-green-50' : (${tpl.category.name() == 'EXPENSE'} ? 'border-red-200 hover:border-red-400 hover:bg-red-50' : (${tpl.category.name() == 'TRANSFER'} ? 'border-purple-200 hover:border-purple-400 hover:bg-purple-50' : 'border-blue-200 hover:border-blue-400 hover:bg-blue-50'))"
+                       class="block p-3 bg-white border rounded-lg transition-colors"
+                       data-testid="template-option">
+                        <!-- Template Header -->
+                        <div class="flex items-center mb-2">
                             <span th:classappend="${tpl.category.name() == 'INCOME'} ? 'bg-green-500' : (${tpl.category.name() == 'EXPENSE'} ? 'bg-red-500' : (${tpl.category.name() == 'TRANSFER'} ? 'bg-purple-500' : 'bg-blue-500'))"
                                   class="w-2 h-2 rounded-full mr-2"></span>
-                            <span th:text="${tpl.templateName}">Template</span>
-                        </a>
-                    </div>
+                            <span class="text-sm font-medium text-gray-900" th:text="${tpl.templateName}">Template</span>
+                        </div>
+                        <!-- Mini Journal Preview - D/K accounts -->
+                        <div class="bg-gray-50 rounded p-2 text-xs" th:if="${tpl.lines != null and !tpl.lines.isEmpty()}">
+                            <div th:each="line, iterStat : ${tpl.lines}" th:if="${iterStat.index < 3}" class="flex justify-between text-gray-600 mb-0.5 last:mb-0">
+                                <span>
+                                    <span th:classappend="${line.position.name() == 'DEBIT'} ? 'text-blue-600' : 'text-green-600'"
+                                          th:text="${line.position.name() == 'DEBIT'} ? 'D:' : 'K:'">D:</span>
+                                    <span th:text="${line.account != null ? line.account.accountName : (line.accountHint != null ? '(' + line.accountHint + ')' : '(pilih akun)')}">Account</span>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
 

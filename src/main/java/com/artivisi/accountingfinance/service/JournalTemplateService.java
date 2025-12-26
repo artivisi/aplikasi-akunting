@@ -38,6 +38,10 @@ public class JournalTemplateService {
         return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByTemplateNameAsc(true);
     }
 
+    public List<JournalTemplate> findAllWithLines() {
+        return journalTemplateRepository.findAllWithLines();
+    }
+
     public List<JournalTemplate> findByCategory(TemplateCategory category) {
         if (category == null) {
             return findAll();
