@@ -35,22 +35,22 @@ public class JournalTemplateService {
     private final FormulaEvaluator formulaEvaluator;
 
     public List<JournalTemplate> findAll() {
-        return journalTemplateRepository.findByActiveOrderByTemplateNameAsc(true);
+        return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByTemplateNameAsc(true);
     }
 
     public List<JournalTemplate> findByCategory(TemplateCategory category) {
         if (category == null) {
             return findAll();
         }
-        return journalTemplateRepository.findByCategoryAndActiveOrderByTemplateNameAsc(category, true);
+        return journalTemplateRepository.findByCategoryAndActiveAndIsCurrentVersionTrueOrderByTemplateNameAsc(category, true);
     }
 
     public List<JournalTemplate> findMostUsed() {
-        return journalTemplateRepository.findByActiveOrderByUsageCountDesc(true);
+        return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByUsageCountDesc(true);
     }
 
     public List<JournalTemplate> findRecentlyUsed() {
-        return journalTemplateRepository.findByActiveOrderByLastUsedAtDesc(true);
+        return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByLastUsedAtDesc(true);
     }
 
     public Page<JournalTemplate> search(String search, Pageable pageable) {
@@ -75,12 +75,25 @@ public class JournalTemplateService {
 
     @Transactional
     public JournalTemplate update(UUID id, @Valid JournalTemplate templateData) {
-        JournalTemplate existing = findById(id);
+        JournalTemplate existing = findByIdWithLines(id);
 
         if (existing.getIsSystem()) {
             throw new IllegalStateException("Cannot modify system template");
         }
 
+        // Check if template is in use by any transaction
+        boolean isInUse = journalTemplateRepository.isTemplateInUse(id);
+
+        if (isInUse) {
+            // Template is in use - create new version
+            return createNewVersion(existing, templateData);
+        } else {
+            // Template not in use - update in place
+            return updateInPlace(existing, templateData);
+        }
+    }
+
+    private JournalTemplate updateInPlace(JournalTemplate existing, JournalTemplate templateData) {
         existing.setTemplateName(templateData.getTemplateName());
         existing.setCategory(templateData.getCategory());
         existing.setCashFlowCategory(templateData.getCashFlowCategory());
@@ -88,20 +101,81 @@ public class JournalTemplateService {
         existing.setDescription(templateData.getDescription());
         existing.setVersion(existing.getVersion() + 1);
 
+        // Clear and recreate lines (safe since not in use)
         existing.getLines().clear();
         for (JournalTemplateLine line : templateData.getLines()) {
+            ChartOfAccount account = null;
             if (line.getAccount() != null && line.getAccount().getId() != null) {
-                ChartOfAccount account = chartOfAccountRepository.findById(line.getAccount().getId())
+                account = chartOfAccountRepository.findById(line.getAccount().getId())
                         .orElseThrow(() -> new EntityNotFoundException("Account not found"));
-                line.setAccount(account);
-            } else {
-                line.setAccount(null);
             }
-            existing.addLine(line);
+            JournalTemplateLine newLine = new JournalTemplateLine();
+            newLine.setAccount(account);
+            newLine.setPosition(line.getPosition());
+            newLine.setFormula(line.getFormula());
+            newLine.setLineOrder(line.getLineOrder());
+            newLine.setDescription(line.getDescription());
+            newLine.setAccountHint(line.getAccountHint());
+            existing.addLine(newLine);
         }
 
         validateTemplateLines(existing);
         return journalTemplateRepository.save(existing);
+    }
+
+    private JournalTemplate createNewVersion(JournalTemplate existing, JournalTemplate templateData) {
+        // Determine the root template for version tracking
+        JournalTemplate rootTemplate = existing.getOriginalTemplate() != null
+                ? existing.getOriginalTemplate()
+                : existing;
+
+        // Get the next version number
+        Integer maxVersion = journalTemplateRepository.findMaxVersion(rootTemplate.getId());
+        int nextVersion = (maxVersion != null ? maxVersion : 1) + 1;
+
+        // Mark existing as not current
+        existing.setIsCurrentVersion(false);
+        journalTemplateRepository.save(existing);
+
+        // Create new version
+        JournalTemplate newVersion = new JournalTemplate();
+        newVersion.setTemplateName(templateData.getTemplateName());
+        newVersion.setCategory(templateData.getCategory());
+        newVersion.setCashFlowCategory(templateData.getCashFlowCategory());
+        newVersion.setTemplateType(templateData.getTemplateType());
+        newVersion.setDescription(templateData.getDescription());
+        newVersion.setIsSystem(false);
+        newVersion.setActive(true);
+        newVersion.setVersion(nextVersion);
+        newVersion.setOriginalTemplate(rootTemplate);
+        newVersion.setIsCurrentVersion(true);
+        newVersion.setUsageCount(existing.getUsageCount());
+        newVersion.setLastUsedAt(existing.getLastUsedAt());
+
+        // Copy lines to new version
+        for (JournalTemplateLine line : templateData.getLines()) {
+            ChartOfAccount account = null;
+            if (line.getAccount() != null && line.getAccount().getId() != null) {
+                account = chartOfAccountRepository.findById(line.getAccount().getId())
+                        .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+            }
+            JournalTemplateLine newLine = new JournalTemplateLine();
+            newLine.setAccount(account);
+            newLine.setPosition(line.getPosition());
+            newLine.setFormula(line.getFormula());
+            newLine.setLineOrder(line.getLineOrder());
+            newLine.setDescription(line.getDescription());
+            newLine.setAccountHint(line.getAccountHint());
+            newVersion.addLine(newLine);
+        }
+
+        // Copy tags to new version
+        for (String tag : existing.getTagNames()) {
+            newVersion.addTag(tag);
+        }
+
+        validateTemplateLines(newVersion);
+        return journalTemplateRepository.save(newVersion);
     }
 
     @Transactional

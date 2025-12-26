@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -65,6 +67,14 @@ public class JournalTemplate extends BaseEntity {
     @Column(name = "version", nullable = false)
     private Integer version = 1;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_original_template")
+    private JournalTemplate originalTemplate;
+
+    @Column(name = "is_current_version", nullable = false)
+    private Boolean isCurrentVersion = true;
+
     @Min(value = 0, message = "Usage count cannot be negative")
     @Column(name = "usage_count", nullable = false)
     private Integer usageCount = 0;
@@ -103,5 +113,21 @@ public class JournalTemplate extends BaseEntity {
 
     public List<String> getTagNames() {
         return tags.stream().map(JournalTemplateTag::getTag).toList();
+    }
+
+    /**
+     * Returns the root template ID for version tracking.
+     * If this is the original template, returns its own ID.
+     * If this is a version, returns the original template's ID.
+     */
+    public java.util.UUID getRootTemplateId() {
+        return originalTemplate != null ? originalTemplate.getId() : getId();
+    }
+
+    /**
+     * Returns true if this template is an original (not a version of another).
+     */
+    public boolean isOriginal() {
+        return originalTemplate == null;
     }
 }

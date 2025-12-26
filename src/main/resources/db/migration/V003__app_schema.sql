@@ -91,6 +91,8 @@ CREATE TABLE journal_templates (
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     version INTEGER NOT NULL DEFAULT 1,
+    id_original_template UUID REFERENCES journal_templates(id),
+    is_current_version BOOLEAN NOT NULL DEFAULT TRUE,
     usage_count INTEGER NOT NULL DEFAULT 0,
     last_used_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -106,6 +108,8 @@ CREATE TABLE journal_templates (
 
 CREATE INDEX idx_jt_category ON journal_templates(category);
 CREATE INDEX idx_jt_active ON journal_templates(active);
+CREATE INDEX idx_jt_original ON journal_templates(id_original_template);
+CREATE INDEX idx_jt_current_version ON journal_templates(is_current_version);
 
 CREATE TABLE journal_template_lines (
     id UUID PRIMARY KEY,

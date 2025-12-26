@@ -302,7 +302,7 @@ public class DashboardService {
      * Returns top N templates sorted by usage count.
      */
     public List<QuickTemplate> getFrequentTemplates(int limit) {
-        return journalTemplateRepository.findByActiveOrderByUsageCountDesc(true)
+        return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByUsageCountDesc(true)
                 .stream()
                 .filter(t -> t.getUsageCount() != null && t.getUsageCount() > 0)
                 .limit(limit)
@@ -321,7 +321,7 @@ public class DashboardService {
      * Returns top N templates sorted by last used date.
      */
     public List<QuickTemplate> getRecentTemplates(int limit) {
-        return journalTemplateRepository.findByActiveOrderByLastUsedAtDesc(true)
+        return journalTemplateRepository.findByActiveAndIsCurrentVersionTrueOrderByLastUsedAtDesc(true)
                 .stream()
                 .filter(t -> t.getLastUsedAt() != null)
                 .limit(limit)
