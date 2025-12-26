@@ -64,26 +64,44 @@
                     <span class="font-medium" th:text="${page.number * page.size + 1}">1</span>-<span class="font-medium" th:text="${page.number * page.size + page.numberOfElements}">20</span>
                     dari <span class="font-medium" th:text="${page.totalElements}">0</span> transaksi
                 </div>
-                <div class="flex items-center space-x-2">
-                    <a th:href="@{/transactions(page=${page.number - 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
-                       th:hx-get="@{/transactions(page=${page.number - 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
+                <div class="flex items-center space-x-1">
+                    <!-- Previous Button -->
+                    <a th:href="@{/transactions(page=${page.number - 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
+                       th:hx-get="@{/transactions(page=${page.number - 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
                        hx-target="#transaction-table"
                        hx-swap="outerHTML"
                        hx-push-url="true"
                        th:classappend="${page.first} ? 'opacity-50 pointer-events-none'"
                        class="px-3 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        Sebelumnya
+                        &laquo;
                     </a>
-                    <span class="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg"
-                          th:text="${page.number + 1}">1</span>
-                    <a th:href="@{/transactions(page=${page.number + 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
-                       th:hx-get="@{/transactions(page=${page.number + 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate})}"
+
+                    <!-- Page Numbers -->
+                    <th:block th:each="pageNum : ${#numbers.sequence(0, page.totalPages - 1)}">
+                        <!-- Current page (highlighted) -->
+                        <span th:if="${pageNum == page.number}"
+                              class="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg"
+                              th:text="${pageNum + 1}">1</span>
+                        <!-- Other pages (clickable) -->
+                        <a th:unless="${pageNum == page.number}"
+                           th:href="@{/transactions(page=${pageNum}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
+                           th:hx-get="@{/transactions(page=${pageNum}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
+                           hx-target="#transaction-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"
+                           class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
+                           th:text="${pageNum + 1}">2</a>
+                    </th:block>
+
+                    <!-- Next Button -->
+                    <a th:href="@{/transactions(page=${page.number + 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
+                       th:hx-get="@{/transactions(page=${page.number + 1}, size=${page.size}, status=${selectedStatus}, category=${selectedCategory}, search=${searchQuery}, startDate=${startDate}, endDate=${endDate}, projectCode=${selectedProjectCode})}"
                        hx-target="#transaction-table"
                        hx-swap="outerHTML"
                        hx-push-url="true"
                        th:classappend="${page.last} ? 'opacity-50 pointer-events-none'"
                        class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        Selanjutnya
+                        &raquo;
                     </a>
                 </div>
             </div>
