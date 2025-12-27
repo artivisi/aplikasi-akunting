@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Profil Pajak</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Profil Pajak</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Success Message -->
+        <div th:if="${successMessage}" class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-600" th:text="${successMessage}">Success</p>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-600" th:text="${errorMessage}">Error</p>
+        </div>
+
+        <!-- Tax Profile Form -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Data Profil Pajak</h2>
+
+            <form th:action="@{/tax-profile}" method="post" class="space-y-6" x-data="taxProfileForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Established Date -->
+                    <div>
+                        <label for="establishedDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pendirian</label>
+                        <input type="date" id="establishedDate" name="establishedDate"
+                               th:value="${config.establishedDate}"
+                               data-testid="established-date"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        <p class="mt-1 text-xs text-gray-500">Tanggal akta pendirian perusahaan</p>
+                    </div>
+
+                    <!-- PKP Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status PKP</label>
+                        <div class="flex items-center gap-4 mt-2">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="isPkp" value="true"
+                                       th:checked="${config.isPkp == true}"
+                                       x-model="isPkp"
+                                       data-testid="pkp-yes"
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Ya, PKP</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="isPkp" value="false"
+                                       th:checked="${config.isPkp == null || config.isPkp == false}"
+                                       x-model="isPkp"
+                                       data-testid="pkp-no"
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Belum PKP</span>
+                            </label>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Pengusaha Kena Pajak (wajib pungut PPN)</p>
+                    </div>
+
+                    <!-- PKP Since (only shown if PKP is true) -->
+                    <div x-show="isPkp === 'true'" x-transition>
+                        <label for="pkpSince" class="block text-sm font-medium text-gray-700 mb-1">PKP Sejak</label>
+                        <input type="date" id="pkpSince" name="pkpSince"
+                               th:value="${config.pkpSince}"
+                               data-testid="pkp-since"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                        <p class="mt-1 text-xs text-gray-500">Tanggal dikukuhkan sebagai PKP</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                    <button type="submit" id="btn-save-tax-profile" data-testid="btn-save"
+                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tax Classification Info (computed, read-only) -->
+        <div th:if="${config.establishedDate != null}" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Klasifikasi Pajak (Informasi)</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Company Age -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Usia Perusahaan</p>
+                    <p class="text-lg font-semibold text-gray-900" th:text="${companyAgeText}" data-testid="company-age">-</p>
+                </div>
+
+                <!-- PPh Regime -->
+                <div class="p-4 rounded-lg" th:classappend="${eligibleForPPhFinal} ? 'bg-green-50' : 'bg-blue-50'">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Rezim PPh</p>
+                    <p class="text-lg font-semibold"
+                       th:classappend="${eligibleForPPhFinal} ? 'text-green-700' : 'text-blue-700'"
+                       th:text="${pphRegimeText}"
+                       data-testid="pph-regime">-</p>
+                </div>
+
+                <!-- PPN Status -->
+                <div class="p-4 rounded-lg" th:classappend="${config.isPkp} ? 'bg-yellow-50' : 'bg-gray-50'">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Status PPN</p>
+                    <p class="text-lg font-semibold"
+                       th:classappend="${config.isPkp} ? 'text-yellow-700' : 'text-gray-700'"
+                       th:text="${ppnStatusText}"
+                       data-testid="ppn-status">-</p>
+                    <p th:if="${pkpDuration}" class="text-sm text-gray-500 mt-1">
+                        PKP selama <span th:text="${pkpDuration}">-</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">Catatan</h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Klasifikasi ini bersifat informatif dan tidak mempengaruhi pencatatan transaksi.</li>
+                                <li>PPh Final 0,5% berlaku untuk UMKM dengan omzet di bawah Rp 4,8 miliar dan usia perusahaan kurang dari 4 tahun.</li>
+                                <li>Setelah 4 tahun, perusahaan wajib menggunakan tarif PPh Badan normal dengan fasilitas Pasal 31E.</li>
+                                <li>Konsultasikan dengan konsultan pajak untuk kepastian klasifikasi pajak perusahaan Anda.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State (when no established date) -->
+        <div th:if="${config.establishedDate == null}" class="bg-white rounded-lg shadow p-6">
+            <div class="text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada data profil pajak</h3>
+                <p class="mt-1 text-sm text-gray-500">Isi tanggal pendirian untuk melihat klasifikasi pajak perusahaan.</p>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Halaman Terkait</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a th:href="@{/settings}"
+                   class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-8 h-8 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <div>
+                        <p class="font-medium text-gray-900">Pengaturan Perusahaan</p>
+                        <p class="text-sm text-gray-500">NPWP, NITKU, dan info perusahaan</p>
+                    </div>
+                </a>
+                <a th:href="@{/fiscal-periods}"
+                   class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-8 h-8 text-purple-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <div>
+                        <p class="font-medium text-gray-900">Periode Fiskal</p>
+                        <p class="text-sm text-gray-500">Kelola periode akuntansi</p>
+                    </div>
+                </a>
+                <a th:href="@{/tax-deadlines}"
+                   class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-8 h-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <p class="font-medium text-gray-900">Tenggat Pajak</p>
+                        <p class="text-sm text-gray-500">Deadline pelaporan dan pembayaran</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            // CSP-compatible: Register Alpine component
+            if (window.Alpine) {
+                Alpine.data('taxProfileForm', () => ({
+                    isPkp: /*[[${config.isPkp == true ? 'true' : 'false'}]]*/ 'false'
+                }));
+            } else {
+                document.addEventListener('alpine:init', () => {
+                    Alpine.data('taxProfileForm', () => ({
+                        isPkp: /*[[${config.isPkp == true ? 'true' : 'false'}]]*/ 'false'
+                    }));
+                });
+            }
+        </script>
+    </th:block>
+</body>
+</html>

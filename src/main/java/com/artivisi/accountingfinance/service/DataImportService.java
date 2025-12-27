@@ -549,6 +549,19 @@ public class DataImportService {
         if (!logoPath.isEmpty()) {
             config.setCompanyLogoPath(logoPath);
         }
+        // Tax profile fields (columns 12-14)
+        String establishedDateStr = getField(row, 12);
+        if (!establishedDateStr.isEmpty()) {
+            config.setEstablishedDate(parseDate(establishedDateStr));
+        }
+        String isPkpStr = getField(row, 13);
+        if (!isPkpStr.isEmpty()) {
+            config.setIsPkp(parseBoolean(isPkpStr));
+        }
+        String pkpSinceStr = getField(row, 14);
+        if (!pkpSinceStr.isEmpty()) {
+            config.setPkpSince(parseDate(pkpSinceStr));
+        }
 
         companyConfigRepository.save(config);
         return 1;

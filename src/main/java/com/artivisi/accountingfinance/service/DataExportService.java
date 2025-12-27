@@ -209,7 +209,8 @@ public class DataExportService {
     private String exportCompanyConfig() {
         StringBuilder csv = new StringBuilder();
         csv.append("company_name,company_address,company_phone,company_email,tax_id,npwp,nitku,");
-        csv.append("fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path\n");
+        csv.append("fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path,");
+        csv.append("established_date,is_pkp,pkp_since\n");
 
         companyConfigRepository.findFirst().ifPresent(c -> {
             csv.append(escapeCsv(c.getCompanyName())).append(",");
@@ -223,7 +224,10 @@ public class DataExportService {
             csv.append(escapeCsv(c.getCurrencyCode())).append(",");
             csv.append(escapeCsv(c.getSigningOfficerName())).append(",");
             csv.append(escapeCsv(c.getSigningOfficerTitle())).append(",");
-            csv.append(escapeCsv(c.getCompanyLogoPath())).append("\n");
+            csv.append(escapeCsv(c.getCompanyLogoPath())).append(",");
+            csv.append(c.getEstablishedDate() != null ? c.getEstablishedDate().format(DATE_FORMATTER) : "").append(",");
+            csv.append(c.getIsPkp() != null ? c.getIsPkp() : "").append(",");
+            csv.append(c.getPkpSince() != null ? c.getPkpSince().format(DATE_FORMATTER) : "").append("\n");
         });
         return csv.toString();
     }

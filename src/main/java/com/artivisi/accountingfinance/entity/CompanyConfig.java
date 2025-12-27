@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "company_config")
 @Getter
@@ -66,4 +68,14 @@ public class CompanyConfig extends BaseEntity {
     @Size(max = 500, message = "Company logo path must not exceed 500 characters")
     @Column(name = "company_logo_path", length = 500)
     private String companyLogoPath;
+
+    // Tax Profile Fields
+    @Column(name = "established_date")
+    private LocalDate establishedDate;
+
+    @Column(name = "is_pkp")
+    private Boolean isPkp;
+
+    @Column(name = "pkp_since")
+    private LocalDate pkpSince;
 }

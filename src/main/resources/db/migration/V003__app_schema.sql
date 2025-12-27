@@ -20,6 +20,10 @@ CREATE TABLE company_config (
     signing_officer_name VARCHAR(255),
     signing_officer_title VARCHAR(100),
     company_logo_path VARCHAR(500),
+    -- Tax Profile Fields
+    established_date DATE,
+    is_pkp BOOLEAN,
+    pkp_since DATE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by VARCHAR(100),
