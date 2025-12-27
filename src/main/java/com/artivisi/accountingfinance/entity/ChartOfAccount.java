@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -60,6 +61,7 @@ public class ChartOfAccount extends BaseEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @OrderBy("accountCode ASC")
     private List<ChartOfAccount> children = new ArrayList<>();
 
     @Min(value = 1, message = "Level minimal 1")
