@@ -791,19 +791,19 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] GitHub secret scanning (enable in repo settings)
 
 #### 6.9.4 Dynamic Application Security Testing (DAST)
-- [x] Spring-integrated ZAP DAST (Recommended approach)
-  - [x] `ZapDastTest.java` - ZAP runs within `@SpringBootTest`
+- [x] Comprehensive ZAP DAST (`ZapDastTest.java`)
   - [x] ZAP as Testcontainer with `host.testcontainers.internal` networking
-  - [x] Baseline scan + authenticated scan
-  - [x] Severity thresholds: 0 HIGH, ≤5 MEDIUM allowed
-  - [x] Runs on PRs and weekly schedule
-- [x] OWASP ZAP baseline scan (Standalone approach)
-  - [x] Add `.github/workflows/dast.yml`
-  - [x] Builds JAR then starts app before ZAP scan
-  - [x] Configure authentication for authenticated scans
-- [x] OWASP ZAP full scan (weekly schedule, on-demand)
-  - [x] Spider + active scan
-  - [x] Custom rules in `.zap/rules.tsv`
+  - [x] 4 test scenarios: baseline, authenticated, API, privilege escalation
+  - [x] Passive scanning (header analysis, information disclosure)
+  - [x] Active scanning (SQLi, XSS, CSRF, path traversal, command injection)
+  - [x] Traditional spider + AJAX spider for JS-rendered content
+  - [x] Multi-role testing (admin, accountant roles)
+  - [x] 14 authenticated entry points + 6 API endpoints coverage
+  - [x] Severity thresholds: 0 HIGH, 0 MEDIUM (strict)
+  - [x] Quick mode (`-Ddast.quick=true`) for CI, full mode for weekly
+- [x] GitHub Actions integration
+  - [x] `.github/workflows/dast.yml` - weekly schedule
+  - [x] HTML reports uploaded as artifacts
 
 #### 6.9.5 Container Security
 - [ ] Trivy container scanning
@@ -829,7 +829,11 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] Strict mode enabled
 
 #### 6.9.7 API Security Testing
-- [ ] OWASP ZAP API scan with OpenAPI spec
+- [x] OWASP ZAP API scan (`ZapDastTest.shouldPassApiSecurityScan`)
+  - [x] Tests 6 API endpoints (`/api/recent`, `/api/search`, `/api/trial-balance`, etc.)
+  - [x] Passive + active scanning on `/api/*` context
+  - [x] Authenticated API testing
+- [ ] OpenAPI spec-based scanning (future enhancement)
 - [ ] Postman/Newman security test collection
   - [ ] Authentication bypass tests
   - [ ] Authorization tests (IDOR)
