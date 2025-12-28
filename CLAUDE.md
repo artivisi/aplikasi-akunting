@@ -78,11 +78,14 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ./mvnw spotbugs:spotbugs
 # Results: target/spotbugsXml.xml or target/site/spotbugs.html
 
-# Run OWASP ZAP DAST security scan (requires Docker)
+# Run OWASP ZAP DAST - quick mode (~5 min, passive only)
+./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true -Ddast.quick=true
+
+# Run OWASP ZAP DAST - full mode (~20 min, active scanning)
 ./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true
 # Results: target/security-reports/zap-*.html
 
-# Run full test suite INCLUDING DAST (requires Docker, adds ~2+ min)
+# Run full test suite INCLUDING DAST (requires Docker)
 ./mvnw test -Ddast.enabled=true
 ```
 
@@ -131,6 +134,8 @@ Phase 6 highlights (in progress):
 - DevSecOps: CodeQL, SonarCloud, OWASP Dependency-Check, ZAP DAST
 - Security regression tests (Playwright + JUnit)
 - SpotBugs/FindSecBugs audit: ✅ 0 issues (164→0, fixed 33 real vulnerabilities, documented 140 Spring DI false positives)
+- OWASP ZAP DAST: ✅ 0 HIGH, 0 MEDIUM (graybox testing with 111 endpoints from controller mappings)
+- CSP headers: nonce-based, filter writes directly for all dispatcher types (REQUEST, ERROR, FORWARD, INCLUDE, ASYNC)
 
 User Manual (12-section structure complete):
 - 01-setup-awal.md: Setup & Administration

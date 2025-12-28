@@ -796,11 +796,18 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
   - [x] 4 test scenarios: baseline, authenticated, API, privilege escalation
   - [x] Passive scanning (header analysis, information disclosure)
   - [x] Active scanning (SQLi, XSS, CSRF, path traversal, command injection)
-  - [x] Traditional spider + AJAX spider for JS-rendered content
+  - [x] **Graybox endpoint enumeration** (replaced spider with explicit controller mappings)
+    - 22 list pages, 15 form endpoints, 37 parameterized endpoints
+    - 21 API endpoints, 16 report pages (111 total endpoints)
   - [x] Multi-role testing (admin, accountant roles)
-  - [x] 14 authenticated entry points + 6 API endpoints coverage
   - [x] Severity thresholds: 0 HIGH, 0 MEDIUM (strict)
   - [x] Quick mode (`-Ddast.quick=true`) for CI, full mode for weekly
+  - [x] False positive filtering for known limitations (CSP on Tomcat-rejected URLs)
+- [x] CSP Header improvements
+  - [x] CspNonceFilter writes headers directly (not relying on Spring Security)
+  - [x] Filter runs for ALL dispatcher types (REQUEST, ERROR, FORWARD, INCLUDE, ASYNC)
+  - [x] CustomErrorController ensures CSP on /error endpoint
+  - [x] Known limitation: Tomcat blocks malformed URLs before servlet filter chain
 - [x] GitHub Actions integration
   - [x] `.github/workflows/dast.yml` - weekly schedule
   - [x] HTML reports uploaded as artifacts

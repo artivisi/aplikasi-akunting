@@ -8,7 +8,8 @@ Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymel
 - ✅ Payroll with BPJS and automatic PPh 21 calculation
 - ✅ Fixed assets with depreciation (straight-line, declining balance)
 - ✅ Inventory & simple production (FIFO/weighted average, BOM, production orders)
-- ✅ Security hardening (field-level encryption, audit logging, RBAC)
+- ✅ Security hardening (AES-256-GCM encryption, audit logging, RBAC, CSP headers)
+- ✅ DevSecOps (CodeQL, SpotBugs, OWASP ZAP DAST, Dependency-Check)
 
 **Industry support:**
 - IT Services & Consulting
@@ -26,6 +27,15 @@ Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymel
 
 # Run with visible browser (debugging)
 ./mvnw test -Dtest=ChartOfAccountSeedDataTest -Dplaywright.headless=false -Dplaywright.slowmo=100
+
+# Run OWASP ZAP DAST security scan - quick mode (~5 min, passive only)
+./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true -Ddast.quick=true
+
+# Run full DAST with active scanning (~20 min, SQLi/XSS/path traversal)
+./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true
+
+# Run SpotBugs security analysis
+./mvnw spotbugs:spotbugs
 ```
 
 ## Documentation
@@ -44,9 +54,14 @@ Accounting application for Indonesian small businesses. Spring Boot 4.0 + Thymel
 
 ## Project Status
 
-**Current Phase:** Phase 6 (Security Hardening) - 8 of 10 subsections complete (SpotBugs audit: ✅ 0 issues)
+**Current Phase:** Phase 6 (Security Hardening) - 8 of 10 subsections complete
 
-**Completed:** Core accounting MVP, tax compliance, payroll, fixed assets, inventory & production, 4 industry seed packs, comprehensive user manual (15 files), 115 functional tests
+**Security highlights:**
+- SpotBugs/FindSecBugs: ✅ 0 issues (33 vulnerabilities fixed)
+- OWASP ZAP DAST: ✅ 0 HIGH, 0 MEDIUM (111 endpoints scanned)
+- CSP headers: nonce-based with full dispatcher coverage
+
+**Completed:** Core accounting MVP, tax compliance, payroll, fixed assets, inventory & production, 4 industry seed packs, comprehensive user manual (15 files), 115+ functional tests
 
 See [Features & Roadmap](docs/01-features-and-roadmap.md) for complete feature list and [Implementation Plan](docs/06-implementation-plan.md) for detailed status.
 
