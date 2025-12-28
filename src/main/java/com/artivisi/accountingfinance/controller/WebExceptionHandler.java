@@ -37,9 +37,10 @@ public class WebExceptionHandler {
             // Let RestExceptionHandler handle non-HTML requests
             throw ex;
         }
+        // Log full details for debugging, but don't expose to client
         log.warn("Access denied: {}", ex.getMessage());
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        model.addAttribute("message", ex.getMessage());
+        // Don't expose exception message - use generic message
         model.addAttribute("timestamp", LocalDateTime.now());
         return "error/403";
     }
@@ -51,9 +52,10 @@ public class WebExceptionHandler {
             // Let RestExceptionHandler handle non-HTML requests
             throw ex;
         }
+        // Log full details for debugging, but don't expose to client
         log.warn("Entity not found: {}", ex.getMessage());
         response.setStatus(HttpStatus.NOT_FOUND.value());
-        model.addAttribute("message", ex.getMessage());
+        // Don't expose exception message - use generic message
         model.addAttribute("timestamp", LocalDateTime.now());
         return "error/404";
     }

@@ -31,36 +31,39 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+        // Log full details for debugging, but don't expose to client
         log.warn("Entity not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(
                         HttpStatus.NOT_FOUND.value(),
                         "Not Found",
-                        ex.getMessage(),
+                        "The requested resource was not found.",
                         LocalDateTime.now()
                 ));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        // Log full details for debugging, but don't expose to client
         log.warn("Invalid argument: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
                         "Bad Request",
-                        ex.getMessage(),
+                        "The request was invalid.",
                         LocalDateTime.now()
                 ));
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        // Log full details for debugging, but don't expose to client
         log.warn("Invalid state: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(
                         HttpStatus.CONFLICT.value(),
                         "Conflict",
-                        ex.getMessage(),
+                        "The operation could not be completed due to a conflict.",
                         LocalDateTime.now()
                 ));
     }
@@ -87,12 +90,13 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        // Log full details for debugging, but don't expose to client
         log.warn("Constraint violation: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
                         "Validation Failed",
-                        ex.getMessage(),
+                        "One or more validation errors occurred.",
                         LocalDateTime.now()
                 ));
     }
