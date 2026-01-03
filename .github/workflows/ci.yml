@@ -133,6 +133,7 @@ jobs:
           files: target/site/jacoco/jacoco.xml
           flags: unittests
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   # SpotBugs with FindSecBugs - parallel with tests
   spotbugs:
