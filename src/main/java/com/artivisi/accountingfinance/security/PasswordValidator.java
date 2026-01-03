@@ -19,10 +19,11 @@ public class PasswordValidator {
 
     public static final int MIN_LENGTH = 12;
 
-    private static final Pattern UPPERCASE_PATTERN = Pattern.compile(".*[A-Z].*");
-    private static final Pattern LOWERCASE_PATTERN = Pattern.compile(".*[a-z].*");
-    private static final Pattern DIGIT_PATTERN = Pattern.compile(".*[0-9].*");
-    private static final Pattern SPECIAL_PATTERN = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
+    // Use find() instead of matches() with .* to avoid ReDoS
+    private static final Pattern UPPERCASE_PATTERN = Pattern.compile("[A-Z]");
+    private static final Pattern LOWERCASE_PATTERN = Pattern.compile("[a-z]");
+    private static final Pattern DIGIT_PATTERN = Pattern.compile("[0-9]");
+    private static final Pattern SPECIAL_PATTERN = Pattern.compile("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]");
 
     /**
      * Validates password against complexity requirements.
@@ -42,19 +43,19 @@ public class PasswordValidator {
             errors.add("Password minimal " + MIN_LENGTH + " karakter");
         }
 
-        if (!UPPERCASE_PATTERN.matcher(password).matches()) {
+        if (!UPPERCASE_PATTERN.matcher(password).find()) {
             errors.add("Password harus mengandung minimal satu huruf besar");
         }
 
-        if (!LOWERCASE_PATTERN.matcher(password).matches()) {
+        if (!LOWERCASE_PATTERN.matcher(password).find()) {
             errors.add("Password harus mengandung minimal satu huruf kecil");
         }
 
-        if (!DIGIT_PATTERN.matcher(password).matches()) {
+        if (!DIGIT_PATTERN.matcher(password).find()) {
             errors.add("Password harus mengandung minimal satu angka");
         }
 
-        if (!SPECIAL_PATTERN.matcher(password).matches()) {
+        if (!SPECIAL_PATTERN.matcher(password).find()) {
             errors.add("Password harus mengandung minimal satu karakter khusus (!@#$%^&* dll)");
         }
 

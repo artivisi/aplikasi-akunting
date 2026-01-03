@@ -31,9 +31,9 @@ public class SecurityAuditService {
 
     private final SecurityAuditLogRepository auditLogRepository;
 
-    // Pattern to mask sensitive data in details
+    // Pattern to mask sensitive data in details (use non-greedy and specific patterns to avoid ReDoS)
     private static final Pattern SENSITIVE_PATTERN = Pattern.compile(
-            "(password|token|secret|key|npwp|nik|bank.*number|bpjs)([\"':=\\s]+)([^\"',\\s}]+)",
+            "(password|token|secret|key|npwp|nik|bank_?number|account_?number|bpjs)([\"':=\\s]+)([^\"',\\s}]+)",
             Pattern.CASE_INSENSITIVE
     );
 

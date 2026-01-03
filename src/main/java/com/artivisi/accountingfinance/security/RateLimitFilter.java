@@ -12,10 +12,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * Filter to apply rate limiting on sensitive endpoints.
  * Runs before authentication to prevent brute force attacks.
+ *
+ * IMPORTANT: When deployed behind a reverse proxy, the proxy must be configured to:
+ * 1. Overwrite (not append to) X-Forwarded-For header
+ * 2. Set X-Real-IP from the actual client connection
+ * This prevents clients from spoofing their IP to bypass rate limiting.
  */
 @Component
 @RequiredArgsConstructor
@@ -24,6 +30,12 @@ import java.io.IOException;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
+
+    // Pattern for valid IPv4 and IPv6 addresses (basic validation)
+    private static final Pattern IPV4_PATTERN = Pattern.compile(
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    private static final Pattern IPV6_PATTERN = Pattern.compile(
+            "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::$|^::1$|^([0-9a-fA-F]{1,4}:){1,7}:$");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -82,22 +94,43 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     /**
      * Get client IP address, considering reverse proxy headers.
+     * Falls back to remote address if headers contain invalid IP.
      */
     private String getClientIpAddress(HttpServletRequest request) {
+        String remoteAddr = request.getRemoteAddr();
+
         // Check X-Forwarded-For header (set by reverse proxies)
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            // Take the first IP (original client)
-            return xForwardedFor.split(",")[0].trim();
+            String ip = xForwardedFor.split(",")[0].trim();
+            if (isValidIpAddress(ip)) {
+                return ip;
+            }
+            log.debug("Invalid IP in X-Forwarded-For header, using remote address");
         }
 
         // Check X-Real-IP header (nginx)
         String xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
+            String ip = xRealIp.trim();
+            if (isValidIpAddress(ip)) {
+                return ip;
+            }
+            log.debug("Invalid IP in X-Real-IP header, using remote address");
         }
 
-        // Fall back to remote address
-        return request.getRemoteAddr();
+        // Fall back to remote address (always trusted from container)
+        return remoteAddr;
+    }
+
+    /**
+     * Validate that the string is a valid IPv4 or IPv6 address.
+     * Rejects malformed addresses that could be used for bypass attempts.
+     */
+    private boolean isValidIpAddress(String ip) {
+        if (ip == null || ip.isBlank()) {
+            return false;
+        }
+        return IPV4_PATTERN.matcher(ip).matches() || IPV6_PATTERN.matcher(ip).matches();
     }
 }

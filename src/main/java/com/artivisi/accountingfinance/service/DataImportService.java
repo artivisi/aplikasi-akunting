@@ -123,7 +123,7 @@ public class DataImportService {
                 .map(Map.Entry::getKey)
                 .collect(java.util.stream.Collectors.toSet());
 
-        log.info("Files with data: {}", filesWithData);
+        log.info("Files with data: {}", LogSanitizer.sanitize(filesWithData.toString()));
 
         // Truncate only tables that will be imported
         truncateTablesForFiles(filesWithData);
