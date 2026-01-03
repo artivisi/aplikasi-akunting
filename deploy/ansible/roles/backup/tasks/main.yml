@@ -316,7 +316,7 @@
 
         Application: {{ app_name }}
         Server: {{ app_domain }}
-        Time: {{ ansible_date_time.iso8601 }}
+        Time: {{ now(utc=false).isoformat() }}
 
         Backup status:
         • Local: ✓ Working
