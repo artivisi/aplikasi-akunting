@@ -57,7 +57,7 @@
 
     - name: Create database backup using pg_dump
       ansible.builtin.shell: |
-        pg_dump -h localhost -p 5432 -U postgres -Fc -f {{ backup_dir }}/{{ db_name }}_backup.dump {{ db_name }}
+        pg_dump -Fc -f {{ backup_dir }}/{{ db_name }}_backup.dump {{ db_name }}
       become_user: postgres
       register: backup_result
 
@@ -75,7 +75,38 @@
       ansible.builtin.debug:
         msg: "Backup size: {{ (backup_file.stat.size / 1024 / 1024) | round(2) }} MB"
 
-    # Install new PostgreSQL version (repo should already be configured)
+    # Add official PostgreSQL APT repository
+    - name: Install prerequisites for PostgreSQL repository
+      ansible.builtin.apt:
+        name:
+          - curl
+          - ca-certificates
+          - gnupg
+        state: present
+
+    - name: Create keyrings directory
+      ansible.builtin.file:
+        path: /usr/share/postgresql-common/pgdg
+        state: directory
+        mode: '0755'
+
+    - name: Download PostgreSQL repository signing key
+      ansible.builtin.shell: |
+        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg
+      args:
+        creates: /usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg
+
+    - name: Add PostgreSQL APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg] https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+        state: present
+        filename: pgdg
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    # Install new PostgreSQL version
     - name: Install PostgreSQL {{ pg_new_version }}
       ansible.builtin.apt:
         name:
@@ -141,7 +172,7 @@
 
     - name: Restore database from backup
       ansible.builtin.shell: |
-        pg_restore -h localhost -p 5432 -U postgres -d {{ db_name }} --no-owner --role={{ db_user }} {{ backup_dir }}/{{ db_name }}_backup.dump
+        pg_restore -d {{ db_name }} --no-owner --role={{ db_user }} {{ backup_dir }}/{{ db_name }}_backup.dump
       become_user: postgres
       register: restore_result
       # pg_restore returns non-zero for warnings, so we check separately

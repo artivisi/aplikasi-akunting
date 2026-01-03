@@ -77,9 +77,6 @@ http {
                     'rt=$request_time uct=$upstream_connect_time '
                     'uht=$upstream_header_time urt=$upstream_response_time';
 
-    # Security: Hide server version in error pages
-    server_tokens off;
-
     # SSL session cache (shared across workers)
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 1d;
