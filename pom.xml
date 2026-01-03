@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>google-cloud-vision</artifactId>
-			<version>3.55.0</version>
+			<version>3.78.0</version>
 		</dependency>
 		<!-- Telegram Bot API: Using custom DTOs and Spring HTTP Interface instead of telegrambots-client -->
 
@@ -168,6 +168,13 @@
 			<artifactId>zap-clientapi</artifactId>
 			<version>1.17.0</version>
 			<scope>test</scope>
+			<exclusions>
+				<!-- Exclude vulnerable jdom 1.1.3 (CVE-2021-33813 XXE) - not used in our tests -->
+				<exclusion>
+					<groupId>org.jdom</groupId>
+					<artifactId>jdom</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
