@@ -76,10 +76,6 @@ abstract class ZapDastTestBase {
 
     @BeforeEach
     void setupZap() throws Exception {
-        if (!IS_CI && !DAST_ENABLED) {
-            return;
-        }
-
         Testcontainers.exposeHostPorts(port);
         targetUrl = "http://host.testcontainers.internal:" + port;
 
