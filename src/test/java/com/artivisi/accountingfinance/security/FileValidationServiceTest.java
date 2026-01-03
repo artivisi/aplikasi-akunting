@@ -296,11 +296,12 @@ class FileValidationServiceTest {
                 "'normal.pdf', 'normal.pdf'",
                 "'file\ninjection.pdf', 'file_injection.pdf'",
                 "'file\rinjection.pdf', 'file_injection.pdf'",
-                "'file\tinjection.pdf', 'file_injection.pdf'"
+                "'file\tinjection.pdf', 'file injection.pdf'"
         })
         @DisplayName("Should sanitize filenames for logging")
         void shouldSanitizeFilenamesForLogging(String input, String expected) {
-            String sanitized = FileValidationService.sanitizeForLog(input);
+            // LogSanitizer.filename() is now used for sanitization
+            String sanitized = LogSanitizer.filename(input);
 
             assertThat(sanitized).isEqualTo(expected);
         }
@@ -310,16 +311,16 @@ class FileValidationServiceTest {
         void shouldTruncateLongFilenames() {
             String longFilename = "a".repeat(300);
 
-            String sanitized = FileValidationService.sanitizeForLog(longFilename);
+            String sanitized = LogSanitizer.filename(longFilename);
 
-            assertThat(sanitized).hasSize(200 + "...[truncated]".length());
+            assertThat(sanitized).hasSize(255 + "...[truncated]".length());
             assertThat(sanitized).endsWith("...[truncated]");
         }
 
         @Test
         @DisplayName("Should handle null input")
         void shouldHandleNullInput() {
-            String sanitized = FileValidationService.sanitizeForLog(null);
+            String sanitized = LogSanitizer.filename(null);
 
             assertThat(sanitized).isEqualTo("null");
         }

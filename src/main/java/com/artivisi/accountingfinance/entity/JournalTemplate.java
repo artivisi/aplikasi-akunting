@@ -114,6 +114,13 @@ public class JournalTemplate extends BaseEntity {
         line.setJournalTemplate(null);
     }
 
+    public void clearLines() {
+        for (JournalTemplateLine line : new java.util.ArrayList<>(lines)) {
+            line.setJournalTemplate(null);
+        }
+        lines.clear();
+    }
+
     public void addTag(String tag) {
         JournalTemplateTag templateTag = new JournalTemplateTag(this, tag.toLowerCase().trim());
         tags.add(templateTag);

@@ -106,7 +106,7 @@ public class JournalTemplateService {
         existing.setVersion(existing.getVersion() + 1);
 
         // Clear and recreate lines (safe since not in use)
-        existing.getLines().clear();
+        existing.clearLines();
         for (JournalTemplateLine line : templateData.getLines()) {
             ChartOfAccount account = null;
             if (line.getAccount() != null && line.getAccount().getId() != null) {

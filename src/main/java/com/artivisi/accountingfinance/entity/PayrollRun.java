@@ -167,6 +167,16 @@ public class PayrollRun {
     }
 
     /**
+     * Clear all payroll details.
+     */
+    public void clearDetails() {
+        for (PayrollDetail detail : new ArrayList<>(details)) {
+            detail.setPayrollRun(null);
+        }
+        details.clear();
+    }
+
+    /**
      * Calculate totals from details.
      */
     public void calculateTotals() {

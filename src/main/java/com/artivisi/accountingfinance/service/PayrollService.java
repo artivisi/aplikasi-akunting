@@ -93,7 +93,7 @@ public class PayrollService {
 
         // Clear existing details
         payrollDetailRepository.deleteByPayrollRun(payrollRun);
-        payrollRun.getDetails().clear();
+        payrollRun.clearDetails();
 
         // Get active employees
         List<Employee> activeEmployees = employeeRepository.findByActiveTrueAndEmploymentStatus(EmploymentStatus.ACTIVE);
