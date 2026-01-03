@@ -199,8 +199,6 @@ class ZapDastTest extends ZapDastTestBase {
     @Test
     @DisplayName("Should pass SQL injection security scan on all endpoints")
     void shouldPassSqlInjectionScan() throws Exception {
-        skipIfNotEnabled();
-
         log.info("=== Starting SQL Injection Security Scan ===");
         log.info("Testing {} list pages, {} form endpoints, {} parameterized endpoints",
                 LIST_PAGES.length, FORM_ENDPOINTS.length, PARAMETERIZED_ENDPOINTS.length);
@@ -263,8 +261,6 @@ class ZapDastTest extends ZapDastTestBase {
     @Test
     @DisplayName("Should pass XSS security scan on all endpoints")
     void shouldPassXssScan() throws Exception {
-        skipIfNotEnabled();
-
         log.info("=== Starting XSS Security Scan ===");
         log.info("Testing {} list pages, {} form endpoints, {} parameterized endpoints",
                 LIST_PAGES.length, FORM_ENDPOINTS.length, PARAMETERIZED_ENDPOINTS.length);
@@ -333,8 +329,6 @@ class ZapDastTest extends ZapDastTestBase {
     @Test
     @DisplayName("Should pass authentication and IDOR security scan")
     void shouldPassAuthenticationScan() throws Exception {
-        skipIfNotEnabled();
-
         log.info("=== Starting Authentication and IDOR Security Scan ===");
 
         HttpClient unauthClient = createProxiedClient();
@@ -399,8 +393,6 @@ class ZapDastTest extends ZapDastTestBase {
     @Test
     @DisplayName("Should pass path traversal and API security scan")
     void shouldPassPathTraversalAndApiScan() throws Exception {
-        skipIfNotEnabled();
-
         log.info("=== Starting Path Traversal and API Security Scan ===");
 
         authenticatedClient = performLogin("admin", "admin");

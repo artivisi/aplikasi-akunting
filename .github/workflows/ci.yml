@@ -4,21 +4,50 @@ on:
   push:
     branches:
       - main
-      - master
   pull_request:
     branches:
       - main
-      - master
+  schedule:
+    # Weekly full scan on Sunday at 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
 
 permissions:
   contents: read
   checks: write
   pull-requests: write
+  security-events: write
+  actions: read
 
 jobs:
-  test:
+  # Fast secret scanning - runs first, blocks everything if secrets found
+  secret-scan:
+    name: Secret Detection
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Install Gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run Gitleaks Scan
+        run: gitleaks detect --source . --verbose --redact --exit-code 1
+
+      - name: TruffleHog Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  # All tests: unit, integration, functional, DAST
+  build-and-test:
+    name: Build & Test
+    needs: secret-scan
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,8 +62,37 @@ jobs:
       - name: Install Playwright browsers
         run: ./mvnw exec:java -Dexec.mainClass="com.microsoft.playwright.CLI" -Dexec.classpathScope=test -Dexec.args="install --with-deps chromium"
 
-      - name: Run tests with coverage
+      - name: Run all tests with coverage
         run: ./mvnw clean verify
+
+      - name: Generate coverage summary
+        if: always()
+        run: |
+          if [ -f target/site/jacoco/jacoco.csv ]; then
+            echo "## Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Parse JaCoCo CSV for coverage metrics
+            TOTAL_MISSED=0
+            TOTAL_COVERED=0
+            while IFS=, read -r group package class instr_missed instr_covered branch_missed branch_covered line_missed line_covered complexity_missed complexity_covered method_missed method_covered; do
+              if [ "$group" != "GROUP" ]; then
+                TOTAL_MISSED=$((TOTAL_MISSED + line_missed))
+                TOTAL_COVERED=$((TOTAL_COVERED + line_covered))
+              fi
+            done < target/site/jacoco/jacoco.csv
+
+            TOTAL=$((TOTAL_MISSED + TOTAL_COVERED))
+            if [ $TOTAL -gt 0 ]; then
+              COVERAGE=$((TOTAL_COVERED * 100 / TOTAL))
+              echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| **Line Coverage** | **${COVERAGE}%** |" >> $GITHUB_STEP_SUMMARY
+              echo "| Lines Covered | ${TOTAL_COVERED} |" >> $GITHUB_STEP_SUMMARY
+              echo "| Lines Missed | ${TOTAL_MISSED} |" >> $GITHUB_STEP_SUMMARY
+              echo "| Total Lines | ${TOTAL} |" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
@@ -51,6 +109,13 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
+      - name: Upload ZAP DAST reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-dast-reports
+          path: target/security-reports/
+
       - name: Add coverage to PR
         uses: madrapps/jacoco-report@v1.7.1
         if: github.event_name == 'pull_request'
@@ -61,3 +126,120 @@ jobs:
           min-coverage-changed-files: 0
           title: Code Coverage
           update-comment: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: target/site/jacoco/jacoco.xml
+          flags: unittests
+          fail_ci_if_error: false
+
+  # SpotBugs with FindSecBugs - parallel with tests
+  spotbugs:
+    name: SpotBugs SAST
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compile project
+        run: ./mvnw compile -DskipTests -q
+
+      - name: Run SpotBugs with FindSecBugs
+        run: ./mvnw spotbugs:check
+
+      - name: Upload SpotBugs report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spotbugs-report
+          path: target/spotbugsXml.xml
+
+  # CodeQL analysis - parallel with tests
+  codeql:
+    name: CodeQL SAST
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          queries: +security-extended,security-and-quality
+
+      - name: Build with Maven
+        run: ./mvnw compile -DskipTests -q
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin"
+
+  # Semgrep SAST - parallel with tests
+  semgrep:
+    name: Semgrep SAST
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: semgrep scan --config auto --config p/java --config p/security-audit --config .semgrep/ --sarif --output semgrep-results.sarif
+        continue-on-error: true
+
+      - name: Upload Semgrep results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep-results.sarif
+          category: semgrep
+
+  # OWASP Dependency Check - parallel with tests
+  dependency-check:
+    name: Dependency Check
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run OWASP Dependency-Check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: ./mvnw dependency-check:check
+        continue-on-error: true
+
+      - name: Upload Dependency-Check report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-report.*

@@ -65,7 +65,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 # First-time setup on Ubuntu (install Playwright browsers)
 ./setup-ubuntu.sh
 
-# Run tests (excludes DAST by default)
+# Run all tests (unit, integration, functional, DAST)
+# Requires Docker for Testcontainers (PostgreSQL, ZAP)
 ./mvnw test
 
 # Run specific functional test
@@ -75,18 +76,15 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 ./mvnw test -Dtest=MfgBomTest -Dplaywright.headless=false -Dplaywright.slowmo=100
 
 # Run SpotBugs security analysis
-./mvnw spotbugs:spotbugs
-# Results: target/spotbugsXml.xml or target/site/spotbugs.html
+./mvnw spotbugs:check
+# Results: target/spotbugsXml.xml
 
-# Run OWASP ZAP DAST - quick mode (~5 min, passive only)
-./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true -Ddast.quick=true
-
-# Run OWASP ZAP DAST - full mode (~20 min, active scanning)
-./mvnw test -Dtest=ZapDastTest -Ddast.enabled=true
+# Run only DAST tests
+./mvnw test -Dtest=ZapDastTest
 # Results: target/security-reports/zap-*.html
 
-# Run full test suite INCLUDING DAST (requires Docker)
-./mvnw test -Ddast.enabled=true
+# Run DAST in quick mode (passive scan only, ~1 min)
+./mvnw test -Dtest=ZapDastTest -Ddast.quick=true
 ```
 
 ## Database

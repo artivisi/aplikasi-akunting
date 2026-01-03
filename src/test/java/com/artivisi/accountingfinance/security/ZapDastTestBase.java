@@ -15,7 +15,6 @@ import org.testcontainers.utility.DockerImageName;
 import org.zaproxy.clientapi.core.*;
 import org.zaproxy.clientapi.gen.Ascan;
 import org.zaproxy.clientapi.gen.Pscan;
-import org.zaproxy.clientapi.gen.Reports;
 import org.zaproxy.clientapi.gen.Spider;
 
 import java.net.CookieManager;
@@ -36,7 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Base class for ZAP DAST security tests.
@@ -49,8 +47,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @Tag("dast")
 abstract class ZapDastTestBase {
 
-    protected static final boolean IS_CI = "true".equals(System.getenv("CI"));
-    protected static final boolean DAST_ENABLED = "true".equals(System.getProperty("dast.enabled"));
     protected static final boolean QUICK_SCAN = "true".equals(System.getProperty("dast.quick"));
 
     protected static final Logger log = LoggerFactory.getLogger(ZapDastTestBase.class);
@@ -117,10 +113,6 @@ abstract class ZapDastTestBase {
         authenticatedClient = null;
     }
 
-    protected void skipIfNotEnabled() {
-        assumeTrue(IS_CI || DAST_ENABLED,
-                "DAST tests skipped locally. Use -Ddast.enabled=true to run.");
-    }
 
     // ========== HTTP Client Methods ==========
 
@@ -425,18 +417,17 @@ abstract class ZapDastTestBase {
                 scanName + " scan found " + results.mediumCount + " MEDIUM severity vulnerabilities (max: " + MAX_MEDIUM_ALERTS + ")");
     }
 
-    protected void generateHtmlReport(String filename, String url) throws Exception {
-        String reportName = filename.replace(".html", "");
-
-        Reports reports = new Reports(zapClient);
-        reports.generate(
-                "ZAP Security Scan Report - " + reportName,
-                "traditional-html",
-                null, null, null, url, null, null, null,
-                reportName, null, CONTAINER_REPORTS_DIR, null
-        );
-
-        log.info("Report generated: {}", REPORTS_DIR.resolve(filename));
+    protected void generateHtmlReport(String filename, String url) {
+        try {
+            // Use core.htmlreport() which is more stable across ZAP versions
+            byte[] reportBytes = zapClient.core.htmlreport();
+            Path reportPath = REPORTS_DIR.resolve(filename);
+            Files.write(reportPath, reportBytes);
+            log.info("Report generated: {}", reportPath);
+        } catch (Exception e) {
+            // Report generation failure should not fail the test
+            log.warn("Failed to generate HTML report {}: {}", filename, e.getMessage());
+        }
     }
 
     protected static class ScanResults {
