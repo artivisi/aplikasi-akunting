@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -58,10 +59,10 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for transaction {}: {}", transactionId, e.getMessage());
             model.addAttribute("success", false);
-            model.addAttribute("message", "Gagal mengunggah dokumen: " + e.getMessage());
+            model.addAttribute("message", "Gagal mengunggah dokumen: " + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
-            model.addAttribute("message", e.getMessage());
+            model.addAttribute("message", HtmlUtils.htmlEscape(e.getMessage()));
         }
 
         // Return updated document list fragment
@@ -92,10 +93,10 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for journal entry {}: {}", journalEntryId, e.getMessage());
             model.addAttribute("success", false);
-            model.addAttribute("message", "Gagal mengunggah dokumen: " + e.getMessage());
+            model.addAttribute("message", "Gagal mengunggah dokumen: " + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
-            model.addAttribute("message", e.getMessage());
+            model.addAttribute("message", HtmlUtils.htmlEscape(e.getMessage()));
         }
 
         List<Document> documents = documentService.findByJournalEntryId(journalEntryId);
@@ -125,10 +126,10 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for invoice {}: {}", invoiceId, e.getMessage());
             model.addAttribute("success", false);
-            model.addAttribute("message", "Gagal mengunggah dokumen: " + e.getMessage());
+            model.addAttribute("message", "Gagal mengunggah dokumen: " + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
-            model.addAttribute("message", e.getMessage());
+            model.addAttribute("message", HtmlUtils.htmlEscape(e.getMessage()));
         }
 
         List<Document> documents = documentService.findByInvoiceId(invoiceId);
@@ -223,7 +224,7 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to delete document {}: {}", id, e.getMessage());
             model.addAttribute("success", false);
-            model.addAttribute("message", "Gagal menghapus dokumen: " + e.getMessage());
+            model.addAttribute("message", "Gagal menghapus dokumen: " + HtmlUtils.htmlEscape(e.getMessage()));
         }
 
         // Return updated document list based on context
