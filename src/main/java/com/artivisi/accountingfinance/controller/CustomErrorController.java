@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -30,7 +31,9 @@ public class CustomErrorController implements ErrorController {
     private static final int NONCE_LENGTH = 16;
     private final CspNonceHeaderWriter cspHeaderWriter = new CspNonceHeaderWriter();
 
-    @RequestMapping("/error")
+    // Error controller handles all HTTP methods since errors can occur on any request type.
+    // This is safe because no state-changing operations are performed - only error display.
+    @RequestMapping(value = "/error", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
     public Object handleError(HttpServletRequest request, HttpServletResponse response, Model model) {
         // Ensure CSP headers are set
         ensureCspHeaders(request, response);

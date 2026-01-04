@@ -258,6 +258,9 @@ function registerAlpineComponents() {
         }
     }))
 
+    // Indonesian number formatter for thousand separators (uses . as separator)
+    const idNumberFormat = new Intl.NumberFormat('id-ID')
+
     // Quick transaction form state
     Alpine.data('quickTransactionForm', () => ({
         amount: 0,
@@ -266,7 +269,7 @@ function registerAlpineComponents() {
         // Getter - accessed as property
         get formattedAmount() {
             if (!this.amount) return ''
-            return this.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+            return idNumberFormat.format(this.amount)
         },
 
         // Getter - button text based on submitting state
@@ -277,7 +280,7 @@ function registerAlpineComponents() {
         // Method - called as event handler @input="updateAmount"
         updateAmount(e) {
             this.amount = parseInt(e.target.value.replace(/[^\d]/g, '')) || 0
-            e.target.value = this.amount ? this.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : ''
+            e.target.value = this.amount ? idNumberFormat.format(this.amount) : ''
         },
 
         // Method - for variable inputs in DETAILED templates
@@ -288,7 +291,7 @@ function registerAlpineComponents() {
             if (hiddenInput && hiddenInput.classList.contains('var-value')) {
                 hiddenInput.value = rawValue
             }
-            input.value = rawValue ? rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : ''
+            input.value = rawValue ? idNumberFormat.format(parseInt(rawValue)) : ''
         },
 
         // Method - close the modal dialog
