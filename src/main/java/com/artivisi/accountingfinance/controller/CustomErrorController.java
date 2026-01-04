@@ -30,8 +30,10 @@ public class CustomErrorController implements ErrorController {
     private static final int NONCE_LENGTH = 16;
     private final CspNonceHeaderWriter cspHeaderWriter = new CspNonceHeaderWriter();
 
+    // nosemgrep: java.spring.security.unrestricted-request-mapping.unrestricted-request-mapping
+    // Error controller must accept all HTTP methods to display errors for failed POST/PUT/DELETE requests.
+    // This is safe because it only reads error attributes and displays them - no state changes.
     @RequestMapping("/error")
-    @SuppressWarnings("java:S3752") // Error controller must accept all HTTP methods - it only reads/displays errors
     public Object handleError(HttpServletRequest request, HttpServletResponse response, Model model) {
         // Ensure CSP headers are set
         ensureCspHeaders(request, response);

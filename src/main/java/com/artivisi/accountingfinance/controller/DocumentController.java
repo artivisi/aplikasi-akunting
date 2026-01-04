@@ -62,6 +62,7 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for transaction {}: {}", transactionId, e.getMessage());
             model.addAttribute("success", false);
+            // nosemgrep: semgrep.missing-html-escape-in-model - using HtmlUtils.htmlEscape
             model.addAttribute("message", MSG_UPLOAD_FAILED + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
@@ -96,6 +97,7 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for journal entry {}: {}", journalEntryId, e.getMessage());
             model.addAttribute("success", false);
+            // nosemgrep: semgrep.missing-html-escape-in-model - using HtmlUtils.htmlEscape
             model.addAttribute("message", MSG_UPLOAD_FAILED + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
@@ -129,6 +131,7 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to upload document for invoice {}: {}", invoiceId, e.getMessage());
             model.addAttribute("success", false);
+            // nosemgrep: semgrep.missing-html-escape-in-model - using HtmlUtils.htmlEscape
             model.addAttribute("message", MSG_UPLOAD_FAILED + HtmlUtils.htmlEscape(e.getMessage()));
         } catch (IllegalArgumentException e) {
             model.addAttribute("success", false);
@@ -227,6 +230,7 @@ public class DocumentController {
         } catch (IOException e) {
             log.error("Failed to delete document {}: {}", id, e.getMessage());
             model.addAttribute("success", false);
+            // nosemgrep: semgrep.missing-html-escape-in-model - using HtmlUtils.htmlEscape
             model.addAttribute("message", MSG_DELETE_FAILED + HtmlUtils.htmlEscape(e.getMessage()));
         }
 
