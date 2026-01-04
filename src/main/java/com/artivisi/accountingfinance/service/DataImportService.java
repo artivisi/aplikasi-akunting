@@ -275,25 +275,70 @@ public class DataImportService {
                     ).executeUpdate();
                 } else if ("journal_template_lines".equals(table)) {
                     // Delete lines for non-system templates only
-                    entityManager.createNativeQuery(
-                        "DELETE FROM journal_template_lines WHERE id_journal_template IN " +
-                        "(SELECT id FROM journal_templates WHERE is_system = false)"
+                    entityManager.createNativeQuery("""
+                        DELETE FROM journal_template_lines WHERE id_journal_template IN \
+                        (SELECT id FROM journal_templates WHERE is_system = false)"""
                     ).executeUpdate();
                 } else if ("journal_template_tags".equals(table)) {
                     // Delete tags for non-system templates only
-                    entityManager.createNativeQuery(
-                        "DELETE FROM journal_template_tags WHERE id_journal_template IN " +
-                        "(SELECT id FROM journal_templates WHERE is_system = false)"
+                    entityManager.createNativeQuery("""
+                        DELETE FROM journal_template_tags WHERE id_journal_template IN \
+                        (SELECT id FROM journal_templates WHERE is_system = false)"""
                     ).executeUpdate();
                 } else {
-                    entityManager.createNativeQuery("TRUNCATE TABLE " + table + " CASCADE").executeUpdate();
+                    // Table name validated against ALLOWED_TABLES whitelist above
+                    truncateTable(table);
                 }
             } catch (Exception e) {
-                log.warn("Could not truncate {}: {}", table, e.getMessage());
+                log.warn("Could not truncate {}: {}", LogSanitizer.sanitize(table), e.getMessage());
             }
         }
 
         entityManager.flush();
+    }
+
+    /**
+     * Truncate a table using explicit SQL for each allowed table.
+     * Uses switch expression to avoid string concatenation (SQL injection safe).
+     */
+    private void truncateTable(String table) {
+        String sql = switch (table) {
+            case "company_config" -> "TRUNCATE TABLE company_config CASCADE";
+            case "chart_of_accounts" -> "TRUNCATE TABLE chart_of_accounts CASCADE";
+            case "salary_components" -> "TRUNCATE TABLE salary_components CASCADE";
+            case "employee_salary_components" -> "TRUNCATE TABLE employee_salary_components CASCADE";
+            case "clients" -> "TRUNCATE TABLE clients CASCADE";
+            case "projects" -> "TRUNCATE TABLE projects CASCADE";
+            case "project_milestones" -> "TRUNCATE TABLE project_milestones CASCADE";
+            case "project_payment_terms" -> "TRUNCATE TABLE project_payment_terms CASCADE";
+            case "fiscal_periods" -> "TRUNCATE TABLE fiscal_periods CASCADE";
+            case "tax_deadlines" -> "TRUNCATE TABLE tax_deadlines CASCADE";
+            case "tax_deadline_completions" -> "TRUNCATE TABLE tax_deadline_completions CASCADE";
+            case "company_bank_accounts" -> "TRUNCATE TABLE company_bank_accounts CASCADE";
+            case "merchant_mappings" -> "TRUNCATE TABLE merchant_mappings CASCADE";
+            case "employees" -> "TRUNCATE TABLE employees CASCADE";
+            case "invoices" -> "TRUNCATE TABLE invoices CASCADE";
+            case "transactions" -> "TRUNCATE TABLE transactions CASCADE";
+            case "journal_entries" -> "TRUNCATE TABLE journal_entries CASCADE";
+            case "transaction_account_mappings" -> "TRUNCATE TABLE transaction_account_mappings CASCADE";
+            case "transaction_variables" -> "TRUNCATE TABLE transaction_variables CASCADE";
+            case "tax_transaction_details" -> "TRUNCATE TABLE tax_transaction_details CASCADE";
+            case "documents" -> "TRUNCATE TABLE documents CASCADE";
+            case "payroll_runs" -> "TRUNCATE TABLE payroll_runs CASCADE";
+            case "payroll_details" -> "TRUNCATE TABLE payroll_details CASCADE";
+            case "amortization_schedules" -> "TRUNCATE TABLE amortization_schedules CASCADE";
+            case "amortization_entries" -> "TRUNCATE TABLE amortization_entries CASCADE";
+            case "draft_transactions" -> "TRUNCATE TABLE draft_transactions CASCADE";
+            case "users" -> "TRUNCATE TABLE users CASCADE";
+            case "user_roles" -> "TRUNCATE TABLE user_roles CASCADE";
+            case "user_template_preferences" -> "TRUNCATE TABLE user_template_preferences CASCADE";
+            case "telegram_user_links" -> "TRUNCATE TABLE telegram_user_links CASCADE";
+            case "audit_logs" -> "TRUNCATE TABLE audit_logs CASCADE";
+            case "transaction_sequences" -> "TRUNCATE TABLE transaction_sequences CASCADE";
+            case "asset_categories" -> "TRUNCATE TABLE asset_categories CASCADE";
+            default -> throw new IllegalArgumentException("Unknown table: " + table);
+        };
+        entityManager.createNativeQuery(sql).executeUpdate();
     }
 
     private void initializeMapsFromDatabase() {
