@@ -13,47 +13,20 @@ WorkingDirectory=/opt/{{ app_name }}
 EnvironmentFile=/opt/{{ app_name }}/env.conf
 
 ExecStart=/usr/bin/java \
-{% if java_gc == 'ZGC' %}
-    -XX:+UseZGC \
-    -XX:SoftMaxHeapSize={{ java_zgc_soft_max_heap }} \
-{% else %}
-    -XX:+UseG1GC \
-    -XX:G1HeapRegionSize={{ java_g1_heap_region_size }} \
-    -XX:G1ReservePercent={{ java_g1_reserve_percent }} \
-    -XX:MaxGCPauseMillis={{ java_g1_max_gc_pause_millis }} \
-    -XX:+UseStringDeduplication \
-{% endif %}
     -Xms{{ java_heap_min }} \
     -Xmx{{ java_heap_max }} \
-    -XX:MetaspaceSize={{ java_metaspace_size }} \
-    -XX:MaxMetaspaceSize={{ java_max_metaspace_size }} \
-    -XX:MaxDirectMemorySize={{ java_max_direct_memory }} \
-    -Xss{{ java_thread_stack_size }} \
-    -XX:TieredStopAtLevel={{ java_tiered_stop_level }} \
-{% if java_gc_log_enabled %}
-    -Xlog:gc*:file=/var/log/{{ app_name }}/gc.log:time,uptime,level,tags:filecount=5,filesize=10m \
-{% endif %}
+    -XX:+UseZGC \
+    -XX:+DisableAttachMechanism \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath=/var/log/{{ app_name }}/heapdump.hprof \
-    -XX:+ExitOnOutOfMemoryError \
-    -XX:+DisableAttachMechanism \
-    -XX:+AlwaysPreTouch \
     -Djava.security.egd=file:/dev/urandom \
     -Dfile.encoding=UTF-8 \
     -Duser.timezone=Asia/Jakarta \
     -jar /opt/{{ app_name }}/{{ app_name }}.jar \
     --spring.config.location=/opt/{{ app_name }}/application.properties
 
-# Resource limits
-# Limit memory to prevent OOM killer from killing other services
-MemoryMax={{ java_heap_max | regex_replace('m$', '') | int + 400 }}M
-MemoryHigh={{ java_heap_max | regex_replace('m$', '') | int + 300 }}M
-
 # Security: Prevent core dumps that may contain sensitive data
 LimitCORE=0
-
-# Security: Limit file descriptors (10k is plenty for web app)
-LimitNOFILE=10240
 
 # Security: Restrict filesystem access
 ProtectSystem=strict
@@ -65,15 +38,9 @@ PrivateTmp=true
 NoNewPrivileges=true
 CapabilityBoundingSet=
 
-# Security: Restrict system calls
-SystemCallFilter=@system-service
-SystemCallErrorNumber=EPERM
-
-# Restart behavior
 SuccessExitStatus=143
 Restart=always
 RestartSec=10
-TimeoutStopSec=30
 
 StandardOutput=journal
 StandardError=journal

@@ -361,29 +361,28 @@ PostgreSQL tuning for 2GB VPS:
 
 | Setting | Value | Notes |
 |---------|-------|-------|
-| shared_buffers | 128 MB | 6% of RAM |
-| effective_cache_size | 384 MB | OS cache |
+| shared_buffers | 96 MB | 5% of RAM (conservative) |
+| effective_cache_size | 256 MB | OS cache estimate |
 | work_mem | 4 MB | Sort/hash ops |
+| maintenance_work_mem | 48 MB | VACUUM, CREATE INDEX |
 | random_page_cost | 1.1 | SSD storage |
 | autovacuum_vacuum_scale_factor | 0.05 | Aggressive for OLTP |
 
 ### Application Performance
 
 - Virtual threads (Java 25)
-- G1GC garbage collector (optimal for <4GB heaps)
-- Fixed heap sizing (768m min=max)
+- ZGC garbage collector (<10ms pause times)
+- Dynamic heap sizing (512m-1024m)
 - Async processing for heavy reports
 - Spring Cache for frequent data
 - Lazy loading for JPA relationships
 
-JVM tuning for 2GB VPS:
+JVM settings:
 
 | Setting | Value | Notes |
 |---------|-------|-------|
-| Heap | 768 MB fixed | -Xms768m -Xmx768m |
-| Metaspace | 128-192 MB | Class metadata |
-| GC | G1GC | Low pause times |
-| Thread Stack | 512 KB | -Xss512k |
+| Heap | 512-1024 MB | Dynamic sizing |
+| GC | ZGC | Sub-10ms pauses |
 
 Startup time: ~50-55 seconds on 1 vCPU
 
