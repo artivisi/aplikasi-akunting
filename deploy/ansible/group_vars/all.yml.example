@@ -17,17 +17,18 @@ db_ssl_mode: require
 
 # PostgreSQL Performance Tuning
 # VPS spec: s-1vcpu-2gb (1 vCPU, 2GB RAM)
-# Memory budget: JVM 768MB, PostgreSQL 256MB, OS 512MB
+# Memory budget: JVM ~700MB, PostgreSQL ~150MB, OS/Nginx ~1150MB
 pg_server_ram_gb: 2
 
 # Connection settings (match HikariCP pool size)
 pg_max_connections: 20
 
 # Memory settings - conservative for shared 2GB server
-pg_shared_buffers: "128MB"
-pg_effective_cache_size: "384MB"
+# Reduced from 128MB to allow more headroom for OS and JVM
+pg_shared_buffers: "96MB"
+pg_effective_cache_size: "256MB"
 pg_work_mem: "4MB"
-pg_maintenance_work_mem: "64MB"
+pg_maintenance_work_mem: "48MB"
 
 # Storage type affects query planner (DigitalOcean uses SSD)
 pg_storage_type: "ssd"
@@ -61,39 +62,9 @@ admin_full_name: "System Administrator"
 admin_email: "admin@example.com"
 
 # Java Configuration
-# VPS: s-1vcpu-2gb - JVM gets ~1GB budget
 java_version: "25"
-
-# Heap sizing - Min = Max to avoid resize overhead
-java_heap_min: "768m"
-java_heap_max: "768m"
-
-# GC selection: G1GC for small heaps (<2GB), ZGC for larger
-java_gc: "G1GC"
-
-# G1GC tuning (ignored if using ZGC)
-java_g1_heap_region_size: "4m"
-java_g1_reserve_percent: "15"
-java_g1_max_gc_pause_millis: "200"
-
-# ZGC tuning (ignored if using G1GC)
-java_zgc_soft_max_heap: "700m"
-
-# Metaspace (class metadata)
-java_metaspace_size: "128m"
-java_max_metaspace_size: "192m"
-
-# Direct memory for NIO buffers
-java_max_direct_memory: "128m"
-
-# GC logging
-java_gc_log_enabled: true
-
-# Thread stack size
-java_thread_stack_size: "512k"
-
-# JIT compiler tuning
-java_tiered_stop_level: "4"
+java_heap_min: "512m"
+java_heap_max: "1024m"
 
 # SSL Configuration
 ssl_enabled: true
