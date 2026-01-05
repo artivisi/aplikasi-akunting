@@ -14,7 +14,6 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -44,12 +43,10 @@ public class ChartOfAccount extends BaseEntity {
     @Column(name = "account_name", nullable = false, length = 255)
     private String accountName;
 
-    @NotNull(message = "Tipe akun harus dipilih")
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false, length = 20)
     private AccountType accountType;
 
-    @NotNull(message = "Saldo normal harus dipilih")
     @Enumerated(EnumType.STRING)
     @Column(name = "normal_balance", nullable = false, length = 10)
     private NormalBalance normalBalance;

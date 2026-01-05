@@ -30,7 +30,7 @@
                           class="space-y-6">
 
                         <!-- Validation Errors -->
-                        <div id="validation-errors" th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div id="validation-errors" data-testid="validation-errors" th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
                             <p class="text-sm text-red-600 font-medium">Terdapat kesalahan:</p>
                             <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
                                 <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</li>
@@ -43,6 +43,7 @@
                                 Kode Akun <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="accountCode" th:field="*{accountCode}"
+                                   data-testid="account-code"
                                    placeholder="Contoh: 1.1.01"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                    th:classappend="${#fields.hasErrors('accountCode')} ? 'border-red-500' : ''">
@@ -55,6 +56,7 @@
                                 Nama Akun <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="accountName" th:field="*{accountName}"
+                                   data-testid="account-name"
                                    placeholder="Contoh: Kas, Bank BCA, Pendapatan Jasa"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                    th:classappend="${#fields.hasErrors('accountName')} ? 'border-red-500' : ''">
@@ -64,9 +66,10 @@
                         <!-- Account Type -->
                         <div>
                             <label for="accountType" class="block text-sm font-medium text-gray-700 mb-1">
-                                Tipe Akun <span class="text-red-500">*</span>
+                                Tipe Akun <span th:if="${not hasParent}" class="text-red-500">*</span>
                             </label>
                             <select id="accountType" th:field="*{accountType}"
+                                    data-testid="account-type"
                                     th:disabled="${hasChildren or hasParent}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                     th:classappend="${#fields.hasErrors('accountType')} ? 'border-red-500' : (${hasChildren or hasParent} ? 'bg-gray-100 cursor-not-allowed' : '')">
@@ -87,6 +90,7 @@
                                 Akun Induk
                             </label>
                             <select id="parentId" name="parentId"
+                                    data-testid="parent-id"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
                                 <option value="">Tanpa induk (akun utama)</option>
                                 <option th:each="parent : ${parentAccounts}"
@@ -148,6 +152,7 @@
                                 Deskripsi
                             </label>
                             <textarea id="description" th:field="*{description}" rows="3"
+                                      data-testid="description"
                                       placeholder="Penjelasan tentang penggunaan akun ini..."
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm resize-none"></textarea>
                         </div>
@@ -172,6 +177,7 @@
                                 Batal
                             </a>
                             <button id="btn-simpan" type="submit"
+                                    data-testid="btn-submit"
                                     class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
                                 <span th:text="${account.id != null} ? 'Simpan Perubahan' : 'Simpan'">Simpan</span>
                             </button>

@@ -87,6 +87,7 @@ public class ChartOfAccountService {
             ChartOfAccount parent = findById(account.getParent().getId());
             account.setLevel(parent.getLevel() + 1);
             account.setAccountType(parent.getAccountType());
+            account.setNormalBalance(parent.getNormalBalance());
         }
 
         return chartOfAccountRepository.save(account);
@@ -104,6 +105,9 @@ public class ChartOfAccountService {
         existing.setAccountCode(accountData.getAccountCode());
         existing.setAccountName(accountData.getAccountName());
         existing.setDescription(accountData.getDescription());
+        existing.setPermanent(accountData.getPermanent());
+        existing.setIsHeader(accountData.getIsHeader());
+        existing.setActive(accountData.getActive());
 
         if (existing.getParent() == null) {
             // Check if account type is being changed

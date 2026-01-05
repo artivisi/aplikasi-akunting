@@ -29,6 +29,11 @@ public class ChartOfAccountsController {
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
     private static final String ATTR_CURRENT_PAGE = "currentPage";
+    private static final String ATTR_ACCOUNT_TYPES = "accountTypes";
+    private static final String ATTR_PARENT_ACCOUNTS = "parentAccounts";
+    private static final String ATTR_HAS_CHILDREN = "hasChildren";
+    private static final String ATTR_HAS_PARENT = "hasParent";
+    private static final String VIEW_FORM = "accounts/form";
 
     private final ChartOfAccountService chartOfAccountService;
 
@@ -58,18 +63,19 @@ public class ChartOfAccountsController {
                        @RequestParam(required = false) UUID parentId,
                        Model model,
                        RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
-            model.addAttribute("accountTypes", AccountType.values());
-            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-            model.addAttribute("hasChildren", false);
-            model.addAttribute("hasParent", parentId != null);
-            return "accounts/form";
-        }
-
+        // Set parent - service will inherit accountType and normalBalance from parent
         if (parentId != null) {
             ChartOfAccount parent = chartOfAccountService.findById(parentId);
             account.setParent(parent);
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
+            model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+            model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+            model.addAttribute(ATTR_HAS_CHILDREN, false);
+            model.addAttribute(ATTR_HAS_PARENT, parentId != null);
+            return VIEW_FORM;
         }
 
         try {
@@ -77,11 +83,11 @@ public class ChartOfAccountsController {
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("accountCode", "duplicate", e.getMessage());
             model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
-            model.addAttribute("accountTypes", AccountType.values());
-            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-            model.addAttribute("hasChildren", false);
-            model.addAttribute("hasParent", parentId != null);
-            return "accounts/form";
+            model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+            model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+            model.addAttribute(ATTR_HAS_CHILDREN, false);
+            model.addAttribute(ATTR_HAS_PARENT, parentId != null);
+            return VIEW_FORM;
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil ditambahkan");
@@ -108,16 +114,23 @@ public class ChartOfAccountsController {
                          BindingResult bindingResult,
                          Model model,
                          RedirectAttributes redirectAttributes) {
-        boolean hasChildren = chartOfAccountService.hasChildren(id);
-        boolean hasParent = chartOfAccountService.hasParent(id);
+        ChartOfAccount existing = chartOfAccountService.findById(id);
+        boolean hasChildren = !existing.getChildren().isEmpty();
+        boolean hasParent = existing.getParent() != null;
+
+        // If account has parent, set parent reference for proper processing
+        // Service will use existing parent's accountType and normalBalance
+        if (hasParent) {
+            account.setParent(existing.getParent());
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
-            model.addAttribute("accountTypes", AccountType.values());
-            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-            model.addAttribute("hasChildren", hasChildren);
-            model.addAttribute("hasParent", hasParent);
-            return "accounts/form";
+            model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+            model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+            model.addAttribute(ATTR_HAS_CHILDREN, hasChildren);
+            model.addAttribute(ATTR_HAS_PARENT, hasParent);
+            return VIEW_FORM;
         }
 
         try {
@@ -125,19 +138,19 @@ public class ChartOfAccountsController {
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("accountCode", "duplicate", e.getMessage());
             model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
-            model.addAttribute("accountTypes", AccountType.values());
-            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-            model.addAttribute("hasChildren", hasChildren);
-            model.addAttribute("hasParent", hasParent);
-            return "accounts/form";
+            model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+            model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+            model.addAttribute(ATTR_HAS_CHILDREN, hasChildren);
+            model.addAttribute(ATTR_HAS_PARENT, hasParent);
+            return VIEW_FORM;
         } catch (IllegalStateException e) {
             bindingResult.rejectValue("accountType", "invalid", e.getMessage());
             model.addAttribute(ATTR_CURRENT_PAGE, "accounts");
-            model.addAttribute("accountTypes", AccountType.values());
-            model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-            model.addAttribute("hasChildren", hasChildren);
-            model.addAttribute("hasParent", hasParent);
-            return "accounts/form";
+            model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+            model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+            model.addAttribute(ATTR_HAS_CHILDREN, hasChildren);
+            model.addAttribute(ATTR_HAS_PARENT, hasParent);
+            return VIEW_FORM;
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil diperbarui");
