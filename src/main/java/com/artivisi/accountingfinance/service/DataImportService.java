@@ -622,7 +622,7 @@ public class DataImportService {
         Map<String, String> parentCodes = new HashMap<>();
 
         // First pass: create all accounts without parents
-        // CSV columns: account_code,account_name,account_type,parent_code,normal_balance,active,created_at
+        // CSV columns: account_code,account_name,account_type,parent_code,normal_balance,active,is_permanent
         for (String[] row : rows) {
             ChartOfAccount account = new ChartOfAccount();
             account.setAccountCode(getField(row, 0));
@@ -631,7 +631,11 @@ public class DataImportService {
             parentCodes.put(getField(row, 0), getField(row, 3));
             account.setNormalBalance(NormalBalance.valueOf(getField(row, 4)));
             account.setActive(parseBoolean(getField(row, 5)));
-            // column 6 = created_at (ignored, auto-generated)
+            // column 6 = is_permanent (optional, defaults to entity default if empty)
+            String permanentField = getField(row, 6);
+            if (permanentField != null && !permanentField.isBlank()) {
+                account.setPermanent(parseBoolean(permanentField));
+            }
             accounts.add(account);
         }
 
