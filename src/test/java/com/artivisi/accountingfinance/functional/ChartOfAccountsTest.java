@@ -135,6 +135,49 @@ public class ChartOfAccountsTest extends PlaywrightTestBase {
     }
 
     @Test
+    @DisplayName("Should auto-suggest permanent based on account type for new account")
+    void autoSuggestPermanentBasedOnAccountType() {
+        // Navigate to new account form
+        navigateTo("/accounts/new");
+        waitForPageLoad();
+
+        // Initially permanent should be checked (default)
+        boolean initialState = page.locator("#permanent").isChecked();
+
+        // Select EXPENSE type - should auto-uncheck permanent (temporary account)
+        page.getByTestId("account-type").selectOption("EXPENSE");
+        page.waitForTimeout(100);
+
+        assertThat(page.locator("#permanent").isChecked())
+            .as("Permanent should be unchecked for EXPENSE type")
+            .isFalse();
+
+        // Select ASSET type - should auto-check permanent
+        page.getByTestId("account-type").selectOption("ASSET");
+        page.waitForTimeout(100);
+
+        assertThat(page.locator("#permanent").isChecked())
+            .as("Permanent should be checked for ASSET type")
+            .isTrue();
+
+        // Select REVENUE type - should auto-uncheck permanent
+        page.getByTestId("account-type").selectOption("REVENUE");
+        page.waitForTimeout(100);
+
+        assertThat(page.locator("#permanent").isChecked())
+            .as("Permanent should be unchecked for REVENUE type")
+            .isFalse();
+
+        // Select LIABILITY type - should auto-check permanent
+        page.getByTestId("account-type").selectOption("LIABILITY");
+        page.waitForTimeout(100);
+
+        assertThat(page.locator("#permanent").isChecked())
+            .as("Permanent should be checked for LIABILITY type")
+            .isTrue();
+    }
+
+    @Test
     @DisplayName("Should save permanent field change")
     void savePermanentFieldChange() {
         // Navigate to accounts list

@@ -27,7 +27,9 @@
                           th:object="${account}"
                           method="post"
                           novalidate
-                          class="space-y-6">
+                          class="space-y-6"
+                          x-data="accountForm"
+                          th:data-new-account="${account.id == null}">
 
                         <!-- Validation Errors -->
                         <div id="validation-errors" data-testid="validation-errors" th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -71,6 +73,7 @@
                             <select id="accountType" th:field="*{accountType}"
                                     data-testid="account-type"
                                     th:disabled="${hasChildren or hasParent}"
+                                    @change="suggestPermanent($event.target.value)"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                                     th:classappend="${#fields.hasErrors('accountType')} ? 'border-red-500' : (${hasChildren or hasParent} ? 'bg-gray-100 cursor-not-allowed' : '')">
                                 <option value="">Pilih tipe akun</option>

@@ -385,6 +385,23 @@ function registerAlpineComponents() {
             this.$dispatch('account-changed')
         }
     }))
+
+    // Account form - auto-suggest permanent based on account type
+    Alpine.data('accountForm', () => ({
+        isNewAccount: false,
+        init() {
+            // Read from data attribute set by Thymeleaf
+            this.isNewAccount = this.$el.dataset.newAccount === 'true'
+        },
+        suggestPermanent(accountType) {
+            if (!this.isNewAccount) return
+            const permanentTypes = ['ASSET', 'LIABILITY', 'EQUITY']
+            const permanentCheckbox = document.getElementById('permanent')
+            if (permanentCheckbox) {
+                permanentCheckbox.checked = permanentTypes.includes(accountType)
+            }
+        }
+    }))
 }
 
 // Hybrid approach: register immediately if Alpine exists,
