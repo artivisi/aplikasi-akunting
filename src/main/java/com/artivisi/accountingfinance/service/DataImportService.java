@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -569,6 +570,38 @@ public class DataImportService {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid double value: " + LogSanitizer.sanitize(value), e);
+        }
+    }
+
+    // ============================================
+    // Field Setting Helpers (reduce cognitive complexity)
+    // ============================================
+
+    private void setBigDecimalField(String[] row, int index, Consumer<BigDecimal> setter) {
+        String value = getField(row, index);
+        if (!value.isEmpty()) {
+            setter.accept(new BigDecimal(value));
+        }
+    }
+
+    private void setDateField(String[] row, int index, Consumer<LocalDate> setter) {
+        String value = getField(row, index);
+        if (!value.isEmpty()) {
+            setter.accept(LocalDate.parse(value, DATE_FORMATTER));
+        }
+    }
+
+    private <E extends Enum<E>> void setEnumField(String[] row, int index, Class<E> enumClass, Consumer<E> setter) {
+        String value = getField(row, index);
+        if (!value.isEmpty()) {
+            setter.accept(Enum.valueOf(enumClass, value));
+        }
+    }
+
+    private <T> void setFromMap(String[] row, int index, Map<String, T> map, Consumer<T> setter) {
+        String key = getField(row, index);
+        if (!key.isEmpty() && map != null) {
+            setter.accept(map.get(key));
         }
     }
 
@@ -1578,45 +1611,16 @@ public class DataImportService {
             p.setName(getField(row, 1));
             p.setDescription(getField(row, 2));
             p.setUnit(getField(row, 3));
-
-            String categoryCode = getField(row, 4);
-            if (!categoryCode.isEmpty() && productCategoryMap != null) {
-                p.setCategory(productCategoryMap.get(categoryCode));
-            }
-
-            String costingMethod = getField(row, 5);
-            if (!costingMethod.isEmpty()) {
-                p.setCostingMethod(CostingMethod.valueOf(costingMethod));
-            }
-
             p.setTrackInventory(parseBoolean(getField(row, 6)));
-
-            String minStock = getField(row, 7);
-            if (!minStock.isEmpty()) {
-                p.setMinimumStock(new BigDecimal(minStock));
-            }
-
-            String sellingPrice = getField(row, 8);
-            if (!sellingPrice.isEmpty()) {
-                p.setSellingPrice(new BigDecimal(sellingPrice));
-            }
-
-            String invAcctCode = getField(row, 9);
-            if (!invAcctCode.isEmpty()) {
-                p.setInventoryAccount(accountMap.get(invAcctCode));
-            }
-
-            String cogsAcctCode = getField(row, 10);
-            if (!cogsAcctCode.isEmpty()) {
-                p.setCogsAccount(accountMap.get(cogsAcctCode));
-            }
-
-            String salesAcctCode = getField(row, 11);
-            if (!salesAcctCode.isEmpty()) {
-                p.setSalesAccount(accountMap.get(salesAcctCode));
-            }
-
             p.setActive(parseBoolean(getField(row, 12)));
+
+            setFromMap(row, 4, productCategoryMap, p::setCategory);
+            setEnumField(row, 5, CostingMethod.class, p::setCostingMethod);
+            setBigDecimalField(row, 7, p::setMinimumStock);
+            setBigDecimalField(row, 8, p::setSellingPrice);
+            setFromMap(row, 9, accountMap, p::setInventoryAccount);
+            setFromMap(row, 10, accountMap, p::setCogsAccount);
+            setFromMap(row, 11, accountMap, p::setSalesAccount);
 
             Product saved = productRepository.save(p);
 
@@ -1701,48 +1705,16 @@ public class DataImportService {
         for (String[] row : rows) {
             ProductionOrder po = new ProductionOrder();
             po.setOrderNumber(getField(row, 0));
-
-            String bomCode = getField(row, 1);
-            if (!bomCode.isEmpty() && billOfMaterialMap != null) {
-                po.setBillOfMaterial(billOfMaterialMap.get(bomCode));
-            }
-
-            String qty = getField(row, 2);
-            if (!qty.isEmpty()) {
-                po.setQuantity(new BigDecimal(qty));
-            }
-
-            String orderDate = getField(row, 3);
-            if (!orderDate.isEmpty()) {
-                po.setOrderDate(LocalDate.parse(orderDate, DATE_FORMATTER));
-            }
-
-            String plannedDate = getField(row, 4);
-            if (!plannedDate.isEmpty()) {
-                po.setPlannedCompletionDate(LocalDate.parse(plannedDate, DATE_FORMATTER));
-            }
-
-            String actualDate = getField(row, 5);
-            if (!actualDate.isEmpty()) {
-                po.setActualCompletionDate(LocalDate.parse(actualDate, DATE_FORMATTER));
-            }
-
-            String status = getField(row, 6);
-            if (!status.isEmpty()) {
-                po.setStatus(ProductionOrderStatus.valueOf(status));
-            }
-
-            String totalCost = getField(row, 7);
-            if (!totalCost.isEmpty()) {
-                po.setTotalComponentCost(new BigDecimal(totalCost));
-            }
-
-            String unitCost = getField(row, 8);
-            if (!unitCost.isEmpty()) {
-                po.setUnitCost(new BigDecimal(unitCost));
-            }
-
             po.setNotes(getField(row, 9));
+
+            setFromMap(row, 1, billOfMaterialMap, po::setBillOfMaterial);
+            setBigDecimalField(row, 2, po::setQuantity);
+            setDateField(row, 3, po::setOrderDate);
+            setDateField(row, 4, po::setPlannedCompletionDate);
+            setDateField(row, 5, po::setActualCompletionDate);
+            setEnumField(row, 6, ProductionOrderStatus.class, po::setStatus);
+            setBigDecimalField(row, 7, po::setTotalComponentCost);
+            setBigDecimalField(row, 8, po::setUnitCost);
 
             productionOrderRepository.save(po);
         }
@@ -1755,54 +1727,18 @@ public class DataImportService {
         //              balance_after,total_cost_after,unit_price,reference_number,notes
         for (String[] row : rows) {
             InventoryTransaction it = new InventoryTransaction();
-
-            String productCode = getField(row, 0);
-            if (!productCode.isEmpty() && productMap != null) {
-                it.setProduct(productMap.get(productCode));
-            }
-
-            String txDate = getField(row, 1);
-            if (!txDate.isEmpty()) {
-                it.setTransactionDate(LocalDate.parse(txDate, DATE_FORMATTER));
-            }
-
-            String txType = getField(row, 2);
-            if (!txType.isEmpty()) {
-                it.setTransactionType(InventoryTransactionType.valueOf(txType));
-            }
-
-            String qty = getField(row, 3);
-            if (!qty.isEmpty()) {
-                it.setQuantity(new BigDecimal(qty));
-            }
-
-            String unitCost = getField(row, 4);
-            if (!unitCost.isEmpty()) {
-                it.setUnitCost(new BigDecimal(unitCost));
-            }
-
-            String totalCost = getField(row, 5);
-            if (!totalCost.isEmpty()) {
-                it.setTotalCost(new BigDecimal(totalCost));
-            }
-
-            String balAfter = getField(row, 6);
-            if (!balAfter.isEmpty()) {
-                it.setBalanceAfter(new BigDecimal(balAfter));
-            }
-
-            String costAfter = getField(row, 7);
-            if (!costAfter.isEmpty()) {
-                it.setTotalCostAfter(new BigDecimal(costAfter));
-            }
-
-            String unitPrice = getField(row, 8);
-            if (!unitPrice.isEmpty()) {
-                it.setUnitPrice(new BigDecimal(unitPrice));
-            }
-
             it.setReferenceNumber(getField(row, 9));
             it.setNotes(getField(row, 10));
+
+            setFromMap(row, 0, productMap, it::setProduct);
+            setDateField(row, 1, it::setTransactionDate);
+            setEnumField(row, 2, InventoryTransactionType.class, it::setTransactionType);
+            setBigDecimalField(row, 3, it::setQuantity);
+            setBigDecimalField(row, 4, it::setUnitCost);
+            setBigDecimalField(row, 5, it::setTotalCost);
+            setBigDecimalField(row, 6, it::setBalanceAfter);
+            setBigDecimalField(row, 7, it::setTotalCostAfter);
+            setBigDecimalField(row, 8, it::setUnitPrice);
 
             inventoryTransactionRepository.save(it);
         }

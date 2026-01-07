@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Campus Industry - Scholarship Tests
  * Tests scholarship allocation functionality for merit-based and need-based scholarships.
@@ -34,8 +36,8 @@ public class CampusScholarshipTest extends PlaywrightTestBase {
             .verifyContentVisible();
 
         // Verify scholarship templates exist (use first match to avoid strict mode violation)
-        page.locator("text=Beasiswa Prestasi").first().isVisible();
-        page.locator("text=Beasiswa Tidak Mampu").first().isVisible();
+        assertThat(page.locator("text=Beasiswa Prestasi").first().isVisible()).isTrue();
+        assertThat(page.locator("text=Beasiswa Tidak Mampu").first().isVisible()).isTrue();
 
         takeManualScreenshot("campus/scholarship-templates");
     }
@@ -55,7 +57,7 @@ public class CampusScholarshipTest extends PlaywrightTestBase {
         page.waitForLoadState();
 
         // Verify form loads
-        page.locator("#page-title").isVisible();
+        assertThat(page.locator("#page-title").isVisible()).isTrue();
     }
 
     @Test
@@ -73,7 +75,7 @@ public class CampusScholarshipTest extends PlaywrightTestBase {
         page.waitForLoadState();
 
         // Verify form loads
-        page.locator("#page-title").isVisible();
+        assertThat(page.locator("#page-title").isVisible()).isTrue();
     }
 
     @Test
@@ -85,9 +87,14 @@ public class CampusScholarshipTest extends PlaywrightTestBase {
         page.navigate("http://localhost:" + port + "/accounts");
         page.waitForLoadState();
 
-        // Verify scholarship expense accounts exist
-        page.locator("text=5.3.01").isVisible();  // Beban Beasiswa Prestasi
-        page.locator("text=5.3.02").isVisible();  // Beban Beasiswa Tidak Mampu
+        // Expand parent accounts to reveal scholarship accounts (5 -> 5.3 -> 5.3.01/5.3.02)
+        page.locator("#btn-expand-5").click();
+        page.locator("#btn-expand-5-3").click();
+        page.waitForTimeout(300);  // Allow animation to complete
+
+        // Verify scholarship expense accounts exist (using row IDs with dots replaced by dashes)
+        assertThat(page.locator("#account-row-5-3-01").isVisible()).isTrue();  // Beban Beasiswa Prestasi
+        assertThat(page.locator("#account-row-5-3-02").isVisible()).isTrue();  // Beban Beasiswa Tidak Mampu
 
         takeManualScreenshot("campus/scholarship-accounts");
     }

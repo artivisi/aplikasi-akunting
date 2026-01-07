@@ -56,6 +56,8 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
     private static final String REDIRECT_TRANSACTIONS = "redirect:/transactions/";
+    private static final String ATTR_ACCOUNTS = "accounts";
+    private static final String ATTR_SELECTED_TEMPLATE = "selectedTemplate";
 
     private final TransactionService transactionService;
     private final JournalTemplateService journalTemplateService;
@@ -141,12 +143,12 @@ public class TransactionController {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("isEdit", false);
         model.addAttribute("templates", journalTemplateService.findAllWithLines());
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         model.addAttribute("projects", projectService.findActiveProjects());
 
         if (templateId != null) {
             JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
-            model.addAttribute("selectedTemplate", template);
+            model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
             addDetailedTemplateAttributes(template, model);
         }
 
@@ -205,9 +207,9 @@ public class TransactionController {
         model.addAttribute("currentPage", "transactions");
         model.addAttribute("isEdit", true);
         model.addAttribute("transaction", transaction);
-        model.addAttribute("selectedTemplate", template);
+        model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
         model.addAttribute("templates", journalTemplateService.findAll());
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         model.addAttribute("projects", projectService.findActiveProjects());
 
         // Add initial values for Alpine.js
@@ -519,8 +521,8 @@ public class TransactionController {
     public String quickForm(@RequestParam UUID templateId, Model model) {
         JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
 
-        model.addAttribute("selectedTemplate", template);
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         model.addAttribute("projects", projectService.findActiveProjects());
 
         // Add DETAILED template support

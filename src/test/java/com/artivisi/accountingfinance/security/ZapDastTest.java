@@ -82,8 +82,10 @@ class ZapDastTest extends ZapDastTestBase {
             "/tax-calendar"
     };
 
-    // Form pages (GET /new or /create for form, POST for submission)
-    // Array format: {GET form path, POST path, field1, field2, field3...}
+    /**
+     * Form pages (GET /new or /create for form, POST for submission).
+     * Each row: GET form path, POST path, field1, field2, field3...
+     */
     private static final String[][] FORM_ENDPOINTS = {
             {"/accounts/new", "/accounts/new", "accountCode", "accountName", "accountType"},
             {"/employees/new", "/employees/new", "employeeNumber", "name", "email", "phone"},

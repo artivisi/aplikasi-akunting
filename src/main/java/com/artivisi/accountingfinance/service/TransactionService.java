@@ -44,6 +44,8 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class TransactionService {
 
+    private static final String ERR_TRANSACTION_NOT_FOUND = "Transaction not found with id: ";
+
     private final TransactionRepository transactionRepository;
     private final TransactionSequenceRepository transactionSequenceRepository;
     private final JournalEntryRepository journalEntryRepository;
@@ -80,17 +82,17 @@ public class TransactionService {
 
     public Transaction findById(UUID id) {
         return transactionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_TRANSACTION_NOT_FOUND + id));
     }
 
     public Transaction findByIdWithJournalEntries(UUID id) {
         return transactionRepository.findByIdWithJournalEntries(id)
-                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_TRANSACTION_NOT_FOUND + id));
     }
 
     public Transaction findByIdWithMappingsAndVariables(UUID id) {
         return transactionRepository.findByIdWithMappingsAndVariables(id)
-                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_TRANSACTION_NOT_FOUND + id));
     }
 
     @Transactional

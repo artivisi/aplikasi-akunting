@@ -86,6 +86,7 @@ public class SellerReportsTest extends PlaywrightTestBase {
                         product.getId(), txDate, quantity, tx.unitCost(), tx.reference(), tx.notes());
                 case "ADJUSTMENT_OUT" -> inventoryService.recordAdjustmentOut(
                         product.getId(), txDate, quantity, tx.reference(), tx.notes());
+                default -> throw new IllegalArgumentException("Unknown transaction type: " + tx.transactionType());
             }
         }
     }
