@@ -447,66 +447,76 @@ public class DataImportService {
     // CSV Parsing Utilities
     // ============================================
     private List<String[]> parseCsv(String content) {
+        CsvParseState state = new CsvParseState();
+
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+            i = state.inQuotes ? processQuotedChar(state, content, i, c) : processUnquotedChar(state, content, i, c);
+        }
+
+        finalizeLastRow(state);
+        return state.rows;
+    }
+
+    private static class CsvParseState {
         List<String[]> rows = new ArrayList<>();
         List<String> currentRow = new ArrayList<>();
         StringBuilder field = new StringBuilder();
         boolean inQuotes = false;
         boolean isFirstRow = true;
+    }
 
-        for (int i = 0; i < content.length(); i++) {
-            char c = content.charAt(i);
-
-            if (inQuotes) {
-                if (c == '"') {
-                    if (i + 1 < content.length() && content.charAt(i + 1) == '"') {
-                        // Escaped quote
-                        field.append('"');
-                        i++;
-                    } else {
-                        // End of quoted field
-                        inQuotes = false;
-                    }
-                } else {
-                    // Any char including newlines inside quotes
-                    field.append(c);
-                }
-            } else {
-                if (c == '"') {
-                    inQuotes = true;
-                } else if (c == ',') {
-                    currentRow.add(field.toString());
-                    field = new StringBuilder();
-                } else if (c == '\n' || c == '\r') {
-                    // Handle both \n and \r\n
-                    if (c == '\r' && i + 1 < content.length() && content.charAt(i + 1) == '\n') {
-                        i++; // Skip the \n in \r\n
-                    }
-                    // End of row
-                    currentRow.add(field.toString());
-                    field = new StringBuilder();
-
-                    if (isFirstRow) {
-                        // Skip header row
-                        isFirstRow = false;
-                    } else if (!currentRow.isEmpty() && !currentRow.stream().allMatch(String::isEmpty)) {
-                        rows.add(currentRow.toArray(new String[0]));
-                    }
-                    currentRow = new ArrayList<>();
-                } else {
-                    field.append(c);
-                }
+    private int processQuotedChar(CsvParseState state, String content, int i, char c) {
+        if (c == '"') {
+            if (i + 1 < content.length() && content.charAt(i + 1) == '"') {
+                state.field.append('"');
+                return i + 1; // Skip escaped quote
             }
+            state.inQuotes = false;
+        } else {
+            state.field.append(c);
         }
+        return i;
+    }
 
-        // Don't forget the last row if file doesn't end with newline
-        if (!currentRow.isEmpty() || field.length() > 0) {
-            currentRow.add(field.toString());
-            if (!isFirstRow && !currentRow.stream().allMatch(String::isEmpty)) {
-                rows.add(currentRow.toArray(new String[0]));
-            }
+    private int processUnquotedChar(CsvParseState state, String content, int i, char c) {
+        if (c == '"') {
+            state.inQuotes = true;
+        } else if (c == ',') {
+            state.currentRow.add(state.field.toString());
+            state.field = new StringBuilder();
+        } else if (c == '\n' || c == '\r') {
+            i = handleNewline(state, content, i, c);
+        } else {
+            state.field.append(c);
         }
+        return i;
+    }
 
-        return rows;
+    private int handleNewline(CsvParseState state, String content, int i, char c) {
+        if (c == '\r' && i + 1 < content.length() && content.charAt(i + 1) == '\n') {
+            i++; // Skip \n in \r\n
+        }
+        state.currentRow.add(state.field.toString());
+        state.field = new StringBuilder();
+        addRowIfValid(state);
+        state.currentRow = new ArrayList<>();
+        return i;
+    }
+
+    private void addRowIfValid(CsvParseState state) {
+        if (state.isFirstRow) {
+            state.isFirstRow = false;
+        } else if (!state.currentRow.isEmpty() && !state.currentRow.stream().allMatch(String::isEmpty)) {
+            state.rows.add(state.currentRow.toArray(new String[0]));
+        }
+    }
+
+    private void finalizeLastRow(CsvParseState state) {
+        if (!state.currentRow.isEmpty() || state.field.length() > 0) {
+            state.currentRow.add(state.field.toString());
+            addRowIfValid(state);
+        }
     }
 
     private String getField(String[] row, int index) {

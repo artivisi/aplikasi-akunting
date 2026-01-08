@@ -42,6 +42,19 @@ public class JournalEntryService {
     private final JournalTemplateRepository journalTemplateRepository;
     private final TransactionSequenceRepository transactionSequenceRepository;
 
+    // Helper to calculate balance based on account's normal balance
+    private BigDecimal calculateBalance(NormalBalance normalBalance, BigDecimal debit, BigDecimal credit) {
+        return normalBalance == NormalBalance.DEBIT
+                ? debit.subtract(credit)
+                : credit.subtract(debit);
+    }
+
+    private BigDecimal updateBalance(NormalBalance normalBalance, BigDecimal balance, BigDecimal debit, BigDecimal credit) {
+        return normalBalance == NormalBalance.DEBIT
+                ? balance.add(debit).subtract(credit)
+                : balance.subtract(debit).add(credit);
+    }
+
     public JournalEntry findById(UUID id) {
         return journalEntryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Journal entry not found with id: " + id));
@@ -116,70 +129,21 @@ public class JournalEntryService {
 
         ChartOfAccount account = chartOfAccountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        NormalBalance normalBalance = account.getNormalBalance();
 
-        // Calculate opening balance (same as before)
         BigDecimal openingDebit = journalEntryRepository.sumDebitBeforeDate(accountId, startDate);
         BigDecimal openingCredit = journalEntryRepository.sumCreditBeforeDate(accountId, startDate);
+        BigDecimal openingBalance = calculateBalance(normalBalance, openingDebit, openingCredit);
 
-        BigDecimal openingBalance;
-        if (account.getNormalBalance() == NormalBalance.DEBIT) {
-            openingBalance = openingDebit.subtract(openingCredit);
-        } else {
-            openingBalance = openingCredit.subtract(openingDebit);
-        }
+        Page<JournalEntry> entriesPage = fetchEntriesPage(accountId, startDate, endDate, search, pageable);
 
-        // Get paginated entries
-        Page<JournalEntry> entriesPage;
-        if (search != null && !search.isBlank()) {
-            entriesPage = journalEntryRepository.findPostedEntriesByAccountAndDateRangeAndSearchPaged(
-                    accountId, startDate, endDate, search, pageable);
-        } else {
-            entriesPage = journalEntryRepository.findPostedEntriesByAccountAndDateRangePaged(
-                    accountId, startDate, endDate, pageable);
-        }
+        BigDecimal pageStartBalance = calculatePageStartBalance(accountId, startDate, endDate, pageable, normalBalance, openingBalance);
 
-        // For running balance, we need to calculate the balance up to the start of this page
-        // Get all entries before the current page to calculate starting balance
-        BigDecimal pageStartBalance = openingBalance;
-        if (pageable.getPageNumber() > 0) {
-            // Get all entries before the current page
-            List<JournalEntry> priorEntries = journalEntryRepository
-                    .findPostedEntriesByAccountAndDateRange(accountId, startDate, endDate);
+        List<LedgerLineItem> lineItems = buildLineItems(entriesPage, normalBalance, pageStartBalance);
 
-            int skipCount = (int) pageable.getOffset();
-            for (int i = 0; i < Math.min(skipCount, priorEntries.size()); i++) {
-                JournalEntry entry = priorEntries.get(i);
-                if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                    pageStartBalance = pageStartBalance.add(entry.getDebitAmount()).subtract(entry.getCreditAmount());
-                } else {
-                    pageStartBalance = pageStartBalance.subtract(entry.getDebitAmount()).add(entry.getCreditAmount());
-                }
-            }
-        }
-
-        // Build line items with running balance
-        BigDecimal runningBalance = pageStartBalance;
-        List<LedgerLineItem> lineItems = new ArrayList<>();
-
-        for (JournalEntry entry : entriesPage.getContent()) {
-            if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                runningBalance = runningBalance.add(entry.getDebitAmount()).subtract(entry.getCreditAmount());
-            } else {
-                runningBalance = runningBalance.subtract(entry.getDebitAmount()).add(entry.getCreditAmount());
-            }
-            lineItems.add(new LedgerLineItem(entry, runningBalance));
-        }
-
-        // Calculate totals for the entire date range (not just current page)
         BigDecimal totalDebit = journalEntryRepository.sumDebitByAccountAndDateRange(accountId, startDate, endDate);
         BigDecimal totalCredit = journalEntryRepository.sumCreditByAccountAndDateRange(accountId, startDate, endDate);
-
-        BigDecimal closingBalance;
-        if (account.getNormalBalance() == NormalBalance.DEBIT) {
-            closingBalance = openingBalance.add(totalDebit).subtract(totalCredit);
-        } else {
-            closingBalance = openingBalance.subtract(totalDebit).add(totalCredit);
-        }
+        BigDecimal closingBalance = updateBalance(normalBalance, openingBalance, totalDebit, totalCredit);
 
         return new GeneralLedgerPagedData(
                 account,
@@ -194,6 +158,46 @@ public class JournalEntryService {
                 entriesPage.hasNext(),
                 entriesPage.hasPrevious()
         );
+    }
+
+    private Page<JournalEntry> fetchEntriesPage(UUID accountId, LocalDate startDate, LocalDate endDate,
+            String search, Pageable pageable) {
+        if (search != null && !search.isBlank()) {
+            return journalEntryRepository.findPostedEntriesByAccountAndDateRangeAndSearchPaged(
+                    accountId, startDate, endDate, search, pageable);
+        }
+        return journalEntryRepository.findPostedEntriesByAccountAndDateRangePaged(
+                accountId, startDate, endDate, pageable);
+    }
+
+    private BigDecimal calculatePageStartBalance(UUID accountId, LocalDate startDate, LocalDate endDate,
+            Pageable pageable, NormalBalance normalBalance, BigDecimal openingBalance) {
+        if (pageable.getPageNumber() == 0) {
+            return openingBalance;
+        }
+
+        List<JournalEntry> priorEntries = journalEntryRepository
+                .findPostedEntriesByAccountAndDateRange(accountId, startDate, endDate);
+
+        BigDecimal balance = openingBalance;
+        int skipCount = (int) pageable.getOffset();
+        for (int i = 0; i < Math.min(skipCount, priorEntries.size()); i++) {
+            JournalEntry entry = priorEntries.get(i);
+            balance = updateBalance(normalBalance, balance, entry.getDebitAmount(), entry.getCreditAmount());
+        }
+        return balance;
+    }
+
+    private List<LedgerLineItem> buildLineItems(Page<JournalEntry> entriesPage, NormalBalance normalBalance,
+            BigDecimal pageStartBalance) {
+        List<LedgerLineItem> lineItems = new ArrayList<>();
+        BigDecimal runningBalance = pageStartBalance;
+
+        for (JournalEntry entry : entriesPage.getContent()) {
+            runningBalance = updateBalance(normalBalance, runningBalance, entry.getDebitAmount(), entry.getCreditAmount());
+            lineItems.add(new LedgerLineItem(entry, runningBalance));
+        }
+        return lineItems;
     }
 
     public record GeneralLedgerData(
@@ -238,66 +242,54 @@ public class JournalEntryService {
         JournalEntry firstEntry = entries.get(0);
         LocalDate journalDate = firstEntry.getJournalDate();
         boolean isPosted = firstEntry.isPosted() || firstEntry.isVoid();
+        String journalNumber = firstEntry.getJournalNumber();
 
         List<AccountImpact> impacts = new ArrayList<>();
-
         for (JournalEntry entry : entries) {
-            ChartOfAccount account = entry.getAccount();
-            if (account == null) continue;
+            if (entry.getAccount() != null) {
+                impacts.add(calculateSingleAccountImpact(entry, journalDate, isPosted, journalNumber));
+            }
+        }
+        return impacts;
+    }
 
-            // Calculate balance before this journal entry
-            BigDecimal debitBefore = journalEntryRepository.sumDebitBeforeDate(account.getId(), journalDate);
-            BigDecimal creditBefore = journalEntryRepository.sumCreditBeforeDate(account.getId(), journalDate);
+    private AccountImpact calculateSingleAccountImpact(JournalEntry entry, LocalDate journalDate,
+            boolean isPosted, String journalNumber) {
+        ChartOfAccount account = entry.getAccount();
+        NormalBalance normalBalance = account.getNormalBalance();
 
-            // If this entry is posted, we need to exclude its own amounts from "after" calculation
-            // because sumDebitBeforeDate only gets entries BEFORE the date, not on the date
-            // For entries on the same date, we need to include all posted entries except this one
-            BigDecimal debitOnDate = BigDecimal.ZERO;
-            BigDecimal creditOnDate = BigDecimal.ZERO;
+        BigDecimal debitBefore = journalEntryRepository.sumDebitBeforeDate(account.getId(), journalDate);
+        BigDecimal creditBefore = journalEntryRepository.sumCreditBeforeDate(account.getId(), journalDate);
 
-            if (isPosted) {
-                // Get totals for all posted entries on this date BEFORE this journal number
-                List<JournalEntry> entriesOnDate = journalEntryRepository
-                        .findPostedEntriesByAccountAndDateRange(account.getId(), journalDate, journalDate);
+        BigDecimal[] sameDateTotals = calculateSameDateTotals(account.getId(), journalDate, isPosted, journalNumber);
+        BigDecimal debitOnDate = sameDateTotals[0];
+        BigDecimal creditOnDate = sameDateTotals[1];
 
-                for (JournalEntry e : entriesOnDate) {
-                    // Exclude entries from this journal
-                    if (!e.getJournalNumber().equals(firstEntry.getJournalNumber())) {
-                        debitOnDate = debitOnDate.add(e.getDebitAmount());
-                        creditOnDate = creditOnDate.add(e.getCreditAmount());
-                    }
+        BigDecimal beforeBalance = calculateBalance(normalBalance,
+                debitBefore.add(debitOnDate), creditBefore.add(creditOnDate));
+        BigDecimal afterBalance = updateBalance(normalBalance, beforeBalance,
+                entry.getDebitAmount(), entry.getCreditAmount());
+
+        return new AccountImpact(account, beforeBalance, entry.getDebitAmount(), entry.getCreditAmount(), afterBalance);
+    }
+
+    private BigDecimal[] calculateSameDateTotals(UUID accountId, LocalDate journalDate,
+            boolean isPosted, String excludeJournalNumber) {
+        BigDecimal debitOnDate = BigDecimal.ZERO;
+        BigDecimal creditOnDate = BigDecimal.ZERO;
+
+        if (isPosted) {
+            List<JournalEntry> entriesOnDate = journalEntryRepository
+                    .findPostedEntriesByAccountAndDateRange(accountId, journalDate, journalDate);
+
+            for (JournalEntry e : entriesOnDate) {
+                if (!e.getJournalNumber().equals(excludeJournalNumber)) {
+                    debitOnDate = debitOnDate.add(e.getDebitAmount());
+                    creditOnDate = creditOnDate.add(e.getCreditAmount());
                 }
             }
-
-            BigDecimal beforeBalance;
-            if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                beforeBalance = debitBefore.add(debitOnDate).subtract(creditBefore).subtract(creditOnDate);
-            } else {
-                beforeBalance = creditBefore.add(creditOnDate).subtract(debitBefore).subtract(debitOnDate);
-            }
-
-            // Calculate movement
-            BigDecimal debitMovement = entry.getDebitAmount();
-            BigDecimal creditMovement = entry.getCreditAmount();
-
-            // Calculate after balance
-            BigDecimal afterBalance;
-            if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                afterBalance = beforeBalance.add(debitMovement).subtract(creditMovement);
-            } else {
-                afterBalance = beforeBalance.subtract(debitMovement).add(creditMovement);
-            }
-
-            impacts.add(new AccountImpact(
-                    account,
-                    beforeBalance,
-                    debitMovement,
-                    creditMovement,
-                    afterBalance
-            ));
         }
-
-        return impacts;
+        return new BigDecimal[]{debitOnDate, creditOnDate};
     }
 
     public record AccountImpact(

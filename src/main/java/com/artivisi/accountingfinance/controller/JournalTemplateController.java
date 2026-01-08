@@ -62,6 +62,18 @@ public class JournalTemplateController {
             @RequestHeader(value = "HX-Request", required = false) String hxRequest,
             Authentication authentication,
             Model model) {
+        addBaseListAttributes(model, category, search, favorites, tag);
+
+        String username = authentication != null ? authentication.getName() : null;
+        List<JournalTemplate> templates = findTemplates(category, search, favorites, tag, username);
+        model.addAttribute("templates", templates);
+
+        addUserPreferenceAttributes(model, username);
+
+        return "true".equals(hxRequest) ? "fragments/template-grid :: grid" : "templates/list";
+    }
+
+    private void addBaseListAttributes(Model model, String category, String search, Boolean favorites, String tag) {
         model.addAttribute("currentPage", "templates");
         model.addAttribute("selectedCategory", category);
         model.addAttribute("searchQuery", search);
@@ -69,42 +81,34 @@ public class JournalTemplateController {
         model.addAttribute("selectedTag", tag);
         model.addAttribute("categories", TemplateCategory.values());
         model.addAttribute("allTags", journalTemplateService.getDistinctTags());
+    }
 
-        String username = authentication != null ? authentication.getName() : null;
-
-        List<JournalTemplate> templates;
+    private List<JournalTemplate> findTemplates(String category, String search, Boolean favorites, String tag, String username) {
         if (Boolean.TRUE.equals(favorites) && username != null) {
-            templates = userTemplatePreferenceService.getFavorites(username);
-        } else if (tag != null && !tag.isBlank()) {
-            templates = journalTemplateService.findByTag(tag);
-        } else if (search != null && !search.isBlank()) {
-            templates = journalTemplateService.search(search, Pageable.unpaged()).getContent();
-        } else if (category != null && !category.isBlank()) {
-            templates = journalTemplateService.findByCategory(TemplateCategory.valueOf(category.toUpperCase()));
-        } else {
-            templates = journalTemplateService.findAll();
+            return userTemplatePreferenceService.getFavorites(username);
         }
-        model.addAttribute("templates", templates);
+        if (tag != null && !tag.isBlank()) {
+            return journalTemplateService.findByTag(tag);
+        }
+        if (search != null && !search.isBlank()) {
+            return journalTemplateService.search(search, Pageable.unpaged()).getContent();
+        }
+        if (category != null && !category.isBlank()) {
+            return journalTemplateService.findByCategory(TemplateCategory.valueOf(category.toUpperCase()));
+        }
+        return journalTemplateService.findAll();
+    }
 
-        // Get user's favorite template IDs for highlighting
-        Set<UUID> userFavoriteIds = Set.of();
-        if (username != null) {
-            userFavoriteIds = userTemplatePreferenceService.getFavoriteTemplateIds(username);
-        }
+    private void addUserPreferenceAttributes(Model model, String username) {
+        Set<UUID> userFavoriteIds = username != null
+                ? userTemplatePreferenceService.getFavoriteTemplateIds(username)
+                : Set.of();
         model.addAttribute("userFavoriteIds", userFavoriteIds);
 
-        // Get recently used templates for the sidebar
-        List<JournalTemplate> recentlyUsed = List.of();
-        if (username != null) {
-            recentlyUsed = userTemplatePreferenceService.getRecentlyUsed(username, 5);
-        }
+        List<JournalTemplate> recentlyUsed = username != null
+                ? userTemplatePreferenceService.getRecentlyUsed(username, 5)
+                : List.of();
         model.addAttribute("recentlyUsed", recentlyUsed);
-
-        // Return fragment for HTMX requests, full page otherwise
-        if ("true".equals(hxRequest)) {
-            return "fragments/template-grid :: grid";
-        }
-        return "templates/list";
     }
 
     @GetMapping("/{id}")
