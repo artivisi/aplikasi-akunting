@@ -47,6 +47,8 @@ public class PayrollReportService {
     private static final String TOTAL_LABEL = "TOTAL";
     private static final String TOTAL_POTONGAN = "Total Potongan";
     private static final String PPH_21 = "PPh 21";
+    private static final String STATUS_PTKP = "Status PTKP";
+    private static final String BPJS_KESEHATAN = "BPJS Kesehatan";
     private static final String NUMBER_PATTERN = "#,##0";
     private static final String PERIODE_PREFIX = "Periode ";
     private static final DecimalFormat NUMBER_FORMAT;
@@ -187,7 +189,7 @@ public class PayrollReportService {
             table.setWidths(new float[]{5, 25, 20, 15, 15, 20});
             table.setSpacingBefore(15);
 
-            addTableHeader(table, "No", "Nama", "NPWP", "Penghasilan Bruto", PPH_21, "Status PTKP");
+            addTableHeader(table, "No", "Nama", "NPWP", "Penghasilan Bruto", PPH_21, STATUS_PTKP);
 
             int no = 1;
             for (PayrollDetail detail : details) {
@@ -258,7 +260,7 @@ public class PayrollReportService {
 
             Row headerRow = sheet.createRow(rowNum++);
             CellStyle headerStyle = createHeaderStyle(workbook);
-            String[] headers = {"No", "Nama", "NPWP", "Penghasilan Bruto", PPH_21, "Status PTKP"};
+            String[] headers = {"No", "Nama", "NPWP", "Penghasilan Bruto", PPH_21, STATUS_PTKP};
             for (int i = 0; i < headers.length; i++) {
                 createCell(headerRow, i, headers[i], headerStyle);
             }
@@ -307,7 +309,7 @@ public class PayrollReportService {
                     PERIODE_PREFIX + payrollRun.getPeriodDisplayName());
 
             // BPJS Kesehatan
-            document.add(new Paragraph("BPJS Kesehatan", getBoldFont()));
+            document.add(new Paragraph(BPJS_KESEHATAN, getBoldFont()));
             PdfPTable kesTable = new PdfPTable(5);
             kesTable.setWidthPercentage(100);
             kesTable.setWidths(new float[]{5, 30, 20, 20, 25});
@@ -393,7 +395,7 @@ public class PayrollReportService {
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
             // BPJS Kesehatan Sheet
-            Sheet kesSheet = workbook.createSheet("BPJS Kesehatan");
+            Sheet kesSheet = workbook.createSheet(BPJS_KESEHATAN);
             int rowNum = 0;
             rowNum = addExcelHeader(workbook, kesSheet, rowNum, "BPJS KESEHATAN",
                     PERIODE_PREFIX + payrollRun.getPeriodDisplayName(), 5);
@@ -519,7 +521,7 @@ public class PayrollReportService {
 
             addInfoRow(infoTable, "NIK", detail.getEmployeeId());
             addInfoRow(infoTable, "Nama", detail.getEmployeeName());
-            addInfoRow(infoTable, "Status PTKP", detail.getEmployee().getPtkpStatus().name());
+            addInfoRow(infoTable, STATUS_PTKP, detail.getEmployee().getPtkpStatus().name());
             document.add(infoTable);
 
             // Earnings
@@ -542,7 +544,7 @@ public class PayrollReportService {
             deductionsTable.setSpacingBefore(5);
             deductionsTable.setSpacingAfter(10);
 
-            addPayslipRow(deductionsTable, "BPJS Kesehatan", detail.getBpjsKesEmployee());
+            addPayslipRow(deductionsTable, BPJS_KESEHATAN, detail.getBpjsKesEmployee());
             addPayslipRow(deductionsTable, "BPJS JHT", detail.getBpjsJhtEmployee());
             addPayslipRow(deductionsTable, "BPJS JP", detail.getBpjsJpEmployee());
             addPayslipRow(deductionsTable, PPH_21, detail.getPph21());

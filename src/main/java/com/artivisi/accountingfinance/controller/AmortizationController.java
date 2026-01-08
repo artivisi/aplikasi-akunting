@@ -39,6 +39,10 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 public class AmortizationController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_AMORTIZATION_PREFIX = "redirect:/amortization/";
+    private static final String ATTR_TYPES = "types";
+    private static final String ATTR_SCHEDULE = "schedule";
+    private static final String ATTR_ENTRIES = "entries";
 
     private final AmortizationScheduleService scheduleService;
     private final AmortizationEntryService entryService;
@@ -59,7 +63,7 @@ public class AmortizationController {
         model.addAttribute("selectedType", type);
         model.addAttribute("searchQuery", search);
         model.addAttribute("statuses", ScheduleStatus.values());
-        model.addAttribute("types", ScheduleType.values());
+        model.addAttribute(ATTR_TYPES, ScheduleType.values());
 
         ScheduleStatus statusEnum = status != null && !status.isBlank()
                 ? ScheduleStatus.valueOf(status.toUpperCase()) : null;
@@ -81,7 +85,7 @@ public class AmortizationController {
     public String create(Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         model.addAttribute("isEdit", false);
-        model.addAttribute("types", ScheduleType.values());
+        model.addAttribute(ATTR_TYPES, ScheduleType.values());
         model.addAttribute("frequencies", AmortizationFrequency.values());
         model.addAttribute("accounts", chartOfAccountRepository.findByActiveOrderByAccountCodeAsc(true));
         return "amortization/form";
@@ -93,8 +97,8 @@ public class AmortizationController {
         AmortizationSchedule schedule = scheduleService.findById(id);
         List<AmortizationEntry> entries = entryService.findByScheduleId(id);
 
-        model.addAttribute("schedule", schedule);
-        model.addAttribute("entries", entries);
+        model.addAttribute(ATTR_SCHEDULE, schedule);
+        model.addAttribute(ATTR_ENTRIES, entries);
         return "amortization/detail";
     }
 
@@ -102,8 +106,8 @@ public class AmortizationController {
     public String edit(@PathVariable UUID id, Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         model.addAttribute("isEdit", true);
-        model.addAttribute("schedule", scheduleService.findById(id));
-        model.addAttribute("types", ScheduleType.values());
+        model.addAttribute(ATTR_SCHEDULE, scheduleService.findById(id));
+        model.addAttribute(ATTR_TYPES, ScheduleType.values());
         model.addAttribute("frequencies", AmortizationFrequency.values());
         model.addAttribute("accounts", chartOfAccountRepository.findByActiveOrderByAccountCodeAsc(true));
         return "amortization/form";
@@ -147,7 +151,7 @@ public class AmortizationController {
 
         AmortizationSchedule saved = scheduleService.create(schedule);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Jadwal amortisasi berhasil dibuat");
-        return "redirect:/amortization/" + saved.getId();
+        return REDIRECT_AMORTIZATION_PREFIX + saved.getId();
     }
 
     @PostMapping("/{id}")
@@ -167,14 +171,14 @@ public class AmortizationController {
 
         scheduleService.update(id, schedule);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Jadwal amortisasi berhasil diperbarui");
-        return "redirect:/amortization/" + id;
+        return REDIRECT_AMORTIZATION_PREFIX + id;
     }
 
     @PostMapping("/{id}/cancel")
     public String cancel(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         scheduleService.cancel(id);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Jadwal amortisasi berhasil dibatalkan");
-        return "redirect:/amortization/" + id;
+        return REDIRECT_AMORTIZATION_PREFIX + id;
     }
 
     @PostMapping("/{id}/delete")
@@ -199,13 +203,13 @@ public class AmortizationController {
         if ("true".equals(hxRequest)) {
             AmortizationSchedule schedule = scheduleService.findById(id);
             List<AmortizationEntry> entries = entryService.findByScheduleId(id);
-            model.addAttribute("schedule", schedule);
-            model.addAttribute("entries", entries);
+            model.addAttribute(ATTR_SCHEDULE, schedule);
+            model.addAttribute(ATTR_ENTRIES, entries);
             return "amortization/fragments/entry-table :: table";
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Entry berhasil diposting");
-        return "redirect:/amortization/" + id;
+        return REDIRECT_AMORTIZATION_PREFIX + id;
     }
 
     @PostMapping("/{id}/entries/{entryId}/skip")
@@ -221,13 +225,13 @@ public class AmortizationController {
         if ("true".equals(hxRequest)) {
             AmortizationSchedule schedule = scheduleService.findById(id);
             List<AmortizationEntry> entries = entryService.findByScheduleId(id);
-            model.addAttribute("schedule", schedule);
-            model.addAttribute("entries", entries);
+            model.addAttribute(ATTR_SCHEDULE, schedule);
+            model.addAttribute(ATTR_ENTRIES, entries);
             return "amortization/fragments/entry-table :: table";
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Entry berhasil dilewati");
-        return "redirect:/amortization/" + id;
+        return REDIRECT_AMORTIZATION_PREFIX + id;
     }
 
     @PostMapping("/{id}/entries/post-all")
@@ -237,7 +241,7 @@ public class AmortizationController {
 
         entryService.postAllPending(id);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Semua entry pending berhasil diposting");
-        return "redirect:/amortization/" + id;
+        return REDIRECT_AMORTIZATION_PREFIX + id;
     }
 
     @PostMapping("/batch/process")

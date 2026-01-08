@@ -47,6 +47,8 @@ public class InventoryTransactionController {
     private static final String VIEW_PURCHASE_FORM = "inventory/purchase-form";
     private static final String VIEW_SALE_FORM = "inventory/sale-form";
     private static final String VIEW_ADJUSTMENT_FORM = "inventory/adjustment-form";
+    private static final String ATTR_SUCCESS = "success";
+    private static final String ATTR_ERROR = "error";
 
     private final InventoryService inventoryService;
     private final ProductRepository productRepository;
@@ -207,11 +209,11 @@ public class InventoryTransactionController {
                     form.getNotes()
             );
 
-            redirectAttributes.addFlashAttribute("success", "Pembelian berhasil dicatat");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Pembelian berhasil dicatat");
             return REDIRECT_INVENTORY_TRANSACTIONS + transaction.getId();
         } catch (Exception e) {
             log.error("Error recording purchase", e);
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute(ATTR_ERROR, e.getMessage());
             model.addAttribute(ATTR_PRODUCTS, productRepository.findAllActiveOrderByCode());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_PURCHASE);
             return VIEW_PURCHASE_FORM;
@@ -256,11 +258,11 @@ public class InventoryTransactionController {
                     form.getNotes()
             );
 
-            redirectAttributes.addFlashAttribute("success", "Penjualan berhasil dicatat");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Penjualan berhasil dicatat");
             return REDIRECT_INVENTORY_TRANSACTIONS + transaction.getId();
         } catch (Exception e) {
             log.error("Error recording sale", e);
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute(ATTR_ERROR, e.getMessage());
             model.addAttribute(ATTR_PRODUCTS, productRepository.findAllActiveOrderByCode());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_SALE);
             return VIEW_SALE_FORM;
@@ -316,11 +318,11 @@ public class InventoryTransactionController {
                 );
             }
 
-            redirectAttributes.addFlashAttribute("success", "Penyesuaian berhasil dicatat");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Penyesuaian berhasil dicatat");
             return REDIRECT_INVENTORY_TRANSACTIONS + transaction.getId();
         } catch (Exception e) {
             log.error("Error recording adjustment", e);
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute(ATTR_ERROR, e.getMessage());
             model.addAttribute(ATTR_PRODUCTS, productRepository.findAllActiveOrderByCode());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_ADJUSTMENT);
             return VIEW_ADJUSTMENT_FORM;

@@ -62,6 +62,8 @@ public class SettingsController {
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
     private static final String REDIRECT_SETTINGS = "redirect:/settings";
     private static final String VIEW_BANK_FORM = "settings/bank-form";
+    private static final String ATTR_BANK_ACCOUNTS = "bankAccounts";
+    private static final String ERR_USER_NOT_FOUND = "User not found";
     private static final Set<String> ALLOWED_LOGO_TYPES = Set.of(
             "image/png", "image/jpeg", "image/gif", "image/webp"
     );
@@ -84,7 +86,7 @@ public class SettingsController {
         List<CompanyBankAccount> bankAccounts = bankAccountService.findAll();
 
         model.addAttribute("config", config);
-        model.addAttribute("bankAccounts", bankAccounts);
+        model.addAttribute(ATTR_BANK_ACCOUNTS, bankAccounts);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
 
         return "settings/company";
@@ -100,7 +102,7 @@ public class SettingsController {
 
         if (bindingResult.hasErrors()) {
             List<CompanyBankAccount> bankAccounts = bankAccountService.findAll();
-            model.addAttribute("bankAccounts", bankAccounts);
+            model.addAttribute(ATTR_BANK_ACCOUNTS, bankAccounts);
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
             return "settings/company";
         }
@@ -240,7 +242,7 @@ public class SettingsController {
             Model model) {
 
         List<CompanyBankAccount> bankAccounts = bankAccountService.findAll();
-        model.addAttribute("bankAccounts", bankAccounts);
+        model.addAttribute(ATTR_BANK_ACCOUNTS, bankAccounts);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
 
         if ("true".equals(hxRequest)) {
@@ -384,7 +386,7 @@ public class SettingsController {
     public String telegramSettings(Authentication authentication, Model model) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_USER_NOT_FOUND));
 
         Optional<TelegramUserLink> telegramLink = telegramLinkRepository.findByUser(user);
         model.addAttribute("telegramLink", telegramLink.orElse(null));
@@ -403,7 +405,7 @@ public class SettingsController {
 
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_USER_NOT_FOUND));
 
         String code = telegramBotService.generateVerificationCode(user);
         securityAuditService.log(AuditEventType.SETTINGS_CHANGE,
@@ -422,7 +424,7 @@ public class SettingsController {
 
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_USER_NOT_FOUND));
 
         Optional<TelegramUserLink> link = telegramLinkRepository.findByUser(user);
         if (link.isPresent()) {

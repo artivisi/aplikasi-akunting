@@ -42,6 +42,9 @@ public class ReportController {
     private static final String ATTR_REPORT = "report";
     private static final String ATTACHMENT_FILENAME_PREFIX = "attachment; filename=\"";
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private static final String ATTR_AS_OF_DATE = "asOfDate";
+    private static final String ATTR_COMPANY = "company";
+    private static final String FILE_EXT_XLSX = ".xlsx";
 
     private final ReportService reportService;
     private final ReportExportService reportExportService;
@@ -71,7 +74,7 @@ public class ReportController {
         model.addAttribute("period", period);
 
         LocalDate reportDate = asOfDate != null ? asOfDate : LocalDate.now();
-        model.addAttribute("asOfDate", reportDate);
+        model.addAttribute(ATTR_AS_OF_DATE, reportDate);
         model.addAttribute(ATTR_REPORT, reportService.generateTrialBalance(reportDate));
 
         return "reports/trial-balance";
@@ -107,7 +110,7 @@ public class ReportController {
         model.addAttribute("compareWith", compareWith);
 
         LocalDate reportDate = asOfDate != null ? asOfDate : LocalDate.now();
-        model.addAttribute("asOfDate", reportDate);
+        model.addAttribute(ATTR_AS_OF_DATE, reportDate);
         model.addAttribute(ATTR_REPORT, reportService.generateBalanceSheet(reportDate));
 
         return "reports/balance-sheet";
@@ -181,7 +184,7 @@ public class ReportController {
         ReportService.TrialBalanceReport report = reportService.generateTrialBalance(reportDate);
         byte[] excelBytes = reportExportService.exportTrialBalanceToExcel(report);
 
-        String filename = "neraca-saldo-" + reportDate.format(FILE_DATE_FORMAT) + ".xlsx";
+        String filename = "neraca-saldo-" + reportDate.format(FILE_DATE_FORMAT) + FILE_EXT_XLSX;
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILENAME_PREFIX + filename + "\"")
                 .contentType(MediaType.parseMediaType(CONTENT_TYPE_XLSX))
@@ -210,7 +213,7 @@ public class ReportController {
         ReportService.BalanceSheetReport report = reportService.generateBalanceSheet(reportDate);
         byte[] excelBytes = reportExportService.exportBalanceSheetToExcel(report);
 
-        String filename = "laporan-posisi-keuangan-" + reportDate.format(FILE_DATE_FORMAT) + ".xlsx";
+        String filename = "laporan-posisi-keuangan-" + reportDate.format(FILE_DATE_FORMAT) + FILE_EXT_XLSX;
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILENAME_PREFIX + filename + "\"")
                 .contentType(MediaType.parseMediaType(CONTENT_TYPE_XLSX))
@@ -243,7 +246,7 @@ public class ReportController {
         ReportService.IncomeStatementReport report = reportService.generateIncomeStatement(start, end);
         byte[] excelBytes = reportExportService.exportIncomeStatementToExcel(report);
 
-        String filename = "laporan-laba-rugi-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + ".xlsx";
+        String filename = "laporan-laba-rugi-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + FILE_EXT_XLSX;
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILENAME_PREFIX + filename + "\"")
                 .contentType(MediaType.parseMediaType(CONTENT_TYPE_XLSX))
@@ -276,7 +279,7 @@ public class ReportController {
         ReportService.CashFlowReport report = reportService.generateCashFlowStatement(start, end);
         byte[] excelBytes = reportExportService.exportCashFlowToExcel(report);
 
-        String filename = "laporan-arus-kas-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + ".xlsx";
+        String filename = "laporan-arus-kas-" + start.format(FILE_DATE_FORMAT) + "-" + end.format(FILE_DATE_FORMAT) + FILE_EXT_XLSX;
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILENAME_PREFIX + filename + "\"")
                 .contentType(MediaType.parseMediaType(CONTENT_TYPE_XLSX))
@@ -387,9 +390,9 @@ public class ReportController {
         LocalDate reportDate = asOfDate != null ? asOfDate : LocalDate.now();
         CompanyConfig company = companyConfigService.getConfig();
 
-        model.addAttribute("asOfDate", reportDate);
+        model.addAttribute(ATTR_AS_OF_DATE, reportDate);
         model.addAttribute(ATTR_REPORT, reportService.generateTrialBalance(reportDate));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/trial-balance-print";
     }
@@ -401,9 +404,9 @@ public class ReportController {
         LocalDate reportDate = asOfDate != null ? asOfDate : LocalDate.now();
         CompanyConfig company = companyConfigService.getConfig();
 
-        model.addAttribute("asOfDate", reportDate);
+        model.addAttribute(ATTR_AS_OF_DATE, reportDate);
         model.addAttribute(ATTR_REPORT, reportService.generateBalanceSheet(reportDate));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/balance-sheet-print";
     }
@@ -420,7 +423,7 @@ public class ReportController {
         model.addAttribute(ATTR_START_DATE, start);
         model.addAttribute(ATTR_END_DATE, end);
         model.addAttribute(ATTR_REPORT, reportService.generateIncomeStatement(start, end));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/income-statement-print";
     }
@@ -437,7 +440,7 @@ public class ReportController {
         model.addAttribute(ATTR_START_DATE, start);
         model.addAttribute(ATTR_END_DATE, end);
         model.addAttribute(ATTR_REPORT, reportService.generateCashFlowStatement(start, end));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/cash-flow-print";
     }
@@ -538,7 +541,7 @@ public class ReportController {
         model.addAttribute(ATTR_START_DATE, start);
         model.addAttribute(ATTR_END_DATE, end);
         model.addAttribute(ATTR_REPORT, taxReportService.generatePPNSummary(start, end));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/ppn-summary-print";
     }
@@ -555,7 +558,7 @@ public class ReportController {
         model.addAttribute(ATTR_START_DATE, start);
         model.addAttribute(ATTR_END_DATE, end);
         model.addAttribute(ATTR_REPORT, taxReportService.generatePPh23Withholding(start, end));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/pph23-withholding-print";
     }
@@ -585,7 +588,7 @@ public class ReportController {
 
         model.addAttribute("year", reportYear);
         model.addAttribute(ATTR_REPORT, depreciationReportService.generateReport(reportYear));
-        model.addAttribute("company", company);
+        model.addAttribute(ATTR_COMPANY, company);
 
         return "reports/depreciation-print";
     }
@@ -619,7 +622,7 @@ public class ReportController {
         DepreciationReportService.DepreciationReport report = depreciationReportService.generateReport(reportYear);
         byte[] excelBytes = reportExportService.exportDepreciationToExcel(report);
 
-        String filename = "laporan-penyusutan-" + reportYear + ".xlsx";
+        String filename = "laporan-penyusutan-" + reportYear + FILE_EXT_XLSX;
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILENAME_PREFIX + filename + "\"")
                 .contentType(MediaType.parseMediaType(CONTENT_TYPE_XLSX))

@@ -26,6 +26,7 @@ public class DraftTransactionService {
 
     private static final Logger log = LoggerFactory.getLogger(DraftTransactionService.class);
     private static final BigDecimal AUTO_APPROVE_THRESHOLD = new BigDecimal("0.90");
+    private static final String ERR_DRAFT_NOT_FOUND = "Draft not found: ";
 
     private final DraftTransactionRepository draftRepository;
     private final MerchantMappingRepository merchantMappingRepository;
@@ -149,7 +150,7 @@ public class DraftTransactionService {
 
     public DraftTransaction findById(UUID id) {
         return draftRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Draft not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(ERR_DRAFT_NOT_FOUND + id));
     }
 
     public Page<DraftTransaction> findPending(Pageable pageable) {
@@ -190,7 +191,7 @@ public class DraftTransactionService {
     public DraftTransaction approve(UUID draftId, UUID templateId, String description,
                                      BigDecimal amount, String approvedBy) {
         DraftTransaction draft = draftRepository.findById(draftId)
-                .orElseThrow(() -> new IllegalArgumentException("Draft not found: " + draftId));
+                .orElseThrow(() -> new IllegalArgumentException(ERR_DRAFT_NOT_FOUND + draftId));
 
         if (!draft.isPending()) {
             throw new IllegalStateException("Draft is not pending: " + draft.getStatus());
@@ -214,7 +215,7 @@ public class DraftTransactionService {
 
     public DraftTransaction reject(UUID draftId, String reason, String rejectedBy) {
         DraftTransaction draft = draftRepository.findById(draftId)
-                .orElseThrow(() -> new IllegalArgumentException("Draft not found: " + draftId));
+                .orElseThrow(() -> new IllegalArgumentException(ERR_DRAFT_NOT_FOUND + draftId));
 
         if (!draft.isPending()) {
             throw new IllegalStateException("Draft is not pending: " + draft.getStatus());

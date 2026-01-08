@@ -20,12 +20,14 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ProjectService {
 
+    private static final String ERR_PROJECT_NOT_FOUND = "Project not found with id: ";
+
     private final ProjectRepository projectRepository;
     private final ClientRepository clientRepository;
 
     public Project findById(UUID id) {
         return projectRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
     }
 
     public Project findByCode(String code) {
@@ -71,7 +73,7 @@ public class ProjectService {
     @Transactional
     public Project update(UUID id, Project updatedProject, UUID clientId) {
         Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
 
         // Check if code is being changed and already exists
         if (!existing.getCode().equals(updatedProject.getCode()) &&
@@ -101,7 +103,7 @@ public class ProjectService {
     @Transactional
     public void updateStatus(UUID id, ProjectStatus newStatus) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
         project.setStatus(newStatus);
         projectRepository.save(project);
     }
@@ -109,7 +111,7 @@ public class ProjectService {
     @Transactional
     public void archive(UUID id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
         project.setStatus(ProjectStatus.ARCHIVED);
         projectRepository.save(project);
     }
@@ -117,7 +119,7 @@ public class ProjectService {
     @Transactional
     public void complete(UUID id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
         project.setStatus(ProjectStatus.COMPLETED);
         projectRepository.save(project);
     }
@@ -125,7 +127,7 @@ public class ProjectService {
     @Transactional
     public void reactivate(UUID id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ERR_PROJECT_NOT_FOUND + id));
         project.setStatus(ProjectStatus.ACTIVE);
         projectRepository.save(project);
     }

@@ -63,6 +63,7 @@ public class TransactionController {
     private static final String ATTR_PROJECTS = "projects";
     private static final String ATTR_IS_EDIT = "isEdit";
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String USER_SYSTEM = "system";
 
     private final TransactionService transactionService;
     private final JournalTemplateService journalTemplateService;
@@ -245,7 +246,7 @@ public class TransactionController {
     @PostMapping("/{id}/post")
     @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_POST + "')")
     public String htmxPost(@PathVariable UUID id, Authentication authentication, Model model) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         Transaction posted = transactionService.post(id, username);
         model.addAttribute("trx", posted);
         return "fragments/transaction-table :: row";
@@ -418,7 +419,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> apiPost(
             @PathVariable("id") Transaction transaction,
             Authentication authentication) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         return ResponseEntity.ok(transactionService.post(transaction.getId(), username));
     }
 
@@ -429,7 +430,7 @@ public class TransactionController {
             @PathVariable("id") Transaction transaction,
             @Valid @RequestBody VoidTransactionDto dto,
             Authentication authentication) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         return ResponseEntity.ok(transactionService.voidTransaction(transaction.getId(), dto.reason(), dto.notes(), username));
     }
 

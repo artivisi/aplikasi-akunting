@@ -58,6 +58,7 @@ public class ReportExportService {
     private static final String DATE_PATTERN_DMY = "dd/MM/yyyy";
     private static final String LABEL_PERIODE = "Periode ";
     private static final String LABEL_PER_TANGGAL = "Per tanggal ";
+    private static final String EXCEL_NUMBER_FORMAT = "#,##0";
     private static final DecimalFormat NUMBER_FORMAT;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.of("id", "ID"));
 
@@ -65,7 +66,7 @@ public class ReportExportService {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.of("id", "ID"));
         symbols.setGroupingSeparator('.');
         symbols.setDecimalSeparator(',');
-        NUMBER_FORMAT = new DecimalFormat("#,##0", symbols);
+        NUMBER_FORMAT = new DecimalFormat(EXCEL_NUMBER_FORMAT, symbols);
     }
 
     // PDF Fonts
@@ -1403,7 +1404,7 @@ public class ReportExportService {
         style.setBorderRight(BorderStyle.THIN);
         style.setAlignment(HorizontalAlignment.RIGHT);
         DataFormat format = workbook.createDataFormat();
-        style.setDataFormat(format.getFormat("#,##0"));
+        style.setDataFormat(format.getFormat(EXCEL_NUMBER_FORMAT));
         return style;
     }
 
@@ -1419,7 +1420,7 @@ public class ReportExportService {
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
         DataFormat format = workbook.createDataFormat();
-        style.setDataFormat(format.getFormat("#,##0"));
+        style.setDataFormat(format.getFormat(EXCEL_NUMBER_FORMAT));
         return style;
     }
 
