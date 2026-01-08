@@ -36,48 +36,62 @@ public class ReportService {
     public TrialBalanceReport generateTrialBalance(LocalDate asOfDate) {
         List<ChartOfAccount> accounts = chartOfAccountRepository.findAllTransactableAccounts();
         List<TrialBalanceItem> items = new ArrayList<>();
-
         BigDecimal totalDebit = BigDecimal.ZERO;
         BigDecimal totalCredit = BigDecimal.ZERO;
 
         for (ChartOfAccount account : accounts) {
-            BigDecimal debit = journalEntryRepository.sumDebitByAccountAndDateRange(
-                    account.getId(), LocalDate.of(1900, 1, 1), asOfDate);
-            BigDecimal credit = journalEntryRepository.sumCreditByAccountAndDateRange(
-                    account.getId(), LocalDate.of(1900, 1, 1), asOfDate);
-
-            BigDecimal balance;
-            if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                balance = debit.subtract(credit);
-            } else {
-                balance = credit.subtract(debit);
-            }
-
-            if (balance.compareTo(BigDecimal.ZERO) != 0) {
-                BigDecimal debitBalance = BigDecimal.ZERO;
-                BigDecimal creditBalance = BigDecimal.ZERO;
-
-                if (account.getNormalBalance() == NormalBalance.DEBIT) {
-                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                        debitBalance = balance;
-                    } else {
-                        creditBalance = balance.negate();
-                    }
-                } else {
-                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                        creditBalance = balance;
-                    } else {
-                        debitBalance = balance.negate();
-                    }
-                }
-
-                items.add(new TrialBalanceItem(account, debitBalance, creditBalance));
-                totalDebit = totalDebit.add(debitBalance);
-                totalCredit = totalCredit.add(creditBalance);
+            TrialBalanceItem item = calculateTrialBalanceItem(account, asOfDate);
+            if (item != null) {
+                items.add(item);
+                totalDebit = totalDebit.add(item.debitBalance());
+                totalCredit = totalCredit.add(item.creditBalance());
             }
         }
 
         return new TrialBalanceReport(asOfDate, items, totalDebit, totalCredit);
+    }
+
+    private TrialBalanceItem calculateTrialBalanceItem(ChartOfAccount account, LocalDate asOfDate) {
+        BigDecimal debit = journalEntryRepository.sumDebitByAccountAndDateRange(
+                account.getId(), LocalDate.of(1900, 1, 1), asOfDate);
+        BigDecimal credit = journalEntryRepository.sumCreditByAccountAndDateRange(
+                account.getId(), LocalDate.of(1900, 1, 1), asOfDate);
+
+        BigDecimal balance = calculateBalance(account.getNormalBalance(), debit, credit);
+
+        if (balance.compareTo(BigDecimal.ZERO) == 0) {
+            return null;
+        }
+
+        BigDecimal[] debitCredit = splitBalanceToDebitCredit(account.getNormalBalance(), balance);
+        return new TrialBalanceItem(account, debitCredit[0], debitCredit[1]);
+    }
+
+    private BigDecimal calculateBalance(NormalBalance normalBalance, BigDecimal debit, BigDecimal credit) {
+        return normalBalance == NormalBalance.DEBIT
+                ? debit.subtract(credit)
+                : credit.subtract(debit);
+    }
+
+    private BigDecimal[] splitBalanceToDebitCredit(NormalBalance normalBalance, BigDecimal balance) {
+        boolean isPositive = balance.compareTo(BigDecimal.ZERO) > 0;
+        BigDecimal debitBalance = BigDecimal.ZERO;
+        BigDecimal creditBalance = BigDecimal.ZERO;
+
+        if (normalBalance == NormalBalance.DEBIT) {
+            if (isPositive) {
+                debitBalance = balance;
+            } else {
+                creditBalance = balance.negate();
+            }
+        } else {
+            if (isPositive) {
+                creditBalance = balance;
+            } else {
+                debitBalance = balance.negate();
+            }
+        }
+        return new BigDecimal[]{debitBalance, creditBalance};
     }
 
     public IncomeStatementReport generateIncomeStatement(LocalDate startDate, LocalDate endDate) {
