@@ -21,6 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/projects/{projectCode}/payment-terms")
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class PaymentTermController {
         model.addAttribute("paymentTerm", paymentTerm);
         model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
         model.addAttribute("triggers", PaymentTrigger.values());
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "payment-terms/form";
     }
 
@@ -57,7 +59,7 @@ public class PaymentTermController {
             model.addAttribute("project", project);
             model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
             model.addAttribute("triggers", PaymentTrigger.values());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
 
@@ -72,7 +74,7 @@ public class PaymentTermController {
             model.addAttribute("project", project);
             model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
             model.addAttribute("triggers", PaymentTrigger.values());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
     }
@@ -90,7 +92,7 @@ public class PaymentTermController {
         model.addAttribute("paymentTerm", paymentTerm);
         model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
         model.addAttribute("triggers", PaymentTrigger.values());
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "payment-terms/form";
     }
 
@@ -109,7 +111,7 @@ public class PaymentTermController {
             model.addAttribute("project", project);
             model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
             model.addAttribute("triggers", PaymentTrigger.values());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
 
@@ -124,7 +126,7 @@ public class PaymentTermController {
             model.addAttribute("project", project);
             model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
             model.addAttribute("triggers", PaymentTrigger.values());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
     }

@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 import static java.util.Objects.requireNonNullElse;
 
 /**
@@ -53,7 +54,7 @@ public class JournalEntryController {
         LocalDate start = requireNonNullElse(startDate, LocalDate.now().withDayOfMonth(1));
         LocalDate end = requireNonNullElse(endDate, LocalDate.now());
 
-        model.addAttribute("currentPage", "journals");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_JOURNALS);
         model.addAttribute("selectedAccount", accountId);
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
@@ -84,7 +85,7 @@ public class JournalEntryController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "journals");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_JOURNALS);
         model.addAttribute("account", chartOfAccountService.findById(accountId));
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);

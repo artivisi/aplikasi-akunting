@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 /**
  * Controller for the about page.
  * Uses git.properties generated at build time by git-commit-id-maven-plugin
@@ -31,7 +33,7 @@ public class AboutController {
         String gitTag = (gitTags != null && !gitTags.isBlank()) ? gitTags : null;
         model.addAttribute("gitTag", gitTag);
 
-        model.addAttribute("currentPage", "about");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ABOUT);
         return "about";
     }
 }

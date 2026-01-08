@@ -22,6 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/salary-components")
 @RequiredArgsConstructor
@@ -46,7 +48,7 @@ public class SalaryComponentController {
         model.addAttribute("type", type);
         model.addAttribute("active", active);
         model.addAttribute("componentTypes", SalaryComponentType.values());
-        model.addAttribute("currentPage", "salary-components");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
 
         if ("true".equals(hxRequest)) {
             return "salary-components/fragments/component-table :: table";
@@ -64,7 +66,7 @@ public class SalaryComponentController {
 
         model.addAttribute("component", component);
         model.addAttribute("componentTypes", SalaryComponentType.values());
-        model.addAttribute("currentPage", "salary-components");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
         return "salary-components/form";
     }
 
@@ -99,7 +101,7 @@ public class SalaryComponentController {
     public String detail(@PathVariable UUID id, Model model) {
         SalaryComponent component = salaryComponentService.findById(id);
         model.addAttribute("component", component);
-        model.addAttribute("currentPage", "salary-components");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
         return "salary-components/detail";
     }
 
@@ -167,6 +169,6 @@ public class SalaryComponentController {
 
     private void addFormAttributes(Model model) {
         model.addAttribute("componentTypes", SalaryComponentType.values());
-        model.addAttribute("currentPage", "salary-components");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
     }
 }

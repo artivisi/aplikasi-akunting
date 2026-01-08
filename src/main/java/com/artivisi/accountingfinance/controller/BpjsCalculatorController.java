@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/bpjs-calculator")
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.CALCULATOR_USE + "')")
@@ -24,7 +26,7 @@ public class BpjsCalculatorController {
 
     @GetMapping
     public String showCalculator(Model model) {
-        model.addAttribute("currentPage", "bpjs-calculator");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_BPJS_CALCULATOR);
         model.addAttribute("riskClasses", getRiskClassOptions());
         return "bpjs-calculator/index";
     }
@@ -37,7 +39,7 @@ public class BpjsCalculatorController {
 
         BpjsCalculationResult result = bpjsCalculationService.calculate(salary, riskClass);
 
-        model.addAttribute("currentPage", "bpjs-calculator");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_BPJS_CALCULATOR);
         model.addAttribute("riskClasses", getRiskClassOptions());
         model.addAttribute("salary", salary);
         model.addAttribute("selectedRiskClass", riskClass);

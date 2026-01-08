@@ -35,6 +35,8 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/assets")
 @RequiredArgsConstructor
@@ -61,7 +63,7 @@ public class FixedAssetController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("statuses", AssetStatus.values());
         model.addAttribute("categories", assetCategoryService.findAllActive());
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
 
         // Summary stats
         model.addAttribute("totalBookValue", fixedAssetService.getTotalBookValue());
@@ -126,7 +128,7 @@ public class FixedAssetController {
         model.addAttribute("asset", asset);
         model.addAttribute("depreciationHistory", depreciationHistory);
         model.addAttribute("monthlyDepreciation", fixedAssetService.calculateMonthlyDepreciation(asset));
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
         return "assets/detail";
     }
 
@@ -190,7 +192,7 @@ public class FixedAssetController {
         List<DepreciationEntry> pendingEntries = fixedAssetService.getPendingDepreciationEntries();
 
         model.addAttribute("pendingEntries", pendingEntries);
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
         return "assets/depreciation";
     }
 
@@ -271,7 +273,7 @@ public class FixedAssetController {
         model.addAttribute("asset", asset);
         model.addAttribute("disposalTypes", DisposalType.values());
         model.addAttribute("disposalDate", LocalDate.now());
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
         return "assets/dispose";
     }
 
@@ -301,6 +303,6 @@ public class FixedAssetController {
     private void addFormAttributes(Model model) {
         model.addAttribute("categories", assetCategoryService.findAllActive());
         model.addAttribute("depreciationMethods", DepreciationMethod.values());
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
     }
 }

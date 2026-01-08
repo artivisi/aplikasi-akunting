@@ -24,6 +24,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/products/categories")
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class ProductCategoryController {
 
         model.addAttribute("categories", categories);
         model.addAttribute("search", search);
-        model.addAttribute("currentPage", "product-categories");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PRODUCT_CATEGORIES);
 
         if ("true".equals(hxRequest)) {
             return "products/categories/fragments/category-table :: table";
@@ -146,6 +148,6 @@ public class ProductCategoryController {
     private void addFormAttributes(Model model) {
         List<ProductCategory> parentCategories = categoryService.findAllActive();
         model.addAttribute("parentCategories", parentCategories);
-        model.addAttribute("currentPage", "product-categories");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PRODUCT_CATEGORIES);
     }
 }

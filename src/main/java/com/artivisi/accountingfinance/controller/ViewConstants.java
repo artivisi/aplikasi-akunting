@@ -38,6 +38,18 @@ public final class ViewConstants {
     public static final String PAGE_PROJECTS = "projects";
     public static final String PAGE_FIXED_ASSETS = "fixed-assets";
     public static final String PAGE_AMORTIZATION = "amortization";
+    public static final String PAGE_ABOUT = "about";
+    public static final String PAGE_ASSETS = "assets";
+    public static final String PAGE_BPJS_CALCULATOR = "bpjs-calculator";
+    public static final String PAGE_DRAFTS = "drafts";
+    public static final String PAGE_JOURNALS = "journals";
+    public static final String PAGE_PRODUCT_CATEGORIES = "product-categories";
+    public static final String PAGE_SALARY_COMPONENTS = "salary-components";
+    public static final String PAGE_INVENTORY_PURCHASE = "inventory-purchase";
+    public static final String PAGE_INVENTORY_SALE = "inventory-sale";
+    public static final String PAGE_INVENTORY_ADJUSTMENT = "inventory-adjustment";
+    public static final String PAGE_INVENTORY_STOCK = "inventory-stock";
+    public static final String PAGE_INVENTORY_TRANSACTIONS = "inventory-transactions";
 
     // View paths - Products
     public static final String VIEW_PRODUCTS_LIST = "products/list";

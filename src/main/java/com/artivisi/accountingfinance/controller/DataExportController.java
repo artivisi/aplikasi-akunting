@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/settings/export")
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class DataExportController {
     public String exportPage(Model model) {
         DataExportService.ExportStatistics statistics = dataExportService.getExportStatistics();
         model.addAttribute("statistics", statistics);
-        model.addAttribute("currentPage", "settings");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
         return "settings/export";
     }
 

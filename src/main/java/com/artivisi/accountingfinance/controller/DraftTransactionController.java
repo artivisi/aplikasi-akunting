@@ -24,6 +24,8 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/drafts")
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class DraftTransactionController {
             @RequestParam(defaultValue = "20") int size,
             @RequestHeader(value = "HX-Request", required = false) String hxRequest,
             Model model) {
-        model.addAttribute("currentPage", "drafts");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_DRAFTS);
 
         DraftTransaction.Status statusEnum = null;
         if (status != null && !status.isEmpty()) {
@@ -63,7 +65,7 @@ public class DraftTransactionController {
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Model model) {
         DraftTransaction draft = draftService.findById(id);
-        model.addAttribute("currentPage", "drafts");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_DRAFTS);
         model.addAttribute("draft", draft);
         model.addAttribute("templates", templateService.findAll());
         return "drafts/detail";

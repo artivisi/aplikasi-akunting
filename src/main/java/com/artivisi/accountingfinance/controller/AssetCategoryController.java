@@ -25,6 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/assets/categories")
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class AssetCategoryController {
         model.addAttribute("categories", categories);
         model.addAttribute("search", search);
         model.addAttribute("active", active);
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
 
         if ("true".equals(hxRequest)) {
             return "assets/categories/fragments/category-table :: table";
@@ -182,6 +184,6 @@ public class AssetCategoryController {
         model.addAttribute("depreciationMethods", DepreciationMethod.values());
         model.addAttribute("assetAccounts", chartOfAccountRepository.findAssetAccounts());
         model.addAttribute("expenseAccounts", chartOfAccountRepository.findExpenseAccounts());
-        model.addAttribute("currentPage", "assets");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ASSETS);
     }
 }

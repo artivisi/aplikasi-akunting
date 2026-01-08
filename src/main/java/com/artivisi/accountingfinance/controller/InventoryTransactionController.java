@@ -32,6 +32,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/inventory")
 @RequiredArgsConstructor
@@ -64,7 +66,7 @@ public class InventoryTransactionController {
         model.addAttribute("categories", categoryService.findAllActive());
         model.addAttribute("lowStockProducts", inventoryService.findLowStockProducts());
         model.addAttribute("totalInventoryValue", inventoryService.getTotalInventoryValue());
-        model.addAttribute("currentPage", "inventory-stock");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_STOCK);
 
         return "inventory/stock-list";
     }
@@ -114,7 +116,7 @@ public class InventoryTransactionController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("transactionTypes", InventoryTransactionType.values());
         model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-        model.addAttribute("currentPage", "inventory-transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_TRANSACTIONS);
 
         return "inventory/transaction-list";
     }
@@ -154,7 +156,7 @@ public class InventoryTransactionController {
                 .orElseThrow(() -> new IllegalArgumentException("Transaksi tidak ditemukan: " + id));
 
         model.addAttribute("transaction", transaction);
-        model.addAttribute("currentPage", "inventory-transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_TRANSACTIONS);
 
         return "inventory/transaction-detail";
     }
@@ -168,7 +170,7 @@ public class InventoryTransactionController {
     public String showPurchaseForm(Model model) {
         model.addAttribute("form", new InventoryTransactionForm());
         model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-        model.addAttribute("currentPage", "inventory-purchase");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_PURCHASE);
 
         return "inventory/purchase-form";
     }
@@ -183,7 +185,7 @@ public class InventoryTransactionController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-purchase");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_PURCHASE);
             return "inventory/purchase-form";
         }
 
@@ -203,7 +205,7 @@ public class InventoryTransactionController {
             log.error("Error recording purchase", e);
             model.addAttribute("error", e.getMessage());
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-purchase");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_PURCHASE);
             return "inventory/purchase-form";
         }
     }
@@ -217,7 +219,7 @@ public class InventoryTransactionController {
     public String showSaleForm(Model model) {
         model.addAttribute("form", new InventoryTransactionForm());
         model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-        model.addAttribute("currentPage", "inventory-sale");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_SALE);
 
         return "inventory/sale-form";
     }
@@ -232,7 +234,7 @@ public class InventoryTransactionController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-sale");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_SALE);
             return "inventory/sale-form";
         }
 
@@ -252,7 +254,7 @@ public class InventoryTransactionController {
             log.error("Error recording sale", e);
             model.addAttribute("error", e.getMessage());
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-sale");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_SALE);
             return "inventory/sale-form";
         }
     }
@@ -266,7 +268,7 @@ public class InventoryTransactionController {
     public String showAdjustmentForm(Model model) {
         model.addAttribute("form", new InventoryTransactionForm());
         model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-        model.addAttribute("currentPage", "inventory-adjustment");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_ADJUSTMENT);
 
         return "inventory/adjustment-form";
     }
@@ -281,7 +283,7 @@ public class InventoryTransactionController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-adjustment");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_ADJUSTMENT);
             return "inventory/adjustment-form";
         }
 
@@ -312,7 +314,7 @@ public class InventoryTransactionController {
             log.error("Error recording adjustment", e);
             model.addAttribute("error", e.getMessage());
             model.addAttribute("products", productRepository.findAllActiveOrderByCode());
-            model.addAttribute("currentPage", "inventory-adjustment");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_ADJUSTMENT);
             return "inventory/adjustment-form";
         }
     }
@@ -337,7 +339,7 @@ public class InventoryTransactionController {
         model.addAttribute("balance", balance);
         model.addAttribute("transactions", transactions);
         model.addAttribute("fifoLayers", fifoLayers);
-        model.addAttribute("currentPage", "inventory-stock");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVENTORY_STOCK);
 
         return "inventory/stock-card";
     }

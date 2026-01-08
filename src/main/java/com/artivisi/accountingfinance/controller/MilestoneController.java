@@ -19,6 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/projects/{projectCode}/milestones")
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class MilestoneController {
 
         model.addAttribute("project", project);
         model.addAttribute("milestone", milestone);
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "milestones/form";
     }
 
@@ -49,7 +51,7 @@ public class MilestoneController {
         if (bindingResult.hasErrors()) {
             Project project = projectService.findByCode(projectCode);
             model.addAttribute("project", project);
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "milestones/form";
         }
 
@@ -62,7 +64,7 @@ public class MilestoneController {
             bindingResult.rejectValue("sequence", "duplicate", e.getMessage());
             Project project = projectService.findByCode(projectCode);
             model.addAttribute("project", project);
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "milestones/form";
         }
     }
@@ -78,7 +80,7 @@ public class MilestoneController {
 
         model.addAttribute("project", project);
         model.addAttribute("milestone", milestone);
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "milestones/form";
     }
 
@@ -95,7 +97,7 @@ public class MilestoneController {
             Project project = projectService.findByCode(projectCode);
             milestone.setId(id);
             model.addAttribute("project", project);
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "milestones/form";
         }
 
@@ -108,7 +110,7 @@ public class MilestoneController {
             Project project = projectService.findByCode(projectCode);
             milestone.setId(id);
             model.addAttribute("project", project);
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "milestones/form";
         }
     }

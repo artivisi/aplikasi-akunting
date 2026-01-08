@@ -30,6 +30,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/amortization")
 @RequiredArgsConstructor
@@ -50,7 +52,7 @@ public class AmortizationController {
             @PageableDefault(size = 20) Pageable pageable,
             Model model) {
 
-        model.addAttribute("currentPage", "amortization");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedType", type);
         model.addAttribute("searchQuery", search);
@@ -75,7 +77,7 @@ public class AmortizationController {
 
     @GetMapping("/new")
     public String create(Model model) {
-        model.addAttribute("currentPage", "amortization");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         model.addAttribute("isEdit", false);
         model.addAttribute("types", ScheduleType.values());
         model.addAttribute("frequencies", AmortizationFrequency.values());
@@ -85,7 +87,7 @@ public class AmortizationController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Model model) {
-        model.addAttribute("currentPage", "amortization");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         AmortizationSchedule schedule = scheduleService.findById(id);
         List<AmortizationEntry> entries = entryService.findByScheduleId(id);
 
@@ -96,7 +98,7 @@ public class AmortizationController {
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable UUID id, Model model) {
-        model.addAttribute("currentPage", "amortization");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_AMORTIZATION);
         model.addAttribute("isEdit", true);
         model.addAttribute("schedule", scheduleService.findById(id));
         model.addAttribute("types", ScheduleType.values());
