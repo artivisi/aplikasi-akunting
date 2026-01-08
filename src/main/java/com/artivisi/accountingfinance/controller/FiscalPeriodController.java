@@ -30,6 +30,7 @@ public class FiscalPeriodController {
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
     private static final String ATTR_CURRENT_PAGE = "currentPage";
     private static final String PAGE_FISCAL_PERIODS = "fiscal-periods";
+    private static final String REDIRECT_FISCAL_PERIODS_PREFIX = "redirect:/fiscal-periods/";
 
     private final FiscalPeriodService fiscalPeriodService;
 
@@ -74,10 +75,10 @@ public class FiscalPeriodController {
         try {
             FiscalPeriod saved = fiscalPeriodService.create(year, month);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Periode fiskal berhasil ditambahkan");
-            return "redirect:/fiscal-periods/" + saved.getId();
+            return REDIRECT_FISCAL_PERIODS_PREFIX + saved.getId();
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
-            return "redirect:/fiscal-periods/new";
+            return REDIRECT_FISCAL_PERIODS_PREFIX + "new";
         }
     }
 
@@ -126,7 +127,7 @@ public class FiscalPeriodController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/fiscal-periods/" + id;
+        return REDIRECT_FISCAL_PERIODS_PREFIX + id;
     }
 
     @PostMapping("/{id}/file-tax")
@@ -141,7 +142,7 @@ public class FiscalPeriodController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/fiscal-periods/" + id;
+        return REDIRECT_FISCAL_PERIODS_PREFIX + id;
     }
 
     @PostMapping("/{id}/reopen")
@@ -156,6 +157,6 @@ public class FiscalPeriodController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/fiscal-periods/" + id;
+        return REDIRECT_FISCAL_PERIODS_PREFIX + id;
     }
 }

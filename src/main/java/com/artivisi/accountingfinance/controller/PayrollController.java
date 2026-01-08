@@ -46,6 +46,8 @@ public class PayrollController {
     private static final String ATTACHMENT_FILENAME = "attachment; filename=\"";
     private static final String EXT_XLSX = ".xlsx";
     private static final String VIEW_FORM = "payroll/form";
+    private static final String ATTR_RISK_CLASSES = "riskClasses";
+    private static final String MSG_PAYROLL_PERIODE = "Payroll periode ";
 
     private final PayrollService payrollService;
     private final PayrollReportService payrollReportService;
@@ -77,7 +79,7 @@ public class PayrollController {
     public String newPayrollForm(Model model) {
         model.addAttribute("payrollForm", new PayrollForm());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PAYROLL);
-        model.addAttribute("riskClasses", getRiskClasses());
+        model.addAttribute(ATTR_RISK_CLASSES, getRiskClasses());
 
         // Suggest next period
         YearMonth suggestedPeriod = YearMonth.now();
@@ -94,7 +96,7 @@ public class PayrollController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("riskClasses", getRiskClasses());
+            model.addAttribute(ATTR_RISK_CLASSES, getRiskClasses());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PAYROLL);
             return VIEW_FORM;
         }
@@ -104,7 +106,7 @@ public class PayrollController {
 
             if (payrollService.existsByPeriod(period.toString())) {
                 bindingResult.rejectValue("period", "duplicate", "Payroll untuk periode ini sudah ada");
-                model.addAttribute("riskClasses", getRiskClasses());
+                model.addAttribute(ATTR_RISK_CLASSES, getRiskClasses());
                 model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PAYROLL);
                 return VIEW_FORM;
             }
@@ -150,7 +152,7 @@ public class PayrollController {
         try {
             PayrollRun payrollRun = payrollService.approvePayroll(id);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE,
-                "Payroll periode " + payrollRun.getPayrollPeriod() + " berhasil di-approve");
+                MSG_PAYROLL_PERIODE + payrollRun.getPayrollPeriod() + " berhasil di-approve");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
@@ -167,7 +169,7 @@ public class PayrollController {
         try {
             PayrollRun payrollRun = payrollService.cancelPayroll(id, reason);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE,
-                "Payroll periode " + payrollRun.getPayrollPeriod() + " berhasil dibatalkan");
+                MSG_PAYROLL_PERIODE + payrollRun.getPayrollPeriod() + " berhasil dibatalkan");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
@@ -183,7 +185,7 @@ public class PayrollController {
         try {
             PayrollRun payrollRun = payrollService.postPayroll(id);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE,
-                "Payroll periode " + payrollRun.getPayrollPeriod() + " berhasil di-posting ke jurnal");
+                MSG_PAYROLL_PERIODE + payrollRun.getPayrollPeriod() + " berhasil di-posting ke jurnal");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }

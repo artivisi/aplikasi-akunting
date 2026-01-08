@@ -30,6 +30,7 @@ public class MilestoneController {
     private static final String MILESTONES_FRAGMENT_SUFFIX = "/milestones-fragment";
     private static final String VIEW_FORM = "milestones/form";
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String ATTR_PROJECT = "project";
 
     private final ProjectMilestoneService milestoneService;
     private final ProjectService projectService;
@@ -39,7 +40,7 @@ public class MilestoneController {
         Project project = projectService.findByCode(projectCode);
         ProjectMilestone milestone = new ProjectMilestone();
 
-        model.addAttribute("project", project);
+        model.addAttribute(ATTR_PROJECT, project);
         model.addAttribute("milestone", milestone);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return VIEW_FORM;
@@ -55,7 +56,7 @@ public class MilestoneController {
 
         if (bindingResult.hasErrors()) {
             Project project = projectService.findByCode(projectCode);
-            model.addAttribute("project", project);
+            model.addAttribute(ATTR_PROJECT, project);
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return VIEW_FORM;
         }
@@ -68,7 +69,7 @@ public class MilestoneController {
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("sequence", "duplicate", e.getMessage());
             Project project = projectService.findByCode(projectCode);
-            model.addAttribute("project", project);
+            model.addAttribute(ATTR_PROJECT, project);
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return VIEW_FORM;
         }
@@ -83,7 +84,7 @@ public class MilestoneController {
         Project project = projectService.findByCode(projectCode);
         ProjectMilestone milestone = milestoneService.findById(id);
 
-        model.addAttribute("project", project);
+        model.addAttribute(ATTR_PROJECT, project);
         model.addAttribute("milestone", milestone);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return VIEW_FORM;
@@ -101,7 +102,7 @@ public class MilestoneController {
         if (bindingResult.hasErrors()) {
             Project project = projectService.findByCode(projectCode);
             milestone.setId(id);
-            model.addAttribute("project", project);
+            model.addAttribute(ATTR_PROJECT, project);
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return VIEW_FORM;
         }
@@ -114,7 +115,7 @@ public class MilestoneController {
             bindingResult.rejectValue("sequence", "duplicate", e.getMessage());
             Project project = projectService.findByCode(projectCode);
             milestone.setId(id);
-            model.addAttribute("project", project);
+            model.addAttribute(ATTR_PROJECT, project);
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return VIEW_FORM;
         }

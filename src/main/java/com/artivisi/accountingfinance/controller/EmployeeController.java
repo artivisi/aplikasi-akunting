@@ -41,6 +41,7 @@ public class EmployeeController {
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String REDIRECT_EMPLOYEES = "redirect:/employees";
     private static final String VIEW_FORM = "employees/form";
+    private static final String ERR_DUPLICATE = "duplicate";
 
     private final EmployeeService employeeService;
     private final UserRepository userRepository;
@@ -105,9 +106,9 @@ public class EmployeeController {
             return REDIRECT_EMPLOYEES + "/" + saved.getEmployeeId();
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("NIK")) {
-                bindingResult.rejectValue("employeeId", "duplicate", e.getMessage());
+                bindingResult.rejectValue("employeeId", ERR_DUPLICATE, e.getMessage());
             } else if (e.getMessage().contains("NPWP")) {
-                bindingResult.rejectValue("npwp", "duplicate", e.getMessage());
+                bindingResult.rejectValue("npwp", ERR_DUPLICATE, e.getMessage());
             } else {
                 bindingResult.reject("error", e.getMessage());
             }
@@ -156,9 +157,9 @@ public class EmployeeController {
             return REDIRECT_EMPLOYEES + "/" + employee.getEmployeeId();
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("NIK")) {
-                bindingResult.rejectValue("employeeId", "duplicate", e.getMessage());
+                bindingResult.rejectValue("employeeId", ERR_DUPLICATE, e.getMessage());
             } else if (e.getMessage().contains("NPWP")) {
-                bindingResult.rejectValue("npwp", "duplicate", e.getMessage());
+                bindingResult.rejectValue("npwp", ERR_DUPLICATE, e.getMessage());
             } else {
                 bindingResult.reject("error", e.getMessage());
             }

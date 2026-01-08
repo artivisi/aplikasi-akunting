@@ -32,6 +32,9 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.DRAFT_VIEW + "')")
 public class DraftTransactionController {
 
+    private static final String USER_SYSTEM = "system";
+    private static final String REDIRECT_DRAFTS = "redirect:/drafts";
+
     private final DraftTransactionService draftService;
     private final JournalTemplateService templateService;
 
@@ -79,12 +82,12 @@ public class DraftTransactionController {
             @RequestParam(required = false) BigDecimal amount,
             Authentication authentication,
             @RequestHeader(value = "HX-Request", required = false) String hxRequest) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
 
         DraftTransaction approvedDraft = draftService.approve(id, templateId, description, amount, username);
 
         if ("true".equals(hxRequest)) {
-            return "redirect:/drafts";
+            return REDIRECT_DRAFTS;
         }
         // Redirect to edit page to show journal preview
         return "redirect:/transactions/" + approvedDraft.getTransaction().getId() + "/edit";
@@ -96,13 +99,13 @@ public class DraftTransactionController {
             @RequestParam String reason,
             Authentication authentication,
             @RequestHeader(value = "HX-Request", required = false) String hxRequest) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         draftService.reject(id, reason, username);
 
         if ("true".equals(hxRequest)) {
-            return "redirect:/drafts";
+            return REDIRECT_DRAFTS;
         }
-        return "redirect:/drafts";
+        return REDIRECT_DRAFTS;
     }
 
     @DeleteMapping("/{id}")
@@ -135,7 +138,7 @@ public class DraftTransactionController {
             @PathVariable UUID id,
             @RequestBody Map<String, Object> body,
             Authentication authentication) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         UUID templateId = UUID.fromString((String) body.get("templateId"));
         String description = (String) body.get("description");
         BigDecimal amount = body.get("amount") != null ? new BigDecimal(body.get("amount").toString()) : null;
@@ -150,7 +153,7 @@ public class DraftTransactionController {
             @PathVariable UUID id,
             @RequestBody Map<String, String> body,
             Authentication authentication) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
         String reason = body.get("reason");
 
         return ResponseEntity.ok(draftService.reject(id, reason, username));

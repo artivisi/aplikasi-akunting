@@ -40,6 +40,7 @@ public class UserController {
     private static final String VIEW_FORM = "users/form";
     private static final String VIEW_CHANGE_PASSWORD = "users/change-password";
     private static final String REDIRECT_USERS = "redirect:/users";
+    private static final String REDIRECT_USERS_PREFIX = "redirect:/users/";
     private static final String USER_NOT_FOUND = "User not found: ";
     private static final String AUDIT_ID_SUFFIX = " (id: ";
 
@@ -182,7 +183,7 @@ public class UserController {
             securityAuditService.log(AuditEventType.USER_UPDATED,
                     "Updated user: " + user.getUsername() + AUDIT_ID_SUFFIX + id + ") with roles: " + roles);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pengguna berhasil diperbarui: " + user.getUsername());
-            return "redirect:/users/" + id;
+            return REDIRECT_USERS_PREFIX + id;
         } catch (IllegalArgumentException e) {
             model.addAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
             model.addAttribute(ATTR_ROLES, Role.values());
@@ -232,7 +233,7 @@ public class UserController {
         securityAuditService.log(AuditEventType.PASSWORD_CHANGED,
                 "Password changed for user: " + user.getUsername() + AUDIT_ID_SUFFIX + id + ")");
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Password berhasil diubah");
-        return "redirect:/users/" + id;
+        return REDIRECT_USERS_PREFIX + id;
     }
 
     @PostMapping("/{id}/toggle-active")
@@ -246,7 +247,7 @@ public class UserController {
                 "User " + user.getUsername() + AUDIT_ID_SUFFIX + id + ") status changed from " +
                         (Boolean.TRUE.equals(wasActive) ? "active" : "inactive") + " to " + (Boolean.TRUE.equals(wasActive) ? "inactive" : "active"));
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Status pengguna berhasil diubah");
-        return "redirect:/users/" + id;
+        return REDIRECT_USERS_PREFIX + id;
     }
 
     @PostMapping("/{id}/delete")
@@ -263,7 +264,7 @@ public class UserController {
             return REDIRECT_USERS;
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
-            return "redirect:/users/" + id;
+            return REDIRECT_USERS_PREFIX + id;
         }
     }
 }

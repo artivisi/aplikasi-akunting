@@ -35,6 +35,7 @@ public class ChartOfAccountsController {
     private static final String ATTR_HAS_PARENT = "hasParent";
     private static final String VIEW_FORM = "accounts/form";
     private static final String PAGE_ACCOUNTS = "accounts";
+    private static final String REDIRECT_ACCOUNTS = "redirect:/accounts";
 
     private final ChartOfAccountService chartOfAccountService;
 
@@ -50,11 +51,11 @@ public class ChartOfAccountsController {
     public String create(Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ACCOUNTS);
         model.addAttribute("account", new ChartOfAccount());
-        model.addAttribute("accountTypes", AccountType.values());
-        model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-        model.addAttribute("hasChildren", false);
-        model.addAttribute("hasParent", false);
-        return "accounts/form";
+        model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+        model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+        model.addAttribute(ATTR_HAS_CHILDREN, false);
+        model.addAttribute(ATTR_HAS_PARENT, false);
+        return VIEW_FORM;
     }
 
     @PostMapping("/new")
@@ -92,7 +93,7 @@ public class ChartOfAccountsController {
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil ditambahkan");
-        return "redirect:/accounts";
+        return REDIRECT_ACCOUNTS;
     }
 
     @GetMapping("/{id}/edit")
@@ -101,11 +102,11 @@ public class ChartOfAccountsController {
         ChartOfAccount account = chartOfAccountService.findById(id);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_ACCOUNTS);
         model.addAttribute("account", account);
-        model.addAttribute("accountTypes", AccountType.values());
-        model.addAttribute("parentAccounts", chartOfAccountService.findAll());
-        model.addAttribute("hasChildren", !account.getChildren().isEmpty());
-        model.addAttribute("hasParent", account.getParent() != null);
-        return "accounts/form";
+        model.addAttribute(ATTR_ACCOUNT_TYPES, AccountType.values());
+        model.addAttribute(ATTR_PARENT_ACCOUNTS, chartOfAccountService.findAll());
+        model.addAttribute(ATTR_HAS_CHILDREN, !account.getChildren().isEmpty());
+        model.addAttribute(ATTR_HAS_PARENT, account.getParent() != null);
+        return VIEW_FORM;
     }
 
     @PostMapping("/{id}/edit")
@@ -155,7 +156,7 @@ public class ChartOfAccountsController {
         }
 
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil diperbarui");
-        return "redirect:/accounts";
+        return REDIRECT_ACCOUNTS;
     }
 
     @PostMapping("/{id}/activate")
@@ -163,7 +164,7 @@ public class ChartOfAccountsController {
     public String activate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         chartOfAccountService.activate(id);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil diaktifkan");
-        return "redirect:/accounts";
+        return REDIRECT_ACCOUNTS;
     }
 
     @PostMapping("/{id}/deactivate")
@@ -171,7 +172,7 @@ public class ChartOfAccountsController {
     public String deactivate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         chartOfAccountService.deactivate(id);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Akun berhasil dinonaktifkan");
-        return "redirect:/accounts";
+        return REDIRECT_ACCOUNTS;
     }
 
     @PostMapping("/{id}/delete")
@@ -183,6 +184,6 @@ public class ChartOfAccountsController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/accounts";
+        return REDIRECT_ACCOUNTS;
     }
 }

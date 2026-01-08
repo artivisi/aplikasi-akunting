@@ -43,6 +43,10 @@ public class DocumentController {
     private static final String ATTR_MESSAGE = "message";
     private static final String ATTR_SUCCESS = "success";
     private static final String ATTR_DOCUMENTS = "documents";
+    private static final String ATTR_DOCUMENT = "document";
+    private static final String ATTR_TRANSACTION_ID = "transactionId";
+    private static final String USER_SYSTEM = "system";
+    private static final String VIEW_DOCUMENT_LIST = "fragments/document-list :: documentList";
 
     private final DocumentService documentService;
     private final SecurityAuditService securityAuditService;
@@ -56,13 +60,13 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             Authentication authentication,
             Model model) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
 
         try {
             Document document = documentService.uploadForTransaction(transactionId, file, username);
             securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
                     AUDIT_UPLOADED_DOC + document.getOriginalFilename() + " for transaction: " + transactionId);
-            model.addAttribute("document", document);
+            model.addAttribute(ATTR_DOCUMENT, document);
             model.addAttribute(ATTR_SUCCESS, true);
             model.addAttribute(ATTR_MESSAGE, MSG_UPLOAD_SUCCESS);
         } catch (IOException e) {
@@ -78,8 +82,8 @@ public class DocumentController {
         // Return updated document list fragment
         List<Document> documents = documentService.findByTransactionId(transactionId);
         model.addAttribute(ATTR_DOCUMENTS, documents);
-        model.addAttribute("transactionId", transactionId);
-        return "fragments/document-list :: documentList";
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        return VIEW_DOCUMENT_LIST;
     }
 
     /**
@@ -91,13 +95,13 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             Authentication authentication,
             Model model) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
 
         try {
             Document document = documentService.uploadForJournalEntry(journalEntryId, file, username);
             securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
                     AUDIT_UPLOADED_DOC + document.getOriginalFilename() + " for journal entry: " + journalEntryId);
-            model.addAttribute("document", document);
+            model.addAttribute(ATTR_DOCUMENT, document);
             model.addAttribute(ATTR_SUCCESS, true);
             model.addAttribute(ATTR_MESSAGE, MSG_UPLOAD_SUCCESS);
         } catch (IOException e) {
@@ -113,7 +117,7 @@ public class DocumentController {
         List<Document> documents = documentService.findByJournalEntryId(journalEntryId);
         model.addAttribute(ATTR_DOCUMENTS, documents);
         model.addAttribute("journalEntryId", journalEntryId);
-        return "fragments/document-list :: documentList";
+        return VIEW_DOCUMENT_LIST;
     }
 
     /**
@@ -125,13 +129,13 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             Authentication authentication,
             Model model) {
-        String username = authentication != null ? authentication.getName() : "system";
+        String username = authentication != null ? authentication.getName() : USER_SYSTEM;
 
         try {
             Document document = documentService.uploadForInvoice(invoiceId, file, username);
             securityAuditService.log(AuditEventType.DOCUMENT_UPLOAD,
                     AUDIT_UPLOADED_DOC + document.getOriginalFilename() + " for invoice: " + invoiceId);
-            model.addAttribute("document", document);
+            model.addAttribute(ATTR_DOCUMENT, document);
             model.addAttribute(ATTR_SUCCESS, true);
             model.addAttribute(ATTR_MESSAGE, MSG_UPLOAD_SUCCESS);
         } catch (IOException e) {
@@ -147,7 +151,7 @@ public class DocumentController {
         List<Document> documents = documentService.findByInvoiceId(invoiceId);
         model.addAttribute(ATTR_DOCUMENTS, documents);
         model.addAttribute("invoiceId", invoiceId);
-        return "fragments/document-list :: documentList";
+        return VIEW_DOCUMENT_LIST;
     }
 
     /**
@@ -159,8 +163,8 @@ public class DocumentController {
             Model model) {
         List<Document> documents = documentService.findByTransactionId(transactionId);
         model.addAttribute(ATTR_DOCUMENTS, documents);
-        model.addAttribute("transactionId", transactionId);
-        return "fragments/document-list :: documentList";
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        return VIEW_DOCUMENT_LIST;
     }
 
     /**
@@ -244,7 +248,7 @@ public class DocumentController {
         List<Document> documents;
         if (transactionId != null) {
             documents = documentService.findByTransactionId(transactionId);
-            model.addAttribute("transactionId", transactionId);
+            model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
         } else if (journalEntryId != null) {
             documents = documentService.findByJournalEntryId(journalEntryId);
             model.addAttribute("journalEntryId", journalEntryId);
@@ -256,7 +260,7 @@ public class DocumentController {
         }
 
         model.addAttribute(ATTR_DOCUMENTS, documents);
-        return "fragments/document-list :: documentList";
+        return VIEW_DOCUMENT_LIST;
     }
 
     /**

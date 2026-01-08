@@ -29,6 +29,9 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class DataExportService {
 
+    private static final String RECORDS_SUFFIX = " records\n";
+    private static final String SORT_TEMPLATE_NAME = "templateName";
+
     // Core repositories
     private final ChartOfAccountRepository accountRepository;
     private final JournalEntryRepository journalEntryRepository;
@@ -188,18 +191,18 @@ public class DataExportService {
 
         ExportStatistics stats = getExportStatistics();
         manifest.append("## Export Contents\n");
-        manifest.append("- Chart of Accounts: ").append(stats.accountCount()).append(" records\n");
-        manifest.append("- Journal Templates: ").append(stats.templateCount()).append(" records\n");
-        manifest.append("- Journal Entries: ").append(stats.journalEntryCount()).append(" records\n");
-        manifest.append("- Transactions: ").append(stats.transactionCount()).append(" records\n");
-        manifest.append("- Clients: ").append(stats.clientCount()).append(" records\n");
-        manifest.append("- Projects: ").append(stats.projectCount()).append(" records\n");
-        manifest.append("- Invoices: ").append(stats.invoiceCount()).append(" records\n");
-        manifest.append("- Employees: ").append(stats.employeeCount()).append(" records\n");
-        manifest.append("- Payroll Runs: ").append(stats.payrollRunCount()).append(" records\n");
-        manifest.append("- Users: ").append(stats.userCount()).append(" records\n");
+        manifest.append("- Chart of Accounts: ").append(stats.accountCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Journal Templates: ").append(stats.templateCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Journal Entries: ").append(stats.journalEntryCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Transactions: ").append(stats.transactionCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Clients: ").append(stats.clientCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Projects: ").append(stats.projectCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Invoices: ").append(stats.invoiceCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Employees: ").append(stats.employeeCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Payroll Runs: ").append(stats.payrollRunCount()).append(RECORDS_SUFFIX);
+        manifest.append("- Users: ").append(stats.userCount()).append(RECORDS_SUFFIX);
         manifest.append("- Documents: ").append(stats.documentCount()).append(" files\n");
-        manifest.append("- Audit Logs: ").append(stats.auditLogCount()).append(" records\n");
+        manifest.append("- Audit Logs: ").append(stats.auditLogCount()).append(RECORDS_SUFFIX);
 
         addTextEntry(zos, "MANIFEST.md", manifest.toString());
     }
@@ -311,7 +314,7 @@ public class DataExportService {
         csv.append("template_name,category,cash_flow_category,template_type,description,");
         csv.append("is_system,active,version,usage_count,last_used_at\n");
 
-        List<JournalTemplate> templates = templateRepository.findAll(Sort.by("templateName"));
+        List<JournalTemplate> templates = templateRepository.findAll(Sort.by(SORT_TEMPLATE_NAME));
         for (JournalTemplate t : templates) {
             csv.append(escapeCsv(t.getTemplateName())).append(",");
             csv.append(t.getCategory()).append(",");
@@ -334,7 +337,7 @@ public class DataExportService {
         StringBuilder csv = new StringBuilder();
         csv.append("template_name,line_order,account_code,account_hint,position,formula,description\n");
 
-        List<JournalTemplate> templates = templateRepository.findAll(Sort.by("templateName"));
+        List<JournalTemplate> templates = templateRepository.findAll(Sort.by(SORT_TEMPLATE_NAME));
         for (JournalTemplate t : templates) {
             for (JournalTemplateLine line : t.getLines()) {
                 csv.append(escapeCsv(t.getTemplateName())).append(",");
@@ -356,7 +359,7 @@ public class DataExportService {
         StringBuilder csv = new StringBuilder();
         csv.append("template_name,tag\n");
 
-        List<JournalTemplate> templates = templateRepository.findAll(Sort.by("templateName"));
+        List<JournalTemplate> templates = templateRepository.findAll(Sort.by(SORT_TEMPLATE_NAME));
         for (JournalTemplate t : templates) {
             for (JournalTemplateTag tag : t.getTags()) {
                 csv.append(escapeCsv(t.getTemplateName())).append(",");

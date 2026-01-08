@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 public class ReceiptParserService {
 
     private static final Logger log = LoggerFactory.getLogger(ReceiptParserService.class);
+    private static final String PATTERN_RUPIAH_AMOUNT = "Rp\\s*([\\d.,]+)";
+    private static final String PATTERN_DATE_DMY = "(\\d{1,2}\\s+\\w+\\s+\\d{4})";
 
     private static final Map<String, Integer> INDONESIAN_MONTHS = Map.ofEntries(
             Map.entry("januari", 1), Map.entry("jan", 1),
@@ -79,8 +81,8 @@ public class ReceiptParserService {
 
     private ParsedReceipt parseJago(String text) {
         String merchant = extractPattern(text, "Acquirer Name\\s*\\n?\\s*([A-Za-z\\s]+?)(?:\\n|Fee)");
-        BigDecimal amount = extractAmount(text, "Rp\\s*([\\d.,]+)");
-        LocalDate date = extractDate(text, "(\\d{1,2}\\s+\\w+\\s+\\d{4})");
+        BigDecimal amount = extractAmount(text, PATTERN_RUPIAH_AMOUNT);
+        LocalDate date = extractDate(text, PATTERN_DATE_DMY);
         String reference = extractPattern(text, "Reference Number\\s*\\n?\\s*([a-z0-9]+)");
 
         BigDecimal merchantConf = merchant != null ? new BigDecimal("0.85") : BigDecimal.ZERO;
@@ -113,8 +115,8 @@ public class ReceiptParserService {
 
     private ParsedReceipt parseGopay(String text) {
         String merchant = extractPattern(text, "Ditransfer ke\\s+(.+)\\n");
-        BigDecimal amount = extractAmount(text, "Rp\\s*([\\d.,]+)");
-        LocalDate date = extractDate(text, "Tanggal\\s*\\n?\\s*(\\d{1,2}\\s+\\w+\\s+\\d{4})");
+        BigDecimal amount = extractAmount(text, PATTERN_RUPIAH_AMOUNT);
+        LocalDate date = extractDate(text, "Tanggal\\s*\\n?\\s*" + PATTERN_DATE_DMY);
         String reference = extractPattern(text, "ID transaksi\\s*\\n?\\s*([a-z0-9]+)");
 
         BigDecimal merchantConf = merchant != null ? new BigDecimal("0.90") : BigDecimal.ZERO;
@@ -130,8 +132,8 @@ public class ReceiptParserService {
 
     private ParsedReceipt parseByond(String text) {
         String merchant = extractPattern(text, "Nama Merchant\\s*\\n?\\s*(.+)\\n");
-        BigDecimal amount = extractAmount(text, "Rp\\s*([\\d.,]+)");
-        LocalDate date = extractDate(text, "(\\d{1,2}\\s+\\w+\\s+\\d{4})");
+        BigDecimal amount = extractAmount(text, PATTERN_RUPIAH_AMOUNT);
+        LocalDate date = extractDate(text, PATTERN_DATE_DMY);
         String reference = extractPattern(text, "Nomor Transaksi\\s*\\n?\\s*(FT[A-Z0-9]+)");
 
         BigDecimal merchantConf = merchant != null ? new BigDecimal("0.85") : BigDecimal.ZERO;
@@ -154,7 +156,7 @@ public class ReceiptParserService {
 
         LocalDate date = extractDate(text, "(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4})");
         if (date == null) {
-            date = extractDate(text, "(\\d{1,2}\\s+\\w+\\s+\\d{4})");
+            date = extractDate(text, PATTERN_DATE_DMY);
         }
 
         // Try to extract merchant from first non-empty line
