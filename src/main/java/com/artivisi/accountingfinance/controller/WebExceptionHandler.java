@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 @Slf4j
 public class WebExceptionHandler {
 
+    private static final String ATTR_TIMESTAMP = "timestamp";
+
     private boolean isHtmlRequest(HttpServletRequest request) {
         String accept = request.getHeader("Accept");
         return accept != null && accept.contains("text/html");
@@ -41,7 +43,7 @@ public class WebExceptionHandler {
         log.warn("Access denied: {}", ex.getMessage());
         response.setStatus(HttpStatus.FORBIDDEN.value());
         // Don't expose exception message - use generic message
-        model.addAttribute("timestamp", LocalDateTime.now());
+        model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/403";
     }
 
@@ -56,7 +58,7 @@ public class WebExceptionHandler {
         log.warn("Entity not found: {}", ex.getMessage());
         response.setStatus(HttpStatus.NOT_FOUND.value());
         // Don't expose exception message - use generic message
-        model.addAttribute("timestamp", LocalDateTime.now());
+        model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/404";
     }
 
@@ -70,7 +72,7 @@ public class WebExceptionHandler {
         log.debug("Resource not found: {}", ex.getResourcePath());
         response.setStatus(HttpStatus.NOT_FOUND.value());
         // Don't expose file paths in error messages for security
-        model.addAttribute("timestamp", LocalDateTime.now());
+        model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/404";
     }
 }
