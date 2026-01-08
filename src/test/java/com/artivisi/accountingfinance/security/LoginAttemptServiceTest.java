@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DisplayName("LoginAttemptService Tests")
 class LoginAttemptServiceTest {
@@ -158,8 +159,8 @@ class LoginAttemptServiceTest {
         @NullAndEmptySource
         @DisplayName("Should handle null or empty username on success")
         void shouldHandleNullOrEmptyOnSuccess(String username) {
-            // Should not throw
-            service.loginSucceeded(username);
+            assertThatCode(() -> service.loginSucceeded(username))
+                    .doesNotThrowAnyException();
         }
     }
 

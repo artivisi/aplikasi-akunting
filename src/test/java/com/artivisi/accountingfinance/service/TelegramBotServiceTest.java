@@ -566,7 +566,8 @@ class TelegramBotServiceTest {
             TelegramUpdate update = createTextUpdate("/start");
             noClientService.handleUpdate(update);
 
-            // No interaction with telegramApiClient since it's null
+            // Verify no interaction with telegramApiClient since it's null
+            verifyNoInteractions(telegramApiClient);
         }
     }
 

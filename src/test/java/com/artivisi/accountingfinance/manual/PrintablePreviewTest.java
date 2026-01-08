@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Generate PDF previews of all printable templates for user manual.
  * Output is saved to target/user-manual/samples/
@@ -37,8 +39,11 @@ class PrintablePreviewTest extends PlaywrightTestBase {
         waitForPageLoad();
         page.waitForTimeout(500);
 
-        generatePdf("invoice-print.pdf");
-        savePreviewScreenshot("invoice-print.png");
+        Path pdfPath = generatePdf("invoice-print.pdf");
+        Path screenshotPath = savePreviewScreenshot("invoice-print.png");
+
+        assertThat(pdfPath).exists().isNotEmptyFile();
+        assertThat(screenshotPath).exists().isNotEmptyFile();
     }
 
     @Test
@@ -49,8 +54,11 @@ class PrintablePreviewTest extends PlaywrightTestBase {
         waitForPageLoad();
         page.waitForTimeout(500);
 
-        generatePdf("balance-sheet-print.pdf");
-        savePreviewScreenshot("balance-sheet-print.png");
+        Path pdfPath = generatePdf("balance-sheet-print.pdf");
+        Path screenshotPath = savePreviewScreenshot("balance-sheet-print.png");
+
+        assertThat(pdfPath).exists().isNotEmptyFile();
+        assertThat(screenshotPath).exists().isNotEmptyFile();
     }
 
     @Test
@@ -65,8 +73,11 @@ class PrintablePreviewTest extends PlaywrightTestBase {
         waitForPageLoad();
         page.waitForTimeout(500);
 
-        generatePdf("income-statement-print.pdf");
-        savePreviewScreenshot("income-statement-print.png");
+        Path pdfPath = generatePdf("income-statement-print.pdf");
+        Path screenshotPath = savePreviewScreenshot("income-statement-print.png");
+
+        assertThat(pdfPath).exists().isNotEmptyFile();
+        assertThat(screenshotPath).exists().isNotEmptyFile();
     }
 
     @Test
@@ -77,24 +88,29 @@ class PrintablePreviewTest extends PlaywrightTestBase {
         waitForPageLoad();
         page.waitForTimeout(500);
 
-        generatePdf("trial-balance-print.pdf");
-        savePreviewScreenshot("trial-balance-print.png");
+        Path pdfPath = generatePdf("trial-balance-print.pdf");
+        Path screenshotPath = savePreviewScreenshot("trial-balance-print.png");
+
+        assertThat(pdfPath).exists().isNotEmptyFile();
+        assertThat(screenshotPath).exists().isNotEmptyFile();
     }
 
-    private void generatePdf(String filename) {
+    private Path generatePdf(String filename) {
         Path pdfPath = OUTPUT_DIR.resolve(filename);
         page.pdf(new Page.PdfOptions()
                 .setPath(pdfPath)
                 .setFormat("A4")
                 .setPrintBackground(true));
         System.out.println("Generated PDF: " + pdfPath);
+        return pdfPath;
     }
 
-    private void savePreviewScreenshot(String filename) {
+    private Path savePreviewScreenshot(String filename) {
         Path screenshotPath = OUTPUT_DIR.resolve(filename);
         page.screenshot(new Page.ScreenshotOptions()
                 .setPath(screenshotPath)
                 .setFullPage(true));
         System.out.println("Generated Screenshot: " + screenshotPath);
+        return screenshotPath;
     }
 }
