@@ -40,7 +40,6 @@ public class SecurityAuditService {
     /**
      * Log a security event with current user context.
      */
-    @Transactional
     public void log(AuditEventType eventType, String details) {
         log(eventType, details, true);
     }
@@ -78,7 +77,6 @@ public class SecurityAuditService {
      * Log a security event asynchronously (for non-critical events).
      */
     @Async
-    @Transactional
     public void logAsync(AuditEventType eventType, String details) {
         log(eventType, details, true);
     }
