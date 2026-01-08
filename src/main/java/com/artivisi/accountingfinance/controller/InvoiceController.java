@@ -37,6 +37,11 @@ public class InvoiceController {
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
     private static final String ATTR_CURRENT_PAGE = "currentPage";
+    private static final String ATTR_INVOICE = "invoice";
+    private static final String ATTR_CLIENTS = "clients";
+    private static final String ATTR_PROJECTS = "projects";
+    private static final String REDIRECT_INVOICES_PREFIX = "redirect:/invoices/";
+    private static final String PAGE_INVOICES = "invoices";
 
     private final InvoiceService invoiceService;
     private final ClientService clientService;
@@ -56,12 +61,12 @@ public class InvoiceController {
 
         model.addAttribute("invoices", invoices);
         model.addAttribute("statuses", InvoiceStatus.values());
-        model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("projects", projectService.findActiveProjects());
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedClientId", clientId);
         model.addAttribute("selectedProjectId", projectId);
-        model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
 
         // Summary counts
         model.addAttribute("draftCount", invoiceService.countByStatus(InvoiceStatus.DRAFT));
@@ -88,36 +93,36 @@ public class InvoiceController {
             invoice.setProject(projectService.findById(projectId));
         }
 
-        model.addAttribute("invoice", invoice);
-        model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("projects", projectService.findActiveProjects());
-        model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+        model.addAttribute(ATTR_INVOICE, invoice);
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
         return "invoices/form";
     }
 
     @PostMapping("/new")
     public String create(
-            @Valid @ModelAttribute("invoice") Invoice invoice,
+            @Valid @ModelAttribute(ATTR_INVOICE) Invoice invoice,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("projects", projectService.findActiveProjects());
-            model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+            model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
             return "invoices/form";
         }
 
         try {
             Invoice saved = invoiceService.create(invoice);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Invoice berhasil dibuat");
-            return "redirect:/invoices/" + saved.getInvoiceNumber();
+            return REDIRECT_INVOICES_PREFIX + saved.getInvoiceNumber();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("invoiceNumber", "duplicate", e.getMessage());
-            model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("projects", projectService.findActiveProjects());
-            model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+            model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
             return "invoices/form";
         }
     }
@@ -126,8 +131,8 @@ public class InvoiceController {
     public String detail(@PathVariable String invoiceNumber, Model model) {
         Invoice invoice = invoiceService.findByInvoiceNumber(invoiceNumber);
 
-        model.addAttribute("invoice", invoice);
-        model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+        model.addAttribute(ATTR_INVOICE, invoice);
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
         return "invoices/detail";
     }
 
@@ -136,20 +141,20 @@ public class InvoiceController {
         Invoice invoice = invoiceService.findByInvoiceNumber(invoiceNumber);
 
         if (invoice.getStatus() != InvoiceStatus.DRAFT) {
-            return "redirect:/invoices/" + invoiceNumber;
+            return REDIRECT_INVOICES_PREFIX + invoiceNumber;
         }
 
-        model.addAttribute("invoice", invoice);
-        model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("projects", projectService.findActiveProjects());
-        model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+        model.addAttribute(ATTR_INVOICE, invoice);
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
         return "invoices/form";
     }
 
     @PostMapping("/{invoiceNumber}")
     public String update(
             @PathVariable String invoiceNumber,
-            @Valid @ModelAttribute("invoice") Invoice invoice,
+            @Valid @ModelAttribute(ATTR_INVOICE) Invoice invoice,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -157,9 +162,9 @@ public class InvoiceController {
         if (bindingResult.hasErrors()) {
             Invoice existing = invoiceService.findByInvoiceNumber(invoiceNumber);
             invoice.setId(existing.getId());
-            model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("projects", projectService.findActiveProjects());
-            model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+            model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
             return "invoices/form";
         }
 
@@ -167,7 +172,7 @@ public class InvoiceController {
             Invoice existing = invoiceService.findByInvoiceNumber(invoiceNumber);
             invoiceService.update(existing.getId(), invoice);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Invoice berhasil diperbarui");
-            return "redirect:/invoices/" + invoice.getInvoiceNumber();
+            return REDIRECT_INVOICES_PREFIX + invoice.getInvoiceNumber();
         } catch (IllegalArgumentException | IllegalStateException e) {
             if (e.getMessage().contains("already exists")) {
                 bindingResult.rejectValue("invoiceNumber", "duplicate", e.getMessage());
@@ -176,9 +181,9 @@ public class InvoiceController {
             }
             Invoice existing = invoiceService.findByInvoiceNumber(invoiceNumber);
             invoice.setId(existing.getId());
-            model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("projects", projectService.findActiveProjects());
-            model.addAttribute(ATTR_CURRENT_PAGE, "invoices");
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
+            model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
             return "invoices/form";
         }
     }
@@ -192,7 +197,7 @@ public class InvoiceController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/invoices/" + invoiceNumber;
+        return REDIRECT_INVOICES_PREFIX + invoiceNumber;
     }
 
     @GetMapping("/{invoiceNumber}/pay")
@@ -201,7 +206,7 @@ public class InvoiceController {
 
         if (invoice.getStatus() != InvoiceStatus.SENT && invoice.getStatus() != InvoiceStatus.OVERDUE) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Hanya invoice terkirim atau jatuh tempo yang dapat dibayar");
-            return "redirect:/invoices/" + invoiceNumber;
+            return REDIRECT_INVOICES_PREFIX + invoiceNumber;
         }
 
         // Redirect to transaction form with invoice id and receipt template
@@ -218,7 +223,7 @@ public class InvoiceController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/invoices/" + invoiceNumber;
+        return REDIRECT_INVOICES_PREFIX + invoiceNumber;
     }
 
     @PostMapping("/{invoiceNumber}/cancel")
@@ -230,7 +235,7 @@ public class InvoiceController {
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
-        return "redirect:/invoices/" + invoiceNumber;
+        return REDIRECT_INVOICES_PREFIX + invoiceNumber;
     }
 
     @PostMapping("/{invoiceNumber}/delete")
@@ -242,7 +247,7 @@ public class InvoiceController {
             return "redirect:/invoices";
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
-            return "redirect:/invoices/" + invoiceNumber;
+            return REDIRECT_INVOICES_PREFIX + invoiceNumber;
         }
     }
 
@@ -252,7 +257,7 @@ public class InvoiceController {
         CompanyConfig company = companyConfigService.getConfig();
         CompanyBankAccount bankAccount = bankAccountService.findDefaultAccount().orElse(null);
 
-        model.addAttribute("invoice", invoice);
+        model.addAttribute(ATTR_INVOICE, invoice);
         model.addAttribute("company", company);
         model.addAttribute("bankAccount", bankAccount);
         model.addAttribute("amountInWords", AmountToWordsUtil.toWords(invoice.getAmount()));

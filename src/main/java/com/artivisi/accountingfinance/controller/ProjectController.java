@@ -31,6 +31,11 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.PROJECT_VIEW + "')")
 public class ProjectController {
 
+    private static final String ATTR_PROJECT = "project";
+    private static final String ATTR_CLIENTS = "clients";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_PROJECTS_PREFIX = "redirect:/projects/";
+
     private final ProjectService projectService;
     private final ClientService clientService;
 
@@ -50,7 +55,7 @@ public class ProjectController {
         model.addAttribute("clientId", clientId);
         model.addAttribute("search", search);
         model.addAttribute("statuses", ProjectStatus.values());
-        model.addAttribute("clients", clientService.findActiveClients());
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
 
         if ("true".equals(hxRequest)) {
@@ -62,33 +67,33 @@ public class ProjectController {
 
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("project", new Project());
-        model.addAttribute("clients", clientService.findActiveClients());
+        model.addAttribute(ATTR_PROJECT, new Project());
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/form";
     }
 
     @PostMapping("/new")
     public String create(
-            @Valid @ModelAttribute("project") Project project,
+            @Valid @ModelAttribute(ATTR_PROJECT) Project project,
             BindingResult bindingResult,
             @RequestParam(required = false) UUID clientId,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("clients", clientService.findActiveClients());
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
 
         try {
             Project saved = projectService.create(project, clientId);
-            redirectAttributes.addFlashAttribute("successMessage", "Proyek berhasil ditambahkan");
-            return "redirect:/projects/" + saved.getCode();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Proyek berhasil ditambahkan");
+            return REDIRECT_PROJECTS_PREFIX + saved.getCode();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
-            model.addAttribute("clients", clientService.findActiveClients());
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
@@ -97,7 +102,7 @@ public class ProjectController {
     @GetMapping("/{code}")
     public String detail(@PathVariable String code, Model model) {
         Project project = projectService.findByCode(code);
-        model.addAttribute("project", project);
+        model.addAttribute(ATTR_PROJECT, project);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/detail";
     }
@@ -105,8 +110,8 @@ public class ProjectController {
     @GetMapping("/{code}/edit")
     public String editForm(@PathVariable String code, Model model) {
         Project project = projectService.findByCode(code);
-        model.addAttribute("project", project);
-        model.addAttribute("clients", clientService.findActiveClients());
+        model.addAttribute(ATTR_PROJECT, project);
+        model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/form";
     }
@@ -114,7 +119,7 @@ public class ProjectController {
     @PostMapping("/{code}")
     public String update(
             @PathVariable String code,
-            @Valid @ModelAttribute("project") Project project,
+            @Valid @ModelAttribute(ATTR_PROJECT) Project project,
             BindingResult bindingResult,
             @RequestParam(required = false) UUID clientId,
             Model model,
@@ -123,7 +128,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             Project existing = projectService.findByCode(code);
             project.setId(existing.getId());
-            model.addAttribute("clients", clientService.findActiveClients());
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
@@ -131,13 +136,13 @@ public class ProjectController {
         try {
             Project existing = projectService.findByCode(code);
             projectService.update(existing.getId(), project, clientId);
-            redirectAttributes.addFlashAttribute("successMessage", "Proyek berhasil diperbarui");
-            return "redirect:/projects/" + project.getCode();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Proyek berhasil diperbarui");
+            return REDIRECT_PROJECTS_PREFIX + project.getCode();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             Project existing = projectService.findByCode(code);
             project.setId(existing.getId());
-            model.addAttribute("clients", clientService.findActiveClients());
+            model.addAttribute(ATTR_CLIENTS, clientService.findActiveClients());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
@@ -150,8 +155,8 @@ public class ProjectController {
 
         Project project = projectService.findByCode(code);
         projectService.complete(project.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Proyek berhasil diselesaikan");
-        return "redirect:/projects/" + code;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Proyek berhasil diselesaikan");
+        return REDIRECT_PROJECTS_PREFIX + code;
     }
 
     @PostMapping("/{code}/archive")
@@ -161,8 +166,8 @@ public class ProjectController {
 
         Project project = projectService.findByCode(code);
         projectService.archive(project.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Proyek berhasil diarsipkan");
-        return "redirect:/projects/" + code;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Proyek berhasil diarsipkan");
+        return REDIRECT_PROJECTS_PREFIX + code;
     }
 
     @PostMapping("/{code}/reactivate")
@@ -172,7 +177,7 @@ public class ProjectController {
 
         Project project = projectService.findByCode(code);
         projectService.reactivate(project.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Proyek berhasil diaktifkan kembali");
-        return "redirect:/projects/" + code;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Proyek berhasil diaktifkan kembali");
+        return REDIRECT_PROJECTS_PREFIX + code;
     }
 }
