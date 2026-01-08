@@ -24,6 +24,13 @@ document.addEventListener('htmx:afterSettle', (event) => {
 function registerAlpineComponents() {
     if (globalThis._alpineComponentsRegistered) return
     globalThis._alpineComponentsRegistered = true
+
+    registerBasicStates()
+    registerNavigationStates()
+    registerFormComponents()
+}
+
+function registerBasicStates() {
     // Simple toggle state (open/closed)
     Alpine.data('toggleState', () => ({
         open: false,
@@ -118,7 +125,9 @@ function registerAlpineComponents() {
             this.isPercentage = true
         }
     }))
+}
 
+function registerNavigationStates() {
     // Persistent navigation state for accounting section
     Alpine.data('navAkuntansi', () => ({
         open: Alpine.$persist(true).as('nav-akuntansi'),
@@ -182,6 +191,11 @@ function registerAlpineComponents() {
             this.open = !this.open
         }
     }))
+}
+
+function registerFormComponents() {
+    // Indonesian number formatter for thousand separators (uses . as separator)
+    const idNumberFormat = new Intl.NumberFormat('id-ID')
 
     // Transaction form state
     Alpine.data('transactionForm', () => ({
@@ -257,9 +271,6 @@ function registerAlpineComponents() {
             this.$dispatch('account-changed')
         }
     }))
-
-    // Indonesian number formatter for thousand separators (uses . as separator)
-    const idNumberFormat = new Intl.NumberFormat('id-ID')
 
     // Quick transaction form state
     Alpine.data('quickTransactionForm', () => ({
