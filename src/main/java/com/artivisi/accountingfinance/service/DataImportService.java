@@ -33,6 +33,7 @@ import java.util.zip.ZipInputStream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("java:S1192") // Table names and CSV filenames must match database schema exactly
 public class DataImportService {
 
     private final EntityManager entityManager;
