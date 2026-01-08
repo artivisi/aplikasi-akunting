@@ -30,6 +30,11 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.SALARY_COMPONENT_VIEW + "')")
 public class SalaryComponentController {
 
+    private static final String ATTR_COMPONENT = "component";
+    private static final String ATTR_COMPONENT_TYPES = "componentTypes";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_SALARY_COMPONENTS = "redirect:/salary-components";
+
     private final SalaryComponentService salaryComponentService;
 
     @GetMapping
@@ -47,7 +52,7 @@ public class SalaryComponentController {
         model.addAttribute("search", search);
         model.addAttribute("type", type);
         model.addAttribute("active", active);
-        model.addAttribute("componentTypes", SalaryComponentType.values());
+        model.addAttribute(ATTR_COMPONENT_TYPES, SalaryComponentType.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
 
         if ("true".equals(hxRequest)) {
@@ -64,8 +69,8 @@ public class SalaryComponentController {
         component.setIsPercentage(false);
         component.setIsTaxable(true);
 
-        model.addAttribute("component", component);
-        model.addAttribute("componentTypes", SalaryComponentType.values());
+        model.addAttribute(ATTR_COMPONENT, component);
+        model.addAttribute(ATTR_COMPONENT_TYPES, SalaryComponentType.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
         return "salary-components/form";
     }
@@ -84,8 +89,8 @@ public class SalaryComponentController {
 
         try {
             SalaryComponent saved = salaryComponentService.create(component);
-            redirectAttributes.addFlashAttribute("successMessage", "Komponen gaji berhasil ditambahkan");
-            return "redirect:/salary-components/" + saved.getId();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Komponen gaji berhasil ditambahkan");
+            return REDIRECT_SALARY_COMPONENTS + "/" + saved.getId();
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -100,7 +105,7 @@ public class SalaryComponentController {
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Model model) {
         SalaryComponent component = salaryComponentService.findById(id);
-        model.addAttribute("component", component);
+        model.addAttribute(ATTR_COMPONENT, component);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
         return "salary-components/detail";
     }
@@ -108,7 +113,7 @@ public class SalaryComponentController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable UUID id, Model model) {
         SalaryComponent component = salaryComponentService.findById(id);
-        model.addAttribute("component", component);
+        model.addAttribute(ATTR_COMPONENT, component);
         addFormAttributes(model);
         return "salary-components/form";
     }
@@ -129,8 +134,8 @@ public class SalaryComponentController {
 
         try {
             salaryComponentService.update(id, component);
-            redirectAttributes.addFlashAttribute("successMessage", "Komponen gaji berhasil diperbarui");
-            return "redirect:/salary-components/" + id;
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Komponen gaji berhasil diperbarui");
+            return REDIRECT_SALARY_COMPONENTS + "/" + id;
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -150,11 +155,11 @@ public class SalaryComponentController {
 
         try {
             salaryComponentService.deactivate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Komponen gaji berhasil dinonaktifkan");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Komponen gaji berhasil dinonaktifkan");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/salary-components/" + id;
+        return REDIRECT_SALARY_COMPONENTS + "/" + id;
     }
 
     @PostMapping("/{id}/activate")
@@ -163,12 +168,12 @@ public class SalaryComponentController {
             RedirectAttributes redirectAttributes) {
 
         salaryComponentService.activate(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Komponen gaji berhasil diaktifkan");
-        return "redirect:/salary-components/" + id;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Komponen gaji berhasil diaktifkan");
+        return REDIRECT_SALARY_COMPONENTS + "/" + id;
     }
 
     private void addFormAttributes(Model model) {
-        model.addAttribute("componentTypes", SalaryComponentType.values());
+        model.addAttribute(ATTR_COMPONENT_TYPES, SalaryComponentType.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SALARY_COMPONENTS);
     }
 }

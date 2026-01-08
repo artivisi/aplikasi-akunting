@@ -36,6 +36,11 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_VIEW + "')")
 public class EmployeeController {
 
+    private static final String ATTR_EMPLOYEE = "employee";
+    private static final String ATTR_EMPLOYMENT_STATUSES = "employmentStatuses";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_EMPLOYEES = "redirect:/employees";
+
     private final EmployeeService employeeService;
     private final UserRepository userRepository;
 
@@ -54,7 +59,7 @@ public class EmployeeController {
         model.addAttribute("search", search);
         model.addAttribute("status", status);
         model.addAttribute("active", active);
-        model.addAttribute("employmentStatuses", EmploymentStatus.values());
+        model.addAttribute(ATTR_EMPLOYMENT_STATUSES, EmploymentStatus.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
 
         if ("true".equals(hxRequest)) {
@@ -72,10 +77,10 @@ public class EmployeeController {
         employee.setEmploymentType(EmploymentType.PERMANENT);
         employee.setPtkpStatus(PtkpStatus.TK_0);
 
-        model.addAttribute("employee", employee);
+        model.addAttribute(ATTR_EMPLOYEE, employee);
         model.addAttribute("ptkpStatuses", PtkpStatus.values());
         model.addAttribute("employmentTypes", EmploymentType.values());
-        model.addAttribute("employmentStatuses", EmploymentStatus.values());
+        model.addAttribute(ATTR_EMPLOYMENT_STATUSES, EmploymentStatus.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
         return "employees/form";
     }
@@ -95,8 +100,8 @@ public class EmployeeController {
 
         try {
             Employee saved = employeeService.create(employee);
-            redirectAttributes.addFlashAttribute("successMessage", "Karyawan berhasil ditambahkan");
-            return "redirect:/employees/" + saved.getEmployeeId();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Karyawan berhasil ditambahkan");
+            return REDIRECT_EMPLOYEES + "/" + saved.getEmployeeId();
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("NIK")) {
                 bindingResult.rejectValue("employeeId", "duplicate", e.getMessage());
@@ -113,7 +118,7 @@ public class EmployeeController {
     @GetMapping("/{employeeId}")
     public String detail(@PathVariable String employeeId, Model model) {
         Employee employee = employeeService.findByEmployeeId(employeeId);
-        model.addAttribute("employee", employee);
+        model.addAttribute(ATTR_EMPLOYEE, employee);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
         return "employees/detail";
     }
@@ -122,7 +127,7 @@ public class EmployeeController {
     @PreAuthorize("hasAuthority('" + Permission.EMPLOYEE_EDIT + "')")
     public String editForm(@PathVariable String employeeId, Model model) {
         Employee employee = employeeService.findByEmployeeId(employeeId);
-        model.addAttribute("employee", employee);
+        model.addAttribute(ATTR_EMPLOYEE, employee);
         addFormAttributes(model);
         return "employees/form";
     }
@@ -146,8 +151,8 @@ public class EmployeeController {
         try {
             Employee existing = employeeService.findByEmployeeId(employeeId);
             employeeService.update(existing.getId(), employee);
-            redirectAttributes.addFlashAttribute("successMessage", "Karyawan berhasil diperbarui");
-            return "redirect:/employees/" + employee.getEmployeeId();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Karyawan berhasil diperbarui");
+            return REDIRECT_EMPLOYEES + "/" + employee.getEmployeeId();
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("NIK")) {
                 bindingResult.rejectValue("employeeId", "duplicate", e.getMessage());
@@ -171,8 +176,8 @@ public class EmployeeController {
 
         Employee employee = employeeService.findByEmployeeId(employeeId);
         employeeService.deactivate(employee.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Karyawan berhasil dinonaktifkan");
-        return "redirect:/employees/" + employeeId;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Karyawan berhasil dinonaktifkan");
+        return REDIRECT_EMPLOYEES + "/" + employeeId;
     }
 
     @PostMapping("/{employeeId}/activate")
@@ -183,14 +188,14 @@ public class EmployeeController {
 
         Employee employee = employeeService.findByEmployeeId(employeeId);
         employeeService.activate(employee.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Karyawan berhasil diaktifkan");
-        return "redirect:/employees/" + employeeId;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Karyawan berhasil diaktifkan");
+        return REDIRECT_EMPLOYEES + "/" + employeeId;
     }
 
     private void addFormAttributes(Model model) {
         model.addAttribute("ptkpStatuses", PtkpStatus.values());
         model.addAttribute("employmentTypes", EmploymentType.values());
-        model.addAttribute("employmentStatuses", EmploymentStatus.values());
+        model.addAttribute(ATTR_EMPLOYMENT_STATUSES, EmploymentStatus.values());
         model.addAttribute("users", userRepository.findByActiveTrue());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
     }
