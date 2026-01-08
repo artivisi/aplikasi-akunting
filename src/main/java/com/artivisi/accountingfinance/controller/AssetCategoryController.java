@@ -33,6 +33,9 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @PreAuthorize("hasAuthority('" + Permission.ASSET_VIEW + "')")
 public class AssetCategoryController {
 
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_ASSET_CATEGORIES = "redirect:/assets/categories";
+
     private final AssetCategoryService assetCategoryService;
     private final ChartOfAccountRepository chartOfAccountRepository;
 
@@ -86,8 +89,8 @@ public class AssetCategoryController {
 
         try {
             assetCategoryService.create(category);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori aset berhasil ditambahkan");
-            return "redirect:/assets/categories";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori aset berhasil ditambahkan");
+            return REDIRECT_ASSET_CATEGORIES;
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -125,8 +128,8 @@ public class AssetCategoryController {
 
         try {
             assetCategoryService.update(id, category);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori aset berhasil diperbarui");
-            return "redirect:/assets/categories";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori aset berhasil diperbarui");
+            return REDIRECT_ASSET_CATEGORIES;
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -146,8 +149,8 @@ public class AssetCategoryController {
             RedirectAttributes redirectAttributes) {
 
         assetCategoryService.activate(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Kategori aset berhasil diaktifkan");
-        return "redirect:/assets/categories";
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori aset berhasil diaktifkan");
+        return REDIRECT_ASSET_CATEGORIES;
     }
 
     @PostMapping("/{id}/deactivate")
@@ -158,11 +161,11 @@ public class AssetCategoryController {
 
         try {
             assetCategoryService.deactivate(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori aset berhasil dinonaktifkan");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori aset berhasil dinonaktifkan");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/assets/categories";
+        return REDIRECT_ASSET_CATEGORIES;
     }
 
     @PostMapping("/{id}/delete")
@@ -173,11 +176,11 @@ public class AssetCategoryController {
 
         try {
             assetCategoryService.delete(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori aset berhasil dihapus");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori aset berhasil dihapus");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/assets/categories";
+        return REDIRECT_ASSET_CATEGORIES;
     }
 
     private void addFormAttributes(Model model) {

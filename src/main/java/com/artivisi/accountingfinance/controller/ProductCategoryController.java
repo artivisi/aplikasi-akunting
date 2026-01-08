@@ -32,6 +32,9 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @PreAuthorize("hasAuthority('" + Permission.PRODUCT_VIEW + "')")
 public class ProductCategoryController {
 
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_PRODUCT_CATEGORIES = "redirect:/products/categories";
+
     private final ProductCategoryService categoryService;
 
     @GetMapping
@@ -80,8 +83,8 @@ public class ProductCategoryController {
 
         try {
             categoryService.create(category);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori produk berhasil ditambahkan");
-            return "redirect:/products/categories";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori produk berhasil ditambahkan");
+            return REDIRECT_PRODUCT_CATEGORIES;
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -120,8 +123,8 @@ public class ProductCategoryController {
 
         try {
             categoryService.update(id, category);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori produk berhasil diubah");
-            return "redirect:/products/categories";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori produk berhasil diubah");
+            return REDIRECT_PRODUCT_CATEGORIES;
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("Kode")) {
                 bindingResult.rejectValue("code", "duplicate", e.getMessage());
@@ -138,11 +141,11 @@ public class ProductCategoryController {
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         try {
             categoryService.delete(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Kategori produk berhasil dihapus");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Kategori produk berhasil dihapus");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/products/categories";
+        return REDIRECT_PRODUCT_CATEGORIES;
     }
 
     private void addFormAttributes(Model model) {
