@@ -49,6 +49,18 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.TEMPLATE_VIEW + "')")
 public class JournalTemplateController {
 
+    private static final String ATTR_TEMPLATE = "template";
+    private static final String ATTR_CATEGORIES = "categories";
+    private static final String ATTR_CASH_FLOW_CATEGORIES = "cashFlowCategories";
+    private static final String ATTR_TEMPLATE_TYPES = "templateTypes";
+    private static final String ATTR_ACCOUNTS = "accounts";
+    private static final String ATTR_IS_EDIT = "isEdit";
+    private static final String ATTR_IS_DUPLICATE = "isDuplicate";
+    private static final String ATTR_TEMPLATE_TAGS = "templateTags";
+    private static final String ATTR_ALL_TAGS = "allTags";
+    private static final String ATTR_TEMPLATE_ID = "templateId";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+
     private final JournalTemplateService journalTemplateService;
     private final ChartOfAccountService chartOfAccountService;
     private final TemplateExecutionEngine templateExecutionEngine;
@@ -81,8 +93,8 @@ public class JournalTemplateController {
         model.addAttribute("searchQuery", search);
         model.addAttribute("showFavorites", favorites);
         model.addAttribute("selectedTag", tag);
-        model.addAttribute("categories", TemplateCategory.values());
-        model.addAttribute("allTags", journalTemplateService.getDistinctTags());
+        model.addAttribute(ATTR_CATEGORIES, TemplateCategory.values());
+        model.addAttribute(ATTR_ALL_TAGS, journalTemplateService.getDistinctTags());
     }
 
     private List<JournalTemplate> findTemplates(String category, String search, Boolean favorites, String tag, String username) {
@@ -117,9 +129,9 @@ public class JournalTemplateController {
     public String detail(@PathVariable UUID id, Authentication authentication, Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         JournalTemplate template = journalTemplateService.findByIdWithLines(id);
-        model.addAttribute("template", template);
-        model.addAttribute("templateTags", journalTemplateService.getTagsForTemplate(id));
-        model.addAttribute("allTags", journalTemplateService.getDistinctTags());
+        model.addAttribute(ATTR_TEMPLATE, template);
+        model.addAttribute(ATTR_TEMPLATE_TAGS, journalTemplateService.getTagsForTemplate(id));
+        model.addAttribute(ATTR_ALL_TAGS, journalTemplateService.getDistinctTags());
 
         // Check if user has this template as favorite
         if (authentication != null) {
@@ -135,38 +147,38 @@ public class JournalTemplateController {
     @GetMapping("/new")
     public String create(Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
-        model.addAttribute("isEdit", false);
-        model.addAttribute("isDuplicate", false);
-        model.addAttribute("categories", TemplateCategory.values());
-        model.addAttribute("cashFlowCategories", CashFlowCategory.values());
-        model.addAttribute("templateTypes", TemplateType.values());
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_IS_EDIT, false);
+        model.addAttribute(ATTR_IS_DUPLICATE, false);
+        model.addAttribute(ATTR_CATEGORIES, TemplateCategory.values());
+        model.addAttribute(ATTR_CASH_FLOW_CATEGORIES, CashFlowCategory.values());
+        model.addAttribute(ATTR_TEMPLATE_TYPES, TemplateType.values());
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         return "templates/form";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable UUID id, Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
-        model.addAttribute("isEdit", true);
-        model.addAttribute("isDuplicate", false);
-        model.addAttribute("template", journalTemplateService.findByIdWithLines(id));
-        model.addAttribute("categories", TemplateCategory.values());
-        model.addAttribute("cashFlowCategories", CashFlowCategory.values());
-        model.addAttribute("templateTypes", TemplateType.values());
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_IS_EDIT, true);
+        model.addAttribute(ATTR_IS_DUPLICATE, false);
+        model.addAttribute(ATTR_TEMPLATE, journalTemplateService.findByIdWithLines(id));
+        model.addAttribute(ATTR_CATEGORIES, TemplateCategory.values());
+        model.addAttribute(ATTR_CASH_FLOW_CATEGORIES, CashFlowCategory.values());
+        model.addAttribute(ATTR_TEMPLATE_TYPES, TemplateType.values());
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         return "templates/form";
     }
 
     @GetMapping("/{id}/duplicate")
     public String duplicate(@PathVariable UUID id, Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
-        model.addAttribute("isEdit", false);
-        model.addAttribute("isDuplicate", true);
+        model.addAttribute(ATTR_IS_EDIT, false);
+        model.addAttribute(ATTR_IS_DUPLICATE, true);
         model.addAttribute("sourceTemplate", journalTemplateService.findByIdWithLines(id));
-        model.addAttribute("categories", TemplateCategory.values());
-        model.addAttribute("cashFlowCategories", CashFlowCategory.values());
-        model.addAttribute("templateTypes", TemplateType.values());
-        model.addAttribute("accounts", chartOfAccountService.findTransactableAccounts());
+        model.addAttribute(ATTR_CATEGORIES, TemplateCategory.values());
+        model.addAttribute(ATTR_CASH_FLOW_CATEGORIES, CashFlowCategory.values());
+        model.addAttribute(ATTR_TEMPLATE_TYPES, TemplateType.values());
+        model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         return "templates/form";
     }
 
@@ -185,7 +197,7 @@ public class JournalTemplateController {
     public String create(@Valid JournalTemplateDto dto, RedirectAttributes redirectAttributes) {
         JournalTemplate template = mapDtoToEntity(dto);
         JournalTemplate saved = journalTemplateService.create(template);
-        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil dibuat");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Template berhasil dibuat");
         return "redirect:/templates/" + saved.getId();
     }
 
@@ -193,14 +205,14 @@ public class JournalTemplateController {
     public String update(@PathVariable UUID id, @Valid JournalTemplateDto dto, RedirectAttributes redirectAttributes) {
         JournalTemplate template = mapDtoToEntity(dto);
         JournalTemplate updated = journalTemplateService.update(id, template);
-        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil diperbarui (versi " + updated.getVersion() + ")");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Template berhasil diperbarui (versi " + updated.getVersion() + ")");
         return "redirect:/templates/" + id;
     }
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         journalTemplateService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Template berhasil dihapus");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Template berhasil dihapus");
         return "redirect:/templates";
     }
 
@@ -345,7 +357,7 @@ public class JournalTemplateController {
             throw new IllegalStateException("Authentication required");
         }
         boolean isFavorite = userTemplatePreferenceService.toggleFavorite(authentication.getName(), id);
-        model.addAttribute("templateId", id);
+        model.addAttribute(ATTR_TEMPLATE_ID, id);
         model.addAttribute("isFavorite", isFavorite);
         return "fragments/template-favorite-button :: favorite-button";
     }
@@ -356,18 +368,18 @@ public class JournalTemplateController {
             throw new IllegalArgumentException("Tag is required");
         }
         journalTemplateService.addTag(id, tag);
-        model.addAttribute("templateId", id);
-        model.addAttribute("templateTags", journalTemplateService.getTagsForTemplate(id));
-        model.addAttribute("allTags", journalTemplateService.getDistinctTags());
+        model.addAttribute(ATTR_TEMPLATE_ID, id);
+        model.addAttribute(ATTR_TEMPLATE_TAGS, journalTemplateService.getTagsForTemplate(id));
+        model.addAttribute(ATTR_ALL_TAGS, journalTemplateService.getDistinctTags());
         return "fragments/template-tags :: tag-list";
     }
 
     @PostMapping("/{id}/tags/{tag}/delete")
     public String removeTag(@PathVariable UUID id, @PathVariable String tag, Model model) {
         journalTemplateService.removeTag(id, tag);
-        model.addAttribute("templateId", id);
-        model.addAttribute("templateTags", journalTemplateService.getTagsForTemplate(id));
-        model.addAttribute("allTags", journalTemplateService.getDistinctTags());
+        model.addAttribute(ATTR_TEMPLATE_ID, id);
+        model.addAttribute(ATTR_TEMPLATE_TAGS, journalTemplateService.getTagsForTemplate(id));
+        model.addAttribute(ATTR_ALL_TAGS, journalTemplateService.getDistinctTags());
         return "fragments/template-tags :: tag-list";
     }
 

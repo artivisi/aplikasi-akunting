@@ -58,6 +58,11 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 public class TransactionController {
 
     private static final String ATTR_SELECTED_TEMPLATE = "selectedTemplate";
+    private static final String ATTR_TRANSACTION = "transaction";
+    private static final String ATTR_TEMPLATES = "templates";
+    private static final String ATTR_PROJECTS = "projects";
+    private static final String ATTR_IS_EDIT = "isEdit";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
 
     private final TransactionService transactionService;
     private final JournalTemplateService journalTemplateService;
@@ -88,9 +93,9 @@ public class TransactionController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("statuses", TransactionStatus.values());
         model.addAttribute("categories", TemplateCategory.values());
-        model.addAttribute("projects", projectService.findActiveProjects());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
         List<JournalTemplate> templates = journalTemplateService.findAll();
-        model.addAttribute("templates", templates);
+        model.addAttribute(ATTR_TEMPLATES, templates);
         // Group templates by category for dropdown
         Map<TemplateCategory, List<JournalTemplate>> templatesByCategory = templates.stream()
                 .collect(Collectors.groupingBy(JournalTemplate::getCategory));
@@ -141,10 +146,10 @@ public class TransactionController {
             @RequestParam(required = false) UUID invoiceId,
             Model model) {
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
-        model.addAttribute("isEdit", false);
-        model.addAttribute("templates", journalTemplateService.findAllWithLines());
+        model.addAttribute(ATTR_IS_EDIT, false);
+        model.addAttribute(ATTR_TEMPLATES, journalTemplateService.findAllWithLines());
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
-        model.addAttribute("projects", projectService.findActiveProjects());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
 
         if (templateId != null) {
             JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
@@ -173,11 +178,11 @@ public class TransactionController {
                          Model model) {
         Transaction transaction = transactionService.findByIdWithJournalEntries(id);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
-        model.addAttribute("transaction", transaction);
+        model.addAttribute(ATTR_TRANSACTION, transaction);
 
         // Show success message if redirected from template execution
         if (Boolean.TRUE.equals(created)) {
-            model.addAttribute("successMessage", "Transaksi berhasil dibuat dari template");
+            model.addAttribute(ATTR_SUCCESS_MESSAGE, "Transaksi berhasil dibuat dari template");
         }
 
         // Calculate totals from journal entries
@@ -205,12 +210,12 @@ public class TransactionController {
         JournalTemplate template = journalTemplateService.findByIdWithLines(transaction.getJournalTemplate().getId());
 
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
-        model.addAttribute("isEdit", true);
-        model.addAttribute("transaction", transaction);
+        model.addAttribute(ATTR_IS_EDIT, true);
+        model.addAttribute(ATTR_TRANSACTION, transaction);
         model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
-        model.addAttribute("templates", journalTemplateService.findAll());
+        model.addAttribute(ATTR_TEMPLATES, journalTemplateService.findAll());
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
-        model.addAttribute("projects", projectService.findActiveProjects());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
 
         // Add initial values for Alpine.js
         model.addAttribute("initialAmount", transaction.getAmount() != null ? transaction.getAmount() : BigDecimal.ZERO);
@@ -231,7 +236,7 @@ public class TransactionController {
         }
 
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
-        model.addAttribute("transaction", transaction);
+        model.addAttribute(ATTR_TRANSACTION, transaction);
         return "transactions/void";
     }
 
@@ -551,7 +556,7 @@ public class TransactionController {
 
         model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
-        model.addAttribute("projects", projectService.findActiveProjects());
+        model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
 
         // Add DETAILED template support
         addDetailedTemplateAttributes(template, model);
@@ -598,7 +603,7 @@ public class TransactionController {
 
         Transaction saved = transactionService.create(transaction, accountMappings, null);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Transaksi berhasil dibuat");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Transaksi berhasil dibuat");
         return REDIRECT_TRANSACTIONS + saved.getId();
     }
 
@@ -627,7 +632,7 @@ public class TransactionController {
                     .limit(8)
                     .toList();
 
-            model.addAttribute("templates", matchingTemplates);
+            model.addAttribute(ATTR_TEMPLATES, matchingTemplates);
             model.addAttribute("showRecent", false);
         }
 
