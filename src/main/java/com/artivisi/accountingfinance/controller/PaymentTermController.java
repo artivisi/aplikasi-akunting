@@ -28,6 +28,13 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @RequiredArgsConstructor
 public class PaymentTermController {
 
+    private static final String ATTR_PROJECT = "project";
+    private static final String ATTR_PAYMENT_TERM = "paymentTerm";
+    private static final String ATTR_MILESTONES = "milestones";
+    private static final String ATTR_TRIGGERS = "triggers";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_PROJECT_PREFIX = "redirect:/projects/";
+
     private final ProjectPaymentTermService paymentTermService;
     private final ProjectService projectService;
     private final ProjectMilestoneService milestoneService;
@@ -38,10 +45,10 @@ public class PaymentTermController {
         Project project = projectService.findByCode(projectCode);
         ProjectPaymentTerm paymentTerm = new ProjectPaymentTerm();
 
-        model.addAttribute("project", project);
-        model.addAttribute("paymentTerm", paymentTerm);
-        model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-        model.addAttribute("triggers", PaymentTrigger.values());
+        model.addAttribute(ATTR_PROJECT, project);
+        model.addAttribute(ATTR_PAYMENT_TERM, paymentTerm);
+        model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+        model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "payment-terms/form";
     }
@@ -49,16 +56,16 @@ public class PaymentTermController {
     @PostMapping("/new")
     public String create(
             @PathVariable String projectCode,
-            @Valid @ModelAttribute("paymentTerm") ProjectPaymentTerm paymentTerm,
+            @Valid @ModelAttribute(ATTR_PAYMENT_TERM) ProjectPaymentTerm paymentTerm,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             Project project = projectService.findByCode(projectCode);
-            model.addAttribute("project", project);
-            model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-            model.addAttribute("triggers", PaymentTrigger.values());
+            model.addAttribute(ATTR_PROJECT, project);
+            model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+            model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
@@ -66,14 +73,14 @@ public class PaymentTermController {
         try {
             Project project = projectService.findByCode(projectCode);
             paymentTermService.create(project.getId(), paymentTerm);
-            redirectAttributes.addFlashAttribute("successMessage", "Termin pembayaran berhasil ditambahkan");
-            return "redirect:/projects/" + projectCode;
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Termin pembayaran berhasil ditambahkan");
+            return REDIRECT_PROJECT_PREFIX + projectCode;
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("sequence", "duplicate", e.getMessage());
             Project project = projectService.findByCode(projectCode);
-            model.addAttribute("project", project);
-            model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-            model.addAttribute("triggers", PaymentTrigger.values());
+            model.addAttribute(ATTR_PROJECT, project);
+            model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+            model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
@@ -88,10 +95,10 @@ public class PaymentTermController {
         Project project = projectService.findByCode(projectCode);
         ProjectPaymentTerm paymentTerm = paymentTermService.findById(id);
 
-        model.addAttribute("project", project);
-        model.addAttribute("paymentTerm", paymentTerm);
-        model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-        model.addAttribute("triggers", PaymentTrigger.values());
+        model.addAttribute(ATTR_PROJECT, project);
+        model.addAttribute(ATTR_PAYMENT_TERM, paymentTerm);
+        model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+        model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "payment-terms/form";
     }
@@ -100,7 +107,7 @@ public class PaymentTermController {
     public String update(
             @PathVariable String projectCode,
             @PathVariable UUID id,
-            @Valid @ModelAttribute("paymentTerm") ProjectPaymentTerm paymentTerm,
+            @Valid @ModelAttribute(ATTR_PAYMENT_TERM) ProjectPaymentTerm paymentTerm,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -108,24 +115,24 @@ public class PaymentTermController {
         if (bindingResult.hasErrors()) {
             Project project = projectService.findByCode(projectCode);
             paymentTerm.setId(id);
-            model.addAttribute("project", project);
-            model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-            model.addAttribute("triggers", PaymentTrigger.values());
+            model.addAttribute(ATTR_PROJECT, project);
+            model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+            model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
 
         try {
             paymentTermService.update(id, paymentTerm);
-            redirectAttributes.addFlashAttribute("successMessage", "Termin pembayaran berhasil diperbarui");
-            return "redirect:/projects/" + projectCode;
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Termin pembayaran berhasil diperbarui");
+            return REDIRECT_PROJECT_PREFIX + projectCode;
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("sequence", "duplicate", e.getMessage());
             Project project = projectService.findByCode(projectCode);
             paymentTerm.setId(id);
-            model.addAttribute("project", project);
-            model.addAttribute("milestones", milestoneService.findByProjectId(project.getId()));
-            model.addAttribute("triggers", PaymentTrigger.values());
+            model.addAttribute(ATTR_PROJECT, project);
+            model.addAttribute(ATTR_MILESTONES, milestoneService.findByProjectId(project.getId()));
+            model.addAttribute(ATTR_TRIGGERS, PaymentTrigger.values());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "payment-terms/form";
         }
@@ -138,8 +145,8 @@ public class PaymentTermController {
             RedirectAttributes redirectAttributes) {
 
         paymentTermService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Termin pembayaran berhasil dihapus");
-        return "redirect:/projects/" + projectCode;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Termin pembayaran berhasil dihapus");
+        return REDIRECT_PROJECT_PREFIX + projectCode;
     }
 
     @PostMapping("/{id}/generate-invoice")
@@ -150,11 +157,11 @@ public class PaymentTermController {
 
         try {
             var invoice = invoiceService.createFromPaymentTerm(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Invoice berhasil dibuat dari termin pembayaran");
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Invoice berhasil dibuat dari termin pembayaran");
             return "redirect:/invoices/" + invoice.getInvoiceNumber();
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/projects/" + projectCode;
+            return REDIRECT_PROJECT_PREFIX + projectCode;
         }
     }
 }

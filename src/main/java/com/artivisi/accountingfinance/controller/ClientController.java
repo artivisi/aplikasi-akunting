@@ -27,6 +27,10 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.*;
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('" + com.artivisi.accountingfinance.security.Permission.CLIENT_VIEW + "')")
 public class ClientController {
 
+    private static final String ATTR_CLIENT = "client";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String REDIRECT_CLIENTS_PREFIX = "redirect:/clients/";
+
     private final ClientService clientService;
 
     @GetMapping
@@ -53,14 +57,14 @@ public class ClientController {
 
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("client", new Client());
+        model.addAttribute(ATTR_CLIENT, new Client());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/form";
     }
 
     @PostMapping("/new")
     public String create(
-            @Valid @ModelAttribute("client") Client client,
+            @Valid @ModelAttribute(ATTR_CLIENT) Client client,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -72,8 +76,8 @@ public class ClientController {
 
         try {
             Client saved = clientService.create(client);
-            redirectAttributes.addFlashAttribute("successMessage", "Klien berhasil ditambahkan");
-            return "redirect:/clients/" + saved.getCode();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Klien berhasil ditambahkan");
+            return REDIRECT_CLIENTS_PREFIX + saved.getCode();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
@@ -84,7 +88,7 @@ public class ClientController {
     @GetMapping("/{code}")
     public String detail(@PathVariable String code, Model model) {
         Client client = clientService.findByCode(code);
-        model.addAttribute("client", client);
+        model.addAttribute(ATTR_CLIENT, client);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/detail";
     }
@@ -92,7 +96,7 @@ public class ClientController {
     @GetMapping("/{code}/edit")
     public String editForm(@PathVariable String code, Model model) {
         Client client = clientService.findByCode(code);
-        model.addAttribute("client", client);
+        model.addAttribute(ATTR_CLIENT, client);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/form";
     }
@@ -115,8 +119,8 @@ public class ClientController {
         try {
             Client existing = clientService.findByCode(code);
             clientService.update(existing.getId(), client);
-            redirectAttributes.addFlashAttribute("successMessage", "Klien berhasil diperbarui");
-            return "redirect:/clients/" + client.getCode();
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Klien berhasil diperbarui");
+            return REDIRECT_CLIENTS_PREFIX + client.getCode();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             Client existing = clientService.findByCode(code);
@@ -133,8 +137,8 @@ public class ClientController {
 
         Client client = clientService.findByCode(code);
         clientService.deactivate(client.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Klien berhasil dinonaktifkan");
-        return "redirect:/clients/" + code;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Klien berhasil dinonaktifkan");
+        return REDIRECT_CLIENTS_PREFIX + code;
     }
 
     @PostMapping("/{code}/activate")
@@ -144,7 +148,7 @@ public class ClientController {
 
         Client client = clientService.findByCode(code);
         clientService.activate(client.getId());
-        redirectAttributes.addFlashAttribute("successMessage", "Klien berhasil diaktifkan");
-        return "redirect:/clients/" + code;
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Klien berhasil diaktifkan");
+        return REDIRECT_CLIENTS_PREFIX + code;
     }
 }
