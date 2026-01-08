@@ -35,6 +35,28 @@ public class CoretaxExportService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // Helper methods for cell creation with null handling
+    private void setStringCell(Row row, int col, String value) {
+        row.createCell(col).setCellValue(value != null ? value : "");
+    }
+
+    private void setStringCell(Row row, int col, String value, String defaultValue) {
+        row.createCell(col).setCellValue(value != null ? value : defaultValue);
+    }
+
+    private void setNumberCell(Row row, int col, BigDecimal value, CellStyle style) {
+        Cell cell = row.createCell(col);
+        cell.setCellValue(value != null ? value.doubleValue() : 0);
+        cell.setCellStyle(style);
+    }
+
+    private void setDateCell(Row row, int col, LocalDate date) {
+        Cell cell = row.createCell(col);
+        if (date != null) {
+            cell.setCellValue(date.format(DATE_FORMATTER));
+        }
+    }
+
     /**
      * Export e-Faktur Keluaran (Output VAT) data to Excel format.
      * Format matches DJP's "Sample Faktur PK Template" converter.
@@ -141,46 +163,32 @@ public class CoretaxExportService {
         int rowNum = 1;
         for (TaxTransactionDetail detail : details) {
             Row row = sheet.createRow(rowNum++);
-
-            row.createCell(0).setCellValue(detail.getTransactionCode() != null ? detail.getTransactionCode() : "01");
-            row.createCell(1).setCellValue(detail.getFakturNumber() != null ? detail.getFakturNumber() : "");
-
-            Cell dateCell = row.createCell(2);
-            if (detail.getFakturDate() != null) {
-                dateCell.setCellValue(detail.getFakturDate().format(DATE_FORMATTER));
-            }
-
-            row.createCell(3).setCellValue(config.getNpwp() != null ? config.getNpwp() : "");
-            row.createCell(4).setCellValue(config.getNitku() != null ? config.getNitku() : "");
-            row.createCell(5).setCellValue(detail.getCounterpartyIdType() != null ? detail.getCounterpartyIdType() : "TIN");
-            row.createCell(6).setCellValue(detail.getCounterpartyIdNumber());
-            row.createCell(7).setCellValue(detail.getCounterpartyNitku() != null ? detail.getCounterpartyNitku() : "");
-            row.createCell(8).setCellValue(detail.getCounterpartyName() != null ? detail.getCounterpartyName() : "");
-            row.createCell(9).setCellValue(detail.getCounterpartyAddress() != null ? detail.getCounterpartyAddress() : "");
-            row.createCell(10).setCellValue("B"); // B = Jasa (services), default for IT Services
-
-            // Numeric cells
-            Cell grossCell = row.createCell(11);
-            grossCell.setCellValue(calculateGross(detail.getDpp(), detail.getPpn()).doubleValue());
-            grossCell.setCellStyle(numberStyle);
-
-            Cell dppCell = row.createCell(12);
-            dppCell.setCellValue(detail.getDpp() != null ? detail.getDpp().doubleValue() : 0);
-            dppCell.setCellStyle(numberStyle);
-
-            Cell ppnCell = row.createCell(13);
-            ppnCell.setCellValue(detail.getPpn() != null ? detail.getPpn().doubleValue() : 0);
-            ppnCell.setCellStyle(numberStyle);
-
-            Cell ppnbmCell = row.createCell(14);
-            ppnbmCell.setCellValue(detail.getPpnbm() != null ? detail.getPpnbm().doubleValue() : 0);
-            ppnbmCell.setCellStyle(numberStyle);
+            populateEFakturRow(row, detail, config, numberStyle);
         }
 
         // Auto-size columns
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
+    }
+
+    private void populateEFakturRow(Row row, TaxTransactionDetail detail, CompanyConfig config, CellStyle numberStyle) {
+        setStringCell(row, 0, detail.getTransactionCode(), "01");
+        setStringCell(row, 1, detail.getFakturNumber());
+        setDateCell(row, 2, detail.getFakturDate());
+        setStringCell(row, 3, config.getNpwp());
+        setStringCell(row, 4, config.getNitku());
+        setStringCell(row, 5, detail.getCounterpartyIdType(), "TIN");
+        row.createCell(6).setCellValue(detail.getCounterpartyIdNumber());
+        setStringCell(row, 7, detail.getCounterpartyNitku());
+        setStringCell(row, 8, detail.getCounterpartyName());
+        setStringCell(row, 9, detail.getCounterpartyAddress());
+        row.createCell(10).setCellValue("B"); // B = Jasa (services)
+
+        setNumberCell(row, 11, calculateGross(detail.getDpp(), detail.getPpn()), numberStyle);
+        setNumberCell(row, 12, detail.getDpp(), numberStyle);
+        setNumberCell(row, 13, detail.getPpn(), numberStyle);
+        setNumberCell(row, 14, detail.getPpnbm(), numberStyle);
     }
 
     private void createEFakturReferenceSheet(Workbook workbook) {
@@ -251,41 +259,30 @@ public class CoretaxExportService {
         int rowNum = 1;
         for (TaxTransactionDetail detail : details) {
             Row row = sheet.createRow(rowNum++);
-
-            row.createCell(0).setCellValue(detail.getBupotNumber() != null ? detail.getBupotNumber() : "");
-
-            Cell dateCell = row.createCell(1);
-            if (detail.getTransaction() != null && detail.getTransaction().getTransactionDate() != null) {
-                dateCell.setCellValue(detail.getTransaction().getTransactionDate().format(DATE_FORMATTER));
-            }
-
-            row.createCell(2).setCellValue(config.getNpwp() != null ? config.getNpwp() : "");
-            row.createCell(3).setCellValue(config.getNitku() != null ? config.getNitku() : "");
-            row.createCell(4).setCellValue(detail.getCounterpartyIdType() != null ? detail.getCounterpartyIdType() : "TIN");
-            row.createCell(5).setCellValue(detail.getCounterpartyIdNumber());
-            row.createCell(6).setCellValue(detail.getCounterpartyNitku() != null ? detail.getCounterpartyNitku() : "");
-            row.createCell(7).setCellValue(detail.getCounterpartyName() != null ? detail.getCounterpartyName() : "");
-            row.createCell(8).setCellValue(detail.getTaxObjectCode() != null ? detail.getTaxObjectCode() : "");
-
-            Cell grossCell = row.createCell(9);
-            grossCell.setCellValue(detail.getGrossAmount() != null ? detail.getGrossAmount().doubleValue() : 0);
-            grossCell.setCellStyle(numberStyle);
-
-            Cell rateCell = row.createCell(10);
-            rateCell.setCellValue(detail.getTaxRate() != null ? detail.getTaxRate().doubleValue() : 0);
-            rateCell.setCellStyle(numberStyle);
-
-            Cell taxCell = row.createCell(11);
-            taxCell.setCellValue(detail.getTaxAmount() != null ? detail.getTaxAmount().doubleValue() : 0);
-            taxCell.setCellStyle(numberStyle);
-
-            row.createCell(12).setCellValue(""); // FacilityType - empty for normal
+            populateBupotRow(row, detail, config, numberStyle);
         }
 
         // Auto-size columns
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
+    }
+
+    private void populateBupotRow(Row row, TaxTransactionDetail detail, CompanyConfig config, CellStyle numberStyle) {
+        setStringCell(row, 0, detail.getBupotNumber());
+        LocalDate txDate = detail.getTransaction() != null ? detail.getTransaction().getTransactionDate() : null;
+        setDateCell(row, 1, txDate);
+        setStringCell(row, 2, config.getNpwp());
+        setStringCell(row, 3, config.getNitku());
+        setStringCell(row, 4, detail.getCounterpartyIdType(), "TIN");
+        row.createCell(5).setCellValue(detail.getCounterpartyIdNumber());
+        setStringCell(row, 6, detail.getCounterpartyNitku());
+        setStringCell(row, 7, detail.getCounterpartyName());
+        setStringCell(row, 8, detail.getTaxObjectCode());
+        setNumberCell(row, 9, detail.getGrossAmount(), numberStyle);
+        setNumberCell(row, 10, detail.getTaxRate(), numberStyle);
+        setNumberCell(row, 11, detail.getTaxAmount(), numberStyle);
+        setStringCell(row, 12, ""); // FacilityType - empty for normal
     }
 
     private void createBupotReferenceSheet(Workbook workbook) {

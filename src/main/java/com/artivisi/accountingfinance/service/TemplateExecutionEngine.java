@@ -78,33 +78,11 @@ public class TemplateExecutionEngine {
             BigDecimal debit = line.getPosition() == JournalPosition.DEBIT ? lineAmount : BigDecimal.ZERO;
             BigDecimal credit = line.getPosition() == JournalPosition.CREDIT ? lineAmount : BigDecimal.ZERO;
 
-            // Handle dynamic accounts - check for account mapping first
-            String accountCode;
-            String accountName;
-            if (line.getAccount() != null) {
-                accountCode = line.getAccount().getAccountCode();
-                accountName = line.getAccount().getAccountName();
-            } else {
-                // Check for mapped account
-                UUID mappedAccountId = context.getAccountIdForLine(line.getLineOrder());
-                if (mappedAccountId != null) {
-                    ChartOfAccount mappedAccount = chartOfAccountRepository.findById(mappedAccountId).orElse(null);
-                    if (mappedAccount != null) {
-                        accountCode = mappedAccount.getAccountCode();
-                        accountName = mappedAccount.getAccountName();
-                    } else {
-                        accountCode = "?";
-                        accountName = line.getAccountHint() != null ? line.getAccountHint() : "Pilih saat transaksi";
-                    }
-                } else {
-                    accountCode = "?";
-                    accountName = line.getAccountHint() != null ? line.getAccountHint() : "Pilih saat transaksi";
-                }
-            }
+            AccountInfo accountInfo = resolveAccountInfo(line, context);
 
             previewEntries.add(new PreviewEntry(
-                    accountCode,
-                    accountName,
+                    accountInfo.code(),
+                    accountInfo.name(),
                     context.description(),
                     debit,
                     credit
@@ -115,6 +93,27 @@ public class TemplateExecutionEngine {
         }
 
         return new PreviewResult(true, List.of(), previewEntries, totalDebit, totalCredit);
+    }
+
+    private record AccountInfo(String code, String name) {}
+
+    private AccountInfo resolveAccountInfo(JournalTemplateLine line, ExecutionContext context) {
+        if (line.getAccount() != null) {
+            return new AccountInfo(line.getAccount().getAccountCode(), line.getAccount().getAccountName());
+        }
+        return resolveMappedAccount(line, context);
+    }
+
+    private AccountInfo resolveMappedAccount(JournalTemplateLine line, ExecutionContext context) {
+        UUID mappedAccountId = context.getAccountIdForLine(line.getLineOrder());
+        if (mappedAccountId != null) {
+            ChartOfAccount mappedAccount = chartOfAccountRepository.findById(mappedAccountId).orElse(null);
+            if (mappedAccount != null) {
+                return new AccountInfo(mappedAccount.getAccountCode(), mappedAccount.getAccountName());
+            }
+        }
+        String hint = line.getAccountHint() != null ? line.getAccountHint() : "Pilih saat transaksi";
+        return new AccountInfo("?", hint);
     }
 
     /**

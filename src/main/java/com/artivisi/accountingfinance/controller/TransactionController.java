@@ -287,33 +287,8 @@ public class TransactionController {
             Model model) {
         JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
 
-        // Extract accountMapping parameters from params
-        java.util.Map<String, String> accountMapping = new java.util.HashMap<>();
-        for (String key : params.keySet()) {
-            if (key.startsWith("accountMapping[") && key.endsWith("]")) {
-                String lineId = key.substring(15, key.length() - 1);
-                String accountId = params.getFirst(key);
-                if (accountId != null && !accountId.isEmpty()) {
-                    accountMapping.put(lineId, accountId);
-                }
-            }
-        }
-
-        // Extract variable parameters for DETAILED templates (var_xxx=value)
-        java.util.Map<String, BigDecimal> variables = new java.util.HashMap<>();
-        for (String key : params.keySet()) {
-            if (key.startsWith("var_")) {
-                String varName = key.substring(4);
-                String value = params.getFirst(key);
-                if (value != null && !value.isEmpty()) {
-                    // Parse formatted number (remove dots as thousand separators)
-                    String cleanValue = value.replaceAll("\\D", "");
-                    if (!cleanValue.isEmpty()) {
-                        variables.put(varName, new BigDecimal(cleanValue));
-                    }
-                }
-            }
-        }
+        Map<String, String> accountMapping = extractAccountMapping(params);
+        Map<String, BigDecimal> variables = extractVariables(params);
 
         var context = new TemplateExecutionEngine.ExecutionContext(
                 java.time.LocalDate.now(),
@@ -325,42 +300,85 @@ public class TransactionController {
         );
 
         var previewResult = templateExecutionEngine.preview(template, context);
-
-        // Apply account mappings for template lines with null accounts
-        java.util.List<TemplateExecutionEngine.PreviewEntry> entries = previewResult.entries();
-
-        if (!accountMapping.isEmpty()) {
-            // Match entries to template lines by order and create new entries with mapped accounts
-            java.util.List<TemplateExecutionEngine.PreviewEntry> mappedEntries = new java.util.ArrayList<>();
-            for (int i = 0; i < Math.min(template.getLines().size(), previewResult.entries().size()); i++) {
-                var templateLine = template.getLines().get(i);
-                var entry = previewResult.entries().get(i);
-
-                // If template line has no account, apply mapping
-                if (templateLine.getAccount() == null) {
-                    String mappedAccountId = accountMapping.get(templateLine.getId().toString());
-                    if (mappedAccountId != null && !mappedAccountId.isEmpty()) {
-                        ChartOfAccount mappedAccount = chartOfAccountService.findById(UUID.fromString(mappedAccountId));
-                        // Create new PreviewEntry with mapped account
-                        entry = new TemplateExecutionEngine.PreviewEntry(
-                            mappedAccount.getAccountCode(),
-                            mappedAccount.getAccountName(),
-                            entry.description(),
-                            entry.debitAmount(),
-                            entry.creditAmount()
-                        );
-                    }
-                }
-                mappedEntries.add(entry);
-            }
-            entries = mappedEntries;
-        }
+        var entries = applyAccountMappings(template, previewResult, accountMapping);
 
         model.addAttribute("entries", entries);
         model.addAttribute("totalDebit", previewResult.totalDebit());
         model.addAttribute("totalCredit", previewResult.totalCredit());
 
         return "fragments/transaction-preview";
+    }
+
+    private Map<String, String> extractAccountMapping(MultiValueMap<String, String> params) {
+        Map<String, String> accountMapping = new java.util.HashMap<>();
+        for (String key : params.keySet()) {
+            if (key.startsWith("accountMapping[") && key.endsWith("]")) {
+                String lineId = key.substring(15, key.length() - 1);
+                String accountId = params.getFirst(key);
+                if (accountId != null && !accountId.isEmpty()) {
+                    accountMapping.put(lineId, accountId);
+                }
+            }
+        }
+        return accountMapping;
+    }
+
+    private Map<String, BigDecimal> extractVariables(MultiValueMap<String, String> params) {
+        Map<String, BigDecimal> variables = new java.util.HashMap<>();
+        for (String key : params.keySet()) {
+            if (key.startsWith("var_")) {
+                String varName = key.substring(4);
+                String value = params.getFirst(key);
+                if (value != null && !value.isEmpty()) {
+                    String cleanValue = value.replaceAll("\\D", "");
+                    if (!cleanValue.isEmpty()) {
+                        variables.put(varName, new BigDecimal(cleanValue));
+                    }
+                }
+            }
+        }
+        return variables;
+    }
+
+    private java.util.List<TemplateExecutionEngine.PreviewEntry> applyAccountMappings(
+            JournalTemplate template,
+            TemplateExecutionEngine.PreviewResult previewResult,
+            Map<String, String> accountMapping) {
+        if (accountMapping.isEmpty()) {
+            return previewResult.entries();
+        }
+
+        java.util.List<TemplateExecutionEngine.PreviewEntry> mappedEntries = new java.util.ArrayList<>();
+        int limit = Math.min(template.getLines().size(), previewResult.entries().size());
+
+        for (int i = 0; i < limit; i++) {
+            var templateLine = template.getLines().get(i);
+            var entry = previewResult.entries().get(i);
+
+            if (templateLine.getAccount() == null) {
+                entry = applyMappingToEntry(templateLine, entry, accountMapping);
+            }
+            mappedEntries.add(entry);
+        }
+        return mappedEntries;
+    }
+
+    private TemplateExecutionEngine.PreviewEntry applyMappingToEntry(
+            JournalTemplateLine templateLine,
+            TemplateExecutionEngine.PreviewEntry entry,
+            Map<String, String> accountMapping) {
+        String mappedAccountId = accountMapping.get(templateLine.getId().toString());
+        if (mappedAccountId == null || mappedAccountId.isEmpty()) {
+            return entry;
+        }
+        ChartOfAccount mappedAccount = chartOfAccountService.findById(UUID.fromString(mappedAccountId));
+        return new TemplateExecutionEngine.PreviewEntry(
+                mappedAccount.getAccountCode(),
+                mappedAccount.getAccountName(),
+                entry.description(),
+                entry.debitAmount(),
+                entry.creditAmount()
+        );
     }
 
     @PostMapping("/api")
@@ -450,44 +468,54 @@ public class TransactionController {
      * Add attributes for DETAILED template support (formula variables).
      */
     private void addDetailedTemplateAttributes(JournalTemplate template, Model model) {
-        // Check if template is DETAILED type
         boolean isDetailedTemplate = template.getTemplateType() == TemplateType.DETAILED;
         model.addAttribute("isDetailedTemplate", isDetailedTemplate);
-
-        if (isDetailedTemplate) {
-            // Extract unique formula variable names
-            // Variables are simple identifiers like "kas", "bankBca", etc. (not "amount" or expressions)
-            java.util.Map<String, FormulaVariable> uniqueVariables = new java.util.LinkedHashMap<>();
-            for (JournalTemplateLine line : template.getLines()) {
-                String formula = line.getFormula();
-                if (isSimpleVariable(formula) && !"amount".equalsIgnoreCase(formula)) {
-                    String varName = formula.trim();
-                    if (!uniqueVariables.containsKey(varName)) {
-                        String label = line.getDescription() != null
-                                ? line.getDescription()
-                                : (line.getAccount() != null ? line.getAccount().getAccountName() : varName);
-                        uniqueVariables.put(varName, new FormulaVariable(varName, label));
-                    }
-                }
-            }
-            model.addAttribute("formulaVariables", new java.util.ArrayList<>(uniqueVariables.values()));
-        } else {
-            model.addAttribute("formulaVariables", java.util.List.of());
-        }
+        model.addAttribute("formulaVariables", isDetailedTemplate
+                ? extractFormulaVariables(template)
+                : java.util.List.of());
     }
 
-    /**
-     * Check if formula is a simple variable name (identifier only).
-     */
+    private java.util.List<FormulaVariable> extractFormulaVariables(JournalTemplate template) {
+        java.util.Map<String, FormulaVariable> uniqueVariables = new java.util.LinkedHashMap<>();
+        for (JournalTemplateLine line : template.getLines()) {
+            String formula = line.getFormula();
+            if (isFormulaVariable(formula)) {
+                String varName = formula.trim();
+                uniqueVariables.computeIfAbsent(varName, k -> new FormulaVariable(k, getVariableLabel(line, k)));
+            }
+        }
+        return new java.util.ArrayList<>(uniqueVariables.values());
+    }
+
+    private boolean isFormulaVariable(String formula) {
+        return isSimpleVariable(formula) && !"amount".equalsIgnoreCase(formula);
+    }
+
+    private String getVariableLabel(JournalTemplateLine line, String defaultLabel) {
+        if (line.getDescription() != null) {
+            return line.getDescription();
+        }
+        return line.getAccount() != null ? line.getAccount().getAccountName() : defaultLabel;
+    }
+
     private boolean isSimpleVariable(String formula) {
-        if (formula == null || formula.isBlank()) return false;
+        if (formula == null || formula.isBlank()) {
+            return false;
+        }
         String trimmed = formula.trim();
-        if (trimmed.isEmpty()) return false;
-        char first = trimmed.charAt(0);
-        if (!Character.isLetter(first) && first != '_') return false;
-        for (int i = 1; i < trimmed.length(); i++) {
-            char c = trimmed.charAt(i);
-            if (!Character.isLetterOrDigit(c) && c != '_') return false;
+        return !trimmed.isEmpty() && isValidIdentifier(trimmed);
+    }
+
+    private boolean isValidIdentifier(String str) {
+        char first = str.charAt(0);
+        if (!Character.isLetter(first) && first != '_') {
+            return false;
+        }
+        for (int i = 1; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '_') {
+                return false;
+            }
         }
         return true;
     }
