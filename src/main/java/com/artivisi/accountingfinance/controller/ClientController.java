@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/clients")
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class ClientController {
         model.addAttribute("clients", clients);
         model.addAttribute("active", active);
         model.addAttribute("search", search);
-        model.addAttribute("currentPage", "clients");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
 
         if ("true".equals(hxRequest)) {
             return "clients/fragments/client-table :: table";
@@ -52,7 +54,7 @@ public class ClientController {
     @GetMapping("/new")
     public String newForm(Model model) {
         model.addAttribute("client", new Client());
-        model.addAttribute("currentPage", "clients");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/form";
     }
 
@@ -64,7 +66,7 @@ public class ClientController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("currentPage", "clients");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
             return "clients/form";
         }
 
@@ -74,7 +76,7 @@ public class ClientController {
             return "redirect:/clients/" + saved.getCode();
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
-            model.addAttribute("currentPage", "clients");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
             return "clients/form";
         }
     }
@@ -83,7 +85,7 @@ public class ClientController {
     public String detail(@PathVariable String code, Model model) {
         Client client = clientService.findByCode(code);
         model.addAttribute("client", client);
-        model.addAttribute("currentPage", "clients");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/detail";
     }
 
@@ -91,7 +93,7 @@ public class ClientController {
     public String editForm(@PathVariable String code, Model model) {
         Client client = clientService.findByCode(code);
         model.addAttribute("client", client);
-        model.addAttribute("currentPage", "clients");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
         return "clients/form";
     }
 
@@ -106,7 +108,7 @@ public class ClientController {
         if (bindingResult.hasErrors()) {
             Client existing = clientService.findByCode(code);
             client.setId(existing.getId());
-            model.addAttribute("currentPage", "clients");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
             return "clients/form";
         }
 
@@ -119,7 +121,7 @@ public class ClientController {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             Client existing = clientService.findByCode(code);
             client.setId(existing.getId());
-            model.addAttribute("currentPage", "clients");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_CLIENTS);
             return "clients/form";
         }
     }

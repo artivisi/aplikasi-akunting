@@ -23,6 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/projects")
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class ProjectController {
         model.addAttribute("search", search);
         model.addAttribute("statuses", ProjectStatus.values());
         model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
 
         if ("true".equals(hxRequest)) {
             return "projects/fragments/project-table :: table";
@@ -62,7 +64,7 @@ public class ProjectController {
     public String newForm(Model model) {
         model.addAttribute("project", new Project());
         model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/form";
     }
 
@@ -76,7 +78,7 @@ public class ProjectController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
 
@@ -87,7 +89,7 @@ public class ProjectController {
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
     }
@@ -96,7 +98,7 @@ public class ProjectController {
     public String detail(@PathVariable String code, Model model) {
         Project project = projectService.findByCode(code);
         model.addAttribute("project", project);
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/detail";
     }
 
@@ -105,7 +107,7 @@ public class ProjectController {
         Project project = projectService.findByCode(code);
         model.addAttribute("project", project);
         model.addAttribute("clients", clientService.findActiveClients());
-        model.addAttribute("currentPage", "projects");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
         return "projects/form";
     }
 
@@ -122,7 +124,7 @@ public class ProjectController {
             Project existing = projectService.findByCode(code);
             project.setId(existing.getId());
             model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
 
@@ -136,7 +138,7 @@ public class ProjectController {
             Project existing = projectService.findByCode(code);
             project.setId(existing.getId());
             model.addAttribute("clients", clientService.findActiveClients());
-            model.addAttribute("currentPage", "projects");
+            model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PROJECTS);
             return "projects/form";
         }
     }

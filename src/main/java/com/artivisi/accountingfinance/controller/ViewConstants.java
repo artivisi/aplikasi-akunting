@@ -1,0 +1,78 @@
+package com.artivisi.accountingfinance.controller;
+
+/**
+ * Constants for view-related strings used across controllers.
+ * Helps avoid string literal duplication flagged by SonarCloud.
+ */
+public final class ViewConstants {
+
+    private ViewConstants() {
+        // Utility class - prevent instantiation
+    }
+
+    // Model attribute names
+    public static final String ATTR_CURRENT_PAGE = "currentPage";
+    public static final String ATTR_START_DATE = "startDate";
+    public static final String ATTR_END_DATE = "endDate";
+    public static final String ATTR_COMPANY = "company";
+    public static final String ATTR_REPORT = "report";
+    public static final String ATTR_PRODUCTS = "products";
+    public static final String ATTR_CATEGORIES = "categories";
+    public static final String ATTR_ACCOUNTS = "accounts";
+    public static final String ATTR_TEMPLATES = "templates";
+    public static final String ATTR_IS_EDIT = "isEdit";
+
+    // Current page values (navigation)
+    public static final String PAGE_DASHBOARD = "dashboard";
+    public static final String PAGE_ACCOUNTS = "accounts";
+    public static final String PAGE_TRANSACTIONS = "transactions";
+    public static final String PAGE_TEMPLATES = "templates";
+    public static final String PAGE_REPORTS = "reports";
+    public static final String PAGE_INVOICES = "invoices";
+    public static final String PAGE_EMPLOYEES = "employees";
+    public static final String PAGE_PAYROLL = "payroll";
+    public static final String PAGE_SETTINGS = "settings";
+    public static final String PAGE_PRODUCTS = "products";
+    public static final String PAGE_INVENTORY = "inventory";
+    public static final String PAGE_CLIENTS = "clients";
+    public static final String PAGE_PROJECTS = "projects";
+    public static final String PAGE_FIXED_ASSETS = "fixed-assets";
+    public static final String PAGE_AMORTIZATION = "amortization";
+
+    // View paths - Products
+    public static final String VIEW_PRODUCTS_LIST = "products/list";
+    public static final String VIEW_PRODUCTS_FORM = "products/form";
+    public static final String VIEW_PRODUCTS_DETAIL = "products/detail";
+    public static final String VIEW_CATEGORIES_LIST = "products/categories/list";
+    public static final String VIEW_CATEGORIES_FORM = "products/categories/form";
+
+    // View paths - Invoices
+    public static final String VIEW_INVOICES_LIST = "invoices/list";
+    public static final String VIEW_INVOICES_FORM = "invoices/form";
+    public static final String VIEW_INVOICES_DETAIL = "invoices/detail";
+
+    // View paths - Payroll
+    public static final String VIEW_PAYROLL_LIST = "payroll/list";
+    public static final String VIEW_PAYROLL_FORM = "payroll/form";
+    public static final String VIEW_PAYROLL_DETAIL = "payroll/detail";
+    public static final String VIEW_SALARY_COMPONENTS_FORM = "salary-components/form";
+
+    // Redirect prefixes
+    public static final String REDIRECT_INVOICES = "redirect:/invoices/";
+    public static final String REDIRECT_PAYROLL = "redirect:/payroll/";
+    public static final String REDIRECT_PRODUCTS = "redirect:/products/";
+    public static final String REDIRECT_TRANSACTIONS = "redirect:/transactions/";
+    public static final String REDIRECT_TEMPLATES = "redirect:/templates/";
+    public static final String REDIRECT_EMPLOYEES = "redirect:/employees/";
+
+    // Inventory transaction types
+    public static final String INVENTORY_PURCHASE = "inventory-purchase";
+    public static final String INVENTORY_SALE = "inventory-sale";
+    public static final String INVENTORY_ADJUSTMENT = "inventory-adjustment";
+    public static final String INVENTORY_PRODUCTION_IN = "inventory-production-in";
+    public static final String INVENTORY_PRODUCTION_OUT = "inventory-production-out";
+
+    // Error messages
+    public static final String ERROR_PRODUCT_NOT_FOUND = "Produk tidak ditemukan: ";
+    public static final String ERROR_TEMPLATE_NOT_FOUND = "Template tidak ditemukan: ";
+}

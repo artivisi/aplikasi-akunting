@@ -49,14 +49,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/transactions")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('" + Permission.TRANSACTION_VIEW + "')")
 public class TransactionController {
 
-    private static final String REDIRECT_TRANSACTIONS = "redirect:/transactions/";
-    private static final String ATTR_ACCOUNTS = "accounts";
     private static final String ATTR_SELECTED_TEMPLATE = "selectedTemplate";
 
     private final TransactionService transactionService;
@@ -79,7 +79,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "20") int size,
             @RequestHeader(value = "HX-Request", required = false) String hxRequest,
             Model model) {
-        model.addAttribute("currentPage", "transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("selectedProjectCode", projectCode);
@@ -140,7 +140,7 @@ public class TransactionController {
             @RequestParam(required = false) UUID templateId,
             @RequestParam(required = false) UUID invoiceId,
             Model model) {
-        model.addAttribute("currentPage", "transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
         model.addAttribute("isEdit", false);
         model.addAttribute("templates", journalTemplateService.findAllWithLines());
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
@@ -172,7 +172,7 @@ public class TransactionController {
                          @RequestParam(required = false) Boolean created,
                          Model model) {
         Transaction transaction = transactionService.findByIdWithJournalEntries(id);
-        model.addAttribute("currentPage", "transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
         model.addAttribute("transaction", transaction);
 
         // Show success message if redirected from template execution
@@ -204,7 +204,7 @@ public class TransactionController {
         // Load the template with lines for preview
         JournalTemplate template = journalTemplateService.findByIdWithLines(transaction.getJournalTemplate().getId());
 
-        model.addAttribute("currentPage", "transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
         model.addAttribute("isEdit", true);
         model.addAttribute("transaction", transaction);
         model.addAttribute(ATTR_SELECTED_TEMPLATE, template);
@@ -230,7 +230,7 @@ public class TransactionController {
             return REDIRECT_TRANSACTIONS + id;
         }
 
-        model.addAttribute("currentPage", "transactions");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TRANSACTIONS);
         model.addAttribute("transaction", transaction);
         return "transactions/void";
     }

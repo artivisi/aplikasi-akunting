@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.YearMonth;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('" + Permission.DASHBOARD_VIEW + "')")
@@ -26,7 +28,7 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("currentPage", "dashboard");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_DASHBOARD);
         return "dashboard";
     }
 

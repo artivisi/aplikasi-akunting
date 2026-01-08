@@ -28,6 +28,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/employees")
 @RequiredArgsConstructor
@@ -53,7 +55,7 @@ public class EmployeeController {
         model.addAttribute("status", status);
         model.addAttribute("active", active);
         model.addAttribute("employmentStatuses", EmploymentStatus.values());
-        model.addAttribute("currentPage", "employees");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
 
         if ("true".equals(hxRequest)) {
             return "employees/fragments/employee-table :: table";
@@ -74,7 +76,7 @@ public class EmployeeController {
         model.addAttribute("ptkpStatuses", PtkpStatus.values());
         model.addAttribute("employmentTypes", EmploymentType.values());
         model.addAttribute("employmentStatuses", EmploymentStatus.values());
-        model.addAttribute("currentPage", "employees");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
         return "employees/form";
     }
 
@@ -112,7 +114,7 @@ public class EmployeeController {
     public String detail(@PathVariable String employeeId, Model model) {
         Employee employee = employeeService.findByEmployeeId(employeeId);
         model.addAttribute("employee", employee);
-        model.addAttribute("currentPage", "employees");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
         return "employees/detail";
     }
 
@@ -190,6 +192,6 @@ public class EmployeeController {
         model.addAttribute("employmentTypes", EmploymentType.values());
         model.addAttribute("employmentStatuses", EmploymentStatus.values());
         model.addAttribute("users", userRepository.findByActiveTrue());
-        model.addAttribute("currentPage", "employees");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_EMPLOYEES);
     }
 }

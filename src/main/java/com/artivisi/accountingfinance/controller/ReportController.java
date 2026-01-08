@@ -28,6 +28,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/reports")
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class ReportController {
 
     @GetMapping
     public String index(Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         return "reports/index";
     }
 
@@ -57,7 +59,7 @@ public class ReportController {
             @RequestParam(required = false) String period,
             @RequestParam(required = false) LocalDate asOfDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "trial-balance");
         model.addAttribute("period", period);
 
@@ -74,7 +76,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) String compareWith,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "income-statement");
         model.addAttribute("compareWith", compareWith);
 
@@ -93,7 +95,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate asOfDate,
             @RequestParam(required = false) String compareWith,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "balance-sheet");
         model.addAttribute("compareWith", compareWith);
 
@@ -109,7 +111,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "cash-flow");
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
@@ -282,7 +284,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "project-profitability");
         model.addAttribute("projects", projectService.findActiveProjects());
 
@@ -306,7 +308,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "client-profitability");
         model.addAttribute("clients", clientService.findActiveClients());
 
@@ -329,7 +331,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(defaultValue = "10") int limit,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "client-ranking");
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfYear(1);
@@ -440,7 +442,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "ppn-summary");
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
@@ -458,7 +460,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "pph23-withholding");
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
@@ -476,7 +478,7 @@ public class ReportController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "tax-summary");
 
         LocalDate start = startDate != null ? startDate : LocalDate.now().withDayOfMonth(1);
@@ -557,7 +559,7 @@ public class ReportController {
     public String depreciationReport(
             @RequestParam(required = false) Integer year,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "depreciation");
 
         int reportYear = year != null ? year : LocalDate.now().getYear();
@@ -623,7 +625,7 @@ public class ReportController {
     public String fiscalClosing(
             @RequestParam(required = false) Integer year,
             Model model) {
-        model.addAttribute("currentPage", "reports");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_REPORTS);
         model.addAttribute("reportType", "fiscal-closing");
 
         int closingYear = year != null ? year : LocalDate.now().getYear() - 1;

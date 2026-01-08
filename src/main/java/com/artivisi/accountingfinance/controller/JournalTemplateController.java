@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/templates")
 @RequiredArgsConstructor
@@ -74,7 +76,7 @@ public class JournalTemplateController {
     }
 
     private void addBaseListAttributes(Model model, String category, String search, Boolean favorites, String tag) {
-        model.addAttribute("currentPage", "templates");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("searchQuery", search);
         model.addAttribute("showFavorites", favorites);
@@ -113,7 +115,7 @@ public class JournalTemplateController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable UUID id, Authentication authentication, Model model) {
-        model.addAttribute("currentPage", "templates");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         JournalTemplate template = journalTemplateService.findByIdWithLines(id);
         model.addAttribute("template", template);
         model.addAttribute("templateTags", journalTemplateService.getTagsForTemplate(id));
@@ -132,7 +134,7 @@ public class JournalTemplateController {
 
     @GetMapping("/new")
     public String create(Model model) {
-        model.addAttribute("currentPage", "templates");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         model.addAttribute("isEdit", false);
         model.addAttribute("isDuplicate", false);
         model.addAttribute("categories", TemplateCategory.values());
@@ -144,7 +146,7 @@ public class JournalTemplateController {
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable UUID id, Model model) {
-        model.addAttribute("currentPage", "templates");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         model.addAttribute("isEdit", true);
         model.addAttribute("isDuplicate", false);
         model.addAttribute("template", journalTemplateService.findByIdWithLines(id));
@@ -157,7 +159,7 @@ public class JournalTemplateController {
 
     @GetMapping("/{id}/duplicate")
     public String duplicate(@PathVariable UUID id, Model model) {
-        model.addAttribute("currentPage", "templates");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_TEMPLATES);
         model.addAttribute("isEdit", false);
         model.addAttribute("isDuplicate", true);
         model.addAttribute("sourceTemplate", journalTemplateService.findByIdWithLines(id));

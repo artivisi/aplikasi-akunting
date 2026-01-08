@@ -28,6 +28,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class ProductController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("active", active);
         model.addAttribute("categories", categoryService.findAllActive());
-        model.addAttribute("currentPage", "products");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PRODUCTS);
 
         if ("true".equals(hxRequest)) {
             return "products/fragments/product-table :: table";
@@ -110,7 +112,7 @@ public class ProductController {
                 .orElseThrow(() -> new IllegalArgumentException("Produk tidak ditemukan: " + id));
 
         model.addAttribute("product", product);
-        model.addAttribute("currentPage", "products");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PRODUCTS);
         return "products/detail";
     }
 
@@ -189,6 +191,6 @@ public class ProductController {
         model.addAttribute("inventoryAccounts", chartOfAccountRepository.findAssetAccounts());
         model.addAttribute("cogsAccounts", chartOfAccountRepository.findExpenseAccounts());
         model.addAttribute("salesAccounts", chartOfAccountRepository.findRevenueAccounts());
-        model.addAttribute("currentPage", "products");
+        model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PRODUCTS);
     }
 }
