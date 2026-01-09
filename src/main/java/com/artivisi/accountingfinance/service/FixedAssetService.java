@@ -267,24 +267,23 @@ public class FixedAssetService {
                 depreciationAmount = asset.getRemainingDepreciation();
             }
 
-            if (depreciationAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                continue;
+            // Only create entry if depreciation amount is positive
+            if (depreciationAmount.compareTo(BigDecimal.ZERO) > 0) {
+                // Create depreciation entry
+                DepreciationEntry entry = new DepreciationEntry();
+                entry.setFixedAsset(asset);
+                entry.setPeriodNumber(asset.getDepreciationPeriodsCompleted() + 1);
+                entry.setPeriodStart(periodStart);
+                entry.setPeriodEnd(periodEnd);
+                entry.setDepreciationAmount(depreciationAmount);
+                entry.setAccumulatedDepreciation(asset.getAccumulatedDepreciation().add(depreciationAmount));
+                entry.setBookValue(asset.getBookValue().subtract(depreciationAmount));
+                entry.setStatus(DepreciationEntryStatus.PENDING);
+                entry.setGeneratedAt(LocalDateTime.now());
+
+                depreciationEntryRepository.save(entry);
+                log.debug("Generated depreciation entry for asset {}: {}", asset.getAssetCode(), depreciationAmount);
             }
-
-            // Create depreciation entry
-            DepreciationEntry entry = new DepreciationEntry();
-            entry.setFixedAsset(asset);
-            entry.setPeriodNumber(asset.getDepreciationPeriodsCompleted() + 1);
-            entry.setPeriodStart(periodStart);
-            entry.setPeriodEnd(periodEnd);
-            entry.setDepreciationAmount(depreciationAmount);
-            entry.setAccumulatedDepreciation(asset.getAccumulatedDepreciation().add(depreciationAmount));
-            entry.setBookValue(asset.getBookValue().subtract(depreciationAmount));
-            entry.setStatus(DepreciationEntryStatus.PENDING);
-            entry.setGeneratedAt(LocalDateTime.now());
-
-            depreciationEntryRepository.save(entry);
-            log.debug("Generated depreciation entry for asset {}: {}", asset.getAssetCode(), depreciationAmount);
         }
 
         return depreciationEntryRepository.findAllPendingWithDetails();

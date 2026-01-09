@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -89,7 +89,7 @@ public class DataImportService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     // Import function registry (initialized lazily to allow instance method references)
-    private Map<String, Function<String, Integer>> importFunctions;
+    private Map<String, ToIntFunction<String>> importFunctions;
 
     // Reference maps for O(1) lookups (populated during import)
     private Map<String, ChartOfAccount> accountMap;
@@ -476,9 +476,9 @@ public class DataImportService {
                 return 0;
             }
 
-            Function<String, Integer> importFunction = importFunctions.get(filename);
+            ToIntFunction<String> importFunction = importFunctions.get(filename);
             if (importFunction != null) {
-                return importFunction.apply(content);
+                return importFunction.applyAsInt(content);
             }
 
             if (!"MANIFEST.md".equals(filename)) {
@@ -497,9 +497,13 @@ public class DataImportService {
     private List<String[]> parseCsv(String content) {
         CsvParseState state = new CsvParseState();
 
-        for (int i = 0; i < content.length(); i++) {
+        int i = 0;
+        while (i < content.length()) {
             char c = content.charAt(i);
-            i = state.inQuotes ? processQuotedChar(state, content, i, c) : processUnquotedChar(state, content, i, c);
+            int nextIndex = state.inQuotes
+                    ? processQuotedChar(state, content, i, c)
+                    : processUnquotedChar(state, content, i, c);
+            i = nextIndex + 1;
         }
 
         finalizeLastRow(state);
