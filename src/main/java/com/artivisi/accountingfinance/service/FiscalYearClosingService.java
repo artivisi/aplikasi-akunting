@@ -47,6 +47,7 @@ public class FiscalYearClosingService {
     private static final String LABA_BERJALAN_LABEL = "LABA_BERJALAN";
     private static final String LABA_DITAHAN_LABEL = "LABA_DITAHAN";
     private static final String CLOSING_REF_PREFIX = "CLOSING-";
+    private static final String YEAR_SUFFIX = " - Tahun ";
     private static final String SEQ_TYPE_FISCAL_CLOSING = "FISCAL_CLOSING";
 
     // Fiscal Year Closing template ID (from V004 seed data)
@@ -188,7 +189,7 @@ public class FiscalYearClosingService {
         }
 
         Transaction transaction = createClosingTransaction(ctx.template, ctx.yearEnd, ctx.year,
-                "Tutup Pendapatan ke " + LABA_BERJALAN_LABEL + " - Tahun " + ctx.year,
+                "Tutup Pendapatan ke " + LABA_BERJALAN_LABEL + YEAR_SUFFIX + ctx.year,
                 CLOSING_REF_PREFIX + ctx.year + "-01", report.totalRevenue(), ctx.username);
 
         String journalNumber = generateJournalNumber(ctx.yearEnd);
@@ -209,7 +210,7 @@ public class FiscalYearClosingService {
         }
 
         Transaction transaction = createClosingTransaction(ctx.template, ctx.yearEnd, ctx.year,
-                "Tutup Beban ke " + LABA_BERJALAN_LABEL + " - Tahun " + ctx.year,
+                "Tutup Beban ke " + LABA_BERJALAN_LABEL + YEAR_SUFFIX + ctx.year,
                 CLOSING_REF_PREFIX + ctx.year + "-02", report.totalExpense(), ctx.username);
 
         String journalNumber = generateJournalNumber(ctx.yearEnd);
@@ -246,7 +247,7 @@ public class FiscalYearClosingService {
 
         boolean isProfit = netIncome.compareTo(BigDecimal.ZERO) > 0;
         String description = (isProfit ? "Transfer Laba" : "Transfer Rugi") +
-                " Berjalan ke " + LABA_DITAHAN_LABEL + " - Tahun " + ctx.year;
+                " Berjalan ke " + LABA_DITAHAN_LABEL + YEAR_SUFFIX + ctx.year;
 
         Transaction transaction = createClosingTransaction(ctx.template, ctx.yearEnd, ctx.year,
                 description, CLOSING_REF_PREFIX + ctx.year + "-03", netIncome.abs(), ctx.username);
