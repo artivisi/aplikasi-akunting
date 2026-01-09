@@ -520,7 +520,7 @@
                         if (response.ok) {
                             const result = await response.json();
                             console.log('Response data:', JSON.stringify(result));
-                            window.location.href = `/transactions/${result.id}`;
+                            globalThis.location.href = `/transactions/${result.id}`;
                         } else {
                             const errorText = await response.text();
                             console.error('Error response:', errorText);
@@ -578,12 +578,12 @@
                         });
 
                         if (postResponse.ok) {
-                            window.location.href = `/transactions/${result.id}`;
+                            globalThis.location.href = `/transactions/${result.id}`;
                         } else {
                             const error = await postResponse.json();
                             alert('Gagal posting: ' + (error.message || 'Unknown error'));
                             // Still redirect to show the draft
-                            window.location.href = `/transactions/${result.id}`;
+                            globalThis.location.href = `/transactions/${result.id}`;
                         }
                     } catch (err) {
                         alert('Gagal menyimpan: ' + err.message);

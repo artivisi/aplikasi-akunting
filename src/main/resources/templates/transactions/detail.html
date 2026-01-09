@@ -479,7 +479,7 @@
                                 headers: { 'Content-Type': 'application/json' }
                             });
                             if (response.ok) {
-                                window.location.reload();
+                                globalThis.location.reload();
                             } else {
                                 const error = await response.json();
                                 alert('Gagal posting: ' + (error.message || 'Unknown error'));
@@ -500,7 +500,7 @@
                                 headers: { 'Content-Type': 'application/json' }
                             });
                             if (response.ok) {
-                                window.location.href = '/transactions';
+                                globalThis.location.href = '/transactions';
                             } else {
                                 const error = await response.json();
                                 alert('Gagal menghapus: ' + (error.message || 'Unknown error'));

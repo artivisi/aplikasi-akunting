@@ -139,8 +139,8 @@
     </div>
 
     <script th:attr="nonce=${cspNonce}">
-        window.onload = function() {
-            window.print();
+        globalThis.onload = function() {
+            globalThis.print();
         }
     </script>
 </body>

@@ -201,7 +201,7 @@
                         });
 
                         if (response.ok) {
-                            window.location.href = `/transactions/${transactionId}`;
+                            globalThis.location.href = `/transactions/${transactionId}`;
                         } else {
                             const error = await response.json();
                             alert('Gagal void transaksi: ' + (error.message || 'Unknown error'));

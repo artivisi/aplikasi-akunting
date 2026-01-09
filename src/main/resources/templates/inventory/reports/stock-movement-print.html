@@ -78,6 +78,6 @@
         </tbody>
     </table>
 
-    <script th:attr="nonce=${cspNonce}">window.onload = function() { window.print(); }</script>
+    <script th:attr="nonce=${cspNonce}">globalThis.onload = function() { globalThis.print(); }</script>
 </body>
 </html>

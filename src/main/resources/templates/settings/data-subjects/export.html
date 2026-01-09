@@ -159,7 +159,7 @@
     </div>
     <th:block layout:fragment="scripts">
         <script th:inline="javascript" th:attr="nonce=${cspNonce}">
-            document.getElementById('btn-print').addEventListener('click', function() { window.print(); });
+            document.getElementById('btn-print').addEventListener('click', function() { globalThis.print(); });
         </script>
     </th:block>
 </body>
