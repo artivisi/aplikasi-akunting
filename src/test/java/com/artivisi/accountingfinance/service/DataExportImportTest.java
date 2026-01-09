@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("test")
 @DisplayName("Data Export Service - Tax Profile Fields")
-public class DataExportImportTest {
+class DataExportImportTest {
 
     @Autowired
     private DataExportService dataExportService;

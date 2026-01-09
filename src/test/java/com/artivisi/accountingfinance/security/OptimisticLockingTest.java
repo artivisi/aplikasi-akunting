@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("test")
 @DisplayName("Optimistic Locking Tests")
-public class OptimisticLockingTest {
+class OptimisticLockingTest {
 
     @Autowired
     private TransactionRepository transactionRepository;

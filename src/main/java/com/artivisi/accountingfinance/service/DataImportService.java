@@ -561,7 +561,7 @@ public class DataImportService {
     }
 
     private void finalizeLastRow(CsvParseState state) {
-        if (!state.currentRow.isEmpty() || state.field.length() > 0) {
+        if (!state.currentRow.isEmpty() || !state.field.isEmpty()) {
             state.currentRow.add(state.field.toString());
             addRowIfValid(state);
         }
