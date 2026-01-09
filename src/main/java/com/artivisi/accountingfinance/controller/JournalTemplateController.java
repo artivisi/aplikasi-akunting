@@ -81,7 +81,7 @@ public class JournalTemplateController {
 
         String username = authentication != null ? authentication.getName() : null;
         List<JournalTemplate> templates = findTemplates(category, search, favorites, tag, username);
-        model.addAttribute("templates", templates);
+        model.addAttribute(ATTR_TEMPLATES, templates);
 
         addUserPreferenceAttributes(model, username);
 

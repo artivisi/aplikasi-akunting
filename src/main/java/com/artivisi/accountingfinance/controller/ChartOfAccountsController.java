@@ -20,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
@@ -28,13 +30,11 @@ public class ChartOfAccountsController {
 
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
-    private static final String ATTR_CURRENT_PAGE = "currentPage";
     private static final String ATTR_ACCOUNT_TYPES = "accountTypes";
     private static final String ATTR_PARENT_ACCOUNTS = "parentAccounts";
     private static final String ATTR_HAS_CHILDREN = "hasChildren";
     private static final String ATTR_HAS_PARENT = "hasParent";
     private static final String VIEW_FORM = "accounts/form";
-    private static final String PAGE_ACCOUNTS = "accounts";
     private static final String REDIRECT_ACCOUNTS = "redirect:/accounts";
 
     private final ChartOfAccountService chartOfAccountService;

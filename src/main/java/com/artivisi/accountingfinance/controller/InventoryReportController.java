@@ -20,6 +20,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import static com.artivisi.accountingfinance.controller.ViewConstants.*;
+
 @Controller
 @RequestMapping("/inventory/reports")
 @RequiredArgsConstructor
@@ -33,15 +35,10 @@ public class InventoryReportController {
 
     private static final DateTimeFormatter FILE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    // Model attribute constants
-    private static final String ATTR_CURRENT_PAGE = "currentPage";
+    // Model attribute constants (not in ViewConstants)
     private static final String ATTR_REPORT_TYPE = "reportType";
-    private static final String ATTR_START_DATE = "startDate";
-    private static final String ATTR_END_DATE = "endDate";
     private static final String ATTR_CATEGORY_ID = "categoryId";
     private static final String ATTR_PRODUCT_ID = "productId";
-    private static final String ATTR_CATEGORIES = "categories";
-    private static final String ATTR_REPORT = "report";
     private static final String ATTR_AS_OF_DATE = "asOfDate";
 
     // HTTP header constants
