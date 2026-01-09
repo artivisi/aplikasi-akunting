@@ -58,9 +58,11 @@ public class TelegramBotService {
         this.documentService = documentService;
         this.telegramApiClient = telegramApiClient;
 
-        log.info("TelegramBotService constructor - enabled: {}, apiClient: {}", 
-                config.isEnabled(), telegramApiClient != null ? "present" : "null");
-        
+        if (log.isInfoEnabled()) {
+            log.info("TelegramBotService constructor - enabled: {}, apiClient: {}",
+                    config.isEnabled(), telegramApiClient != null ? "present" : "null");
+        }
+
         if (config.isEnabled() && telegramApiClient != null) {
             log.info("Telegram bot initialized: @{}", config.getUsername());
         } else if (config.isEnabled() && telegramApiClient == null) {
@@ -98,7 +100,9 @@ public class TelegramBotService {
         if (message.hasText()) {
             handleTextMessage(chatId, userId, username, firstName, message.getText(), linkOpt);
         } else if (message.hasPhoto()) {
-            log.info("Processing photo message with {} photos", message.getPhoto().size());
+            if (log.isInfoEnabled()) {
+                log.info("Processing photo message with {} photos", message.getPhoto().size());
+            }
             handlePhotoMessage(chatId, message.getPhoto(), message.getMessageId(), linkOpt);
         } else {
             log.info("Ignoring message - no text or photo");

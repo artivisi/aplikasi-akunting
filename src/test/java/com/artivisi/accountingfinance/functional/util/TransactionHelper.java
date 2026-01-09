@@ -83,6 +83,7 @@ public class TransactionHelper {
         log.debug("Executed transaction: {} - {}", savedTx.getTransactionNumber(), tx.description());
     }
 
+    @SuppressWarnings("java:S1172") // Parameters used in logging; full implementation deferred (test helper stub)
     private void createJournalEntries(Transaction transaction, JournalTemplate template,
                                      BigDecimal amount, Map<String, String> inputs) {
         // This is simplified - real implementation would parse template lines

@@ -96,7 +96,7 @@ public class TransactionService {
     }
 
     // Delegates to the full create method which handles the transaction
-    @Transactional
+    // No @Transactional needed - participates in caller's transaction or the delegated method's transaction
     public Transaction create(Transaction transaction, Map<UUID, UUID> accountMappings) {
         return create(transaction, accountMappings, null);
     }

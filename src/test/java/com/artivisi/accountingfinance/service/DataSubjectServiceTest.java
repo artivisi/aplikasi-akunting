@@ -4,10 +4,15 @@ import com.artivisi.accountingfinance.TestcontainersConfiguration;
 import com.artivisi.accountingfinance.entity.Employee;
 import com.artivisi.accountingfinance.entity.EmploymentStatus;
 import com.artivisi.accountingfinance.entity.EmploymentType;
+import com.artivisi.accountingfinance.entity.PayrollDetail;
+import com.artivisi.accountingfinance.entity.PayrollRun;
+import com.artivisi.accountingfinance.entity.PayrollStatus;
 import com.artivisi.accountingfinance.entity.PtkpStatus;
 import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.enums.Role;
 import com.artivisi.accountingfinance.repository.EmployeeRepository;
+import com.artivisi.accountingfinance.repository.PayrollDetailRepository;
+import com.artivisi.accountingfinance.repository.PayrollRunRepository;
 import com.artivisi.accountingfinance.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +26,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +55,12 @@ class DataSubjectServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PayrollRunRepository payrollRunRepository;
+
+    @Autowired
+    private PayrollDetailRepository payrollDetailRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -92,6 +104,27 @@ class DataSubjectServiceTest {
         user.setActive(true);
         user.setRoles(Set.of(Role.STAFF), "test");
         return userRepository.save(user);
+    }
+
+    private void createPayrollRecordForEmployee(Employee employee) {
+        PayrollRun payrollRun = new PayrollRun();
+        payrollRun.setPayrollPeriod("2024-01");
+        payrollRun.setPeriodStart(LocalDate.of(2024, 1, 1));
+        payrollRun.setPeriodEnd(LocalDate.of(2024, 1, 31));
+        payrollRun.setStatus(PayrollStatus.POSTED);
+        payrollRun.setTotalGross(BigDecimal.valueOf(10000000));
+        payrollRun.setTotalDeductions(BigDecimal.valueOf(1000000));
+        payrollRun.setTotalNetPay(BigDecimal.valueOf(9000000));
+        payrollRun.setEmployeeCount(1);
+        payrollRun = payrollRunRepository.save(payrollRun);
+
+        PayrollDetail payrollDetail = new PayrollDetail();
+        payrollDetail.setPayrollRun(payrollRun);
+        payrollDetail.setEmployee(employee);
+        payrollDetail.setGrossSalary(BigDecimal.valueOf(10000000));
+        payrollDetail.setTotalDeductions(BigDecimal.valueOf(1000000));
+        payrollDetail.setNetPay(BigDecimal.valueOf(9000000));
+        payrollDetailRepository.save(payrollDetail);
     }
 
     @Nested
@@ -228,12 +261,28 @@ class DataSubjectServiceTest {
         @Test
         @DisplayName("Should indicate retention required for employee with financial records")
         void shouldIndicateRetentionRequired() {
+            // Create payroll records for the employee
+            createPayrollRecordForEmployee(testEmployee);
+
             DataSubjectService.DataRetentionStatus status =
                     dataSubjectService.getRetentionStatus(testEmployee.getId());
 
-            // Active employees typically have financial records
+            // Employee with payroll records requires retention
             assertThat(status.hasFinancialRecords()).isTrue();
             assertThat(status.message()).contains("retained");
+        }
+
+        @Test
+        @DisplayName("Should allow deletion for employee without financial records")
+        void shouldAllowDeletionWithoutFinancialRecords() {
+            // Test employee has no payroll records
+            DataSubjectService.DataRetentionStatus status =
+                    dataSubjectService.getRetentionStatus(testEmployee.getId());
+
+            // Employee without payroll records can be deleted
+            assertThat(status.hasFinancialRecords()).isFalse();
+            assertThat(status.canBeDeleted()).isTrue();
+            assertThat(status.message()).contains("can be deleted");
         }
 
         @Test
