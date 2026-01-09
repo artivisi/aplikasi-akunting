@@ -77,10 +77,12 @@ class OptimisticLockingTest {
         staleVersion.setAmount(BigDecimal.valueOf(3000000));
 
         // Then: Should throw OptimisticLockingFailureException
-        assertThrows(OptimisticLockingFailureException.class, () -> {
-            transactionRepository.save(staleVersion);
-            entityManager.flush(); // Force the update to database
-        });
+        assertThrows(OptimisticLockingFailureException.class, () -> saveAndFlush(staleVersion));
+    }
+
+    private void saveAndFlush(Transaction transaction) {
+        transactionRepository.save(transaction);
+        entityManager.flush();
     }
 
     @Test
