@@ -60,19 +60,10 @@ public class DataExportImportTest {
         String companyConfigCsv = extractFileFromZip(exportedData, "01_company_config.csv");
 
         assertThat(companyConfigCsv)
-            .as("CSV header should include tax profile fields")
-            .contains("established_date,is_pkp,pkp_since");
-
-        assertThat(companyConfigCsv)
-            .as("CSV should contain established date")
-            .contains("2008-05-15");
-
-        assertThat(companyConfigCsv)
-            .as("CSV should contain PKP status true")
-            .contains("true");
-
-        assertThat(companyConfigCsv)
-            .as("CSV should contain PKP since date")
+            .as("CSV should include tax profile fields with correct values")
+            .contains("established_date,is_pkp,pkp_since")
+            .contains("2008-05-15")
+            .contains("true")
             .contains("2010-01-01");
     }
 
@@ -96,12 +87,8 @@ public class DataExportImportTest {
 
         // Then: Should have empty values for tax profile fields
         assertThat(companyConfigCsv)
-            .as("CSV header should include tax profile fields")
-            .contains("established_date,is_pkp,pkp_since");
-
-        // The data line should have the company name
-        assertThat(companyConfigCsv)
-            .as("CSV should contain the company name")
+            .as("CSV should include tax profile fields and company name")
+            .contains("established_date,is_pkp,pkp_since")
             .contains("PT No Tax Profile");
     }
 
@@ -133,10 +120,8 @@ public class DataExportImportTest {
         // Data line should have the values
         String dataLine = lines[1];
         assertThat(dataLine)
-            .as("Data should contain established date")
-            .contains("2015-06-20");
-        assertThat(dataLine)
-            .as("Data should contain isPkp=false")
+            .as("Data should contain established date and isPkp=false")
+            .contains("2015-06-20")
             .contains("false");
     }
 

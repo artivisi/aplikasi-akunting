@@ -96,8 +96,7 @@ class PayrollServiceTest {
             List<JournalEntry> journalEntries = journalEntryRepository
                     .findByTransactionIdWithAccount(transaction.getId());
 
-            assertThat(journalEntries).isNotEmpty();
-            assertThat(journalEntries).hasSize(5); // 2 debit + 3 credit entries
+            assertThat(journalEntries).isNotEmpty().hasSize(5); // 2 debit + 3 credit entries
         }
 
         @Test
@@ -126,11 +125,12 @@ class PayrollServiceTest {
                     ));
 
             // Verify all required accounts are present
-            assertThat(entriesByAccount).containsKey(ACCOUNT_ID_BEBAN_GAJI);
-            assertThat(entriesByAccount).containsKey(ACCOUNT_ID_BEBAN_BPJS);
-            assertThat(entriesByAccount).containsKey(ACCOUNT_ID_HUTANG_GAJI);
-            assertThat(entriesByAccount).containsKey(ACCOUNT_ID_HUTANG_BPJS);
-            assertThat(entriesByAccount).containsKey(ACCOUNT_ID_HUTANG_PPH21);
+            assertThat(entriesByAccount).containsKeys(
+                    ACCOUNT_ID_BEBAN_GAJI,
+                    ACCOUNT_ID_BEBAN_BPJS,
+                    ACCOUNT_ID_HUTANG_GAJI,
+                    ACCOUNT_ID_HUTANG_BPJS,
+                    ACCOUNT_ID_HUTANG_PPH21);
 
             // Verify account codes
             assertThat(entriesByAccount.get(ACCOUNT_ID_BEBAN_GAJI).getAccount().getAccountCode())

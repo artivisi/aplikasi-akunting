@@ -313,8 +313,9 @@ class FileValidationServiceTest {
 
             String sanitized = LogSanitizer.filename(longFilename);
 
-            assertThat(sanitized).hasSize(255 + "...[truncated]".length());
-            assertThat(sanitized).endsWith("...[truncated]");
+            assertThat(sanitized)
+                    .hasSize(255 + "...[truncated]".length())
+                    .endsWith("...[truncated]");
         }
 
         @Test
