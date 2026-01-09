@@ -66,13 +66,10 @@ public class MonthlyJournalScheduler {
             int errorCount = 0;
 
             for (DepreciationEntry entry : generatedEntries) {
-                try {
-                    fixedAssetService.postDepreciationEntry(entry.getId(), SYSTEM_USER);
+                if (tryPostDepreciationEntry(entry)) {
                     postedCount++;
-                } catch (Exception e) {
+                } else {
                     errorCount++;
-                    log.error("Failed to post depreciation entry: asset={}, period={}, error={}",
-                            entry.getFixedAsset().getAssetCode(), entry.getPeriodNumber(), e.getMessage());
                 }
             }
 
@@ -80,6 +77,17 @@ public class MonthlyJournalScheduler {
                     generatedEntries.size(), postedCount, errorCount);
         } catch (Exception e) {
             log.error("Scheduled depreciation batch failed", e);
+        }
+    }
+
+    private boolean tryPostDepreciationEntry(DepreciationEntry entry) {
+        try {
+            fixedAssetService.postDepreciationEntry(entry.getId(), SYSTEM_USER);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to post depreciation entry: asset={}, period={}, error={}",
+                    entry.getFixedAsset().getAssetCode(), entry.getPeriodNumber(), e.getMessage());
+            return false;
         }
     }
 }

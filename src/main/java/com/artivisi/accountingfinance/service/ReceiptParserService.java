@@ -241,15 +241,24 @@ public class ReceiptParserService {
 
             // Try standard formats
             for (String pattern : new String[]{"dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-dd"}) {
-                try {
-                    return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(pattern));
-                } catch (DateTimeParseException ignored) {}
+                LocalDate parsed = tryParseWithPattern(dateStr, pattern);
+                if (parsed != null) {
+                    return parsed;
+                }
             }
 
         } catch (Exception e) {
             log.debug("Date parsing failed for: {}", dateStr);
         }
         return null;
+    }
+
+    private LocalDate tryParseWithPattern(String dateStr, String pattern) {
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(pattern));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     private String extractRecipientFromCimb(String text) {

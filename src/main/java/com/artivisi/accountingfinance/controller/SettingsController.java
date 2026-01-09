@@ -144,11 +144,7 @@ public class SettingsController {
             // Delete old logo if exists
             CompanyConfig config = companyConfigService.getConfig();
             if (config.getCompanyLogoPath() != null && !config.getCompanyLogoPath().isEmpty()) {
-                try {
-                    documentStorageService.delete(config.getCompanyLogoPath());
-                } catch (IOException e) {
-                    log.warn("Failed to delete old logo: {}", e.getMessage());
-                }
+                tryDeleteOldLogo(config.getCompanyLogoPath());
             }
 
             // Store new logo
@@ -498,5 +494,13 @@ public class SettingsController {
         }
 
         return "settings/audit-logs";
+    }
+
+    private void tryDeleteOldLogo(String logoPath) {
+        try {
+            documentStorageService.delete(logoPath);
+        } catch (IOException e) {
+            log.warn("Failed to delete old logo: {}", e.getMessage());
+        }
     }
 }
