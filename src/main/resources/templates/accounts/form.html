@@ -104,10 +104,10 @@
                         </div>
 
                         <!-- Normal Balance -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <fieldset>
+                            <legend class="block text-sm font-medium text-gray-700 mb-2">
                                 Saldo Normal <span class="text-red-500">*</span>
-                            </label>
+                            </legend>
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" th:field="*{normalBalance}" value="DEBIT"
@@ -124,7 +124,7 @@
                             </div>
                             <p th:if="${hasParent}" class="mt-1 text-sm text-gray-500">Saldo normal mengikuti akun induk</p>
                             <p th:if="${#fields.hasErrors('normalBalance')}" class="mt-1 text-sm text-red-600" th:errors="*{normalBalance}">Error</p>
-                        </div>
+                        </fieldset>
 
                         <!-- Is Header -->
                         <div class="flex items-center">

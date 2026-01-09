@@ -41,8 +41,8 @@
                 <div class="space-y-4">
                     <!-- Formula Input -->
                     <div>
-                        <label class="block text-xs font-medium text-blue-700 mb-1">Formula</label>
-                        <input type="text" x-model="tryFormula"
+                        <label for="tryFormula" class="block text-xs font-medium text-blue-700 mb-1">Formula</label>
+                        <input type="text" id="tryFormula" x-model="tryFormula"
                                @input="debouncedPreview"
                                placeholder="amount * 0.11"
                                class="w-full px-3 py-2 text-sm font-mono border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
@@ -50,10 +50,10 @@
 
                     <!-- Amount Input -->
                     <div>
-                        <label class="block text-xs font-medium text-blue-700 mb-1">Jumlah (amount)</label>
+                        <label for="tryAmount" class="block text-xs font-medium text-blue-700 mb-1">Jumlah (amount)</label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">Rp</span>
-                            <input type="text" x-model="tryAmount"
+                            <input type="text" id="tryAmount" x-model="tryAmount"
                                    @input="handleAmountInput"
                                    placeholder="10.000.000"
                                    class="w-full pl-10 pr-3 py-2 text-sm font-mono border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-right">
@@ -372,7 +372,7 @@
 
                 parseAmount() {
                     // Remove dots and convert to number
-                    return parseInt(this.tryAmount.replace(/\./g, ''), 10) || 0;
+                    return Number.parseInt(this.tryAmount.replace(/\./g, ''), 10) || 0;
                 },
 
                 debouncedPreview() {

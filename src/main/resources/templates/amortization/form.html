@@ -24,7 +24,7 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                 </div>
                 <div th:if="${isEdit}">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Kode</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg font-mono" th:text="${schedule.code}">AMT-001</p>
                 </div>
 
@@ -63,7 +63,7 @@
                 </p>
             </div>
             <div th:if="${isEdit}">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Jadwal</label>
+                <span class="block text-sm font-medium text-gray-700 mb-1">Tipe Jadwal</span>
                 <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${schedule.scheduleType.indonesianName}">Beban Dibayar Dimuka</p>
             </div>
 
@@ -98,11 +98,11 @@
             </div>
             <div th:if="${isEdit}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Akun Sumber</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Akun Sumber</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${schedule.sourceAccount.accountCode} + ' - ' + ${schedule.sourceAccount.accountName}">Akun</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Akun Tujuan</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Akun Tujuan</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${schedule.targetAccount.accountCode} + ' - ' + ${schedule.targetAccount.accountName}">Akun</p>
                 </div>
             </div>
@@ -135,15 +135,15 @@
             </div>
             <div th:if="${isEdit}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Jumlah</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Total Jumlah</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg font-medium" th:text="${#numbers.formatDecimal(schedule.totalAmount, 0, 'COMMA', 0, 'POINT')}">12,000,000</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${#temporals.format(schedule.startDate, 'dd MMM yyyy')}">01 Jan 2025</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
+                    <span class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</span>
                     <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${#temporals.format(schedule.endDate, 'dd MMM yyyy')}">31 Dec 2025</p>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                 </select>
             </div>
             <div th:if="${isEdit}">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Frekuensi</label>
+                <span class="block text-sm font-medium text-gray-700 mb-1">Frekuensi</span>
                 <p class="px-3 py-2 bg-gray-50 rounded-lg" th:text="${schedule.frequency.indonesianName}">Bulanan</p>
             </div>
 

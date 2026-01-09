@@ -83,13 +83,14 @@ public class TransactionHelper {
         log.debug("Executed transaction: {} - {}", savedTx.getTransactionNumber(), tx.description());
     }
 
-    private void createJournalEntries(Transaction transaction, JournalTemplate template, 
+    private void createJournalEntries(Transaction transaction, JournalTemplate template,
                                      BigDecimal amount, Map<String, String> inputs) {
         // This is simplified - real implementation would parse template lines
         // and create appropriate journal entries based on template type (SIMPLE/DETAILED)
-        
+
         // For now, just log - full implementation needed based on template structure
-        log.debug("Creating journal entries for template: {}", template.getTemplateName());
+        log.debug("Creating journal entries for transaction {} using template: {}, amount: {}, inputs: {}",
+                transaction.getTransactionNumber(), template.getTemplateName(), amount, inputs.size());
     }
 
     private Map<String, String> parseInputs(String inputs) {

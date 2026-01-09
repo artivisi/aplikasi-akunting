@@ -680,10 +680,4 @@ class TelegramBotServiceTest {
         return draft;
     }
 
-    private Document createDocument() {
-        Document doc = new Document();
-        doc.setFilename("receipt.jpg");
-        doc.setContentType("image/jpeg");
-        return doc;
-    }
 }

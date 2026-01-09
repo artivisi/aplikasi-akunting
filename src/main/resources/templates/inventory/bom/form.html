@@ -194,9 +194,7 @@
                     // Enable inputs
                     clone.querySelectorAll('select, input').forEach(function(el) {
                         el.removeAttribute('disabled');
-                        if (el.tagName === 'SELECT') {
-                            el.setAttribute('required', 'required');
-                        } else if (el.name === 'componentQty[]') {
+                        if (el.tagName === 'SELECT' || el.name === 'componentQty[]') {
                             el.setAttribute('required', 'required');
                         }
                     });

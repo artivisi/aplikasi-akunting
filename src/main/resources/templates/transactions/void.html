@@ -94,10 +94,10 @@
                       x-data="voidForm">
                     <div class="space-y-6">
                         <!-- Void Reason Selection -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <fieldset>
+                            <legend class="block text-sm font-medium text-gray-700 mb-3">
                                 Pilih alasan <span class="text-red-500">*</span>
-                            </label>
+                            </legend>
                             <div class="space-y-2">
                                 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                                     <input type="radio" name="voidReason" value="INPUT_ERROR" x-model="voidReason"
@@ -120,7 +120,7 @@
                                     <span class="ml-3 text-sm text-gray-700">Alasan Lainnya</span>
                                 </label>
                             </div>
-                        </div>
+                        </fieldset>
 
                         <!-- Additional Notes -->
                         <div>

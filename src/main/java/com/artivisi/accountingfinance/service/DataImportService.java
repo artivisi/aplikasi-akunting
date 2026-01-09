@@ -622,15 +622,6 @@ public class DataImportService {
         }
     }
 
-    private Double parseDouble(String value) {
-        if (value == null || value.isEmpty()) return null;
-        try {
-            return Double.parseDouble(value);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid double value: " + LogSanitizer.sanitize(value), e);
-        }
-    }
-
     // ============================================
     // Field Setting Helpers (reduce cognitive complexity)
     // ============================================

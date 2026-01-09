@@ -22,10 +22,10 @@
 
         <form th:action="@{/inventory/adjustment}" th:object="${form}" method="post" class="bg-white rounded-lg shadow p-6 space-y-6">
             <!-- Adjustment Type -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+            <fieldset>
+                <legend class="block text-sm font-medium text-gray-700 mb-2">
                     Tipe Penyesuaian <span class="text-red-500">*</span>
-                </label>
+                </legend>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="radio"
@@ -42,7 +42,7 @@
                         <span class="text-red-600 font-medium">Pengurangan</span>
                     </label>
                 </div>
-            </div>
+            </fieldset>
 
             <!-- Product -->
             <div>

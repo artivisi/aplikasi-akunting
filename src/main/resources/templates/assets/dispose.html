@@ -120,7 +120,7 @@
                 const gainLossPreview = document.getElementById('gainLossPreview');
 
                 function updateGainLoss() {
-                    const proceeds = parseFloat(proceedsInput.value) || 0;
+                    const proceeds = Number.parseFloat(proceedsInput.value) || 0;
                     const gainLoss = proceeds - bookValue;
 
                     gainLossPreview.textContent = 'Rp ' + gainLoss.toLocaleString('id-ID');

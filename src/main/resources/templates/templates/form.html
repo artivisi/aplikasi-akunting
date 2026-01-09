@@ -173,10 +173,10 @@
                         <!-- Preview Amount Input -->
                         <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="flex items-center space-x-3">
-                                <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Preview dengan:</label>
+                                <label for="previewAmount" class="text-sm font-medium text-gray-700 whitespace-nowrap">Preview dengan:</label>
                                 <div class="relative flex-1 max-w-xs">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">Rp</span>
-                                    <input type="text" x-model="previewAmount"
+                                    <input type="text" id="previewAmount" x-model="previewAmount"
                                            @input="formatPreviewAmount(); updateAllPreviews();"
                                            class="w-full pl-10 pr-3 py-1.5 text-sm font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-right"
                                            placeholder="10.000.000">
@@ -534,7 +534,7 @@
                 },
 
                 parsePreviewAmount() {
-                    return parseInt(this.previewAmount.replace(/\./g, ''), 10) || 0;
+                    return Number.parseInt(this.previewAmount.replace(/\./g, ''), 10) || 0;
                 },
 
                 updateAllPreviews() {
