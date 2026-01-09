@@ -224,7 +224,7 @@ abstract class ZapDastTestBase {
                 ApiResponse version = zapClient.core.version();
                 log.info("ZAP version: {}", ((ApiResponseElement) version).getValue());
                 return;
-            } catch (Exception e) {
+            } catch (Exception _) {
                 Thread.sleep(1000);
             }
         }

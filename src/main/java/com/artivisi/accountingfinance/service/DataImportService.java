@@ -389,7 +389,7 @@ public class DataImportService {
             amortizationScheduleMap.put(as.getCode(), as);
         }
 
-        taxDeadlineMap = new HashMap<>();
+        taxDeadlineMap = new EnumMap<>(TaxDeadlineType.class);
         for (TaxDeadline td : taxDeadlineRepository.findAll()) {
             taxDeadlineMap.put(td.getDeadlineType(), td);
         }

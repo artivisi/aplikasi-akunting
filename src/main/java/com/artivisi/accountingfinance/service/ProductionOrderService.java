@@ -244,7 +244,7 @@ public class ProductionOrderService {
     private String getCurrentUsername() {
         try {
             return SecurityContextHolder.getContext().getAuthentication().getName();
-        } catch (Exception e) {
+        } catch (Exception _) {
             return "system";
         }
     }

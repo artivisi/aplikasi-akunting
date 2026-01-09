@@ -257,7 +257,7 @@ public class TransactionFormPage {
         String cleaned = text.replace("Rp", "").replace(".", "").trim();
         try {
             return Long.parseLong(cleaned);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return 0;
         }
     }

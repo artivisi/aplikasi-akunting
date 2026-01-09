@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,13 +278,13 @@ public class ReportService {
         List<Transaction> transactions = transactionRepository.findPostedTransactionsBetweenDates(startDate, endDate);
 
         // Group cash flows by category
-        Map<CashFlowCategory, List<CashFlowItem>> cashFlowsByCategory = new HashMap<>();
+        Map<CashFlowCategory, List<CashFlowItem>> cashFlowsByCategory = new EnumMap<>(CashFlowCategory.class);
         for (CashFlowCategory category : CashFlowCategory.values()) {
             cashFlowsByCategory.put(category, new ArrayList<>());
         }
 
         // Aggregate by template name within each category
-        Map<CashFlowCategory, Map<String, BigDecimal>> aggregatedFlows = new HashMap<>();
+        Map<CashFlowCategory, Map<String, BigDecimal>> aggregatedFlows = new EnumMap<>(CashFlowCategory.class);
         for (CashFlowCategory category : CashFlowCategory.values()) {
             aggregatedFlows.put(category, new HashMap<>());
         }
