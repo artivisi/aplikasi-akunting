@@ -97,6 +97,8 @@ public class TransactionService {
 
     // Delegates to the full create method which handles the transaction
     // No @Transactional needed - participates in caller's transaction or the delegated method's transaction
+    // Internal call is intentional - this is a convenience overload, not a transactional boundary
+    @SuppressWarnings("java:S6809")
     public Transaction create(Transaction transaction, Map<UUID, UUID> accountMappings) {
         return create(transaction, accountMappings, null);
     }

@@ -77,7 +77,7 @@ public class Employee {
 
     // Encrypted at rest (PII protection)
     @Size(max = 16, message = "NIK KTP maksimal 16 karakter")
-    @Pattern(regexp = "^$|^[0-9]{16}$", message = "NIK KTP harus 16 digit angka")
+    @Pattern(regexp = "^$|^\\d{16}$", message = "NIK KTP harus 16 digit angka")
     @Column(name = "nik_ktp", length = 255)  // Extended for encrypted data
     @Convert(converter = EncryptedStringConverter.class)
     private String nikKtp;

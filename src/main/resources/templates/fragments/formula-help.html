@@ -365,14 +365,14 @@
 
                 formatAmountInput() {
                     // Remove non-digits
-                    let value = this.tryAmount.replace(/\D/g, '');
+                    let value = this.tryAmount.replaceAll(/\D/g, '');
                     // Format with dots
-                    this.tryAmount = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    this.tryAmount = value.replaceAll(/\B(?=(\d{3})+(?!\d))/g, '.');
                 },
 
                 parseAmount() {
                     // Remove dots and convert to number
-                    return Number.parseInt(this.tryAmount.replace(/\./g, ''), 10) || 0;
+                    return Number.parseInt(this.tryAmount.replaceAll(/\./g, ''), 10) || 0;
                 },
 
                 debouncedPreview() {

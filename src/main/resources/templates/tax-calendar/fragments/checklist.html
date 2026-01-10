@@ -72,8 +72,7 @@
                                 class="btn-mark-complete px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
                                 th:data-deadline-id="${status.deadline.id}"
                                 th:data-year="${status.year}"
-                                th:data-month="${status.month}"
-                                th:data-deadline-name="${status.deadline.name}">
+                                th:data-month="${status.month}">
                             Tandai Selesai
                         </button>
                     </div>
@@ -149,7 +148,6 @@
             const deadlineId = this.dataset.deadlineId;
             const year = this.dataset.year;
             const month = this.dataset.month;
-            const name = this.dataset.deadlineName;
 
             document.getElementById('complete-form').action = '/tax-calendar/complete/' + deadlineId;
             document.getElementById('modal-year').value = year;

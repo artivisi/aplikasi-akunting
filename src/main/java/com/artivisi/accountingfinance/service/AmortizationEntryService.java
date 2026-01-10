@@ -143,7 +143,10 @@ public class AmortizationEntryService {
                 break;
 
             case UNEARNED_REVENUE:
-                // Debit: Unearned Revenue (source), Credit: Revenue (target)
+            case ACCRUED_REVENUE:
+                // Debit: Source account, Credit: Target account
+                // UNEARNED_REVENUE: Debit Unearned Revenue, Credit Revenue
+                // ACCRUED_REVENUE: Debit Accrued Revenue Receivable, Credit Revenue
                 debitEntry.setAccount(schedule.getSourceAccount());
                 debitEntry.setDebitAmount(entry.getAmount());
                 debitEntry.setCreditAmount(BigDecimal.ZERO);
@@ -160,17 +163,6 @@ public class AmortizationEntryService {
                 debitEntry.setCreditAmount(BigDecimal.ZERO);
 
                 creditEntry.setAccount(schedule.getSourceAccount());
-                creditEntry.setDebitAmount(BigDecimal.ZERO);
-                creditEntry.setCreditAmount(entry.getAmount());
-                break;
-
-            case ACCRUED_REVENUE:
-                // Debit: Accrued Revenue Receivable (source), Credit: Revenue (target)
-                debitEntry.setAccount(schedule.getSourceAccount());
-                debitEntry.setDebitAmount(entry.getAmount());
-                debitEntry.setCreditAmount(BigDecimal.ZERO);
-
-                creditEntry.setAccount(schedule.getTargetAccount());
                 creditEntry.setDebitAmount(BigDecimal.ZERO);
                 creditEntry.setCreditAmount(entry.getAmount());
                 break;

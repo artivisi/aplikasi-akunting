@@ -813,15 +813,7 @@ public class PayrollReportService {
     }
 
     private void addSummaryRow(PdfPTable table, String label, String value) {
-        PdfPCell labelCell = new PdfPCell(new Phrase(label, getNormalFont()));
-        labelCell.setBorder(0);
-        labelCell.setPadding(3);
-        table.addCell(labelCell);
-
-        PdfPCell valueCell = new PdfPCell(new Phrase(": " + value, getNormalFont()));
-        valueCell.setBorder(0);
-        valueCell.setPadding(3);
-        table.addCell(valueCell);
+        addInfoRow(table, label, value);
     }
 
     private void addTableHeader(PdfPTable table, String... headers) {

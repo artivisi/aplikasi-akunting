@@ -529,12 +529,12 @@
                 },
 
                 formatPreviewAmount() {
-                    let value = this.previewAmount.replace(/\D/g, '');
-                    this.previewAmount = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    let value = this.previewAmount.replaceAll(/\D/g, '');
+                    this.previewAmount = value.replaceAll(/\B(?=(\d{3})+(?!\d))/g, '.');
                 },
 
                 parsePreviewAmount() {
-                    return Number.parseInt(this.previewAmount.replace(/\./g, ''), 10) || 0;
+                    return Number.parseInt(this.previewAmount.replaceAll(/\./g, ''), 10) || 0;
                 },
 
                 updateAllPreviews() {
