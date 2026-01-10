@@ -200,7 +200,7 @@ function registerFormComponents() {
     // Transaction form state
     Alpine.data('transactionForm', () => ({
         init() {
-            this.amount = Number.parseInt(this.$el.dataset.amount) || 0
+            this.amount = Number.parseInt(this.$el.dataset.amount, 10) || 0
             this.description = this.$el.dataset.description || ''
             // Initialize the display input with formatted value
             const displayInput = this.$el.querySelector('#amount')
@@ -302,7 +302,7 @@ function registerFormComponents() {
             if (hiddenInput && hiddenInput.classList.contains('var-value')) {
                 hiddenInput.value = rawValue
             }
-            input.value = rawValue ? idNumberFormat.format(Number.parseInt(rawValue)) : ''
+            input.value = rawValue ? idNumberFormat.format(Number.parseInt(rawValue, 10)) : ''
         },
 
         // Method - close the modal dialog
@@ -330,7 +330,7 @@ function registerFormComponents() {
                 if (key.startsWith('var_') && value) {
                     const cleanValue = value.replaceAll(/\D/g, '')
                     if (cleanValue) {
-                        variables[key.substring(4)] = Number.parseInt(cleanValue)
+                        variables[key.substring(4)] = Number.parseInt(cleanValue, 10)
                     }
                 }
             }
@@ -361,7 +361,7 @@ function registerFormComponents() {
                 const variables = this.collectVariables(formData)
                 const data = {
                     templateId: formData.get('templateId'),
-                    amount: Number.parseInt(formData.get('amount')) || 0,
+                    amount: Number.parseInt(formData.get('amount'), 10) || 0,
                     description: formData.get('description'),
                     transactionDate: formData.get('transactionDate'),
                     referenceNumber: formData.get('referenceNumber') || '',

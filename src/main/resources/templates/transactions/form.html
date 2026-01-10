@@ -453,14 +453,14 @@
                             // Parse formatted number (remove dots as thousand separators)
                             const cleanValue = input.value.replaceAll(/\D/g, '');
                             if (cleanValue) {
-                                variables[varName] = Number.parseInt(cleanValue);
+                                variables[varName] = Number.parseInt(cleanValue, 10);
                             }
                         }
                     });
 
                     // Parse amount from display input (handles formatted numbers like "1.000.000")
                     const amountDisplay = document.getElementById('amount');
-                    const rawAmount = amountDisplay ? Number.parseInt(amountDisplay.value.replaceAll(/\D/g, '')) || 0 : 0;
+                    const rawAmount = amountDisplay ? Number.parseInt(amountDisplay.value.replaceAll(/\D/g, ''), 10) || 0 : 0;
 
                     const data = {
                         templateId: templateId,

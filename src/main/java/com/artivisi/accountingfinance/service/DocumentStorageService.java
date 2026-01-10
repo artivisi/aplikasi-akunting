@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,7 +53,7 @@ public class DocumentStorageService {
     )
     public void init() {
         this.rootLocation = Paths.get(storagePath).toAbsolutePath().normalize();
-        this.allowedContentTypes = Arrays.asList(allowedTypes.split(","));
+        this.allowedContentTypes = List.of(allowedTypes.split(","));
 
         try {
             Files.createDirectories(rootLocation);
