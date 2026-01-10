@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -26,7 +25,7 @@ public class Pph21CalculatorController {
 
     @GetMapping
     public String showCalculator(Model model) {
-        model.addAttribute("ptkpStatuses", Arrays.asList(PtkpStatus.values()));
+        model.addAttribute("ptkpStatuses", List.of(PtkpStatus.values()));
         model.addAttribute("selectedPtkpStatus", PtkpStatus.TK_0.name());
         return "pph21-calculator/index";
     }
@@ -41,7 +40,7 @@ public class Pph21CalculatorController {
         PtkpStatus status = PtkpStatus.valueOf(ptkpStatus);
         var result = pph21CalculationService.calculate(salary, status, hasNpwp);
 
-        model.addAttribute("ptkpStatuses", Arrays.asList(PtkpStatus.values()));
+        model.addAttribute("ptkpStatuses", List.of(PtkpStatus.values()));
         model.addAttribute("salary", salary);
         model.addAttribute("selectedPtkpStatus", ptkpStatus);
         model.addAttribute("hasNpwp", hasNpwp);

@@ -26,7 +26,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,7 +67,7 @@ public class PayrollController {
         Page<PayrollRun> payrollRuns = payrollService.findByStatus(status, pageable);
 
         model.addAttribute("payrollRuns", payrollRuns);
-        model.addAttribute("statuses", Arrays.asList(PayrollStatus.values()));
+        model.addAttribute("statuses", List.of(PayrollStatus.values()));
         model.addAttribute("selectedStatus", status);
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_PAYROLL);
 
