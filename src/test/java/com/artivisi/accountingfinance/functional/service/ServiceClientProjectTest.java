@@ -58,16 +58,16 @@ class ServiceClientProjectTest extends PlaywrightTestBase {
     }
 
     @Test
-    @DisplayName("Should display Project List with 4 projects from test data")
+    @DisplayName("Should display Project List with at least 4 projects from test data")
     void shouldDisplayProjectList() {
         loginAsAdmin();
         initPageObjects();
 
-        // Test data has 4 projects
+        // Test data has 4 projects (may be more if other tests create projects)
         projectListPage.navigate()
             .verifyPageTitle()
             .verifyTableVisible()
-            .verifyProjectCount(4);
+            .verifyMinimumProjectCount(4);
     }
 
     @Test

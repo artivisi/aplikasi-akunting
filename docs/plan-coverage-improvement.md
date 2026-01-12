@@ -2,12 +2,13 @@
 
 Goal: Increase code coverage from 49.66% to 75%
 
-## Current State
+## Current State (Updated 2026-01-11)
 
-- **Instruction Coverage**: 49.66% (35,269/71,026)
-- **Line Coverage**: 49.02% (6,709/13,685)
+- **Instruction Coverage**: 66% (47,129/71,020)
+- **Line Coverage**: 65% (8,915/13,682)
+- **Branch Coverage**: 51%
 - **Target**: 75% instruction coverage
-- **Gap**: ~18,000 instructions need coverage
+- **Gap**: ~6,400 instructions need coverage (9% to go)
 
 ## Test Strategy Priority
 
@@ -214,6 +215,8 @@ Goal: Increase code coverage from 49.66% to 75%
 | **Phase 3** ✅ | 34 functional | 38,787 | 54.61% (+0.33%) |
 | **Phase 4** ✅ | 44 tests | 38,236 | 53.84% (-0.77%) |
 | **Phase 5** ✅ | 78 unit tests | 39,100 | 55.05% (+1.21%) |
+| **Incremental** ✅ | Various | 47,129 | 66% (+10.95%) |
+| **Phase 6** 🔄 | TBD | Target: 53,284 | 75% (+9%) |
 
 ### Phase 1 Tests Created (45 tests)
 - `ServicePayrollComprehensiveTest.java` - 15 tests
@@ -276,3 +279,133 @@ Additional test data migrations may be needed in:
 - [x] `src/test/java/.../util/AmountToWordsUtilTest.java` ✅
 - [x] `src/test/java/.../enums/TaxObjectCodeTest.java` ✅
 - [x] `src/test/java/.../security/RateLimitServiceTest.java` ✅
+
+---
+
+## Phase 6: Controller Coverage Focus (Target: 75%)
+
+### Controllers with <50% Coverage (Sorted by Impact)
+
+| Controller | Coverage | Missed | Priority | Test Approach |
+|------------|----------|--------|----------|---------------|
+| SettingsController | 31% | 584 | High | Functional: company settings, audit logs |
+| PayrollController | 24% | 581 | High | Functional: payroll calculations, reports |
+| JournalTemplateController | 37% | 492 | Medium | Functional: template CRUD, usage |
+| UserController | 19% | 467 | High | Functional: user CRUD, password change |
+| DocumentController | 19% | 407 | Medium | Functional: upload, download, delete |
+| TaxExportController | 3% | 247 | High | Functional: e-Faktur, Bupot export |
+| MilestoneController | 10% | 224 | Medium | Functional: milestone lifecycle |
+| AmortizationController | 24% | 190 | Medium | Functional: schedule CRUD |
+| BpjsCalculatorController | 4% | 129 | Low | Functional: BPJS calculation |
+| DataImportController | 3% | 108 | Low | Functional: CSV import |
+| SelfServiceController | 18% | 97 | Low | Functional: self-service portal |
+
+### Phase 6.1: High-Priority Controllers (~1,900 instructions)
+
+**Tests to Create:**
+
+1. **TaxExportFunctionalTest.java** - e-Faktur and Bupot exports
+   - Test e-Faktur Keluaran export
+   - Test e-Faktur Masukan export
+   - Test Bupot 21/26 export
+   - Test Bupot Unifikasi export
+   - Expected coverage gain: ~250 instructions
+
+2. **BpjsCalculatorFunctionalTest.java** - BPJS contribution calculator
+   - Test BPJS TK calculation
+   - Test BPJS Kesehatan calculation
+   - Test combined BPJS calculation
+   - Expected coverage gain: ~130 instructions
+
+3. **SettingsControllerFunctionalTest.java** - Settings pages
+   - Test company settings view/edit
+   - Test bank account management
+   - Test tax configuration
+   - Test audit log viewing
+   - Expected coverage gain: ~600 instructions
+
+4. **PayrollControllerFunctionalTest.java** - Payroll UI
+   - Test payroll run creation
+   - Test payroll calculation trigger
+   - Test payroll approval workflow
+   - Test payroll report generation
+   - Expected coverage gain: ~580 instructions
+
+5. **UserControllerFunctionalTest.java** - User management
+   - Test user list view
+   - Test user create form
+   - Test user edit form
+   - Test password change
+   - Test role assignment
+   - Expected coverage gain: ~470 instructions
+
+### Phase 6.2: Medium-Priority Controllers (~1,300 instructions)
+
+**Tests to Create:**
+
+6. **JournalTemplateFunctionalTest.java** - Journal templates
+   - Test template list view
+   - Test template create
+   - Test template edit
+   - Test template usage in transactions
+   - Expected coverage gain: ~500 instructions
+
+7. **DocumentControllerFunctionalTest.java** - Document management
+   - Test document list view
+   - Test document upload
+   - Test document download
+   - Test document deletion
+   - Expected coverage gain: ~400 instructions
+
+8. **MilestoneControllerFunctionalTest.java** - Project milestones
+   - Test milestone create
+   - Test milestone status transitions
+   - Test milestone edit
+   - Test milestone delete
+   - Expected coverage gain: ~220 instructions
+
+9. **AmortizationControllerFunctionalTest.java** - Amortization
+   - Test schedule creation
+   - Test schedule viewing
+   - Test entry generation
+   - Expected coverage gain: ~190 instructions
+
+### Phase 6.3: Low-Priority Controllers (~330 instructions)
+
+**Tests to Create:**
+
+10. **DataImportFunctionalTest.java** - Data import
+    - Test import page display
+    - Test CSV file selection
+    - Test import execution
+    - Expected coverage gain: ~110 instructions
+
+11. **SelfServiceFunctionalTest.java** - Employee self-service
+    - Test payslip view
+    - Test leave request
+    - Test profile update
+    - Expected coverage gain: ~100 instructions
+
+### Estimated Coverage After Phase 6
+
+| Phase | Instructions | Coverage |
+|-------|-------------|----------|
+| Current | 47,129 | 66% |
+| Phase 6.1 | +2,030 | 69% |
+| Phase 6.2 | +1,310 | 71% |
+| Phase 6.3 | +330 | 71.5% |
+| Service gaps | +2,500 | 75% |
+
+### Files to Create
+
+- [x] `src/test/java/.../functional/TaxExportFunctionalTest.java` ✅ (22 tests)
+- [x] `src/test/java/.../functional/BpjsCalculatorFunctionalTest.java` ✅ (15 tests)
+- [x] `src/test/java/.../functional/SettingsControllerFunctionalTest.java` ✅ (22 tests)
+- [x] `src/test/java/.../functional/PayrollControllerFunctionalTest.java` ✅ (20 tests)
+- [x] `src/test/java/.../functional/UserControllerFunctionalTest.java` ✅ (24 tests)
+- [ ] `src/test/java/.../functional/JournalTemplateFunctionalTest.java`
+- [ ] `src/test/java/.../functional/DocumentControllerFunctionalTest.java`
+- [ ] `src/test/java/.../functional/MilestoneControllerFunctionalTest.java`
+- [ ] `src/test/java/.../functional/AmortizationControllerFunctionalTest.java`
+- [ ] `src/test/java/.../functional/DataImportFunctionalTest.java`
+- [ ] `src/test/java/.../functional/SelfServiceFunctionalTest.java`
