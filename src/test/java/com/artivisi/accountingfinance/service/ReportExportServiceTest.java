@@ -1,249 +1,265 @@
 package com.artivisi.accountingfinance.service;
 
-import com.artivisi.accountingfinance.entity.ChartOfAccount;
-import com.artivisi.accountingfinance.enums.AccountType;
-import com.artivisi.accountingfinance.enums.NormalBalance;
-import org.junit.jupiter.api.BeforeEach;
+import com.artivisi.accountingfinance.TestcontainersConfiguration;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("ReportExportService Tests")
-@ExtendWith(MockitoExtension.class)
+/**
+ * Integration tests for ReportExportService.
+ * Tests PDF and Excel export for financial reports using actual database data.
+ */
+@SpringBootTest
+@Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
+@Transactional
+@DisplayName("ReportExportService - Financial Report Export")
 class ReportExportServiceTest {
 
-    @Mock
+    @Autowired
+    private ReportExportService reportExportService;
+
+    @Autowired
+    private ReportService reportService;
+
+    @Autowired
     private DepreciationReportService depreciationReportService;
 
-    @Mock
+    @Autowired
     private InventoryReportService inventoryReportService;
 
-    private ReportExportService exportService;
+    // ==================== Trial Balance ====================
 
-    @BeforeEach
-    void setUp() {
-        exportService = new ReportExportService(depreciationReportService, inventoryReportService);
+    @Test
+    @DisplayName("Should export trial balance to PDF")
+    void shouldExportTrialBalanceToPdf() {
+        var report = reportService.generateTrialBalance(LocalDate.now());
+        byte[] pdf = reportExportService.exportTrialBalanceToPdf(report);
+
+        assertThat(pdf).isNotNull();
+        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
-    private ChartOfAccount createAccount(String code, String name, AccountType type, NormalBalance normalBalance) {
-        ChartOfAccount account = new ChartOfAccount();
-        account.setId(UUID.randomUUID());
-        account.setAccountCode(code);
-        account.setAccountName(name);
-        account.setAccountType(type);
-        account.setNormalBalance(normalBalance);
-        account.setActive(true);
-        account.setIsHeader(false);
-        return account;
-    }
+    @Test
+    @DisplayName("Should export trial balance to Excel")
+    void shouldExportTrialBalanceToExcel() throws Exception {
+        var report = reportService.generateTrialBalance(LocalDate.now());
+        byte[] excel = reportExportService.exportTrialBalanceToExcel(report);
 
-    @Nested
-    @DisplayName("Trial Balance Export")
-    class TrialBalanceExportTests {
-
-        @Test
-        @DisplayName("Should generate valid PDF for Trial Balance")
-        void shouldGenerateValidPdfForTrialBalance() {
-            ChartOfAccount cash = createAccount("1.1.01", "Kas", AccountType.ASSET, NormalBalance.DEBIT);
-            ChartOfAccount capital = createAccount("3.1.01", "Modal", AccountType.EQUITY, NormalBalance.CREDIT);
-
-            ReportService.TrialBalanceItem item1 = new ReportService.TrialBalanceItem(
-                    cash, new BigDecimal("100000000"), BigDecimal.ZERO);
-            ReportService.TrialBalanceItem item2 = new ReportService.TrialBalanceItem(
-                    capital, BigDecimal.ZERO, new BigDecimal("100000000"));
-
-            ReportService.TrialBalanceReport report = new ReportService.TrialBalanceReport(
-                    LocalDate.of(2024, 6, 30),
-                    List.of(item1, item2),
-                    new BigDecimal("100000000"),
-                    new BigDecimal("100000000")
-            );
-
-            byte[] pdfBytes = exportService.exportTrialBalanceToPdf(report);
-
-            assertThat(pdfBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            // PDF files start with %PDF
-            assertThat(new String(pdfBytes, 0, 4)).isEqualTo("%PDF");
-        }
-
-        @Test
-        @DisplayName("Should generate valid Excel for Trial Balance")
-        void shouldGenerateValidExcelForTrialBalance() {
-            ChartOfAccount cash = createAccount("1.1.01", "Kas", AccountType.ASSET, NormalBalance.DEBIT);
-
-            ReportService.TrialBalanceItem item = new ReportService.TrialBalanceItem(
-                    cash, new BigDecimal("100000000"), BigDecimal.ZERO);
-
-            ReportService.TrialBalanceReport report = new ReportService.TrialBalanceReport(
-                    LocalDate.of(2024, 6, 30),
-                    List.of(item),
-                    new BigDecimal("100000000"),
-                    BigDecimal.ZERO
-            );
-
-            byte[] excelBytes = exportService.exportTrialBalanceToExcel(report);
-
-            assertThat(excelBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            // XLSX files start with PK (zip format)
-            assertThat(new String(excelBytes, 0, 2)).isEqualTo("PK");
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
     }
 
-    @Nested
-    @DisplayName("Balance Sheet Export")
-    class BalanceSheetExportTests {
+    // ==================== Balance Sheet ====================
 
-        @Test
-        @DisplayName("Should generate valid PDF for Balance Sheet")
-        void shouldGenerateValidPdfForBalanceSheet() {
-            ChartOfAccount cash = createAccount("1.1.01", "Kas", AccountType.ASSET, NormalBalance.DEBIT);
-            ChartOfAccount hutang = createAccount("2.1.01", "Hutang Usaha", AccountType.LIABILITY, NormalBalance.CREDIT);
-            ChartOfAccount modal = createAccount("3.1.01", "Modal", AccountType.EQUITY, NormalBalance.CREDIT);
+    @Test
+    @DisplayName("Should export balance sheet to PDF")
+    void shouldExportBalanceSheetToPdf() {
+        var report = reportService.generateBalanceSheet(LocalDate.now());
+        byte[] pdf = reportExportService.exportBalanceSheetToPdf(report);
 
-            ReportService.BalanceSheetItem assetItem = new ReportService.BalanceSheetItem(
-                    cash, new BigDecimal("100000000"));
-            ReportService.BalanceSheetItem liabilityItem = new ReportService.BalanceSheetItem(
-                    hutang, new BigDecimal("20000000"));
-            ReportService.BalanceSheetItem equityItem = new ReportService.BalanceSheetItem(
-                    modal, new BigDecimal("50000000"));
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
 
-            ReportService.BalanceSheetReport report = new ReportService.BalanceSheetReport(
-                    LocalDate.of(2024, 6, 30),
-                    List.of(assetItem),
-                    List.of(liabilityItem),
-                    List.of(equityItem),
-                    new BigDecimal("100000000"),
-                    new BigDecimal("20000000"),
-                    new BigDecimal("80000000"),
-                    new BigDecimal("30000000")
-            );
+    @Test
+    @DisplayName("Should export balance sheet to Excel")
+    void shouldExportBalanceSheetToExcel() throws Exception {
+        var report = reportService.generateBalanceSheet(LocalDate.now());
+        byte[] excel = reportExportService.exportBalanceSheetToExcel(report);
 
-            byte[] pdfBytes = exportService.exportBalanceSheetToPdf(report);
-
-            assertThat(pdfBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            assertThat(new String(pdfBytes, 0, 4)).isEqualTo("%PDF");
-        }
-
-        @Test
-        @DisplayName("Should generate valid Excel for Balance Sheet")
-        void shouldGenerateValidExcelForBalanceSheet() {
-            ChartOfAccount cash = createAccount("1.1.01", "Kas", AccountType.ASSET, NormalBalance.DEBIT);
-
-            ReportService.BalanceSheetItem assetItem = new ReportService.BalanceSheetItem(
-                    cash, new BigDecimal("100000000"));
-
-            ReportService.BalanceSheetReport report = new ReportService.BalanceSheetReport(
-                    LocalDate.of(2024, 6, 30),
-                    List.of(assetItem),
-                    List.of(),
-                    List.of(),
-                    new BigDecimal("100000000"),
-                    BigDecimal.ZERO,
-                    new BigDecimal("100000000"),
-                    new BigDecimal("100000000")
-            );
-
-            byte[] excelBytes = exportService.exportBalanceSheetToExcel(report);
-
-            assertThat(excelBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            assertThat(new String(excelBytes, 0, 2)).isEqualTo("PK");
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
     }
 
-    @Nested
-    @DisplayName("Income Statement Export")
-    class IncomeStatementExportTests {
+    // ==================== Income Statement ====================
 
-        @Test
-        @DisplayName("Should generate valid PDF for Income Statement")
-        void shouldGenerateValidPdfForIncomeStatement() {
-            ChartOfAccount revenue = createAccount("4.1.01", "Pendapatan", AccountType.REVENUE, NormalBalance.CREDIT);
-            ChartOfAccount expense = createAccount("5.1.01", "Beban Gaji", AccountType.EXPENSE, NormalBalance.DEBIT);
+    @Test
+    @DisplayName("Should export income statement to PDF")
+    void shouldExportIncomeStatementToPdf() {
+        var report = reportService.generateIncomeStatement(
+                LocalDate.now().minusMonths(1), LocalDate.now());
+        byte[] pdf = reportExportService.exportIncomeStatementToPdf(report);
 
-            ReportService.IncomeStatementItem revenueItem = new ReportService.IncomeStatementItem(
-                    revenue, new BigDecimal("50000000"));
-            ReportService.IncomeStatementItem expenseItem = new ReportService.IncomeStatementItem(
-                    expense, new BigDecimal("20000000"));
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
 
-            ReportService.IncomeStatementReport report = new ReportService.IncomeStatementReport(
-                    LocalDate.of(2024, 1, 1),
-                    LocalDate.of(2024, 6, 30),
-                    List.of(revenueItem),
-                    List.of(expenseItem),
-                    new BigDecimal("50000000"),
-                    new BigDecimal("20000000"),
-                    new BigDecimal("30000000")
-            );
+    @Test
+    @DisplayName("Should export income statement to Excel")
+    void shouldExportIncomeStatementToExcel() throws Exception {
+        var report = reportService.generateIncomeStatement(
+                LocalDate.now().minusMonths(1), LocalDate.now());
+        byte[] excel = reportExportService.exportIncomeStatementToExcel(report);
 
-            byte[] pdfBytes = exportService.exportIncomeStatementToPdf(report);
-
-            assertThat(pdfBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            assertThat(new String(pdfBytes, 0, 4)).isEqualTo("%PDF");
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
+    }
 
-        @Test
-        @DisplayName("Should generate valid Excel for Income Statement")
-        void shouldGenerateValidExcelForIncomeStatement() {
-            ChartOfAccount revenue = createAccount("4.1.01", "Pendapatan", AccountType.REVENUE, NormalBalance.CREDIT);
+    // ==================== Cash Flow ====================
 
-            ReportService.IncomeStatementItem revenueItem = new ReportService.IncomeStatementItem(
-                    revenue, new BigDecimal("50000000"));
+    @Test
+    @DisplayName("Should export cash flow to PDF")
+    void shouldExportCashFlowToPdf() {
+        var report = reportService.generateCashFlowStatement(
+                LocalDate.now().minusMonths(1), LocalDate.now());
+        byte[] pdf = reportExportService.exportCashFlowToPdf(report);
 
-            ReportService.IncomeStatementReport report = new ReportService.IncomeStatementReport(
-                    LocalDate.of(2024, 1, 1),
-                    LocalDate.of(2024, 6, 30),
-                    List.of(revenueItem),
-                    List.of(),
-                    new BigDecimal("50000000"),
-                    BigDecimal.ZERO,
-                    new BigDecimal("50000000")
-            );
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
 
-            byte[] excelBytes = exportService.exportIncomeStatementToExcel(report);
+    @Test
+    @DisplayName("Should export cash flow to Excel")
+    void shouldExportCashFlowToExcel() throws Exception {
+        var report = reportService.generateCashFlowStatement(
+                LocalDate.now().minusMonths(1), LocalDate.now());
+        byte[] excel = reportExportService.exportCashFlowToExcel(report);
 
-            assertThat(excelBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            assertThat(new String(excelBytes, 0, 2)).isEqualTo("PK");
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
+    }
 
-        @Test
-        @DisplayName("Should handle net loss in Income Statement PDF")
-        void shouldHandleNetLossInIncomeStatementPdf() {
-            ChartOfAccount expense = createAccount("5.1.01", "Beban Gaji", AccountType.EXPENSE, NormalBalance.DEBIT);
+    // ==================== Depreciation ====================
 
-            ReportService.IncomeStatementItem expenseItem = new ReportService.IncomeStatementItem(
-                    expense, new BigDecimal("50000000"));
+    @Test
+    @DisplayName("Should export depreciation to PDF")
+    void shouldExportDepreciationToPdf() {
+        var report = depreciationReportService.generateReport(LocalDate.now().getYear());
+        byte[] pdf = reportExportService.exportDepreciationToPdf(report);
 
-            ReportService.IncomeStatementReport report = new ReportService.IncomeStatementReport(
-                    LocalDate.of(2024, 1, 1),
-                    LocalDate.of(2024, 6, 30),
-                    List.of(),
-                    List.of(expenseItem),
-                    BigDecimal.ZERO,
-                    new BigDecimal("50000000"),
-                    new BigDecimal("-50000000")
-            );
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
 
-            byte[] pdfBytes = exportService.exportIncomeStatementToPdf(report);
+    @Test
+    @DisplayName("Should export depreciation to Excel")
+    void shouldExportDepreciationToExcel() throws Exception {
+        var report = depreciationReportService.generateReport(LocalDate.now().getYear());
+        byte[] excel = reportExportService.exportDepreciationToExcel(report);
 
-            assertThat(pdfBytes).isNotNull()
-                    .hasSizeGreaterThan(0);
-            assertThat(new String(pdfBytes, 0, 4)).isEqualTo("%PDF");
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
+        }
+    }
+
+    // ==================== Stock Balance ====================
+
+    @Test
+    @DisplayName("Should export stock balance to PDF")
+    void shouldExportStockBalanceToPdf() {
+        var report = inventoryReportService.generateStockBalanceReport(null, null);
+        byte[] pdf = reportExportService.exportStockBalanceToPdf(report, LocalDate.now());
+
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
+
+    @Test
+    @DisplayName("Should export stock balance to Excel")
+    void shouldExportStockBalanceToExcel() throws Exception {
+        var report = inventoryReportService.generateStockBalanceReport(null, null);
+        byte[] excel = reportExportService.exportStockBalanceToExcel(report, LocalDate.now());
+
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
+        }
+    }
+
+    // ==================== Stock Movement ====================
+
+    @Test
+    @DisplayName("Should export stock movement to PDF")
+    void shouldExportStockMovementToPdf() {
+        var report = inventoryReportService.generateStockMovementReport(
+                LocalDate.now().minusMonths(1), LocalDate.now(), null, null);
+        byte[] pdf = reportExportService.exportStockMovementToPdf(report);
+
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
+
+    @Test
+    @DisplayName("Should export stock movement to Excel")
+    void shouldExportStockMovementToExcel() throws Exception {
+        var report = inventoryReportService.generateStockMovementReport(
+                LocalDate.now().minusMonths(1), LocalDate.now(), null, null);
+        byte[] excel = reportExportService.exportStockMovementToExcel(report);
+
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
+        }
+    }
+
+    // ==================== Valuation ====================
+
+    @Test
+    @DisplayName("Should export valuation to PDF")
+    void shouldExportValuationToPdf() {
+        var report = inventoryReportService.generateValuationReport(null);
+        byte[] pdf = reportExportService.exportValuationToPdf(report, LocalDate.now());
+
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
+
+    @Test
+    @DisplayName("Should export valuation to Excel")
+    void shouldExportValuationToExcel() throws Exception {
+        var report = inventoryReportService.generateValuationReport(null);
+        byte[] excel = reportExportService.exportValuationToExcel(report, LocalDate.now());
+
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
+        }
+    }
+
+    // ==================== Product Profitability ====================
+
+    @Test
+    @DisplayName("Should export product profitability to PDF")
+    void shouldExportProductProfitabilityToPdf() {
+        var report = inventoryReportService.generateProfitabilityReport(
+                LocalDate.now().minusMonths(1), LocalDate.now(), null, null);
+        byte[] pdf = reportExportService.exportProductProfitabilityToPdf(report);
+
+        assertThat(pdf).isNotNull();
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
+    }
+
+    @Test
+    @DisplayName("Should export product profitability to Excel")
+    void shouldExportProductProfitabilityToExcel() throws Exception {
+        var report = inventoryReportService.generateProfitabilityReport(
+                LocalDate.now().minusMonths(1), LocalDate.now(), null, null);
+        byte[] excel = reportExportService.exportProductProfitabilityToExcel(report);
+
+        assertThat(excel).isNotNull();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
+            assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
     }
 }
