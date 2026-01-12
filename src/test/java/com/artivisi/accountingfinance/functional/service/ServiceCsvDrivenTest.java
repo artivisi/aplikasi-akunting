@@ -101,16 +101,16 @@ class ServiceCsvDrivenTest extends PlaywrightTestBase {
     }
 
     @Test
-    @DisplayName("Verify 4 projects from test data exist")
+    @DisplayName("Verify at least 4 projects from test data exist")
     void verifyProjectsFromTestData() {
         loginAsAdmin();
         initPageObjects();
 
-        // Test data: 4 projects
+        // Test data: 4 projects (may be more if other tests create projects)
         projectListPage.navigate()
             .verifyPageTitle()
             .verifyTableVisible()
-            .verifyProjectCount(4);
+            .verifyMinimumProjectCount(4);
     }
 
     @Test
