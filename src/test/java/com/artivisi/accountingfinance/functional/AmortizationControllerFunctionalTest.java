@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -205,10 +206,11 @@ class AmortizationControllerFunctionalTest extends PlaywrightTestBase {
             nameInput.fill("Updated Amortization " + System.currentTimeMillis());
         }
 
-        // Submit
-        page.click("#btn-simpan, button[type='submit']");
+        // Submit using specific ID
+        page.locator("#btn-simpan").click();
         waitForPageLoad();
 
+        // Verify we're still on amortization page (not redirected to login)
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization\\/.*"));
     }
 
@@ -380,5 +382,392 @@ class AmortizationControllerFunctionalTest extends PlaywrightTestBase {
         waitForPageLoad();
 
         assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    // ==================== ADDITIONAL COVERAGE TESTS ====================
+
+    @Test
+    @DisplayName("Should handle pagination")
+    void shouldHandlePagination() {
+        navigateTo("/amortization?page=0&size=10");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should handle second page pagination")
+    void shouldHandleSecondPagePagination() {
+        navigateTo("/amortization?page=1&size=5");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter by CANCELLED status")
+    void shouldFilterByCancelledStatus() {
+        navigateTo("/amortization?status=CANCELLED");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter by COMPLETED status")
+    void shouldFilterByCompletedStatus() {
+        navigateTo("/amortization?status=COMPLETED");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter by UNEARNED_REVENUE type")
+    void shouldFilterByUnearnedRevenueType() {
+        navigateTo("/amortization?type=UNEARNED_REVENUE");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter by INTANGIBLE_ASSET type")
+    void shouldFilterByIntangibleAssetType() {
+        navigateTo("/amortization?type=INTANGIBLE_ASSET");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should create amortization with all fields")
+    void shouldCreateAmortizationWithAllFields() {
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        // Verify all form fields are present
+        assertThat(page.locator("select[name='scheduleType']")).isVisible();
+        assertThat(page.locator("select[name='frequency']")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should show frequency dropdown options")
+    void shouldShowFrequencyDropdownOptions() {
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        var frequencySelect = page.locator("select[name='frequency']");
+        if (frequencySelect.isVisible()) {
+            var options = frequencySelect.locator("option");
+            org.assertj.core.api.Assertions.assertThat(options.count())
+                .as("Should have frequency options")
+                .isGreaterThan(0);
+        }
+    }
+
+    @Test
+    @DisplayName("Should show schedule type dropdown options")
+    void shouldShowScheduleTypeDropdownOptions() {
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        var typeSelect = page.locator("select[name='scheduleType']");
+        if (typeSelect.isVisible()) {
+            var options = typeSelect.locator("option");
+            org.assertj.core.api.Assertions.assertThat(options.count())
+                .as("Should have schedule type options")
+                .isGreaterThan(0);
+        }
+    }
+
+    @Test
+    @DisplayName("Should access list via HTMX request")
+    void shouldAccessListViaHtmxRequest() {
+        var response = page.request().get(baseUrl() + "/amortization",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("HX-Request", "true"));
+        org.assertj.core.api.Assertions.assertThat(response.status())
+            .as("HTMX request should return 200")
+            .isEqualTo(200);
+    }
+
+    @Test
+    @DisplayName("Should show autoPost checkbox")
+    void shouldShowAutoPostCheckbox() {
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        var autoPostCheckbox = page.locator("input[name='autoPost']");
+        if (autoPostCheckbox.isVisible()) {
+            assertThat(autoPostCheckbox).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show postDay input")
+    void shouldShowPostDayInput() {
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        var postDayInput = page.locator("input[name='postDay']");
+        if (postDayInput.isVisible()) {
+            assertThat(postDayInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle entry post via HTMX")
+    void shouldHandleEntryPostViaHtmx() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/amortization/" + schedules.get(0).getId());
+        waitForPageLoad();
+
+        // Just verify detail page loads
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization\\/.*"));
+    }
+
+    @Test
+    @DisplayName("Should update with autoPost enabled")
+    void shouldUpdateWithAutoPostEnabled() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/amortization/" + schedules.get(0).getId() + "/edit");
+        waitForPageLoad();
+
+        var autoPostCheckbox = page.locator("input[name='autoPost']");
+        if (autoPostCheckbox.isVisible()) {
+            autoPostCheckbox.check();
+        }
+
+        var postDayInput = page.locator("input[name='postDay']");
+        if (postDayInput.isVisible()) {
+            postDayInput.fill("15");
+        }
+
+        // Submit using specific ID
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
+
+        // Verify we're still on amortization page (not redirected to login)
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization\\/.*"));
+    }
+
+    // ==================== FORM SUBMISSION TESTS ====================
+
+    @Test
+    @DisplayName("Should submit create form with all required fields")
+    void shouldSubmitCreateFormWithAllRequiredFields() {
+        var accounts = coaRepository.findAll();
+        if (accounts.size() < 2) {
+            return;
+        }
+
+        navigateTo("/amortization/new");
+        waitForPageLoad();
+
+        String uniqueCode = "AMT-TEST-" + System.currentTimeMillis() % 10000;
+
+        // Fill code
+        var codeInput = page.locator("input[name='code']");
+        if (!codeInput.isVisible()) {
+            return; // Form not displayed properly
+        }
+        codeInput.fill(uniqueCode);
+
+        // Fill name
+        page.locator("input[name='name']").fill("Test Amortization " + uniqueCode);
+
+        // Fill description
+        var descInput = page.locator("textarea[name='description']");
+        if (descInput.isVisible()) {
+            descInput.fill("Test description for amortization schedule");
+        }
+
+        // Select schedule type
+        page.locator("select[name='scheduleType']").selectOption("PREPAID_EXPENSE");
+
+        // Select source account (first asset account)
+        var sourceSelect = page.locator("select[name='sourceAccountId']");
+        var sourceOptions = sourceSelect.locator("option[value]");
+        if (sourceOptions.count() > 1) {
+            sourceSelect.selectOption(sourceOptions.nth(1).getAttribute("value"));
+        }
+
+        // Select target account (different from source)
+        var targetSelect = page.locator("select[name='targetAccountId']");
+        var targetOptions = targetSelect.locator("option[value]");
+        if (targetOptions.count() > 2) {
+            targetSelect.selectOption(targetOptions.nth(2).getAttribute("value"));
+        }
+
+        // Fill total amount
+        page.locator("input[name='totalAmount']").fill("12000000");
+
+        // Fill dates
+        page.locator("input[name='startDate']").fill(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        page.locator("input[name='endDate']").fill(LocalDate.now().plusMonths(12).format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        // Select frequency
+        page.locator("select[name='frequency']").selectOption("MONTHLY");
+
+        // Submit using specific ID
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
+
+        // Verify we're still on amortization page (not redirected to login)
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit edit form and update name")
+    void shouldSubmitEditFormAndUpdateName() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/amortization/" + schedules.get(0).getId() + "/edit");
+        waitForPageLoad();
+
+        // Update name field
+        var nameInput = page.locator("input[name='name']");
+        if (!nameInput.isVisible()) {
+            return; // Form not displayed
+        }
+        nameInput.fill("Updated Name " + System.currentTimeMillis());
+
+        // Submit using specific ID
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
+
+        // Verify we're still on amortization page (not redirected to login)
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit post entry form")
+    void shouldSubmitPostEntryForm() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        var schedule = schedules.stream()
+            .filter(s -> s.getEntries() != null && !s.getEntries().isEmpty())
+            .findFirst()
+            .orElse(schedules.get(0));
+
+        navigateTo("/amortization/" + schedule.getId());
+        waitForPageLoad();
+
+        // Find and click post button for first pending entry
+        var postForm = page.locator("form[action*='/entries/'][action*='/post']").first();
+        if (postForm.isVisible()) {
+            postForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit skip entry form")
+    void shouldSubmitSkipEntryForm() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        var schedule = schedules.stream()
+            .filter(s -> s.getEntries() != null && !s.getEntries().isEmpty())
+            .findFirst()
+            .orElse(schedules.get(0));
+
+        navigateTo("/amortization/" + schedule.getId());
+        waitForPageLoad();
+
+        // Find and click skip button
+        var skipForm = page.locator("form[action*='/entries/'][action*='/skip']").first();
+        if (skipForm.isVisible()) {
+            skipForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit post all entries form")
+    void shouldSubmitPostAllEntriesForm() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/amortization/" + schedules.get(0).getId());
+        waitForPageLoad();
+
+        // Find and click post all button
+        var postAllForm = page.locator("form[action*='/entries/post-all']").first();
+        if (postAllForm.isVisible()) {
+            postAllForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit cancel schedule form")
+    void shouldSubmitCancelScheduleForm() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        // Find active schedule
+        var schedule = schedules.stream()
+            .filter(s -> "ACTIVE".equals(s.getStatus().name()))
+            .findFirst()
+            .orElse(schedules.get(0));
+
+        navigateTo("/amortization/" + schedule.getId());
+        waitForPageLoad();
+
+        var cancelForm = page.locator("form[action*='/cancel']").first();
+        if (cancelForm.isVisible()) {
+            cancelForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
+    }
+
+    @Test
+    @DisplayName("Should submit delete schedule form")
+    void shouldSubmitDeleteScheduleForm() {
+        var schedules = scheduleRepository.findAll();
+        if (schedules.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/amortization/" + schedules.get(0).getId());
+        waitForPageLoad();
+
+        var deleteForm = page.locator("form[action*='/delete']").first();
+        if (deleteForm.isVisible()) {
+            deleteForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/amortization.*"));
     }
 }

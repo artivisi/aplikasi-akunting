@@ -347,8 +347,8 @@ class ValidationTest extends PlaywrightTestBase {
         assertThat(codeInput).isVisible();
         codeInput.clear();
 
-        // products/form.html uses id="btn-save"
-        var submitBtn = page.locator("#btn-save");
+        // products/form.html uses id="btn-simpan"
+        var submitBtn = page.locator("#btn-simpan");
         assertThat(submitBtn).isVisible();
         submitBtn.click();
         waitForPageLoad();
@@ -367,7 +367,7 @@ class ValidationTest extends PlaywrightTestBase {
         assertThat(priceInput).isVisible();
         priceInput.fill("-100");
 
-        var submitBtn = page.locator("#btn-save");
+        var submitBtn = page.locator("#btn-simpan");
         assertThat(submitBtn).isVisible();
         submitBtn.click();
         waitForPageLoad();
