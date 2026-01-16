@@ -77,23 +77,24 @@ public class ServiceTestDataInitializer {
     
     private byte[] createZipFromTestData(String testDataDir) throws IOException {
         Path testDir = Paths.get(testDataDir).toAbsolutePath();
-        
+
         if (!Files.exists(testDir)) {
             throw new IOException("Test data directory not found: " + testDir);
         }
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             // Map test CSV files to expected import format
             addTestFileToZip(zos, testDir, "company-config.csv", "01_company_config.csv");
             addTestFileToZip(zos, testDir, "clients.csv", "07_clients.csv");
             addTestFileToZip(zos, testDir, "projects.csv", "08_projects.csv");
+            addTestFileToZip(zos, testDir, "transactions.csv", "09_transactions.csv");
             addTestFileToZip(zos, testDir, "fiscal-periods.csv", "11_fiscal_periods.csv");
             addTestFileToZip(zos, testDir, "employees.csv", "15_employees.csv");
             addTestFileToZip(zos, testDir, "21_payroll_runs.csv", "21_payroll_runs.csv");
             addTestFileToZip(zos, testDir, "22_payroll_details.csv", "22_payroll_details.csv");
         }
-        
+
         return baos.toByteArray();
     }
     

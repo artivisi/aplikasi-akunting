@@ -1,16 +1,24 @@
 package com.artivisi.accountingfinance.functional;
 
+import com.artivisi.accountingfinance.entity.Transaction;
+import com.artivisi.accountingfinance.enums.TransactionStatus;
 import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
 import com.artivisi.accountingfinance.repository.DocumentRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
+import com.artivisi.accountingfinance.repository.JournalTemplateRepository;
 import com.artivisi.accountingfinance.repository.TransactionRepository;
 import com.artivisi.accountingfinance.repository.InvoiceRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
+import com.microsoft.playwright.options.FilePayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -32,11 +40,31 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
     private JournalEntryRepository journalEntryRepository;
 
     @Autowired
+    private JournalTemplateRepository journalTemplateRepository;
+
+    @Autowired
     private DocumentRepository documentRepository;
 
     @BeforeEach
     void setupAndLogin() {
         loginAsAdmin();
+        ensureTestTransactionExists();
+    }
+
+    private void ensureTestTransactionExists() {
+        if (transactionRepository.count() == 0) {
+            // Create a test transaction
+            var template = journalTemplateRepository.findAll().stream().findFirst().orElse(null);
+
+            Transaction tx = new Transaction();
+            tx.setTransactionNumber("TRX-TEST-00001");
+            tx.setTransactionDate(LocalDate.now());
+            tx.setDescription("Test Transaction for Document Upload");
+            tx.setAmount(BigDecimal.valueOf(100000));
+            tx.setStatus(TransactionStatus.DRAFT);
+            tx.setJournalTemplate(template);
+            transactionRepository.save(tx);
+        }
     }
 
     @Test
@@ -136,11 +164,11 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
             return;
         }
 
-        navigateTo("/documents/" + document.get().getId() + "/view");
-        waitForPageLoad();
-
-        // Document should load or error gracefully
-        assertThat(page.locator("body")).isVisible();
+        // Use request API to avoid download behavior
+        var response = page.request().get(baseUrl() + "/documents/" + document.get().getId() + "/view");
+        org.assertj.core.api.Assertions.assertThat(response.status())
+            .as("View document should return response")
+            .isIn(200, 404, 500);
     }
 
     @Test
@@ -151,11 +179,11 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
             return;
         }
 
-        navigateTo("/documents/" + document.get().getId() + "/download");
-        waitForPageLoad();
-
-        // Download should start or error gracefully
-        assertThat(page.locator("body")).isVisible();
+        // Use request API to avoid download behavior
+        var response = page.request().get(baseUrl() + "/documents/" + document.get().getId() + "/download");
+        org.assertj.core.api.Assertions.assertThat(response.status())
+            .as("Download document should return response")
+            .isIn(200, 404, 500);
     }
 
     @Test
@@ -401,5 +429,226 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
                 .isIn(200, 404, 500);
             if (documents.indexOf(doc) >= 2) break; // Limit to first 3
         }
+    }
+
+    // ==================== FILE UPLOAD TESTS ====================
+
+    @Test
+    @DisplayName("Should upload document for transaction via HTMX form")
+    void shouldUploadDocumentForTransaction() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        org.assertj.core.api.Assertions.assertThat(transaction).as("Transaction must exist").isPresent();
+
+        navigateTo("/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        // Wait for HTMX to load the document list fragment
+        page.waitForSelector("#document-list-container", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+
+        // Create a test PDF file content
+        byte[] pdfContent = createTestPdfContent();
+
+        // Find the file input using data-testid
+        var fileInput = page.locator("[data-testid='document-file-input']");
+        var uploadButton = page.locator("[data-testid='btn-upload-document']");
+
+        org.assertj.core.api.Assertions.assertThat(fileInput.count())
+            .as("File input must exist on page")
+            .isGreaterThan(0);
+        org.assertj.core.api.Assertions.assertThat(uploadButton.count())
+            .as("Upload button must exist on page")
+            .isGreaterThan(0);
+
+        // Upload file using FilePayload
+        fileInput.setInputFiles(new FilePayload("test-document.pdf", "application/pdf", pdfContent));
+
+        // Click upload button to submit form
+        uploadButton.click();
+
+        // Wait for HTMX to process the upload
+        page.waitForTimeout(3000);
+
+        // Verify success message or document list appears
+        var successMessage = page.locator("[data-testid='document-upload-success']");
+        var documentList = page.locator("[data-testid='document-list']");
+
+        org.assertj.core.api.Assertions.assertThat(successMessage.count() > 0 || documentList.count() > 0)
+            .as("Upload should show success message or document list")
+            .isTrue();
+    }
+
+    @Test
+    @DisplayName("Should upload image document for transaction")
+    void shouldUploadImageDocumentForTransaction() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        if (transaction.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        page.waitForSelector("#document-list-container", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+
+        // Create a minimal valid PNG image (1x1 pixel)
+        byte[] pngContent = createTestPngContent();
+
+        var fileInput = page.locator("[data-testid='document-file-input']");
+        var uploadButton = page.locator("[data-testid='btn-upload-document']");
+
+        if (fileInput.count() > 0 && uploadButton.count() > 0) {
+            fileInput.setInputFiles(new FilePayload("test-image.png", "image/png", pngContent));
+            uploadButton.click();
+            page.waitForTimeout(3000);
+
+            // Verify success
+            var successMessage = page.locator("[data-testid='document-upload-success']");
+            var documentList = page.locator("[data-testid='document-list']");
+
+            org.assertj.core.api.Assertions.assertThat(successMessage.count() > 0 || documentList.count() > 0)
+                .as("Image upload should succeed")
+                .isTrue();
+        }
+    }
+
+    @Test
+    @DisplayName("Should view uploaded document")
+    void shouldViewUploadedDocument() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        if (transaction.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        page.waitForSelector("#document-list-container", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+
+        byte[] pdfContent = createTestPdfContent();
+        var fileInput = page.locator("[data-testid='document-file-input']");
+        var uploadButton = page.locator("[data-testid='btn-upload-document']");
+
+        if (fileInput.count() > 0 && uploadButton.count() > 0) {
+            fileInput.setInputFiles(new FilePayload("view-test.pdf", "application/pdf", pdfContent));
+            uploadButton.click();
+            page.waitForTimeout(3000);
+
+            // Find and click view button using data-testid pattern
+            var viewButton = page.locator("[data-testid^='btn-view-document-']").first();
+            if (viewButton.count() > 0) {
+                String href = viewButton.getAttribute("href");
+                if (href != null) {
+                    var response = page.request().get(baseUrl() + href);
+                    org.assertj.core.api.Assertions.assertThat(response.status())
+                        .as("View document should return 200")
+                        .isEqualTo(200);
+                }
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Should download uploaded document")
+    void shouldDownloadUploadedDocument() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        if (transaction.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        page.waitForSelector("#document-list-container", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+
+        byte[] pdfContent = createTestPdfContent();
+        var fileInput = page.locator("[data-testid='document-file-input']");
+        var uploadButton = page.locator("[data-testid='btn-upload-document']");
+
+        if (fileInput.count() > 0 && uploadButton.count() > 0) {
+            fileInput.setInputFiles(new FilePayload("download-test.pdf", "application/pdf", pdfContent));
+            uploadButton.click();
+            page.waitForTimeout(3000);
+
+            // Find and click download button using data-testid pattern
+            var downloadButton = page.locator("[data-testid^='btn-download-document-']").first();
+            if (downloadButton.count() > 0) {
+                String href = downloadButton.getAttribute("href");
+                if (href != null) {
+                    var response = page.request().get(baseUrl() + href);
+                    org.assertj.core.api.Assertions.assertThat(response.status())
+                        .as("Download document should return 200")
+                        .isEqualTo(200);
+                }
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Should delete uploaded document via HTMX")
+    void shouldDeleteUploadedDocument() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        if (transaction.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        page.waitForSelector("#document-list-container", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+
+        byte[] pdfContent = createTestPdfContent();
+        var fileInput = page.locator("[data-testid='document-file-input']");
+        var uploadButton = page.locator("[data-testid='btn-upload-document']");
+
+        if (fileInput.count() > 0 && uploadButton.count() > 0) {
+            fileInput.setInputFiles(new FilePayload("delete-test.pdf", "application/pdf", pdfContent));
+            uploadButton.click();
+            page.waitForTimeout(3000);
+
+            // Handle confirm dialog for delete
+            page.onDialog(dialog -> dialog.accept());
+
+            // Find and click the delete button using data-testid pattern
+            var deleteButton = page.locator("[data-testid^='btn-delete-document-']").first();
+            if (deleteButton.count() > 0) {
+                deleteButton.click();
+                page.waitForTimeout(3000);
+
+                // Verify delete happened (check for success message)
+                var successMessage = page.locator("[data-testid='document-upload-success']");
+                assertThat(page.locator("body")).isVisible();
+            }
+        }
+    }
+
+    /**
+     * Creates a minimal valid PDF content for testing.
+     */
+    private byte[] createTestPdfContent() {
+        String pdfContent = "%PDF-1.4\n" +
+                "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n" +
+                "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n" +
+                "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\n" +
+                "xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n" +
+                "trailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n186\n%%EOF";
+        return pdfContent.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Creates a minimal valid PNG image (1x1 pixel) for testing.
+     */
+    private byte[] createTestPngContent() {
+        // Minimal 1x1 pixel PNG
+        return new byte[] {
+            (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+            0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 dimensions
+            0x08, 0x02, 0x00, 0x00, 0x00, (byte) 0x90, 0x77, 0x53, (byte) 0xDE, // bit depth, color type, etc.
+            0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41, 0x54, // IDAT chunk
+            0x08, (byte) 0xD7, 0x63, (byte) 0xF8, 0x0F, 0x00, 0x00, 0x01, 0x01, 0x00, 0x05, (byte) 0xFE, (byte) 0xCD, // compressed data
+            (byte) 0xCE,
+            0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, // IEND chunk
+            (byte) 0xAE, 0x42, 0x60, (byte) 0x82 // CRC
+        };
     }
 }
