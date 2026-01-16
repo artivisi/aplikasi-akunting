@@ -1,6 +1,9 @@
 package com.artivisi.accountingfinance.functional;
 
-import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
+import com.artivisi.accountingfinance.entity.BillOfMaterial;
+import com.artivisi.accountingfinance.entity.BillOfMaterialLine;
+import com.artivisi.accountingfinance.entity.Product;
+import com.artivisi.accountingfinance.functional.manufacturing.CoffeeTestDataInitializer;
 import com.artivisi.accountingfinance.repository.BillOfMaterialRepository;
 import com.artivisi.accountingfinance.repository.ProductRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
@@ -10,6 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /**
@@ -17,7 +24,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
  * Tests BOM list, create, edit, detail, delete operations.
  */
 @DisplayName("Bill Of Material Controller Tests")
-@Import(ServiceTestDataInitializer.class)
+@Import(CoffeeTestDataInitializer.class)
 class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
 
     @Autowired
@@ -29,6 +36,42 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @BeforeEach
     void setupAndLogin() {
         loginAsAdmin();
+    }
+
+    private BillOfMaterial ensureActiveBomExists() {
+        // Check for active BOMs
+        var activeBom = bomRepository.findAll().stream()
+                .filter(BillOfMaterial::isActive)
+                .findFirst();
+
+        if (activeBom.isPresent()) {
+            return activeBom.get();
+        }
+
+        // Create one if needed
+        List<Product> products = productRepository.findAll();
+        if (products.isEmpty()) {
+            throw new AssertionError("No products available for BOM test");
+        }
+
+        BillOfMaterial bom = new BillOfMaterial();
+        bom.setCode("TEST-BOM-" + System.currentTimeMillis());
+        bom.setName("Test Active BOM");
+        bom.setProduct(products.get(0));
+        bom.setOutputQuantity(BigDecimal.ONE);
+        bom.setActive(true);
+        bom.setLines(new ArrayList<>());
+
+        if (products.size() > 1) {
+            BillOfMaterialLine line = new BillOfMaterialLine();
+            line.setComponent(products.get(1));
+            line.setQuantity(BigDecimal.valueOf(2));
+            line.setBillOfMaterial(bom);
+            line.setLineOrder(0);
+            bom.getLines().add(line);
+        }
+
+        return bomRepository.save(bom);
     }
 
     @Test
@@ -72,51 +115,51 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should create new BOM")
     void shouldCreateNewBOM() {
-        var product = productRepository.findAll().stream().findFirst();
-        if (product.isEmpty()) {
-            return;
+        var products = productRepository.findAll();
+        if (products.size() < 2) {
+            throw new AssertionError("At least 2 products required for BOM test");
         }
 
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
+        String uniqueCode = "BOM-CREATE-" + System.currentTimeMillis() % 100000;
+
+        // Fill BOM code
+        page.locator("#code").fill(uniqueCode);
+
         // Fill BOM name
-        var nameInput = page.locator("input[name='name']").first();
-        if (nameInput.isVisible()) {
-            nameInput.fill("Test BOM " + System.currentTimeMillis());
-        }
+        page.locator("#name").fill("Test BOM " + uniqueCode);
 
         // Select finished product
-        var productSelect = page.locator("select[name='finishedProduct.id'], select[name='finishedProductId']").first();
-        if (productSelect.isVisible()) {
-            productSelect.selectOption(product.get().getId().toString());
-        }
+        page.locator("#productId").selectOption(products.get(0).getId().toString());
 
         // Fill output quantity
-        var outputQtyInput = page.locator("input[name='outputQuantity']").first();
-        if (outputQtyInput.isVisible()) {
-            outputQtyInput.fill("1");
-        }
+        page.locator("#outputQuantity").fill("1");
+
+        // Add a component (BOM requires at least one)
+        page.locator("#add-component-btn").click();
+        page.waitForSelector(".component-row:not(#component-row-template)");
+
+        page.locator(".component-row:not(#component-row-template) select[name='componentId[]']").first()
+                .selectOption(products.get(1).getId().toString());
+        page.locator(".component-row:not(#component-row-template) input[name='componentQty[]']").first()
+                .fill("1");
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
     @DisplayName("Should display BOM detail page")
     void shouldDisplayBOMDetailPage() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        navigateTo("/inventory/bom/" + bom.getId());
         waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom\\/.*"));
@@ -125,62 +168,63 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should display BOM edit form")
     void shouldDisplayBOMEditForm() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        assertThat(page.locator("#code")).isVisible();
     }
 
     @Test
     @DisplayName("Should update BOM")
     void shouldUpdateBOM() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
         // Update name
-        var nameInput = page.locator("input[name='name']").first();
-        if (nameInput.isVisible()) {
-            nameInput.fill("Updated BOM " + System.currentTimeMillis());
-        }
+        page.locator("#name").fill("Updated BOM " + System.currentTimeMillis());
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
     @DisplayName("Should delete BOM")
     void shouldDeleteBOM() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
+        // Create a fresh BOM for delete test to not affect other tests
+        var products = productRepository.findAll();
+        if (products.isEmpty()) {
+            throw new AssertionError("Product required for delete test");
         }
 
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        BillOfMaterial deleteBom = new BillOfMaterial();
+        deleteBom.setCode("DELETE-BOM-" + System.currentTimeMillis());
+        deleteBom.setName("BOM To Delete");
+        deleteBom.setProduct(products.get(0));
+        deleteBom.setOutputQuantity(BigDecimal.ONE);
+        deleteBom.setActive(true);
+        deleteBom.setLines(new ArrayList<>());
+        deleteBom = bomRepository.save(deleteBom);
+
+        navigateTo("/inventory/bom/" + deleteBom.getId());
         waitForPageLoad();
 
-        var deleteBtn = page.locator("form[action*='/delete'] button[type='submit']").first();
-        if (deleteBtn.isVisible()) {
-            deleteBtn.click();
-            waitForPageLoad();
-        }
+        // Handle JavaScript confirm dialog
+        page.onDialog(dialog -> dialog.accept());
 
-        assertThat(page.locator("body")).isVisible();
+        // Click delete button
+        page.locator("#form-delete button[type='submit']").click();
+        waitForPageLoad();
+
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     // ==================== ADDITIONAL COVERAGE TESTS ====================
@@ -219,44 +263,42 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     void shouldCreateBOMWithComponentLines() {
         var products = productRepository.findAll();
         if (products.size() < 2) {
-            return;
+            throw new AssertionError("At least 2 products required for BOM with components test");
         }
 
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
+        String uniqueCode = "BOM-COMP-" + System.currentTimeMillis() % 100000;
+
         // Fill BOM code
-        var codeInput = page.locator("input[name='code']").first();
-        if (codeInput.isVisible()) {
-            codeInput.fill("BOM-TEST-" + System.currentTimeMillis());
-        }
+        page.locator("#code").fill(uniqueCode);
 
         // Fill BOM name
-        var nameInput = page.locator("input[name='name']").first();
-        if (nameInput.isVisible()) {
-            nameInput.fill("Test BOM With Lines " + System.currentTimeMillis());
-        }
+        page.locator("#name").fill("BOM With Lines " + uniqueCode);
 
         // Select finished product
-        var productSelect = page.locator("select[name='productId']").first();
-        if (productSelect.isVisible()) {
-            productSelect.selectOption(products.get(0).getId().toString());
-        }
+        page.locator("#productId").selectOption(products.get(0).getId().toString());
 
         // Fill output quantity
-        var outputQtyInput = page.locator("input[name='outputQuantity']").first();
-        if (outputQtyInput.isVisible()) {
-            outputQtyInput.fill("1");
-        }
+        page.locator("#outputQuantity").fill("1");
+
+        // Add component
+        page.locator("#add-component-btn").click();
+        page.waitForSelector(".component-row:not(#component-row-template)");
+
+        // Select component and fill qty
+        page.locator(".component-row:not(#component-row-template) select[name='componentId[]']").first()
+                .selectOption(products.get(1).getId().toString());
+        page.locator(".component-row:not(#component-row-template) input[name='componentQty[]']").first()
+                .fill("2");
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
@@ -272,18 +314,12 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should display products on edit form")
     void shouldDisplayProductsOnEditForm() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
-        var productSelect = page.locator("select[name='productId']").first();
-        if (productSelect.isVisible()) {
-            assertThat(productSelect).isVisible();
-        }
+        assertThat(page.locator("#productId")).isVisible();
     }
 
     @Test
@@ -298,51 +334,33 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should update BOM with active checkbox")
     void shouldUpdateBOMWithActiveCheckbox() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
         // Toggle active checkbox
-        var activeCheckbox = page.locator("input[name='active']").first();
-        if (activeCheckbox.isVisible()) {
-            if (activeCheckbox.isChecked()) {
-                activeCheckbox.uncheck();
-            } else {
-                activeCheckbox.check();
-            }
+        var activeCheckbox = page.locator("#active");
+        if (activeCheckbox.isChecked()) {
+            activeCheckbox.uncheck();
+        } else {
+            activeCheckbox.check();
         }
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
     @DisplayName("Should handle BOM detail page with lines")
     void shouldHandleBOMDetailPageWithLines() {
-        var bom = bomRepository.findAll().stream()
-                .filter(b -> b.getLines() != null && !b.getLines().isEmpty())
-                .findFirst();
+        var bom = ensureActiveBomExists();
 
-        if (bom.isEmpty()) {
-            // If no BOM with lines, just test any BOM
-            bom = bomRepository.findAll().stream().findFirst();
-        }
-
-        if (bom.isEmpty()) {
-            return;
-        }
-
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        navigateTo("/inventory/bom/" + bom.getId());
         waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom\\/.*"));
@@ -355,56 +373,38 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     void shouldCreateBOMWithAllFieldsIncludingDescription() {
         var products = productRepository.findAll();
         if (products.isEmpty()) {
-            return;
+            throw new AssertionError("Product required for BOM creation test");
         }
 
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
+        String uniqueCode = "BOM-FULL-" + System.currentTimeMillis() % 100000;
+
         // Fill BOM code
-        var codeInput = page.locator("input[name='code']").first();
-        if (codeInput.isVisible()) {
-            codeInput.fill("BOM-FULL-" + System.currentTimeMillis());
-        }
+        page.locator("#code").fill(uniqueCode);
 
         // Fill BOM name
-        var nameInput = page.locator("input[name='name']").first();
-        if (nameInput.isVisible()) {
-            nameInput.fill("Complete BOM Test " + System.currentTimeMillis());
-        }
+        page.locator("#name").fill("Complete BOM " + uniqueCode);
 
         // Fill description
-        var descInput = page.locator("input[name='description'], textarea[name='description']").first();
-        if (descInput.isVisible()) {
-            descInput.fill("This is a test BOM with full fields");
-        }
+        page.locator("#description").fill("Test BOM with all fields");
 
         // Select finished product
-        var productSelect = page.locator("select[name='productId']").first();
-        if (productSelect.isVisible()) {
-            productSelect.selectOption(products.get(0).getId().toString());
-        }
+        page.locator("#productId").selectOption(products.get(0).getId().toString());
 
         // Fill output quantity
-        var outputQtyInput = page.locator("input[name='outputQuantity']").first();
-        if (outputQtyInput.isVisible()) {
-            outputQtyInput.fill("5");
-        }
+        page.locator("#outputQuantity").fill("5");
 
         // Set active
-        var activeCheckbox = page.locator("input[name='active']").first();
-        if (activeCheckbox.isVisible()) {
-            activeCheckbox.check();
-        }
+        page.locator("#active").check();
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
@@ -413,10 +413,7 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
-        var descField = page.locator("input[name='description'], textarea[name='description']").first();
-        if (descField.isVisible()) {
-            assertThat(descField).isVisible();
-        }
+        assertThat(page.locator("#description")).isVisible();
     }
 
     @Test
@@ -425,10 +422,7 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
-        var outputQtyField = page.locator("input[name='outputQuantity']").first();
-        if (outputQtyField.isVisible()) {
-            assertThat(outputQtyField).isVisible();
-        }
+        assertThat(page.locator("#outputQuantity")).isVisible();
     }
 
     @Test
@@ -437,10 +431,7 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
-        var codeField = page.locator("input[name='code']").first();
-        if (codeField.isVisible()) {
-            assertThat(codeField).isVisible();
-        }
+        assertThat(page.locator("#code")).isVisible();
     }
 
     @Test
@@ -456,28 +447,20 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should update BOM description")
     void shouldUpdateBOMDescription() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
         // Update description
-        var descInput = page.locator("input[name='description'], textarea[name='description']").first();
-        if (descInput.isVisible()) {
-            descInput.fill("Updated description " + System.currentTimeMillis());
-        }
+        page.locator("#description").fill("Updated description " + System.currentTimeMillis());
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
@@ -495,11 +478,8 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/inventory/bom");
         waitForPageLoad();
 
-        // Verify table or list exists
-        var tableOrList = page.locator("table, .bom-list, #bom-list").first();
-        if (tableOrList.isVisible()) {
-            assertThat(tableOrList).isVisible();
-        }
+        // Verify table exists
+        assertThat(page.locator("table").first()).isVisible();
     }
 
     @Test
@@ -508,71 +488,48 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/inventory/bom");
         waitForPageLoad();
 
-        var createBtn = page.locator("a[href*='/inventory/bom/create']").first();
-        if (createBtn.isVisible()) {
-            assertThat(createBtn).isVisible();
-        }
+        assertThat(page.locator("a[href*='/inventory/bom/create']").first()).isVisible();
     }
 
     @Test
     @DisplayName("Should have edit button on detail page")
     void shouldHaveEditButtonOnDetailPage() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        navigateTo("/inventory/bom/" + bom.getId());
         waitForPageLoad();
 
-        var editBtn = page.locator("a[href*='/edit']").first();
-        if (editBtn.isVisible()) {
-            assertThat(editBtn).isVisible();
-        }
+        assertThat(page.locator("a[href*='/edit']").first()).isVisible();
     }
 
     @Test
     @DisplayName("Should have delete form on detail page")
     void shouldHaveDeleteFormOnDetailPage() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        navigateTo("/inventory/bom/" + bom.getId());
         waitForPageLoad();
 
-        var deleteForm = page.locator("form[action*='/delete']").first();
-        if (deleteForm.isVisible()) {
-            assertThat(deleteForm).isVisible();
-        }
+        assertThat(page.locator("#form-delete").first()).isVisible();
     }
 
     @Test
     @DisplayName("Should update BOM output quantity")
     void shouldUpdateBOMOutputQuantity() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
         // Update output quantity
-        var outputQtyInput = page.locator("input[name='outputQuantity']").first();
-        if (outputQtyInput.isVisible()) {
-            outputQtyInput.fill("10");
-        }
+        page.locator("#outputQuantity").fill("10");
 
         // Submit
-        var submitBtn = page.locator("#btn-simpan").first();
-        if (submitBtn.isVisible()) {
-            submitBtn.click();
-            waitForPageLoad();
-        }
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
 
-        assertThat(page.locator("body")).isVisible();
+        // Should redirect to list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     // ==================== FORM SUBMISSION TESTS ====================
@@ -582,95 +539,89 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     void shouldSubmitCreateBOMFormWithAllRequiredFields() {
         var products = productRepository.findAll();
         if (products.isEmpty()) {
-            return;
+            throw new AssertionError("Product required for BOM submission test");
         }
 
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
-        String uniqueCode = "BOM-" + System.currentTimeMillis() % 10000;
+        String uniqueCode = "BOM-SUBMIT-" + System.currentTimeMillis() % 100000;
 
         // Fill code
-        page.locator("input[name='code']").fill(uniqueCode);
+        page.locator("#code").fill(uniqueCode);
 
         // Fill name
-        page.locator("input[name='name']").fill("Test BOM " + uniqueCode);
+        page.locator("#name").fill("Test BOM " + uniqueCode);
 
         // Fill description
-        var descInput = page.locator("textarea[name='description']");
-        if (descInput.isVisible()) {
-            descInput.fill("Test BOM description");
-        }
+        page.locator("#description").fill("Test BOM description");
 
         // Select product
-        var productSelect = page.locator("select[name='productId']");
-        var productOptions = productSelect.locator("option[value]");
-        if (productOptions.count() > 1) {
-            productSelect.selectOption(productOptions.nth(1).getAttribute("value"));
-        }
+        page.locator("#productId").selectOption(products.get(0).getId().toString());
 
         // Fill output quantity
-        page.locator("input[name='outputQuantity']").fill("10");
+        page.locator("#outputQuantity").fill("10");
 
         // Check active checkbox
-        var activeCheckbox = page.locator("input[name='active']");
-        if (activeCheckbox.isVisible()) {
-            activeCheckbox.check();
-        }
+        page.locator("#active").check();
 
-        // Submit using specific ID
+        // Submit
         page.locator("#btn-simpan").click();
         waitForPageLoad();
 
-        // Should redirect to list or detail
+        // Should redirect to list
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
     @DisplayName("Should submit update BOM form")
     void shouldSubmitUpdateBOMForm() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
-        }
+        var bom = ensureActiveBomExists();
 
-        navigateTo("/inventory/bom/" + bom.get().getId() + "/edit");
+        navigateTo("/inventory/bom/" + bom.getId() + "/edit");
         waitForPageLoad();
 
         // Update name
-        var nameInput = page.locator("input[name='name']");
-        nameInput.fill("Updated BOM " + System.currentTimeMillis());
+        page.locator("#name").fill("Updated BOM " + System.currentTimeMillis());
 
         // Update output quantity
-        var outputQtyInput = page.locator("input[name='outputQuantity']");
-        if (outputQtyInput.isVisible()) {
-            outputQtyInput.fill("25");
-        }
+        page.locator("#outputQuantity").fill("25");
 
-        // Submit using specific ID
+        // Submit
         page.locator("#btn-simpan").click();
         waitForPageLoad();
 
-        // Should redirect to list or detail
+        // Should redirect to list
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
     }
 
     @Test
     @DisplayName("Should submit delete BOM form")
     void shouldSubmitDeleteBOMForm() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) {
-            return;
+        // Create a fresh BOM to delete
+        var products = productRepository.findAll();
+        if (products.isEmpty()) {
+            throw new AssertionError("Product required for delete test");
         }
 
-        navigateTo("/inventory/bom/" + bom.get().getId());
+        BillOfMaterial deleteTarget = new BillOfMaterial();
+        deleteTarget.setCode("DELETE-TARGET-" + System.currentTimeMillis());
+        deleteTarget.setName("BOM to Delete via Form");
+        deleteTarget.setProduct(products.get(0));
+        deleteTarget.setOutputQuantity(BigDecimal.ONE);
+        deleteTarget.setActive(true);
+        deleteTarget.setLines(new ArrayList<>());
+        deleteTarget = bomRepository.save(deleteTarget);
+
+        navigateTo("/inventory/bom/" + deleteTarget.getId());
         waitForPageLoad();
 
-        var deleteForm = page.locator("form[action*='/delete']").first();
-        if (deleteForm.isVisible()) {
-            deleteForm.locator("button[type='submit']").click();
-            waitForPageLoad();
-        }
+        // Handle confirm dialog
+        page.onDialog(dialog -> dialog.accept());
+
+        // Click delete button
+        page.locator("#form-delete button[type='submit']").click();
+        waitForPageLoad();
 
         // Should redirect to list
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/bom.*"));
@@ -681,46 +632,35 @@ class BillOfMaterialControllerFunctionalTest extends PlaywrightTestBase {
     void shouldSubmitBOMFormWithComponents() {
         var products = productRepository.findAll();
         if (products.size() < 2) {
-            return;
+            throw new AssertionError("At least 2 products required for BOM with components test");
         }
 
         navigateTo("/inventory/bom/create");
         waitForPageLoad();
 
-        String uniqueCode = "BOM-COMP-" + System.currentTimeMillis() % 10000;
+        String uniqueCode = "BOM-WITH-COMPS-" + System.currentTimeMillis() % 100000;
 
         // Fill basic fields
-        page.locator("input[name='code']").fill(uniqueCode);
-        page.locator("input[name='name']").fill("BOM with Components " + uniqueCode);
+        page.locator("#code").fill(uniqueCode);
+        page.locator("#name").fill("BOM with Components " + uniqueCode);
 
         // Select product
-        var productSelect = page.locator("select[name='productId']");
-        productSelect.selectOption(products.get(0).getId().toString());
+        page.locator("#productId").selectOption(products.get(0).getId().toString());
 
         // Fill output quantity
-        page.locator("input[name='outputQuantity']").fill("1");
+        page.locator("#outputQuantity").fill("1");
 
-        // Add component by clicking add button
-        var addComponentBtn = page.locator("#add-component-btn");
-        if (addComponentBtn.isVisible()) {
-            addComponentBtn.click();
+        // Add component
+        page.locator("#add-component-btn").click();
+        page.waitForSelector(".component-row:not(#component-row-template)");
 
-            // Wait for component row to be added
-            page.waitForSelector(".component-row:not(#component-row-template)");
+        // Fill component data
+        page.locator(".component-row:not(#component-row-template) select[name='componentId[]']").first()
+                .selectOption(products.get(1).getId().toString());
+        page.locator(".component-row:not(#component-row-template) input[name='componentQty[]']").first()
+                .fill("2");
 
-            // Fill component data
-            var componentSelect = page.locator(".component-row:not(#component-row-template) select[name='componentId[]']").first();
-            if (componentSelect.isVisible() && products.size() > 1) {
-                componentSelect.selectOption(products.get(1).getId().toString());
-            }
-
-            var componentQty = page.locator(".component-row:not(#component-row-template) input[name='componentQty[]']").first();
-            if (componentQty.isVisible()) {
-                componentQty.fill("2");
-            }
-        }
-
-        // Submit form using specific ID
+        // Submit form
         page.locator("#btn-simpan").click();
         waitForPageLoad();
 
