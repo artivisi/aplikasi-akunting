@@ -100,9 +100,24 @@ class DataExportControllerFunctionalTest extends PlaywrightTestBase {
         // Find download button and click it
         var downloadBtn = page.locator("form[action*='/download'] button[type='submit']").first();
         if (downloadBtn.isVisible()) {
-            // For download, we just verify button can be clicked without error
-            // Actual file download is hard to test in Playwright without file system access
             assertThat(downloadBtn).isEnabled();
         }
+    }
+
+    @Test
+    @DisplayName("Should download export zip file")
+    void shouldDownloadExportZipFile() {
+        navigateTo("/settings/export");
+        waitForPageLoad();
+
+        // Wait for download when clicking the button
+        var download = page.waitForDownload(() -> {
+            page.locator("form[action*='/download'] button[type='submit']").click();
+        });
+
+        // Verify download was initiated
+        org.assertj.core.api.Assertions.assertThat(download.suggestedFilename())
+                .as("Should download zip file")
+                .endsWith(".zip");
     }
 }
