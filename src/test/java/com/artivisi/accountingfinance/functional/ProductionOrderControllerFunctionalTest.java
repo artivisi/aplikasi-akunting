@@ -1,6 +1,9 @@
 package com.artivisi.accountingfinance.functional;
 
-import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
+import com.artivisi.accountingfinance.entity.BillOfMaterial;
+import com.artivisi.accountingfinance.entity.ProductionOrder;
+import com.artivisi.accountingfinance.entity.ProductionOrderStatus;
+import com.artivisi.accountingfinance.functional.manufacturing.CoffeeTestDataInitializer;
 import com.artivisi.accountingfinance.repository.BillOfMaterialRepository;
 import com.artivisi.accountingfinance.repository.ProductionOrderRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -20,7 +24,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
  * Tests production order list, create, detail, start, complete, cancel operations.
  */
 @DisplayName("Production Order Controller Tests")
-@Import(ServiceTestDataInitializer.class)
+@Import(CoffeeTestDataInitializer.class)
 class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
 
     @Autowired
@@ -31,7 +35,40 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
 
     @BeforeEach
     void setupAndLogin() {
+        ensureTestOrdersExist();
         loginAsAdmin();
+    }
+
+    private void ensureTestOrdersExist() {
+        // Ensure we have orders in DRAFT and IN_PROGRESS status for testing
+        BillOfMaterial bom = bomRepository.findAll().stream().findFirst().orElse(null);
+        if (bom == null) return;
+
+        // Create DRAFT order if none exists
+        boolean hasDraft = orderRepository.findAll().stream()
+                .anyMatch(o -> o.getStatus() == ProductionOrderStatus.DRAFT);
+        if (!hasDraft) {
+            ProductionOrder draft = new ProductionOrder();
+            draft.setOrderNumber("TEST-DRAFT-" + System.currentTimeMillis());
+            draft.setBillOfMaterial(bom);
+            draft.setQuantity(BigDecimal.TEN);
+            draft.setOrderDate(LocalDate.now());
+            draft.setStatus(ProductionOrderStatus.DRAFT);
+            orderRepository.save(draft);
+        }
+
+        // Create IN_PROGRESS order if none exists
+        boolean hasInProgress = orderRepository.findAll().stream()
+                .anyMatch(o -> o.getStatus() == ProductionOrderStatus.IN_PROGRESS);
+        if (!hasInProgress) {
+            ProductionOrder inProgress = new ProductionOrder();
+            inProgress.setOrderNumber("TEST-INPROG-" + System.currentTimeMillis());
+            inProgress.setBillOfMaterial(bom);
+            inProgress.setQuantity(BigDecimal.valueOf(5));
+            inProgress.setOrderDate(LocalDate.now());
+            inProgress.setStatus(ProductionOrderStatus.IN_PROGRESS);
+            orderRepository.save(inProgress);
+        }
     }
 
     // ==================== LIST PAGE ====================
@@ -106,14 +143,14 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should create new production order with valid data")
     void shouldCreateNewProductionOrder() {
-        var bom = bomRepository.findAll().stream().findFirst();
-        if (bom.isEmpty()) return;
+        var bom = bomRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new AssertionError("BOM required for test"));
 
         navigateTo("/inventory/production/create");
         waitForPageLoad();
 
         // Select BOM
-        page.locator("#bomId").selectOption(bom.get().getId().toString());
+        page.locator("#bomId").selectOption(bom.getId().toString());
 
         // Fill quantity
         page.locator("#quantity").fill("10");
@@ -344,23 +381,19 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
     @DisplayName("Should start draft order")
     void shouldStartDraftOrder() {
         var order = orderRepository.findAll().stream()
-                .filter(o -> "DRAFT".equals(o.getStatus().name()))
-                .findFirst();
-        if (order.isEmpty()) {
-            navigateTo("/inventory/production");
-            waitForPageLoad();
-            assertThat(page.locator("h1, .page-title").first()).isVisible();
-            return;
-        }
+                .filter(o -> o.getStatus() == ProductionOrderStatus.DRAFT)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("DRAFT order required for test"));
 
-        navigateTo("/inventory/production/" + order.get().getId());
+        navigateTo("/inventory/production/" + order.getId());
         waitForPageLoad();
 
-        var startBtn = page.locator("#form-start button[type='submit']").first();
-        if (startBtn.isVisible()) {
-            startBtn.click();
-            waitForPageLoad();
-        }
+        // Handle confirm dialog
+        page.onDialog(dialog -> dialog.accept());
+
+        // Click start button
+        page.locator("#form-start button[type='submit']").click();
+        waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/production\\/.*"));
     }
@@ -369,23 +402,19 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
     @DisplayName("Should complete in-progress order")
     void shouldCompleteInProgressOrder() {
         var order = orderRepository.findAll().stream()
-                .filter(o -> "IN_PROGRESS".equals(o.getStatus().name()))
-                .findFirst();
-        if (order.isEmpty()) {
-            navigateTo("/inventory/production");
-            waitForPageLoad();
-            assertThat(page.locator("h1, .page-title").first()).isVisible();
-            return;
-        }
+                .filter(o -> o.getStatus() == ProductionOrderStatus.IN_PROGRESS)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("IN_PROGRESS order required for test"));
 
-        navigateTo("/inventory/production/" + order.get().getId());
+        navigateTo("/inventory/production/" + order.getId());
         waitForPageLoad();
 
-        var completeBtn = page.locator("#form-complete button[type='submit']").first();
-        if (completeBtn.isVisible()) {
-            completeBtn.click();
-            waitForPageLoad();
-        }
+        // Handle confirm dialog
+        page.onDialog(dialog -> dialog.accept());
+
+        // Click complete button
+        page.locator("#form-complete button[type='submit']").click();
+        waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/production\\/.*"));
     }
@@ -393,24 +422,26 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should cancel draft order")
     void shouldCancelDraftOrder() {
-        var order = orderRepository.findAll().stream()
-                .filter(o -> "DRAFT".equals(o.getStatus().name()))
-                .findFirst();
-        if (order.isEmpty()) {
-            navigateTo("/inventory/production");
-            waitForPageLoad();
-            assertThat(page.locator("h1, .page-title").first()).isVisible();
-            return;
-        }
+        // Create a fresh draft order for cancel test
+        var bom = bomRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new AssertionError("BOM required for test"));
+        ProductionOrder cancelOrder = new ProductionOrder();
+        cancelOrder.setOrderNumber("TEST-CANCEL-" + System.currentTimeMillis());
+        cancelOrder.setBillOfMaterial(bom);
+        cancelOrder.setQuantity(BigDecimal.ONE);
+        cancelOrder.setOrderDate(LocalDate.now());
+        cancelOrder.setStatus(ProductionOrderStatus.DRAFT);
+        cancelOrder = orderRepository.save(cancelOrder);
 
-        navigateTo("/inventory/production/" + order.get().getId());
+        navigateTo("/inventory/production/" + cancelOrder.getId());
         waitForPageLoad();
 
-        var cancelBtn = page.locator("#form-cancel button[type='submit']").first();
-        if (cancelBtn.isVisible()) {
-            cancelBtn.click();
-            waitForPageLoad();
-        }
+        // Handle confirm dialog
+        page.onDialog(dialog -> dialog.accept());
+
+        // Click cancel button
+        page.locator("#form-cancel button[type='submit']").click();
+        waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/production\\/.*"));
     }
@@ -418,24 +449,26 @@ class ProductionOrderControllerFunctionalTest extends PlaywrightTestBase {
     @Test
     @DisplayName("Should delete draft order")
     void shouldDeleteDraftOrder() {
-        var order = orderRepository.findAll().stream()
-                .filter(o -> "DRAFT".equals(o.getStatus().name()))
-                .findFirst();
-        if (order.isEmpty()) {
-            navigateTo("/inventory/production");
-            waitForPageLoad();
-            assertThat(page.locator("h1, .page-title").first()).isVisible();
-            return;
-        }
+        // Create a fresh draft order for delete test
+        var bom = bomRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new AssertionError("BOM required for test"));
+        ProductionOrder deleteOrder = new ProductionOrder();
+        deleteOrder.setOrderNumber("TEST-DELETE-" + System.currentTimeMillis());
+        deleteOrder.setBillOfMaterial(bom);
+        deleteOrder.setQuantity(BigDecimal.ONE);
+        deleteOrder.setOrderDate(LocalDate.now());
+        deleteOrder.setStatus(ProductionOrderStatus.DRAFT);
+        deleteOrder = orderRepository.save(deleteOrder);
 
-        navigateTo("/inventory/production/" + order.get().getId());
+        navigateTo("/inventory/production/" + deleteOrder.getId());
         waitForPageLoad();
 
-        var deleteBtn = page.locator("#form-delete button[type='submit']").first();
-        if (deleteBtn.isVisible()) {
-            deleteBtn.click();
-            waitForPageLoad();
-        }
+        // Handle confirm dialog
+        page.onDialog(dialog -> dialog.accept());
+
+        // Click delete button
+        page.locator("#form-delete button[type='submit']").click();
+        waitForPageLoad();
 
         // Should redirect to list
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/production.*"));
