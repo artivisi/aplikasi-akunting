@@ -33,8 +33,8 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class JournalEntryService {
 
-    // Manual Journal Entry template ID (from V004 seed data)
-    private static final UUID MANUAL_ENTRY_TEMPLATE_ID = UUID.fromString("e0000000-0000-0000-0000-000000000099");
+    // Manual Journal Entry template name (looked up dynamically)
+    private static final String MANUAL_ENTRY_TEMPLATE_NAME = "Jurnal Manual";
 
     private final JournalEntryRepository journalEntryRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
@@ -326,8 +326,8 @@ public class JournalEntryService {
         // Only set MANUAL_ENTRY template if no template was already provided
         // This allows TemplateExecutionEngine to pass its own template
         if (transaction.getJournalTemplate() == null) {
-            JournalTemplate manualTemplate = journalTemplateRepository.findById(MANUAL_ENTRY_TEMPLATE_ID)
-                    .orElseThrow(() -> new IllegalStateException("Manual entry template not found"));
+            JournalTemplate manualTemplate = journalTemplateRepository.findByTemplateNameAndIsCurrentVersionTrue(MANUAL_ENTRY_TEMPLATE_NAME)
+                    .orElseThrow(() -> new IllegalStateException("Manual entry template '" + MANUAL_ENTRY_TEMPLATE_NAME + "' not found"));
             transaction.setJournalTemplate(manualTemplate);
         }
         
