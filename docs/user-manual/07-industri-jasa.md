@@ -20,6 +20,39 @@ Klien → Proposal → Kontrak → Proyek → Milestone → Invoice → Pembayar
 
 ---
 
+## Dashboard
+
+Setelah login, Anda akan melihat dashboard yang menampilkan ringkasan keuangan perusahaan.
+
+![Dashboard](screenshots/service/dashboard.png)
+
+**Informasi yang ditampilkan:**
+- **Pendapatan bulan ini** - Total revenue
+- **Pengeluaran bulan ini** - Total expenses
+- **Laba bersih** - Revenue - Expenses
+- **Transaksi terbaru** - 5 transaksi terakhir
+- **Saldo kas & bank** - Posisi kas saat ini
+- **Kewajiban pajak** - PPN dan PPh yang harus disetor
+
+---
+
+## Bagan Akun (Chart of Accounts)
+
+### Melihat Daftar Akun
+
+Buka menu **Akuntansi** > **Bagan Akun**.
+
+![Daftar Akun](screenshots/service/accounts-list.png)
+
+**Struktur Akun Jasa IT:**
+- **1 ASET** - Kas, Bank, Piutang
+- **2 LIABILITAS** - Hutang PPN, Hutang Gaji
+- **3 EKUITAS** - Modal Saham, Laba Ditahan
+- **4 PENDAPATAN** - Jasa Konsultasi, Training
+- **5 BEBAN** - Cloud, Software, Gaji
+
+---
+
 ## Client Management
 
 ### Melihat Daftar Klien

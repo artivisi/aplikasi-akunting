@@ -158,6 +158,14 @@ Komponen:
 - Garam: 25.00 gram
 - Coklat Blok: 0.80 kg
 
+### Detail BOM Croissant
+
+![Detail BOM Croissant](screenshots/coffee/production-bom-crs.png)
+
+### Detail BOM Roti Bakar Coklat
+
+![Detail BOM Roti Bakar Coklat](screenshots/coffee/production-bom-rbc.png)
+
 ---
 
 ## Production Order
@@ -400,6 +408,8 @@ Klik pada produk untuk melihat:
 
 Menu **Inventori** > **Laporan** > **Saldo Stok**
 
+![Laporan Saldo Stok](screenshots/coffee/report-stock-balance.png)
+
 Menampilkan snapshot stok semua produk pada tanggal tertentu.
 
 Kolom:
@@ -415,6 +425,8 @@ Export: PDF / Excel
 
 Menu **Inventori** > **Laporan** > **Penilaian Persediaan**
 
+![Laporan Penilaian Persediaan](screenshots/coffee/report-inventory-valuation.png)
+
 Menampilkan valuasi persediaan:
 - **FIFO:** Breakdown per layer dengan tanggal, quantity, unit cost
 - **Weighted Average:** Breakdown per transaksi dengan running average
@@ -427,6 +439,8 @@ Filter:
 ### Laporan Profitabilitas Produk
 
 Menu **Inventori** > **Laporan** > **Profitabilitas Produk**
+
+![Laporan Profitabilitas Produk](screenshots/coffee/report-product-profitability.png)
 
 Analisis margin per produk:
 

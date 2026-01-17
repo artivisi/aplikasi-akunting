@@ -19,6 +19,29 @@ Supplier → Purchase → Inventory → Sale → Customer
 
 ---
 
+## Template Transaksi Perdagangan
+
+### Melihat Daftar Template
+
+Buka menu **Pengaturan** > **Template Jurnal**.
+
+![Daftar Template](screenshots/seller/templates-list.png)
+
+### Template Standar
+
+| Template | Kategori | Fungsi |
+|----------|----------|--------|
+| Pembelian Persediaan | PURCHASE | Beli barang dari supplier |
+| Penjualan + Auto-COGS | SALE | Jual barang dengan perhitungan HPP otomatis |
+| Bayar Supplier | PAYMENT | Pelunasan hutang supplier |
+| Bayar Ongkir Ditanggung Penjual | EXPENSE | Ongkos kirim untuk penjualan |
+| Biaya Packing | EXPENSE | Biaya kemasan untuk pengiriman |
+| Cashback dari Marketplace | RECEIPT | Cashback dari Tokopedia/Shopee |
+| Beban Admin Bank | EXPENSE | Biaya administrasi bank |
+| Bayar Iklan Marketplace | EXPENSE | Biaya promosi di marketplace |
+
+---
+
 ## Manajemen Produk
 
 ### Melihat Daftar Produk

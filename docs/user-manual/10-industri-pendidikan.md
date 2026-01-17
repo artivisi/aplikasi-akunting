@@ -73,6 +73,8 @@ Buka menu **Akuntansi** > **Bagan Akun**.
 | 5.3.01 | Beban Beasiswa Prestasi | Debit |
 | 5.3.02 | Beban Beasiswa Tidak Mampu | Debit |
 
+![Akun Beasiswa](screenshots/campus/scholarship-accounts.png)
+
 ---
 
 ## Template Transaksi Pendidikan
@@ -380,6 +382,12 @@ Menu **Transaksi** > **Buat Transaksi** > Pilih template **Honorarium Dosen Tida
 Dr. 5.1.02 Beban Honorarium Dosen Tidak Tetap  Rp 600.000
     Cr. 1.1.02 Bank BCA                             Rp 600.000
 ```
+
+### Daftar Transaksi
+
+Semua transaksi yang telah dibuat dapat dilihat di menu **Akuntansi** > **Transaksi**.
+
+![Daftar Transaksi](screenshots/campus/transaction-list.png)
 
 ---
 
