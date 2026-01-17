@@ -7,13 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -95,9 +93,10 @@ class DocumentStorageServiceTest {
 
         @Test
         @DisplayName("Should not throw when deleting non-existent file")
-        void shouldNotThrowWhenDeletingNonExistentFile() throws IOException {
+        void shouldNotThrowWhenDeletingNonExistentFile() {
             // Should not throw, just log warning
-            documentStorageService.delete("non-existent-path/file.pdf");
+            assertThatCode(() -> documentStorageService.delete("non-existent-path/file.pdf"))
+                    .doesNotThrowAnyException();
         }
     }
 

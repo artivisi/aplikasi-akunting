@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Unit tests for RateLimitService.
@@ -275,7 +276,8 @@ class RateLimitServiceTest {
         rateLimitService.isGeneralAllowed("192.168.1.82");
 
         // Cleanup should not throw
-        rateLimitService.cleanup();
+        assertThatCode(() -> rateLimitService.cleanup())
+                .doesNotThrowAnyException();
     }
 
     // ==================== Independent Limits ====================

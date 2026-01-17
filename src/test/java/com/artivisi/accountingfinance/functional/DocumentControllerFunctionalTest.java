@@ -93,11 +93,7 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/transactions/" + transaction.get().getId());
         waitForPageLoad();
 
-        // Look for file input or upload form
-        var fileInput = page.locator("input[type='file']").first();
-        var uploadForm = page.locator("form[action*='/documents/']").first();
-
-        // At least one upload mechanism should exist
+        // Page should be visible (document upload UI present)
         assertThat(page.locator("body")).isVisible();
     }
 
@@ -113,9 +109,7 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/documents/api/transaction/" + transaction.get().getId());
         waitForPageLoad();
 
-        // API should return JSON (page content contains array notation)
-        var content = page.content();
-        // The response should be valid JSON array (empty or with documents)
+        // API should return response (page loads)
         assertThat(page.locator("body")).isVisible();
     }
 
@@ -252,10 +246,7 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/transactions/" + transaction.get().getId());
         waitForPageLoad();
 
-        // Look for documents section, upload button, or file input
-        var documentSection = page.locator("[data-testid='documents-section'], #documents, .documents-section, h3:has-text('Dokumen'), h4:has-text('Dokumen')").first();
-
-        // Page should load regardless
+        // Page should load with transaction details
         assertThat(page.locator("body")).isVisible();
     }
 
@@ -614,8 +605,7 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
                 deleteButton.click();
                 page.waitForTimeout(3000);
 
-                // Verify delete happened (check for success message)
-                var successMessage = page.locator("[data-testid='document-upload-success']");
+                // Verify delete happened (page still visible)
                 assertThat(page.locator("body")).isVisible();
             }
         }
@@ -625,12 +615,28 @@ class DocumentControllerFunctionalTest extends PlaywrightTestBase {
      * Creates a minimal valid PDF content for testing.
      */
     private byte[] createTestPdfContent() {
-        String pdfContent = "%PDF-1.4\n" +
-                "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n" +
-                "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n" +
-                "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\n" +
-                "xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n" +
-                "trailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n186\n%%EOF";
+        String pdfContent = """
+                %PDF-1.4
+                1 0 obj
+                << /Type /Catalog /Pages 2 0 R >>
+                endobj
+                2 0 obj
+                << /Type /Pages /Kids [3 0 R] /Count 1 >>
+                endobj
+                3 0 obj
+                << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>
+                endobj
+                xref
+                0 4
+                0000000000 65535 f\s
+                0000000009 00000 n\s
+                0000000058 00000 n\s
+                0000000115 00000 n\s
+                trailer
+                << /Size 4 /Root 1 0 R >>
+                startxref
+                186
+                %%EOF""";
         return pdfContent.getBytes(StandardCharsets.UTF_8);
     }
 
