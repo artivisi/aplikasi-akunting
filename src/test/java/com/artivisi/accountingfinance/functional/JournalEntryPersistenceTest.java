@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -294,6 +295,7 @@ class JournalEntryPersistenceTest extends PlaywrightTestBase {
     class CalculateAccountImpactTests {
 
         @Test
+        @Transactional
         @DisplayName("Should calculate account impact for entries")
         void shouldCalculateAccountImpactForEntries() {
             var entries = journalEntryRepository.findAll().stream().limit(5).toList();
