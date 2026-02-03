@@ -364,8 +364,6 @@ class SettingsControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/settings");
         waitForPageLoad();
 
-        // Logo delete form may be present if logo exists
-        var deleteLogoForm = page.locator("form[action*='/company/logo/delete']").first();
         // Just verify the page loads - delete form visibility depends on whether logo exists
         assertThat(page.locator("#page-title")).isVisible();
     }
@@ -396,8 +394,6 @@ class SettingsControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/settings/telegram");
         waitForPageLoad();
 
-        // Unlink form may be present if telegram is linked
-        var unlinkForm = page.locator("form[action*='/telegram/unlink']").first();
         // Just verify the page loads
         assertThat(page.locator("#page-title")).isVisible();
     }

@@ -280,8 +280,7 @@ class ProjectControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/projects/" + project.get().getCode());
         waitForPageLoad();
 
-        // Check for milestones section
-        var milestonesSection = page.locator("#milestones-section, h2:has-text('Milestone'), h3:has-text('Milestone')").first();
+        // Verify page loads (milestones section visibility depends on project data)
         assertThat(page.locator("body")).isVisible();
     }
 
@@ -296,8 +295,7 @@ class ProjectControllerFunctionalTest extends PlaywrightTestBase {
         navigateTo("/projects/" + project.get().getCode());
         waitForPageLoad();
 
-        // Check for payment terms section
-        var paymentTermsSection = page.locator("#payment-terms-section, h2:has-text('Termin'), h3:has-text('Termin')").first();
+        // Verify page loads (payment terms section visibility depends on project data)
         assertThat(page.locator("body")).isVisible();
     }
 

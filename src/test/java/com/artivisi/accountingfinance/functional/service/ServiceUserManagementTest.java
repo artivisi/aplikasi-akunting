@@ -309,8 +309,6 @@ class ServiceUserManagementTest extends PlaywrightTestBase {
         navigateTo("/users");
         waitForPageLoad();
 
-        // Check if pagination exists (may not if few users)
-        var pagination = page.locator("nav[aria-label='pagination'], .pagination").first();
         // Just verify page loads, pagination may or may not be present
         assertThat(page.locator("#page-title, h1").first()).isVisible();
     }

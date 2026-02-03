@@ -192,8 +192,7 @@ class FiscalYearClosingServiceTest {
         }
 
         // Execute closing
-        List<JournalEntry> closingEntries = fiscalYearClosingService.executeClosing(TEST_YEAR);
-        int originalCount = closingEntries.size();
+        fiscalYearClosingService.executeClosing(TEST_YEAR);
 
         // Reverse
         int reversedCount = fiscalYearClosingService.reverseClosing(TEST_YEAR, "Test reversal reason");

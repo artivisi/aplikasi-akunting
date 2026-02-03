@@ -109,20 +109,20 @@ class EntityTest {
 
     @Test
     void transactionVariable_shouldStoreValues() {
-        TransactionVariable var = new TransactionVariable();
-        var.setVariableName("tax_rate");
-        var.setVariableValue(BigDecimal.valueOf(0.11));
+        TransactionVariable txVar = new TransactionVariable();
+        txVar.setVariableName("tax_rate");
+        txVar.setVariableValue(BigDecimal.valueOf(0.11));
 
-        assertThat(var.getVariableName()).isEqualTo("tax_rate");
-        assertThat(var.getVariableValue()).isEqualTo(BigDecimal.valueOf(0.11));
+        assertThat(txVar.getVariableName()).isEqualTo("tax_rate");
+        assertThat(txVar.getVariableValue()).isEqualTo(BigDecimal.valueOf(0.11));
     }
 
     @Test
     void transactionVariable_constructorWithValues() {
-        TransactionVariable var = new TransactionVariable("discount", BigDecimal.valueOf(50000));
+        TransactionVariable txVar = new TransactionVariable("discount", BigDecimal.valueOf(50000));
 
-        assertThat(var.getVariableName()).isEqualTo("discount");
-        assertThat(var.getVariableValue()).isEqualTo(BigDecimal.valueOf(50000));
+        assertThat(txVar.getVariableName()).isEqualTo("discount");
+        assertThat(txVar.getVariableValue()).isEqualTo(BigDecimal.valueOf(50000));
     }
 
     @Test
