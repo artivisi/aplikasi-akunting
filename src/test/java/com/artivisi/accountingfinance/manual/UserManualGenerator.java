@@ -187,15 +187,7 @@ public class UserManualGenerator {
 
             // 13. BANTUAN AI
             new SectionGroup("bantuan-ai", "Bantuan AI", "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z", List.of(
-                new Section("pengenalan-ai", "Pengenalan Bantuan AI", "13-bantuan-ai.md", List.of()),
-                new Section("setup-autentikasi", "Setup Autentikasi", "13-bantuan-ai.md", List.of("ai-transaction/00-device-authorization")),
-                new Section("template-metadata", "Template Journal dengan Metadata", "13-bantuan-ai.md", List.of()),
-                new Section("posting-transaksi", "Posting Transaksi Langsung", "13-bantuan-ai.md", List.of("ai-transaction/04-transactions-list")),
-                new Section("contoh-interaksi", "Contoh Interaksi dengan AI", "13-bantuan-ai.md", List.of()),
-                new Section("monitoring-audit", "Monitoring & Audit", "13-bantuan-ai.md", List.of()),
-                new Section("api-reference", "API Reference", "13-bantuan-ai.md", List.of()),
-                new Section("faq-ai", "FAQ", "13-bantuan-ai.md", List.of()),
-                new Section("troubleshooting-ai", "Troubleshooting", "13-bantuan-ai.md", List.of())
+                new Section("bantuan-ai", "Bantuan AI untuk Pencatatan Transaksi", "13-bantuan-ai.md", List.of("ai-transaction/00-device-authorization", "ai-transaction/04-transactions-list"))
             ))
         );
     }
