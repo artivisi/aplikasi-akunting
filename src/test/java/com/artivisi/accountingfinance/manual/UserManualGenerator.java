@@ -377,15 +377,10 @@ public class UserManualGenerator {
             }
         }
         
-        // Check if section title exactly matches H1 title - if so, return content before first H2
+        // Check if section title exactly matches H1 title - if so, return FULL content
         if (sectionTitle.equalsIgnoreCase(h1Title.trim())) {
-            // Extract content from after H1 until first H2
-            String[] parts = markdown.split("(?m)^## ", 2);
-            if (parts.length > 0) {
-                // Remove H1 from the content
-                return parts[0].replaceFirst("^#\\s+[^\\n]+\\n*", "").trim();
-            }
-            return "";
+            // Return full markdown content (entire document)
+            return markdown;
         }
         
         // For sections like "Konsep Dasar Akuntansi" that should aggregate content
