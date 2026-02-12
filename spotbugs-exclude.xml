@@ -76,6 +76,36 @@ Each exclusion must have a justification comment explaining the mitigation.
     -->
     <!-- Example: JPA entity fields accessed via reflection can be added here if needed -->
 
+    <!-- DeviceAuthorizationController: All log statements use LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.DeviceAuthorizationController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- DeviceAuthService: All log statements use LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.DeviceAuthService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- DraftTransactionApiController: All log statements use LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.DraftTransactionApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- TemplateApiController: All log statements use LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.TemplateApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- TransactionApiService: All log statements use LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.TransactionApiService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
     <!--
     EI_EXPOSE_REP / EI_EXPOSE_REP2 - Spring Dependency Injection False Positives
 

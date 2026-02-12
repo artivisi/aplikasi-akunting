@@ -1,6 +1,7 @@
 package com.artivisi.accountingfinance.controller.api;
 
 import com.artivisi.accountingfinance.entity.JournalTemplate;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class TemplateApiController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<TemplateDto> getTemplate(@PathVariable UUID id) {
-        log.info("API: Get template {}", id);
+        log.info("API: Get template {}", LogSanitizer.sanitize(id.toString()));
 
         JournalTemplate template = journalTemplateService.findById(id);
         return ResponseEntity.ok(toTemplateDto(template));

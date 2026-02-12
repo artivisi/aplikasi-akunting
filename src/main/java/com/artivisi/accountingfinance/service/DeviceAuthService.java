@@ -5,6 +5,7 @@ import com.artivisi.accountingfinance.entity.DeviceToken;
 import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.repository.DeviceCodeRepository;
 import com.artivisi.accountingfinance.repository.DeviceTokenRepository;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,7 +95,9 @@ public class DeviceAuthService {
         code.authorize(user);
         deviceCodeRepository.save(code);
 
-        log.info("User {} authorized device with code {}", user.getUsername(), userCode);
+        log.info("User {} authorized device with code {}",
+                LogSanitizer.username(user.getUsername()),
+                LogSanitizer.sanitize(userCode));
     }
 
     /**
