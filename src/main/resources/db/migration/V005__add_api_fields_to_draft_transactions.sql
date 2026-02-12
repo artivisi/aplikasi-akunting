@@ -96,3 +96,32 @@ COMMENT ON TABLE device_tokens IS 'Long-lived access tokens for device authentic
 COMMENT ON COLUMN device_tokens.token_hash IS 'BCrypt hash of the access token (never store plaintext)';
 COMMENT ON COLUMN device_tokens.device_name IS 'User-friendly device name for management UI';
 COMMENT ON COLUMN device_tokens.scopes IS 'Comma-separated list of granted permissions';
+
+-- ============================================
+-- Enhanced Journal Template Metadata for AI
+-- ============================================
+
+-- Add AI-friendly semantic metadata to journal templates
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS semantic_description TEXT;
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS keywords TEXT[];
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS example_merchants TEXT[];
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS typical_amount_min NUMERIC(15,2);
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS typical_amount_max NUMERIC(15,2);
+ALTER TABLE journal_templates ADD COLUMN IF NOT EXISTS merchant_patterns TEXT[];
+
+-- Create GIN index for keyword array searching
+CREATE INDEX IF NOT EXISTS idx_journal_templates_keywords ON journal_templates USING GIN (keywords);
+
+-- Add comments
+COMMENT ON COLUMN journal_templates.semantic_description IS
+    'Human-readable explanation of when to use this template (for AI comprehension)';
+COMMENT ON COLUMN journal_templates.keywords IS
+    'Array of searchable keywords for AI matching (lowercase)';
+COMMENT ON COLUMN journal_templates.example_merchants IS
+    'Array of example merchant names that typically use this template';
+COMMENT ON COLUMN journal_templates.typical_amount_min IS
+    'Typical minimum transaction amount for this template (optional)';
+COMMENT ON COLUMN journal_templates.typical_amount_max IS
+    'Typical maximum transaction amount for this template (optional)';
+COMMENT ON COLUMN journal_templates.merchant_patterns IS
+    'Array of regex patterns for merchant name matching';

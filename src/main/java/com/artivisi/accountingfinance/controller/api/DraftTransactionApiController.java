@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -142,8 +143,8 @@ public class DraftTransactionApiController {
     }
 
     /**
-     * List all available journal templates.
-     * GET /api/templates
+     * List all available journal templates with enhanced metadata.
+     * GET /api/drafts/templates
      */
     @GetMapping("/templates")
     public ResponseEntity<List<TemplateDto>> listTemplates() {
@@ -151,15 +152,28 @@ public class DraftTransactionApiController {
 
         List<JournalTemplate> templates = journalTemplateService.findAll();
         List<TemplateDto> dtos = templates.stream()
-                .map(t -> new TemplateDto(
-                        t.getId(),
-                        t.getTemplateName(),
-                        t.getCategory().name(),
-                        t.getDescription()
-                ))
+                .map(this::toTemplateDto)
                 .toList();
 
         return ResponseEntity.ok(dtos);
+    }
+
+    /**
+     * Convert JournalTemplate to TemplateDto with enhanced metadata.
+     */
+    private TemplateDto toTemplateDto(JournalTemplate t) {
+        return new TemplateDto(
+                t.getId(),
+                t.getTemplateName(),
+                t.getCategory().name(),
+                t.getDescription(),
+                t.getSemanticDescription(),
+                t.getKeywords() != null ? List.of(t.getKeywords()) : List.of(),
+                t.getExampleMerchants() != null ? List.of(t.getExampleMerchants()) : List.of(),
+                t.getTypicalAmountMin(),
+                t.getTypicalAmountMax(),
+                t.getMerchantPatterns() != null ? List.of(t.getMerchantPatterns()) : List.of()
+        );
     }
 
     /**
@@ -207,13 +221,19 @@ public class DraftTransactionApiController {
     }
 
     /**
-     * Template DTO for API response.
+     * Template DTO for API response with enhanced AI-friendly metadata.
      */
     public record TemplateDto(
             UUID id,
             String name,
             String category,
-            String description
+            String description,
+            String semanticDescription,
+            List<String> keywords,
+            List<String> exampleMerchants,
+            BigDecimal typicalAmountMin,
+            BigDecimal typicalAmountMax,
+            List<String> merchantPatterns
     ) {}
 
     /**

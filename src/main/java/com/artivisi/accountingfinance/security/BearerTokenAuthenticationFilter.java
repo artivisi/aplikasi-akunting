@@ -40,9 +40,11 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Only process API requests
+        // Only process API requests (excluding public endpoints)
         String requestUri = request.getRequestURI();
-        if (!requestUri.startsWith("/api/drafts")) {
+        if (!requestUri.startsWith("/api/") ||
+            requestUri.startsWith("/api/device/") ||
+            requestUri.startsWith("/api/telegram/")) {
             filterChain.doFilter(request, response);
             return;
         }
