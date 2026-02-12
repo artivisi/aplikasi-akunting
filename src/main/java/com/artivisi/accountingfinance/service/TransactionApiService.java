@@ -3,10 +3,13 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.dto.ApproveDraftRequest;
 import com.artivisi.accountingfinance.dto.CreateFromReceiptRequest;
 import com.artivisi.accountingfinance.dto.CreateFromTextRequest;
+import com.artivisi.accountingfinance.dto.CreateTransactionRequest;
 import com.artivisi.accountingfinance.dto.DraftResponse;
 import com.artivisi.accountingfinance.dto.TemplateSuggestion;
+import com.artivisi.accountingfinance.dto.TransactionResponse;
 import com.artivisi.accountingfinance.entity.Document;
 import com.artivisi.accountingfinance.entity.DraftTransaction;
+import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.entity.MerchantMapping;
 import com.artivisi.accountingfinance.entity.Transaction;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +45,8 @@ public class TransactionApiService {
     private static final String ERR_DRAFT_NOT_FOUND = "Draft not found: ";
 
     private final DraftTransactionService draftTransactionService;
+    private final TransactionService transactionService;
+    private final JournalEntryService journalEntryService;
     private final JournalTemplateService journalTemplateService;
     private final MerchantMappingRepository merchantMappingRepository;
     private final DocumentStorageService documentStorageService;
@@ -381,6 +387,87 @@ public class TransactionApiService {
                 draft.getOverallConfidence(),
                 needsClarification,
                 clarificationQuestion
+        );
+    }
+
+    /**
+     * Create and post transaction directly (bypass draft workflow).
+     * Used after AI assistant has consulted user and received approval.
+     */
+    public TransactionResponse createTransactionDirect(CreateTransactionRequest request, String username) {
+        log.info("Creating transaction directly: merchant={}, amount={}, template={}, source={}",
+                request.merchant(), request.amount(), request.templateId(), request.source());
+
+        // Validate future dates
+        if (request.transactionDate().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Transaction date cannot be in the future");
+        }
+
+        // Validate template exists
+        JournalTemplate template = journalTemplateService.findByIdWithLines(request.templateId());
+
+        // Store image if provided
+        Document document = null;
+        if (request.items() != null && !request.items().isEmpty()) {
+            // Items can be stored as metadata in the transaction description or notes
+            // For now, we'll include them in the description
+        }
+
+        // Create transaction
+        Transaction transaction = new Transaction();
+        transaction.setTransactionNumber(null); // Will be generated when posting
+        transaction.setTransactionDate(request.transactionDate());
+        transaction.setJournalTemplate(template);
+        transaction.setAmount(request.amount());
+        transaction.setDescription(request.description());
+        transaction.setReferenceNumber("API-" + UUID.randomUUID().toString().substring(0, 8));
+        transaction.setCreatedBy(username != null ? username : "API-" + request.source());
+
+        // Record template usage
+        journalTemplateService.recordUsage(template.getId());
+
+        // Save transaction (creates in DRAFT status)
+        Transaction saved = transactionService.create(transaction, null, null);
+
+        // Post transaction immediately
+        Transaction posted = transactionService.post(saved.getId(), username != null ? username : "API");
+
+        // Load with journal entries
+        Transaction complete = transactionService.findByIdWithJournalEntries(posted.getId());
+
+        log.info("Created and posted transaction {} from API source: {}",
+                complete.getTransactionNumber(), request.source());
+
+        return buildTransactionResponse(complete);
+    }
+
+    /**
+     * Build TransactionResponse from Transaction entity.
+     */
+    private TransactionResponse buildTransactionResponse(Transaction transaction) {
+        List<TransactionResponse.JournalEntryDto> journalEntries = new ArrayList<>();
+
+        if (transaction.getJournalEntries() != null) {
+            for (JournalEntry entry : transaction.getJournalEntries()) {
+                journalEntries.add(new TransactionResponse.JournalEntryDto(
+                        entry.getJournalNumber(),
+                        entry.getAccount().getAccountCode(),
+                        entry.getAccount().getAccountName(),
+                        entry.getDebitAmount(),
+                        entry.getCreditAmount()
+                ));
+            }
+        }
+
+        return new TransactionResponse(
+                transaction.getId(),
+                transaction.getTransactionNumber(),
+                transaction.getStatus().name(),
+                transaction.getDescription(),
+                transaction.getAmount(),
+                transaction.getTransactionDate(),
+                transaction.getDescription(),
+                journalEntries
         );
     }
 }

@@ -1,0 +1,153 @@
+package com.artivisi.accountingfinance.controller.api;
+
+import com.artivisi.accountingfinance.entity.JournalTemplate;
+import com.artivisi.accountingfinance.service.JournalTemplateService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * REST API for journal template management.
+ * Allows AI assistants to read and manage templates.
+ */
+@RestController
+@RequestMapping("/api/templates")
+@RequiredArgsConstructor
+@Slf4j
+public class TemplateApiController {
+
+    private final JournalTemplateService journalTemplateService;
+
+    /**
+     * List all available journal templates with enhanced metadata.
+     * GET /api/templates
+     */
+    @GetMapping
+    public ResponseEntity<List<TemplateDto>> listTemplates() {
+        log.info("API: List all templates");
+
+        List<JournalTemplate> templates = journalTemplateService.findAll();
+        List<TemplateDto> dtos = templates.stream()
+                .map(this::toTemplateDto)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    /**
+     * Get single template by ID with enhanced metadata.
+     * GET /api/templates/{id}
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<TemplateDto> getTemplate(@PathVariable UUID id) {
+        log.info("API: Get template {}", id);
+
+        JournalTemplate template = journalTemplateService.findById(id);
+        return ResponseEntity.ok(toTemplateDto(template));
+    }
+
+    /**
+     * Create new journal template.
+     * POST /api/templates
+     */
+    @PostMapping
+    public ResponseEntity<TemplateDto> createTemplate(@Valid @RequestBody JournalTemplate template) {
+        String username = getCurrentUsername();
+        log.info("API: Create template by {}", username);
+
+        template.setCreatedBy(username);
+        JournalTemplate created = journalTemplateService.create(template);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(toTemplateDto(created));
+    }
+
+    /**
+     * Update existing journal template.
+     * PUT /api/templates/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<TemplateDto> updateTemplate(
+            @PathVariable UUID id,
+            @Valid @RequestBody JournalTemplate template) {
+
+        String username = getCurrentUsername();
+        log.info("API: Update template {} by {}", id, username);
+
+        JournalTemplate updated = journalTemplateService.update(id, template);
+        return ResponseEntity.ok(toTemplateDto(updated));
+    }
+
+    /**
+     * Delete journal template (soft delete).
+     * DELETE /api/templates/{id}
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTemplate(@PathVariable UUID id) {
+        String username = getCurrentUsername();
+        log.info("API: Delete template {} by {}", id, username);
+
+        journalTemplateService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Convert JournalTemplate to TemplateDto with enhanced metadata.
+     */
+    private TemplateDto toTemplateDto(JournalTemplate t) {
+        return new TemplateDto(
+                t.getId(),
+                t.getTemplateName(),
+                t.getCategory().name(),
+                t.getDescription(),
+                t.getSemanticDescription(),
+                t.getKeywords() != null ? List.of(t.getKeywords()) : List.of(),
+                t.getExampleMerchants() != null ? List.of(t.getExampleMerchants()) : List.of(),
+                t.getTypicalAmountMin(),
+                t.getTypicalAmountMax(),
+                t.getMerchantPatterns() != null ? List.of(t.getMerchantPatterns()) : List.of()
+        );
+    }
+
+    /**
+     * Get current authenticated username.
+     */
+    private String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            return auth.getName();
+        }
+        return "API";
+    }
+
+    /**
+     * Template DTO for API response with enhanced AI-friendly metadata.
+     */
+    public record TemplateDto(
+            UUID id,
+            String name,
+            String category,
+            String description,
+            String semanticDescription,
+            List<String> keywords,
+            List<String> exampleMerchants,
+            BigDecimal typicalAmountMin,
+            BigDecimal typicalAmountMax,
+            List<String> merchantPatterns
+    ) {}
+}

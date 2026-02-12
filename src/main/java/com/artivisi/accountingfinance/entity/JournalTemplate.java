@@ -23,7 +23,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,6 +85,28 @@ public class JournalTemplate extends BaseEntity {
 
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
+
+    // ============================================
+    // AI-Friendly Semantic Metadata
+    // ============================================
+
+    @Column(name = "semantic_description", columnDefinition = "TEXT")
+    private String semanticDescription;
+
+    @Column(name = "keywords", columnDefinition = "TEXT[]")
+    private String[] keywords;
+
+    @Column(name = "example_merchants", columnDefinition = "TEXT[]")
+    private String[] exampleMerchants;
+
+    @Column(name = "typical_amount_min", precision = 15, scale = 2)
+    private BigDecimal typicalAmountMin;
+
+    @Column(name = "typical_amount_max", precision = 15, scale = 2)
+    private BigDecimal typicalAmountMax;
+
+    @Column(name = "merchant_patterns", columnDefinition = "TEXT[]")
+    private String[] merchantPatterns;
 
     @JsonIgnore
     @Getter(AccessLevel.NONE)
