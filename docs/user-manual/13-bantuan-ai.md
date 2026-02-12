@@ -76,7 +76,7 @@ Please authorize this device:
 
 Buka URL tersebut di browser, login, dan masukkan kode:
 
-![Halaman Otorisasi Device](../functional-screenshots/ai-transaction/00-device-authorization.png)
+![Halaman Otorisasi Device](screenshots/ai-transaction/00-device-authorization.png)
 
 **Langkah otorisasi:**
 1. Login dengan username dan password Anda
@@ -258,7 +258,7 @@ Content-Type: application/json
 
 Setelah transaksi diposting, Anda dapat melihatnya di halaman Transaksi:
 
-![Daftar Transaksi](../functional-screenshots/ai-transaction/04-transactions-list.png)
+![Daftar Transaksi](screenshots/ai-transaction/04-transactions-list.png)
 
 Transaksi yang dibuat via AI akan memiliki:
 - **Transaction Number**: TRX-2026-0001 (auto-generated)
