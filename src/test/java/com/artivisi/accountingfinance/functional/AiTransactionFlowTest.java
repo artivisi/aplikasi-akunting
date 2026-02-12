@@ -51,8 +51,8 @@ class AiTransactionFlowTest extends PlaywrightTestBase {
         apiContext = playwright.request().newContext(new APIRequest.NewContextOptions()
                 .setBaseURL(baseUrl()));
 
-        // Create screenshots directory for user manual
-        screenshotDir = Paths.get("target/functional-screenshots/ai-transaction");
+        // Create screenshots directory for user manual (matches other functional tests)
+        screenshotDir = Paths.get("target/screenshots/ai-transaction");
         Files.createDirectories(screenshotDir);
 
         // Get access token via device flow
