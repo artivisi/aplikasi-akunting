@@ -55,7 +55,7 @@ public class DraftTransactionApiController {
         log.info("API: Create draft from receipt - merchant={}, source={}",
                 request.merchant(), request.source());
 
-        auditApiCall("DRAFT_CREATED_FROM_RECEIPT", Map.of(
+        auditApiCall(Map.of(
                 "merchant", request.merchant(),
                 "amount", request.amount().toString(),
                 "source", request.source(),
@@ -75,7 +75,7 @@ public class DraftTransactionApiController {
         log.info("API: Create draft from text - merchant={}, source={}",
                 request.merchant(), request.source());
 
-        auditApiCall("DRAFT_CREATED_FROM_TEXT", Map.of(
+        auditApiCall(Map.of(
                 "merchant", request.merchant(),
                 "amount", request.amount().toString(),
                 "source", request.source(),
@@ -110,7 +110,7 @@ public class DraftTransactionApiController {
         String username = getCurrentUsername();
         log.info("API: Approve draft {} by {}", id, username);
 
-        auditApiCall("DRAFT_APPROVED_VIA_API", Map.of(
+        auditApiCall(Map.of(
                 "draftId", id.toString(),
                 "templateId", request.templateId().toString(),
                 "approvedBy", username
@@ -136,7 +136,7 @@ public class DraftTransactionApiController {
                 LogSanitizer.username(username),
                 LogSanitizer.sanitize(reason));
 
-        auditApiCall("DRAFT_REJECTED_VIA_API", Map.of(
+        auditApiCall(Map.of(
                 "draftId", id.toString(),
                 "rejectedBy", username,
                 "reason", reason
@@ -216,7 +216,7 @@ public class DraftTransactionApiController {
     /**
      * Audit API calls.
      */
-    private void auditApiCall(String eventType, Map<String, String> details) {
+    private void auditApiCall(Map<String, String> details) {
         String detailsStr = String.format("API call from %s: %s",
                 details.getOrDefault("source", "unknown"),
                 details.toString());

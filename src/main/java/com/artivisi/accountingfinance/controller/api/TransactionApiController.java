@@ -44,7 +44,7 @@ public class TransactionApiController {
         log.info("API: Create transaction directly - merchant={}, template={}, source={}, user={}",
                 request.merchant(), request.templateId(), request.source(), username);
 
-        auditApiCall("TRANSACTION_CREATED_DIRECTLY", Map.of(
+        auditApiCall(Map.of(
                 "merchant", request.merchant(),
                 "amount", request.amount().toString(),
                 "source", request.source(),
@@ -70,7 +70,7 @@ public class TransactionApiController {
     /**
      * Audit API calls.
      */
-    private void auditApiCall(String eventType, Map<String, String> details) {
+    private void auditApiCall(Map<String, String> details) {
         String detailsStr = String.format("API call from %s: %s",
                 details.getOrDefault("source", "unknown"),
                 details.toString());

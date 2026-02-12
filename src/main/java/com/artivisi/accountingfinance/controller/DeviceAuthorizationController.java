@@ -97,7 +97,7 @@ public class DeviceAuthorizationController {
             User user = userRepository.findByUsername(authentication.getName())
                     .orElseThrow(() -> new IllegalStateException("User not found"));
 
-            deviceAuthService.authorizeDevice(userCode, user, deviceName);
+            deviceAuthService.authorizeDevice(userCode, user);
 
             redirectAttributes.addFlashAttribute("success",
                     "Perangkat berhasil diotorisasi! Anda dapat kembali ke aplikasi.");

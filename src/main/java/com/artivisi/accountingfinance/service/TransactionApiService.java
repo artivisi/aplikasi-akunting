@@ -248,28 +248,24 @@ public class TransactionApiService {
         for (JournalTemplate template : allTemplates) {
             String templateNameLower = template.getTemplateName().toLowerCase();
 
-            if (categoryLower.contains("food") || categoryLower.contains("makan") || categoryLower.contains("beverage")) {
-                if (templateNameLower.contains("meal") || templateNameLower.contains("makan")) {
-                    return template;
-                }
+            if ((categoryLower.contains("food") || categoryLower.contains("makan") || categoryLower.contains("beverage")) &&
+                (templateNameLower.contains("meal") || templateNameLower.contains("makan"))) {
+                return template;
             }
 
-            if (categoryLower.contains("utility") || categoryLower.contains("listrik") || categoryLower.contains("air")) {
-                if (templateNameLower.contains("utility") || templateNameLower.contains("utilitas")) {
-                    return template;
-                }
+            if ((categoryLower.contains("utility") || categoryLower.contains("listrik") || categoryLower.contains("air")) &&
+                (templateNameLower.contains("utility") || templateNameLower.contains("utilitas"))) {
+                return template;
             }
 
-            if (categoryLower.contains("transport") || categoryLower.contains("travel") || categoryLower.contains("perjalanan")) {
-                if (templateNameLower.contains("travel") || templateNameLower.contains("perjalanan")) {
-                    return template;
-                }
+            if ((categoryLower.contains("transport") || categoryLower.contains("travel") || categoryLower.contains("perjalanan")) &&
+                (templateNameLower.contains("travel") || templateNameLower.contains("perjalanan"))) {
+                return template;
             }
 
-            if (categoryLower.contains("office") || categoryLower.contains("kantor") || categoryLower.contains("supplies")) {
-                if (templateNameLower.contains("office") || templateNameLower.contains("kantor")) {
-                    return template;
-                }
+            if ((categoryLower.contains("office") || categoryLower.contains("kantor") || categoryLower.contains("supplies")) &&
+                (templateNameLower.contains("office") || templateNameLower.contains("kantor"))) {
+                return template;
             }
         }
 

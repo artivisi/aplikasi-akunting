@@ -78,7 +78,7 @@ public class DeviceAuthService {
     /**
      * Step 3: User authorizes the device.
      */
-    public void authorizeDevice(String userCode, User user, String deviceName) {
+    public void authorizeDevice(String userCode, User user) {
         DeviceCode code = deviceCodeRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user code"));
 
