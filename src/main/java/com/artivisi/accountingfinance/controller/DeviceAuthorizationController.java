@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.controller;
 import com.artivisi.accountingfinance.entity.DeviceCode;
 import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.repository.UserRepository;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import com.artivisi.accountingfinance.service.DeviceAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +102,9 @@ public class DeviceAuthorizationController {
             redirectAttributes.addFlashAttribute("success",
                     "Perangkat berhasil diotorisasi! Anda dapat kembali ke aplikasi.");
 
-            log.info("User {} authorized device with code {}", user.getUsername(), userCode);
+            log.info("User {} authorized device with code {}",
+                    LogSanitizer.username(user.getUsername()),
+                    LogSanitizer.sanitize(userCode));
 
             return "redirect:/device/success";
 

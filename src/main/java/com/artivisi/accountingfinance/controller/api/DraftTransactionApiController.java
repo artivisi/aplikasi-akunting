@@ -7,6 +7,7 @@ import com.artivisi.accountingfinance.dto.DraftResponse;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.enums.AuditEventType;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
 import com.artivisi.accountingfinance.service.SecurityAuditService;
@@ -91,7 +92,7 @@ public class DraftTransactionApiController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<DraftResponse> getDraft(@PathVariable UUID id) {
-        log.info("API: Get draft {}", id);
+        log.info("API: Get draft {}", LogSanitizer.sanitize(id.toString()));
 
         DraftResponse response = transactionApiService.getDraft(id);
         return ResponseEntity.ok(response);
@@ -130,7 +131,10 @@ public class DraftTransactionApiController {
 
         String username = getCurrentUsername();
         String reason = body.getOrDefault("reason", "Rejected via API");
-        log.info("API: Reject draft {} by {}: {}", id, username, reason);
+        log.info("API: Reject draft {} by {}: {}",
+                LogSanitizer.sanitize(id.toString()),
+                LogSanitizer.username(username),
+                LogSanitizer.sanitize(reason));
 
         auditApiCall("DRAFT_REJECTED_VIA_API", Map.of(
                 "draftId", id.toString(),
@@ -213,7 +217,6 @@ public class DraftTransactionApiController {
      * Audit API calls.
      */
     private void auditApiCall(String eventType, Map<String, String> details) {
-        String username = getCurrentUsername();
         String detailsStr = String.format("API call from %s: %s",
                 details.getOrDefault("source", "unknown"),
                 details.toString());

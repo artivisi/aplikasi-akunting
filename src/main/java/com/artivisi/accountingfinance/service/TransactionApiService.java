@@ -15,6 +15,7 @@ import com.artivisi.accountingfinance.entity.MerchantMapping;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.repository.DocumentRepository;
 import com.artivisi.accountingfinance.repository.MerchantMappingRepository;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -193,7 +194,9 @@ public class TransactionApiService {
      * Reject draft.
      */
     public DraftResponse reject(UUID draftId, String reason, String username) {
-        log.info("Rejecting draft {}: {}", draftId, reason);
+        log.info("Rejecting draft {}: {}",
+                LogSanitizer.sanitize(draftId.toString()),
+                LogSanitizer.sanitize(reason));
 
         DraftTransaction draft = draftTransactionService.reject(draftId, reason, username);
         return buildDraftResponse(draft);

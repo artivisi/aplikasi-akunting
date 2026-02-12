@@ -71,7 +71,6 @@ public class TransactionApiController {
      * Audit API calls.
      */
     private void auditApiCall(String eventType, Map<String, String> details) {
-        String username = getCurrentUsername();
         String detailsStr = String.format("API call from %s: %s",
                 details.getOrDefault("source", "unknown"),
                 details.toString());
