@@ -9,6 +9,6 @@
     "@pulumi/digitalocean": "^4.56.0"
   },
   "overrides": {
-    "tar": "7.5.3"
+    "tar": "7.5.7"
   }
 }
