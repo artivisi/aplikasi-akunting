@@ -284,7 +284,7 @@ Transaksi yang dibuat via AI akan memiliki:
    • Tanggal: 12 Feb 2026
    • Item: Caffe Latte Grande, Blueberry Muffin
 
-   Template yang cocok: "Beban Gaji" (confidence: 0.95)
+   Template yang cocok: "Konsumsi Karyawan" (confidence: 0.95)
 
    Posting transaksi ini?
    ✓ Ya
@@ -305,8 +305,8 @@ Ya
   Status: POSTED
 
   Jurnal:
-  [DEBIT]  Beban Gaji: Rp 85.000
-  [CREDIT] Hutang Gaji: Rp 85.000
+  [DEBIT]  Beban Konsumsi Karyawan: Rp 85.000
+  [CREDIT] Kas: Rp 85.000
 ```
 
 ### Skenario 2: Text Input Listrik
