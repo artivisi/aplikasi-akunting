@@ -68,12 +68,14 @@ public class TransactionService {
 
     public Page<Transaction> findByFilters(TransactionStatus status, TemplateCategory category,
                                            LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return transactionRepository.findByFilters(status, category, null, startDate, endDate, pageable);
+        return findByFilters(status, category, null, startDate, endDate, pageable);
     }
 
     public Page<Transaction> findByFilters(TransactionStatus status, TemplateCategory category, UUID projectId,
                                            LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return transactionRepository.findByFilters(status, category, projectId, startDate, endDate, pageable);
+        String statusName = status != null ? status.name() : null;
+        String categoryName = category != null ? category.name() : null;
+        return transactionRepository.findByFilters(statusName, categoryName, projectId, startDate, endDate, pageable);
     }
 
     public Page<Transaction> search(String search, Pageable pageable) {

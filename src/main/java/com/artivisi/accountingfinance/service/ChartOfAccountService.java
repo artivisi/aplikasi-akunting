@@ -2,6 +2,7 @@ package com.artivisi.accountingfinance.service;
 
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.enums.AccountType;
+import com.artivisi.accountingfinance.enums.NormalBalance;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -88,9 +89,18 @@ public class ChartOfAccountService {
             account.setLevel(parent.getLevel() + 1);
             account.setAccountType(parent.getAccountType());
             account.setNormalBalance(parent.getNormalBalance());
+        } else if (account.getNormalBalance() == null && account.getAccountType() != null) {
+            account.setNormalBalance(deriveNormalBalance(account.getAccountType()));
         }
 
         return chartOfAccountRepository.save(account);
+    }
+
+    private NormalBalance deriveNormalBalance(AccountType accountType) {
+        return switch (accountType) {
+            case ASSET, EXPENSE -> NormalBalance.DEBIT;
+            case LIABILITY, EQUITY, REVENUE -> NormalBalance.CREDIT;
+        };
     }
 
     @Transactional

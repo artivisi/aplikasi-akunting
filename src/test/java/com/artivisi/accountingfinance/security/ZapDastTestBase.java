@@ -83,12 +83,14 @@ abstract class ZapDastTestBase {
         zapContainer = new GenericContainer<>(DockerImageName.parse("ghcr.io/zaproxy/zaproxy:stable"))
                 .withExposedPorts(ZAP_PORT)
                 .withFileSystemBind(REPORTS_DIR.toAbsolutePath().toString(), CONTAINER_REPORTS_DIR)
-                .withCommand("zap.sh", "-daemon", "-host", "0.0.0.0", "-port", String.valueOf(ZAP_PORT),
+                .withCommand("zap.sh", "-daemon", "-silent",
+                        "-host", "0.0.0.0", "-port", String.valueOf(ZAP_PORT),
                         "-config", "api.addrs.addr.name=.*",
                         "-config", "api.addrs.addr.regex=true",
-                        "-config", "api.disablekey=true")
+                        "-config", "api.disablekey=true",
+                        "-config", "connection.timeoutInSecs=120")
                 .waitingFor(Wait.forLogMessage(".*ZAP is now listening.*\\n", 1)
-                        .withStartupTimeout(Duration.ofMinutes(2)));
+                        .withStartupTimeout(Duration.ofMinutes(5)));
 
         zapContainer.start();
 

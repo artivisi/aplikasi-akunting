@@ -60,14 +60,14 @@ public class FileEncryptionService {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(encryptionKeyBase64);
             if (keyBytes.length != 32) {
-                log.error("Encryption key must be exactly 32 bytes (256 bits) for AES-256. Got {} bytes", keyBytes.length);
+                log.warn("Encryption key must be exactly 32 bytes (256 bits) for AES-256. Got {} bytes", keyBytes.length);
                 throw new IllegalArgumentException("Invalid encryption key length");
             }
             secretKey = new SecretKeySpec(keyBytes, "AES");
             encryptionEnabled = true;
             log.info("Document file encryption enabled");
         } catch (IllegalArgumentException e) {
-            log.error("Invalid encryption key format (must be Base64): {}", e.getMessage());
+            log.warn("Invalid encryption key format (must be Base64): {}", e.getMessage());
             throw new IllegalStateException("Failed to initialize file encryption", e);
         }
     }
@@ -112,7 +112,7 @@ public class FileEncryptionService {
 
             return buffer.array();
         } catch (Exception e) {
-            log.error("File encryption failed: {}", e.getMessage());
+            log.warn("File encryption failed: {}", e.getMessage());
             throw new IllegalStateException("Failed to encrypt file", e);
         }
     }
@@ -166,7 +166,7 @@ public class FileEncryptionService {
             // Decrypt
             return cipher.doFinal(ciphertext);
         } catch (Exception e) {
-            log.error("File decryption failed: {}", e.getMessage());
+            log.warn("File decryption failed: {}", e.getMessage());
             throw new IllegalStateException("Failed to decrypt file", e);
         }
     }

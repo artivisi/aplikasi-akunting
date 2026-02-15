@@ -353,11 +353,11 @@ public class TelegramBotService {
             );
             var response = telegramApiClient.sendMessage(request);
             
-            if (!Boolean.TRUE.equals(response.ok()) && log.isErrorEnabled()) {
-                log.error("Failed to send telegram message: {}", sanitizeForLog(response.description()));
+            if (!Boolean.TRUE.equals(response.ok()) && log.isWarnEnabled()) {
+                log.warn("Failed to send telegram message: {}", sanitizeForLog(response.description()));
             }
         } catch (Exception e) {
-            log.error("Failed to send telegram message: {}", e.getMessage());
+            log.warn("Failed to send telegram message: {}", e.getMessage());
         }
     }
 

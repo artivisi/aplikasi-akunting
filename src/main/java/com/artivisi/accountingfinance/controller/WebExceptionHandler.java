@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.ui.Model;
@@ -35,14 +36,14 @@ public class WebExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
     public Object handleAccessDenied(RuntimeException ex, HttpServletRequest request,
                                      HttpServletResponse response, Model model) {
-        if (!isHtmlRequest(request)) {
-            // Let RestExceptionHandler handle non-HTML requests
-            throw ex;
-        }
-        // Log full details for debugging, but don't expose to client
         log.warn("Access denied: {}", ex.getMessage());
+        if (!isHtmlRequest(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new RestExceptionHandler.ErrorResponse(
+                            HttpStatus.FORBIDDEN.value(), "Forbidden",
+                            "Akses ditolak.", LocalDateTime.now()));
+        }
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        // Don't expose exception message - use generic message
         model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/403";
     }
@@ -50,28 +51,29 @@ public class WebExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public Object handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request,
                                        HttpServletResponse response, Model model) {
-        if (!isHtmlRequest(request)) {
-            // Let RestExceptionHandler handle non-HTML requests
-            throw ex;
-        }
-        // Log full details for debugging, but don't expose to client
         log.warn("Entity not found: {}", ex.getMessage());
+        if (!isHtmlRequest(request)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RestExceptionHandler.ErrorResponse(
+                            HttpStatus.NOT_FOUND.value(), "Not Found",
+                            "Resource tidak ditemukan.", LocalDateTime.now()));
+        }
         response.setStatus(HttpStatus.NOT_FOUND.value());
-        // Don't expose exception message - use generic message
         model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/404";
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public Object handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request,
-                                        HttpServletResponse response, Model model) throws NoResourceFoundException {
-        if (!isHtmlRequest(request)) {
-            // Let RestExceptionHandler handle non-HTML requests
-            throw ex;
-        }
+                                        HttpServletResponse response, Model model) {
         log.debug("Resource not found: {}", ex.getResourcePath());
+        if (!isHtmlRequest(request)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RestExceptionHandler.ErrorResponse(
+                            HttpStatus.NOT_FOUND.value(), "Not Found",
+                            "Resource tidak ditemukan.", LocalDateTime.now()));
+        }
         response.setStatus(HttpStatus.NOT_FOUND.value());
-        // Don't expose file paths in error messages for security
         model.addAttribute(ATTR_TIMESTAMP, LocalDateTime.now());
         return "error/404";
     }

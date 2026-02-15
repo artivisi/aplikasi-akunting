@@ -1,7 +1,6 @@
 package com.artivisi.accountingfinance.repository;
 
 import com.artivisi.accountingfinance.entity.Transaction;
-import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.enums.TransactionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,16 +23,25 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     List<Transaction> findByTransactionDateBetweenOrderByTransactionDateDesc(LocalDate startDate, LocalDate endDate);
 
-    @Query("SELECT t FROM Transaction t WHERE " +
-           "(:status IS NULL OR t.status = :status) AND " +
-           "(:category IS NULL OR t.journalTemplate.category = :category) AND " +
-           "(:projectId IS NULL OR t.project.id = :projectId) AND " +
-           "(:startDate IS NULL OR t.transactionDate >= :startDate) AND " +
-           "(:endDate IS NULL OR t.transactionDate <= :endDate) " +
-           "ORDER BY t.transactionDate DESC, t.createdAt DESC")
+    @Query(value = "SELECT t.* FROM transactions t " +
+           "JOIN journal_templates jt ON jt.id = t.id_journal_template " +
+           "WHERE (CAST(:status AS VARCHAR) IS NULL OR t.status = CAST(:status AS VARCHAR)) " +
+           "AND (CAST(:category AS VARCHAR) IS NULL OR jt.category = CAST(:category AS VARCHAR)) " +
+           "AND (CAST(:projectId AS UUID) IS NULL OR t.id_project = CAST(:projectId AS UUID)) " +
+           "AND (CAST(:startDate AS DATE) IS NULL OR t.transaction_date >= CAST(:startDate AS DATE)) " +
+           "AND (CAST(:endDate AS DATE) IS NULL OR t.transaction_date <= CAST(:endDate AS DATE)) " +
+           "ORDER BY t.transaction_date DESC, t.created_at DESC",
+           countQuery = "SELECT COUNT(*) FROM transactions t " +
+           "JOIN journal_templates jt ON jt.id = t.id_journal_template " +
+           "WHERE (CAST(:status AS VARCHAR) IS NULL OR t.status = CAST(:status AS VARCHAR)) " +
+           "AND (CAST(:category AS VARCHAR) IS NULL OR jt.category = CAST(:category AS VARCHAR)) " +
+           "AND (CAST(:projectId AS UUID) IS NULL OR t.id_project = CAST(:projectId AS UUID)) " +
+           "AND (CAST(:startDate AS DATE) IS NULL OR t.transaction_date >= CAST(:startDate AS DATE)) " +
+           "AND (CAST(:endDate AS DATE) IS NULL OR t.transaction_date <= CAST(:endDate AS DATE))",
+           nativeQuery = true)
     Page<Transaction> findByFilters(
-            @Param("status") TransactionStatus status,
-            @Param("category") TemplateCategory category,
+            @Param("status") String status,
+            @Param("category") String category,
             @Param("projectId") UUID projectId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

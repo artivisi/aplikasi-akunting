@@ -157,7 +157,7 @@ class ControllerApiCoverageTest extends PlaywrightTestBase {
         @Test
         @DisplayName("Should display voided transactions only")
         void shouldDisplayVoidedTransactionsOnly() {
-            navigateTo("/transactions?status=VOIDED");
+            navigateTo("/transactions?status=VOID");
             waitForPageLoad();
 
             assertThat(page.locator("body")).isVisible();

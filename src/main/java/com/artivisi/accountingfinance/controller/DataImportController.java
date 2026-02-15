@@ -65,11 +65,11 @@ public class DataImportController {
 
             return REDIRECT_IMPORT;
         } catch (IOException e) {
-            log.error("Error importing data: {}", e.getMessage(), e);
+            log.warn("Error importing data: {}", e.getMessage(), e);
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Error import: " + e.getMessage());
             return REDIRECT_IMPORT;
         } catch (Exception e) {
-            log.error("Unexpected error during import: {}", e.getMessage(), e);
+            log.warn("Unexpected error during import: {}", e.getMessage(), e);
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Error: " + e.getMessage());
             return REDIRECT_IMPORT;
         }
