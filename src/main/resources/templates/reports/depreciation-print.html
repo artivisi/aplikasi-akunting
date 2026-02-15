@@ -130,7 +130,7 @@
     </table>
 
     <div class="footer">
-        <div th:text="${company.city + ', ' + #temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">Jakarta, 01 Januari 2024</div>
+        <div th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">01 Januari 2024</div>
         <div class="signature">
             <div>Direktur</div>
             <br><br><br><br>
