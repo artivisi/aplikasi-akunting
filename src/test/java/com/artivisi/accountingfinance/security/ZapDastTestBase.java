@@ -39,12 +39,15 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Base class for ZAP DAST security tests.
  * Provides common setup, helper methods, and ZAP client utilities.
+ * Uses PER_CLASS lifecycle to share one ZAP container across all tests,
+ * preventing Maven hangs from repeated container startup/teardown.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("test")
 @Tag("security")
 @Tag("dast")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SuppressWarnings("java:S2925") // Thread.sleep is intentional for ZAP proxy synchronization in DAST tests
 abstract class ZapDastTestBase {
 
@@ -71,12 +74,9 @@ abstract class ZapDastTestBase {
     protected HttpClient authenticatedClient;
 
     @BeforeAll
-    static void createReportsDir() throws Exception {
-        Files.createDirectories(REPORTS_DIR);
-    }
-
-    @BeforeEach
     void setupZap() throws Exception {
+        Files.createDirectories(REPORTS_DIR);
+
         Testcontainers.exposeHostPorts(port);
         targetUrl = "http://host.testcontainers.internal:" + port;
 
@@ -104,12 +104,18 @@ abstract class ZapDastTestBase {
         waitForZapReady();
     }
 
-    @AfterEach
+    @BeforeEach
+    void resetZapSession() throws Exception {
+        // Clear previous scan data between tests while reusing the same container
+        zapClient.core.newSession("", "true");
+        authenticatedClient = null;
+    }
+
+    @AfterAll
     void tearDown() {
         if (zapContainer != null && zapContainer.isRunning()) {
             zapContainer.stop();
         }
-        authenticatedClient = null;
     }
 
 
