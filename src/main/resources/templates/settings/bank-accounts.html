@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Rekening Bank</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Rekening Bank</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">Rekening Bank</h2>
+                <a th:href="@{/settings/bank-accounts/new}"
+                   class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">
+                    + Tambah Rekening
+                </a>
+            </div>
+
+            <div th:replace="~{settings/fragments/bank-table :: table}"></div>
+        </div>
+    </div>
+</body>
+</html>
