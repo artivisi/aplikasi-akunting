@@ -1,6 +1,7 @@
 package com.artivisi.accountingfinance.entity;
 
 import com.artivisi.accountingfinance.enums.ProjectStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -89,6 +90,7 @@ public class Project {
     @OrderBy("sequence ASC")
     private List<ProjectPaymentTerm> paymentTerms = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<Invoice> invoices = new ArrayList<>();
 

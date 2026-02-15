@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -88,9 +89,11 @@ public class Client {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<Project> projects = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<Invoice> invoices = new ArrayList<>();
 
