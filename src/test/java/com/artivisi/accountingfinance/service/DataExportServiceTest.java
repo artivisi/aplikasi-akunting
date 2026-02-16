@@ -97,7 +97,7 @@ class DataExportServiceTest {
             byte[] zipData = dataExportService.exportAllData();
 
             assertThat(zipData).isNotNull();
-            assertThat(zipData.length).isGreaterThan(0);
+            assertThat(zipData).hasSizeGreaterThan(0);
         }
 
         @Test

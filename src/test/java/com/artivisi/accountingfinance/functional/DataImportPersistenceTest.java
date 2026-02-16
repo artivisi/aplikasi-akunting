@@ -193,7 +193,7 @@ class DataImportPersistenceTest extends PlaywrightTestBase {
     void shouldRejectEmptyFileUpload() throws IOException {
         // Create empty ZIP
         Path emptyZip = tempDir.resolve("empty.zip");
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(emptyZip.toFile()))) {
+        try (var _ = new ZipOutputStream(new FileOutputStream(emptyZip.toFile()))) {
             // Empty ZIP
         }
 

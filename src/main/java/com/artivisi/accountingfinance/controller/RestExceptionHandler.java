@@ -32,6 +32,8 @@ import java.util.Map;
 @Slf4j
 public class RestExceptionHandler {
 
+    private static final String ERR_BAD_REQUEST = "Bad Request";
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
         // Log full details for debugging, but don't expose to client
@@ -52,7 +54,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
-                        "Bad Request",
+                        ERR_BAD_REQUEST,
                         "The request was invalid.",
                         LocalDateTime.now()
                 ));
@@ -168,7 +170,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
-                        "Bad Request",
+                        ERR_BAD_REQUEST,
                         "Parameter '" + ex.getParameterName() + "' wajib diisi.",
                         LocalDateTime.now()
                 ));
@@ -180,7 +182,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
-                        "Bad Request",
+                        ERR_BAD_REQUEST,
                         "Parameter '" + ex.getName() + "' memiliki format yang tidak valid.",
                         LocalDateTime.now()
                 ));

@@ -66,7 +66,7 @@ public class DeviceAuthApiController {
      * POST /api/device/token
      */
     @PostMapping("/token")
-    public ResponseEntity<?> pollForToken(@Valid @RequestBody TokenRequest request) {
+    public ResponseEntity<Object> pollForToken(@Valid @RequestBody TokenRequest request) {
 
         log.debug("Token poll for device code");
 

@@ -41,6 +41,8 @@ import java.util.UUID;
 @Slf4j
 public class DraftTransactionApiController {
 
+    private static final String ATTR_SOURCE = "source";
+
     private final TransactionApiService transactionApiService;
     private final JournalTemplateService journalTemplateService;
     private final ChartOfAccountService chartOfAccountService;
@@ -58,7 +60,7 @@ public class DraftTransactionApiController {
         auditApiCall(Map.of(
                 "merchant", request.merchant(),
                 "amount", request.amount().toString(),
-                "source", request.source(),
+                ATTR_SOURCE, request.source(),
                 "confidence", request.confidence().toString()
         ));
 
@@ -78,7 +80,7 @@ public class DraftTransactionApiController {
         auditApiCall(Map.of(
                 "merchant", request.merchant(),
                 "amount", request.amount().toString(),
-                "source", request.source(),
+                ATTR_SOURCE, request.source(),
                 "confidence", request.confidence().toString()
         ));
 
@@ -218,7 +220,7 @@ public class DraftTransactionApiController {
      */
     private void auditApiCall(Map<String, String> details) {
         String detailsStr = String.format("API call from %s: %s",
-                details.getOrDefault("source", "unknown"),
+                details.getOrDefault(ATTR_SOURCE, "unknown"),
                 details.toString());
         securityAuditService.log(AuditEventType.API_CALL, detailsStr, true);
     }

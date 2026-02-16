@@ -94,13 +94,8 @@ public class DeviceToken {
     }
 
     public boolean isValid() {
-        if (revokedAt != null) {
-            return false;
-        }
-        if (expiresAt != null && LocalDateTime.now().isAfter(expiresAt)) {
-            return false;
-        }
-        return true;
+        return revokedAt == null
+                && (expiresAt == null || !LocalDateTime.now().isAfter(expiresAt));
     }
 
     public void revoke(String revokedBy) {

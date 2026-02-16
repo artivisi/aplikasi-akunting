@@ -83,7 +83,7 @@ class ChartOfAccountServiceTest {
         void shouldFindAllAccounts() {
             var accounts = accountService.findAll();
             assertThat(accounts).isNotNull();
-            assertThat(accounts.size()).isGreaterThan(0);
+            assertThat(accounts).hasSizeGreaterThan(0);
         }
 
         @Test

@@ -166,7 +166,7 @@ class FixedAssetServiceTest {
 
             assertThat(page1).isNotNull();
             assertThat(page2).isNotNull();
-            assertThat(page1.getNumber()).isEqualTo(0);
+            assertThat(page1.getNumber()).isZero();
             assertThat(page2.getNumber()).isEqualTo(1);
         }
     }

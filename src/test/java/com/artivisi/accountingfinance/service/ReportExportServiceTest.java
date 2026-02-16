@@ -47,7 +47,7 @@ class ReportExportServiceTest {
         byte[] pdf = reportExportService.exportTrialBalanceToPdf(report);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 

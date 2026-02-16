@@ -119,7 +119,7 @@ class PaymentTermTest extends PlaywrightTestBase {
         assertThat(dueTriggerSelect).isVisible();
 
         var options = page.locator("#dueTrigger option").all();
-        Assertions.assertThat(options.size()).isGreaterThanOrEqualTo(1);
+        Assertions.assertThat(options).hasSizeGreaterThanOrEqualTo(1);
     }
 
     @Test

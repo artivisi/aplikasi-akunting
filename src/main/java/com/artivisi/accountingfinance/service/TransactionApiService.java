@@ -241,35 +241,45 @@ public class TransactionApiService {
             return null;
         }
 
-        String categoryLower = category.toLowerCase();
+        List<String> templateKeywords = findTemplateKeywords(category.toLowerCase());
+        if (templateKeywords.isEmpty()) {
+            return null;
+        }
+
         List<JournalTemplate> allTemplates = journalTemplateService.findAll();
-
-        // Simple keyword matching
         for (JournalTemplate template : allTemplates) {
-            String templateNameLower = template.getTemplateName().toLowerCase();
-
-            if ((categoryLower.contains("food") || categoryLower.contains("makan") || categoryLower.contains("beverage")) &&
-                (templateNameLower.contains("meal") || templateNameLower.contains("makan"))) {
-                return template;
-            }
-
-            if ((categoryLower.contains("utility") || categoryLower.contains("listrik") || categoryLower.contains("air")) &&
-                (templateNameLower.contains("utility") || templateNameLower.contains("utilitas"))) {
-                return template;
-            }
-
-            if ((categoryLower.contains("transport") || categoryLower.contains("travel") || categoryLower.contains("perjalanan")) &&
-                (templateNameLower.contains("travel") || templateNameLower.contains("perjalanan"))) {
-                return template;
-            }
-
-            if ((categoryLower.contains("office") || categoryLower.contains("kantor") || categoryLower.contains("supplies")) &&
-                (templateNameLower.contains("office") || templateNameLower.contains("kantor"))) {
+            String name = template.getTemplateName().toLowerCase();
+            if (templateKeywords.stream().anyMatch(name::contains)) {
                 return template;
             }
         }
 
         return null;
+    }
+
+    private List<String> findTemplateKeywords(String categoryLower) {
+        if (containsAny(categoryLower, "food", "makan", "beverage")) {
+            return List.of("meal", "makan");
+        }
+        if (containsAny(categoryLower, "utility", "listrik", "air")) {
+            return List.of("utility", "utilitas");
+        }
+        if (containsAny(categoryLower, "transport", "travel", "perjalanan")) {
+            return List.of("travel", "perjalanan");
+        }
+        if (containsAny(categoryLower, "office", "kantor", "supplies")) {
+            return List.of("office", "kantor");
+        }
+        return List.of();
+    }
+
+    private boolean containsAny(String text, String... keywords) {
+        for (String keyword : keywords) {
+            if (text.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -404,13 +414,6 @@ public class TransactionApiService {
 
         // Validate template exists
         JournalTemplate template = journalTemplateService.findByIdWithLines(request.templateId());
-
-        // Store image if provided
-        Document document = null;
-        if (request.items() != null && !request.items().isEmpty()) {
-            // Items can be stored as metadata in the transaction description or notes
-            // For now, we'll include them in the description
-        }
 
         // Create transaction
         Transaction transaction = new Transaction();
