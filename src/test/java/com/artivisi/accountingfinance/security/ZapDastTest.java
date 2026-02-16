@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Comprehensive OWASP ZAP DAST Security Tests
@@ -25,6 +26,7 @@ import java.net.URI;
  *   ./mvnw test -Dtest=ZapDastTest -DexcludedGroups="" -Ddast.enabled=true -Ddast.quick=true
  */
 @DisplayName("OWASP ZAP DAST Security Scan")
+@Timeout(value = 25, unit = TimeUnit.MINUTES)
 class ZapDastTest extends ZapDastTestBase {
 
     // OWASP Top 10 test payloads

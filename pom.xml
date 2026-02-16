@@ -239,6 +239,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludedGroups>${excludedGroups}</excludedGroups>
+					<!-- Prevent Maven from hanging indefinitely on stuck tests or JVM shutdown -->
+					<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+					<forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
 					<!-- ByteBuddy/Mockito needs these for Java 17+ module access -->
 					<argLine>
 						@{argLine}
