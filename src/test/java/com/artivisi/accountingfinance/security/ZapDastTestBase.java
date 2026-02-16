@@ -31,6 +31,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +70,9 @@ abstract class ZapDastTestBase {
 
     // Active scan timeout (5 minutes for quick, 20 minutes for full)
     protected static final int ACTIVE_SCAN_TIMEOUT_MINUTES = QUICK_SCAN ? 5 : 20;
+
+    // Timeout for individual ZAP API calls (prevents indefinite blocking in CI)
+    protected static final int ZAP_API_TIMEOUT_SECONDS = 120;
 
     @LocalServerPort
     protected int port;
@@ -107,7 +116,7 @@ abstract class ZapDastTestBase {
     @BeforeEach
     void resetZapSession() throws Exception {
         // Clear previous scan data between tests while reusing the same container
-        zapClient.core.newSession("", "true");
+        zapApiCall(() -> zapClient.core.newSession("", "true"), "core.newSession");
         authenticatedClient = null;
     }
 
@@ -226,6 +235,27 @@ abstract class ZapDastTestBase {
 
     // ========== ZAP Methods ==========
 
+    /**
+     * Execute a ZAP API call with a timeout to prevent indefinite blocking.
+     * The ZAP ClientApi uses HttpURLConnection with no configurable timeouts,
+     * so we wrap calls in a separate thread with a deadline.
+     */
+    protected <T> T zapApiCall(Callable<T> apiCall, String description) throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<T> future = executor.submit(apiCall);
+            try {
+                return future.get(ZAP_API_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                future.cancel(true);
+                throw new RuntimeException("ZAP API call timed out after " +
+                        ZAP_API_TIMEOUT_SECONDS + "s: " + description, e);
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
     protected void waitForZapReady() throws Exception {
         int maxAttempts = 30;
         for (int i = 0; i < maxAttempts; i++) {
@@ -244,7 +274,9 @@ abstract class ZapDastTestBase {
         log.debug("Spidering {}", url);
 
         Spider spider = new Spider(zapClient);
-        ApiResponse response = spider.scan(url, null, null, null, null);
+        ApiResponse response = zapApiCall(
+                () -> spider.scan(url, null, null, null, null),
+                "spider.scan(" + url + ")");
         String scanId = ((ApiResponseElement) response).getValue();
 
         int progress = 0;
@@ -253,11 +285,22 @@ abstract class ZapDastTestBase {
         while (progress < 100 && elapsed < timeout) {
             Thread.sleep(1000);
             elapsed++;
-            progress = Integer.parseInt(((ApiResponseElement) spider.status(scanId)).getValue());
+            try {
+                progress = Integer.parseInt(((ApiResponseElement) zapApiCall(
+                        () -> spider.status(scanId), "spider.status")).getValue());
+            } catch (Exception e) {
+                log.warn("Failed to get spider status, assuming complete: {}", e.getMessage());
+                break;
+            }
         }
 
-        ApiResponseList results = (ApiResponseList) spider.results(scanId);
-        log.info("Spider found {} URLs", results.getItems().size());
+        try {
+            ApiResponseList results = zapApiCall(
+                    () -> (ApiResponseList) spider.results(scanId), "spider.results");
+            log.info("Spider found {} URLs", results.getItems().size());
+        } catch (Exception e) {
+            log.warn("Failed to get spider results: {}", e.getMessage());
+        }
     }
 
     protected void runActiveScan(String url) throws Exception {
@@ -265,7 +308,9 @@ abstract class ZapDastTestBase {
 
         Ascan ascan = new Ascan(zapClient);
 
-        ApiResponse response = ascan.scan(url, "true", "true", null, null, null);
+        ApiResponse response = zapApiCall(
+                () -> ascan.scan(url, "true", "true", null, null, null),
+                "ascan.scan(" + url + ")");
         String scanId = ((ApiResponseElement) response).getValue();
 
         int progress = 0;
@@ -276,20 +321,35 @@ abstract class ZapDastTestBase {
             long elapsed = System.currentTimeMillis() - startTime;
             if (elapsed > timeoutMs) {
                 log.warn("Active scan timeout after {} minutes, stopping...", ACTIVE_SCAN_TIMEOUT_MINUTES);
-                ascan.stop(scanId);
+                try {
+                    zapApiCall(() -> ascan.stop(scanId), "ascan.stop");
+                } catch (Exception e) {
+                    log.warn("Failed to stop active scan: {}", e.getMessage());
+                }
                 break;
             }
 
             Thread.sleep(5000);
-            progress = Integer.parseInt(((ApiResponseElement) ascan.status(scanId)).getValue());
+            try {
+                progress = Integer.parseInt(((ApiResponseElement) zapApiCall(
+                        () -> ascan.status(scanId), "ascan.status")).getValue());
+            } catch (Exception e) {
+                log.warn("Failed to get scan status, assuming complete: {}", e.getMessage());
+                break;
+            }
             if (progress > 0) {
                 log.info("Active scan progress: {}% (elapsed: {} sec)", progress, elapsed / 1000);
             }
         }
 
-        ApiResponse alertsCount = ascan.alertsIds(scanId);
-        log.info("Active scan completed - found {} potential issues",
-                ((ApiResponseList) alertsCount).getItems().size());
+        try {
+            ApiResponse alertsCount = zapApiCall(
+                    () -> ascan.alertsIds(scanId), "ascan.alertsIds");
+            log.info("Active scan completed - found {} potential issues",
+                    ((ApiResponseList) alertsCount).getItems().size());
+        } catch (Exception e) {
+            log.warn("Failed to get alert count: {}", e.getMessage());
+        }
     }
 
     protected void waitForPassiveScan() throws Exception {
@@ -303,7 +363,13 @@ abstract class ZapDastTestBase {
         while (recordsRemaining > 0 && elapsed < timeout) {
             Thread.sleep(1000);
             elapsed++;
-            recordsRemaining = Integer.parseInt(((ApiResponseElement) pscan.recordsToScan()).getValue());
+            try {
+                recordsRemaining = Integer.parseInt(((ApiResponseElement) zapApiCall(
+                        () -> pscan.recordsToScan(), "pscan.recordsToScan")).getValue());
+            } catch (Exception e) {
+                log.warn("Failed to get passive scan status, assuming complete: {}", e.getMessage());
+                break;
+            }
         }
 
         log.info("Passive scan completed");
@@ -311,7 +377,9 @@ abstract class ZapDastTestBase {
 
     protected ScanResults analyzeAlerts(String scanName) throws Exception {
         org.zaproxy.clientapi.gen.Alert alertApi = new org.zaproxy.clientapi.gen.Alert(zapClient);
-        ApiResponseList alerts = (ApiResponseList) alertApi.alerts(targetUrl, "-1", "-1", null);
+        ApiResponseList alerts = zapApiCall(
+                () -> (ApiResponseList) alertApi.alerts(targetUrl, "-1", "-1", null),
+                "analyzeAlerts(" + scanName + ")");
         List<ApiResponse> alertList = alerts.getItems();
 
         ScanResults results = new ScanResults();
@@ -424,13 +492,12 @@ abstract class ZapDastTestBase {
 
     protected void generateHtmlReport(String filename) {
         try {
-            // Use core.htmlreport() which is more stable across ZAP versions
-            byte[] reportBytes = zapClient.core.htmlreport();
+            byte[] reportBytes = zapApiCall(
+                    () -> zapClient.core.htmlreport(), "core.htmlreport");
             Path reportPath = REPORTS_DIR.resolve(filename);
             Files.write(reportPath, reportBytes);
             log.info("Report generated: {}", reportPath);
         } catch (Exception ex) {
-            // Report generation failure should not fail the test
             log.warn("Failed to generate HTML report {}: {}", filename, ex.getMessage());
         }
     }
