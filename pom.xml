@@ -239,6 +239,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludedGroups>${excludedGroups}</excludedGroups>
+					<!-- Redirect test output to files to prevent stdout pipe deadlock
+					     between Maven and the Surefire forked JVM on CI runners -->
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					<!-- Prevent Maven from hanging indefinitely on stuck tests or JVM shutdown -->
 					<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
 					<forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
