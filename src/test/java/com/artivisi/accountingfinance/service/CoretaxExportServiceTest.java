@@ -45,7 +45,7 @@ class CoretaxExportServiceTest {
         byte[] excelData = coretaxExportService.exportEFakturKeluaran(START_DATE, END_DATE);
 
         assertThat(excelData).isNotNull();
-        assertThat(excelData.length).isGreaterThan(0);
+        assertThat(excelData).hasSizeGreaterThan(0);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excelData))) {
             // Verify DATA sheet exists
@@ -98,7 +98,7 @@ class CoretaxExportServiceTest {
         byte[] excelData = coretaxExportService.exportEFakturMasukan(START_DATE, END_DATE);
 
         assertThat(excelData).isNotNull();
-        assertThat(excelData.length).isGreaterThan(0);
+        assertThat(excelData).hasSizeGreaterThan(0);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excelData))) {
             // Verify DATA sheet exists
@@ -121,7 +121,7 @@ class CoretaxExportServiceTest {
         byte[] excelData = coretaxExportService.exportBupotUnifikasi(START_DATE, END_DATE);
 
         assertThat(excelData).isNotNull();
-        assertThat(excelData.length).isGreaterThan(0);
+        assertThat(excelData).hasSizeGreaterThan(0);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excelData))) {
             // Verify DATA sheet exists

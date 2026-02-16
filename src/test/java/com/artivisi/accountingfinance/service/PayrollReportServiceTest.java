@@ -72,7 +72,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.exportPayrollSummaryToPdf(testPayrollRun, testDetails);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         // PDF files start with %PDF
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
@@ -83,7 +83,7 @@ class PayrollReportServiceTest {
         byte[] excel = payrollReportService.exportPayrollSummaryToExcel(testPayrollRun, testDetails);
 
         assertThat(excel).isNotNull();
-        assertThat(excel.length).isGreaterThan(0);
+        assertThat(excel).hasSizeGreaterThan(0);
 
         // Verify Excel structure
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
@@ -99,7 +99,7 @@ class PayrollReportServiceTest {
 
         assertThat(pdf).isNotNull();
         // PDF should contain substantial data
-        assertThat(pdf.length).isGreaterThan(1000);
+        assertThat(pdf).hasSizeGreaterThan(1000);
     }
 
     // ==================== PPh 21 Report ====================
@@ -110,7 +110,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.exportPph21ReportToPdf(testPayrollRun, testDetails);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
@@ -120,7 +120,7 @@ class PayrollReportServiceTest {
         byte[] excel = payrollReportService.exportPph21ReportToExcel(testPayrollRun, testDetails);
 
         assertThat(excel).isNotNull();
-        assertThat(excel.length).isGreaterThan(0);
+        assertThat(excel).hasSizeGreaterThan(0);
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
             assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
@@ -136,7 +136,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.exportBpjsReportToPdf(testPayrollRun, testDetails);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
@@ -146,7 +146,7 @@ class PayrollReportServiceTest {
         byte[] excel = payrollReportService.exportBpjsReportToExcel(testPayrollRun, testDetails);
 
         assertThat(excel).isNotNull();
-        assertThat(excel.length).isGreaterThan(0);
+        assertThat(excel).hasSizeGreaterThan(0);
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excel))) {
             // Should have 2 sheets: BPJS Kesehatan and BPJS Ketenagakerjaan
@@ -166,7 +166,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.generatePayslipPdf(testPayrollRun, detail);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
@@ -178,7 +178,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.generatePayslipPdf(testPayrollRun, detail);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(500);
+        assertThat(pdf).hasSizeGreaterThan(500);
     }
 
     // ==================== Bukti Potong 1721-A1 ====================
@@ -203,7 +203,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.generateBuktiPotong1721A1(summary);
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
@@ -215,7 +215,7 @@ class PayrollReportServiceTest {
         byte[] pdf = payrollReportService.exportPayrollSummaryToPdf(testPayrollRun, List.of());
 
         assertThat(pdf).isNotNull();
-        assertThat(pdf.length).isGreaterThan(0);
+        assertThat(pdf).hasSizeGreaterThan(0);
     }
 
     @Test

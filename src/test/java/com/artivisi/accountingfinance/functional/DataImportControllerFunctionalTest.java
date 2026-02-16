@@ -109,7 +109,7 @@ class DataImportControllerFunctionalTest extends PlaywrightTestBase {
     void shouldShowErrorWhenUploadingEmptyZipFile() throws IOException {
         // Create an empty ZIP file
         Path emptyZip = tempDir.resolve("empty.zip");
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(emptyZip.toFile()))) {
+        try (var _ = new ZipOutputStream(new FileOutputStream(emptyZip.toFile()))) {
             // Empty ZIP - no entries
         }
 

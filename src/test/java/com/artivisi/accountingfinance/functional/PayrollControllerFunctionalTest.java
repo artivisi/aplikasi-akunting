@@ -231,9 +231,9 @@ class PayrollControllerFunctionalTest extends PlaywrightTestBase {
         var actionButtons = page.locator("form[action*='/payroll/'] button[type='submit']").all();
 
         // There should be action buttons (approve, cancel, post, recalculate, delete)
-        assertThat(actionButtons.size())
+        assertThat(actionButtons)
             .as("Should have action buttons")
-            .isGreaterThanOrEqualTo(0);
+            .hasSizeGreaterThanOrEqualTo(0);
     }
 
     @Test
@@ -278,9 +278,9 @@ class PayrollControllerFunctionalTest extends PlaywrightTestBase {
         // Should have export links for PDF/Excel
         var exportLinks = page.locator("a[href*='/export/']").all();
 
-        assertThat(exportLinks.size())
+        assertThat(exportLinks)
             .as("Should have export links")
-            .isGreaterThanOrEqualTo(0);
+            .hasSizeGreaterThanOrEqualTo(0);
     }
 
     @Test

@@ -28,6 +28,11 @@ import java.util.Optional;
 @Slf4j
 public class DeviceAuthorizationController {
 
+    private static final String VIEW_DEVICE_AUTHORIZE = "device-authorize";
+    private static final String ATTR_ERROR = "error";
+    private static final String ATTR_SUCCESS = "success";
+    private static final String REDIRECT_DEVICE_CODE = "redirect:/device?code=";
+
     private final DeviceAuthService deviceAuthService;
     private final UserRepository userRepository;
 
@@ -42,40 +47,40 @@ public class DeviceAuthorizationController {
             Model model) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            // User not logged in - redirect to login with return URL
             return "redirect:/login?returnUrl=/device" +
                     (code != null ? "?code=" + code : "");
         }
 
         model.addAttribute("userCode", code != null ? code : "");
         model.addAttribute("username", authentication.getName());
-        model.addAttribute("validCode", false); // Default to false
+        model.addAttribute("validCode", false);
 
-        // If code provided, validate it
-        if (code != null && !code.isBlank()) {
-            Optional<DeviceCode> deviceCode = deviceAuthService.findByUserCode(code);
-
-            if (deviceCode.isPresent()) {
-                DeviceCode dc = deviceCode.get();
-
-                if (dc.isExpired()) {
-                    model.addAttribute("error", "Kode perangkat telah kedaluwarsa. Silakan mulai lagi dari aplikasi.");
-                    return "device-authorize";
-                }
-
-                if (dc.getStatus() == DeviceCode.Status.AUTHORIZED) {
-                    model.addAttribute("success", "Perangkat sudah diotorisasi sebelumnya.");
-                    return "device-authorize";
-                }
-
-                model.addAttribute("clientId", dc.getClientId());
-                model.addAttribute("validCode", true);
-            } else {
-                model.addAttribute("error", "Kode perangkat tidak valid.");
-            }
+        if (code == null || code.isBlank()) {
+            return VIEW_DEVICE_AUTHORIZE;
         }
 
-        return "device-authorize";
+        Optional<DeviceCode> deviceCode = deviceAuthService.findByUserCode(code);
+
+        if (deviceCode.isEmpty()) {
+            model.addAttribute(ATTR_ERROR, "Kode perangkat tidak valid.");
+            return VIEW_DEVICE_AUTHORIZE;
+        }
+
+        DeviceCode dc = deviceCode.get();
+
+        if (dc.isExpired()) {
+            model.addAttribute(ATTR_ERROR, "Kode perangkat telah kedaluwarsa. Silakan mulai lagi dari aplikasi.");
+            return VIEW_DEVICE_AUTHORIZE;
+        }
+
+        if (dc.getStatus() == DeviceCode.Status.AUTHORIZED) {
+            model.addAttribute(ATTR_SUCCESS, "Perangkat sudah diotorisasi sebelumnya.");
+            return VIEW_DEVICE_AUTHORIZE;
+        }
+
+        model.addAttribute("clientId", dc.getClientId());
+        model.addAttribute("validCode", true);
+        return VIEW_DEVICE_AUTHORIZE;
     }
 
     /**
@@ -99,7 +104,7 @@ public class DeviceAuthorizationController {
 
             deviceAuthService.authorizeDevice(userCode, user);
 
-            redirectAttributes.addFlashAttribute("success",
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS,
                     "Perangkat berhasil diotorisasi! Anda dapat kembali ke aplikasi.");
 
             log.info("User {} authorized device with code {}",
@@ -108,13 +113,13 @@ public class DeviceAuthorizationController {
 
             return "redirect:/device/success";
 
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "Kode perangkat tidak valid.");
-            return "redirect:/device?code=" + userCode;
+        } catch (IllegalArgumentException _) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, "Kode perangkat tidak valid.");
+            return REDIRECT_DEVICE_CODE + userCode;
 
         } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/device?code=" + userCode;
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());
+            return REDIRECT_DEVICE_CODE + userCode;
         }
     }
 
@@ -141,17 +146,16 @@ public class DeviceAuthorizationController {
             if (deviceCode.isPresent()) {
                 DeviceCode dc = deviceCode.get();
                 dc.deny();
-                // Save would be done in service, but for now just log
 
-                redirectAttributes.addFlashAttribute("success",
+                redirectAttributes.addFlashAttribute(ATTR_SUCCESS,
                         "Otorisasi perangkat ditolak.");
             }
 
             return "redirect:/device/success";
 
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Gagal menolak otorisasi.");
-            return "redirect:/device?code=" + userCode;
+        } catch (Exception _) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, "Gagal menolak otorisasi.");
+            return REDIRECT_DEVICE_CODE + userCode;
         }
     }
 }

@@ -83,9 +83,9 @@ class BpjsCalculatorFunctionalTest extends PlaywrightTestBase {
 
             var options = page.locator("#riskClass option").all();
 
-            assertThat(options.size())
+            assertThat(options)
                 .as("Should have 5 risk class options")
-                .isEqualTo(5);
+                .hasSize(5);
         }
     }
 

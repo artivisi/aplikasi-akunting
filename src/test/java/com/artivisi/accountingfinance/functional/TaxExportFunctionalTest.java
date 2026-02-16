@@ -224,9 +224,9 @@ class TaxExportFunctionalTest extends PlaywrightTestBase {
             // Get all options from start month select
             var options = page.locator("#startMonth option").all();
 
-            assertThat(options.size())
+            assertThat(options)
                 .as("Should have 24 months available")
-                .isEqualTo(24);
+                .hasSize(24);
         }
     }
 

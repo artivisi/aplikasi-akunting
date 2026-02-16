@@ -191,7 +191,7 @@ class RateLimitServiceTest {
         }
 
         int remaining = rateLimitService.getLoginRemaining(ip);
-        assertThat(remaining).isEqualTo(0);
+        assertThat(remaining).isZero();
     }
 
     @Test
@@ -207,7 +207,7 @@ class RateLimitServiceTest {
     @DisplayName("Should return zero reset seconds for new IP")
     void shouldReturnZeroResetSecondsForNewIp() {
         long resetSeconds = rateLimitService.getLoginResetSeconds("192.168.1.60");
-        assertThat(resetSeconds).isEqualTo(0);
+        assertThat(resetSeconds).isZero();
     }
 
     @Test
@@ -226,7 +226,7 @@ class RateLimitServiceTest {
     @DisplayName("Should return zero reset seconds for null IP")
     void shouldReturnZeroResetSecondsForNullIp() {
         long resetSeconds = rateLimitService.getLoginResetSeconds(null);
-        assertThat(resetSeconds).isEqualTo(0);
+        assertThat(resetSeconds).isZero();
     }
 
     // ==================== IP Normalization ====================

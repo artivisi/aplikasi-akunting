@@ -192,7 +192,7 @@ class ProjectProfitabilityServiceTest {
                     profitabilityService.getClientRanking(startDate, endDate, 5);
 
             assertThat(rankings).isNotNull();
-            assertThat(rankings.size()).isLessThanOrEqualTo(5);
+            assertThat(rankings).hasSizeLessThanOrEqualTo(5);
         }
 
         @Test
