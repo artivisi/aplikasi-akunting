@@ -242,8 +242,8 @@
 					<!-- Redirect test output to files to prevent stdout pipe deadlock
 					     between Maven and the Surefire forked JVM on CI runners -->
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<!-- Prevent Maven from hanging indefinitely on stuck tests or JVM shutdown -->
-					<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+					<!-- Allow CI step timeout (45 min) to be the safety net instead of
+				     surefire fork timeout, which killed the fork before tests completed -->
 					<forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
 					<!-- ByteBuddy/Mockito needs these for Java 17+ module access -->
 					<argLine>

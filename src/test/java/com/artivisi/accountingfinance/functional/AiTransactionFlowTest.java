@@ -244,14 +244,14 @@ class AiTransactionFlowTest extends PlaywrightTestBase {
         log.info("\nStep 5: Verifying in web UI...");
 
         loginAsAdmin();
-        navigateTo("/transactions");
+        navigateTo("/transactions/" + transactionId);
         waitForPageLoad();
 
         page.screenshot(new com.microsoft.playwright.Page.ScreenshotOptions()
-                .setPath(screenshotDir.resolve("04-transactions-list.png"))
+                .setPath(screenshotDir.resolve("04-transaction-detail.png"))
                 .setFullPage(true));
 
-        // Search for transaction
+        // Verify transaction detail page shows the transaction number
         assertThat(page.content()).contains(transactionNumber);
         log.info("✓ Transaction visible in web UI");
 
