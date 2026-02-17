@@ -177,15 +177,7 @@ public class UserManualGenerator {
                 new Section("ekspor-data", "Ekspor Data Subjek (DSAR)", "11-keamanan-kepatuhan.md", List.of())
             )),
 
-            // 12. LAMPIRAN
-            new SectionGroup("lampiran", "Lampiran", "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", List.of(
-                new Section("glosarium", "Glosarium", "12-lampiran-glosarium.md", List.of()),
-                new Section("referensi-template", "Referensi Template", "12-lampiran-template.md", List.of("service/templates-list")),
-                new Section("referensi-amortisasi", "Referensi Amortisasi & Depresiasi", "12-lampiran-amortisasi.md", List.of()),
-                new Section("referensi-akun", "Referensi Akun", "12-lampiran-akun.md", List.of("accounts-list"))
-            )),
-
-            // 13. REKONSILIASI BANK
+            // 12. REKONSILIASI BANK
             new SectionGroup("rekonsiliasi-bank", "Rekonsiliasi Bank", "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z", List.of(
                 new Section("konsep-rekonsiliasi", "Konsep Rekonsiliasi Bank", "14-rekonsiliasi-bank.md", List.of("bank-recon/landing-page")),
                 new Section("konfigurasi-parser", "Konfigurasi Parser Bank", "14-rekonsiliasi-bank.md", List.of("bank-recon/parser-configs", "bank-recon/parser-config-form")),
@@ -199,6 +191,14 @@ public class UserManualGenerator {
             new SectionGroup("bantuan-ai", "Bantuan AI", "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z", List.of(
                 new Section("bantuan-ai", "Bantuan AI untuk Pencatatan Transaksi", "13-bantuan-ai.md", List.of("ai-transaction/00-device-authorization", "ai-transaction/04-transactions-list")),
                 new Section("publikasi-analisis", "Publikasi Laporan Analisis", "13-bantuan-ai.md", List.of("analysis-reports/list", "analysis-reports/detail-top", "analysis-reports/detail-bottom"))
+            )),
+
+            // 15. LAMPIRAN (last)
+            new SectionGroup("lampiran", "Lampiran", "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", List.of(
+                new Section("glosarium", "Glosarium", "12-lampiran-glosarium.md", List.of()),
+                new Section("referensi-template", "Referensi Template", "12-lampiran-template.md", List.of("service/templates-list")),
+                new Section("referensi-amortisasi", "Referensi Amortisasi & Depresiasi", "12-lampiran-amortisasi.md", List.of()),
+                new Section("referensi-akun", "Referensi Akun", "12-lampiran-akun.md", List.of("accounts-list"))
             ))
         );
     }
