@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="|Analisis: ${report.title}|">Analisis AI</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${report.title}">Laporan Analisis</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Back Link + Actions -->
+        <div class="flex items-center justify-between">
+            <a id="link-back-to-list" th:href="@{/analysis-reports}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Daftar
+            </a>
+            <form th:action="@{/analysis-reports/{id}/delete(id=${report.id})}" method="post"
+                  onsubmit="return confirm('Hapus laporan analisis ini?')">
+                <button type="submit" data-testid="btn-delete"
+                        class="inline-flex items-center px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Hapus
+                </button>
+            </form>
+        </div>
+
+        <!-- Report Header Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span th:if="${report.industry != null}"
+                              class="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold"
+                              th:classappend="${report.industry == 'it-service'} ? 'bg-blue-100 text-blue-800' : (${report.industry == 'online-seller'} ? 'bg-orange-100 text-orange-800' : (${report.industry == 'coffee-shop'} ? 'bg-amber-100 text-amber-800' : (${report.industry == 'campus'} ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-700')))"
+                              data-testid="detail-industry"
+                              th:text="${report.industry == 'it-service'} ? 'Jasa IT' : (${report.industry == 'online-seller'} ? 'Toko Online' : (${report.industry == 'coffee-shop'} ? 'Kedai Kopi' : (${report.industry == 'campus'} ? 'Kampus' : ${report.industry})))">Jasa IT</span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-indigo-100 text-indigo-800"
+                              data-testid="detail-report-type" th:text="${report.reportType}">monthly-review</span>
+                        <span th:if="${report.aiSource != null}"
+                              class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700"
+                              data-testid="detail-ai-source" th:text="${report.aiSource}">claude-code</span>
+                        <span th:if="${report.aiModel != null}"
+                              class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600"
+                              data-testid="detail-ai-model" th:text="${report.aiModel}">claude-opus-4-6</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900" data-testid="detail-title" th:text="${report.title}">Report Title</h2>
+                </div>
+                <div class="text-right text-sm text-gray-500 flex-shrink-0">
+                    <div th:if="${report.periodStart != null && report.periodEnd != null}">
+                        <span class="font-medium text-gray-700">Periode:</span>
+                        <span th:text="|${#temporals.format(report.periodStart, 'dd MMM yyyy')} - ${#temporals.format(report.periodEnd, 'dd MMM yyyy')}|">01 Jan - 31 Jan 2026</span>
+                    </div>
+                    <div class="mt-1">
+                        <span class="font-medium text-gray-700">Dibuat:</span>
+                        <span th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy HH:mm')}">01 Jan 2026 10:00</span>
+                        <span th:if="${report.createdBy != null}" th:text="| oleh ${report.createdBy}|"> oleh admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div th:if="${report.executiveSummary != null}" class="bg-white rounded-lg shadow p-6" data-testid="executive-summary">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Ringkasan Eksekutif</h3>
+            <p class="text-gray-800 leading-relaxed whitespace-pre-line" th:text="${report.executiveSummary}">Executive summary text...</p>
+        </div>
+
+        <!-- Key Metrics Grid -->
+        <div th:if="${report.metrics != null && !report.metrics.isEmpty()}" data-testid="metrics-section">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Indikator Utama</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div th:each="metric : ${report.metrics}"
+                     class="bg-white rounded-lg shadow p-4"
+                     th:attr="data-testid='metric-' + ${metric['name']}">
+                    <dt class="text-xs font-medium text-gray-500 truncate" th:text="${metric['name']}">Metric Name</dt>
+                    <dd class="mt-1 flex items-baseline justify-between">
+                        <span class="text-xl font-bold text-gray-900" th:text="${metric['value']}">Rp 150.000.000</span>
+                        <span th:if="${metric['change'] != null}"
+                              class="inline-flex items-center text-xs font-semibold ml-2"
+                              th:classappend="${metric['status'] == 'positive'} ? 'text-emerald-600' : (${metric['status'] == 'negative'} ? 'text-red-600' : (${metric['status'] == 'warning'} ? 'text-amber-600' : 'text-gray-500'))">
+                            <!-- Up arrow -->
+                            <svg th:if="${metric['status'] == 'positive'}" class="w-3.5 h-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+                            </svg>
+                            <!-- Down arrow -->
+                            <svg th:if="${metric['status'] == 'negative'}" class="w-3.5 h-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                            <!-- Warning -->
+                            <svg th:if="${metric['status'] == 'warning'}" class="w-3.5 h-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                            <span th:text="${metric['change']}">+12.5%</span>
+                        </span>
+                    </dd>
+                    <div th:if="${metric['previousValue'] != null}" class="mt-1 text-xs text-gray-400"
+                         th:text="|Sebelumnya: ${metric['previousValue']}|">Sebelumnya: Rp 130.000.000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Findings -->
+        <div th:if="${report.findings != null && !report.findings.isEmpty()}" class="bg-white rounded-lg shadow" data-testid="findings-section">
+            <div class="p-6 pb-0">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Temuan</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3 w-28">Severity</th>
+                            <th class="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3 w-36">Kategori</th>
+                            <th class="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">Deskripsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="finding : ${report.findings}" class="border-b border-gray-100 last:border-0">
+                            <td class="px-6 py-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold"
+                                      th:classappend="${finding['severity'] == 'critical'} ? 'bg-red-100 text-red-800' : (${finding['severity'] == 'warning'} ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')"
+                                      th:text="${finding['severity']}">info</span>
+                            </td>
+                            <td class="px-6 py-3 text-sm text-gray-600" th:text="${finding['category']}">revenue</td>
+                            <td class="px-6 py-3 text-sm text-gray-800" th:text="${finding['description']}">Finding description...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div th:if="${report.recommendations != null && !report.recommendations.isEmpty()}" class="bg-white rounded-lg shadow" data-testid="recommendations-section">
+            <div class="p-6 pb-0">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Rekomendasi</h3>
+            </div>
+            <div class="p-6 pt-3 space-y-3">
+                <div th:each="rec,iter : ${report.recommendations}"
+                     class="flex items-start gap-3 p-3 rounded-lg"
+                     th:classappend="${rec['priority'] == 'high'} ? 'bg-red-50 border border-red-100' : (${rec['priority'] == 'medium'} ? 'bg-amber-50 border border-amber-100' : 'bg-gray-50 border border-gray-100')">
+                    <!-- Priority indicator -->
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                          th:classappend="${rec['priority'] == 'high'} ? 'bg-red-200 text-red-800' : (${rec['priority'] == 'medium'} ? 'bg-amber-200 text-amber-800' : 'bg-gray-200 text-gray-700')"
+                          th:text="${iter.count}">1</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-800" th:text="${rec['description']}">Recommendation text...</p>
+                        <p th:if="${rec['impact'] != null}" class="mt-1 text-xs text-gray-500"
+                           th:text="|Dampak: ${rec['impact']}|">Dampak: Peningkatan arus kas</p>
+                    </div>
+                    <span class="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                          th:classappend="${rec['priority'] == 'high'} ? 'bg-red-100 text-red-700' : (${rec['priority'] == 'medium'} ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600')"
+                          th:text="${rec['priority']}">high</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div th:if="${report.risks != null && !report.risks.isEmpty()}" class="bg-white rounded-lg shadow" data-testid="risks-section">
+            <div class="p-6 pb-0">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Penilaian Risiko</h3>
+            </div>
+            <div class="p-6 pt-3 space-y-3">
+                <div th:each="risk : ${report.risks}"
+                     class="flex items-start gap-3 p-3 rounded-lg border"
+                     th:classappend="${risk['severity'] == 'high'} ? 'border-red-200 bg-red-50' : (${risk['severity'] == 'medium'} ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-gray-50')">
+                    <!-- Severity dot -->
+                    <span class="flex-shrink-0 mt-1 w-2.5 h-2.5 rounded-full"
+                          th:classappend="${risk['severity'] == 'high'} ? 'bg-red-500' : (${risk['severity'] == 'medium'} ? 'bg-amber-500' : 'bg-gray-400')"></span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="text-xs font-semibold uppercase"
+                                  th:classappend="${risk['severity'] == 'high'} ? 'text-red-700' : (${risk['severity'] == 'medium'} ? 'text-amber-700' : 'text-gray-500')"
+                                  th:text="${risk['severity']}">high</span>
+                        </div>
+                        <p class="text-sm text-gray-800" th:text="${risk['description']}">Risk description...</p>
+                        <p th:if="${risk['mitigation'] != null}" class="mt-1 text-xs text-gray-500"
+                           th:text="|Mitigasi: ${risk['mitigation']}|">Mitigasi: ...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

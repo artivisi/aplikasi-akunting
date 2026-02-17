@@ -1,20 +1,30 @@
 package com.artivisi.accountingfinance.controller.api;
 
+import com.artivisi.accountingfinance.entity.AnalysisReport;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
+import com.artivisi.accountingfinance.entity.CompanyConfig;
 import com.artivisi.accountingfinance.entity.DraftTransaction;
 import com.artivisi.accountingfinance.enums.AccountType;
 import com.artivisi.accountingfinance.enums.AuditEventType;
+import com.artivisi.accountingfinance.repository.AnalysisReportRepository;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
+import com.artivisi.accountingfinance.repository.CompanyConfigRepository;
 import com.artivisi.accountingfinance.repository.DraftTransactionRepository;
 import com.artivisi.accountingfinance.service.DashboardService;
 import com.artivisi.accountingfinance.service.ReportService;
 import com.artivisi.accountingfinance.service.SecurityAuditService;
 import com.artivisi.accountingfinance.service.TaxReportService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,7 +54,32 @@ public class FinancialAnalysisApiController {
     private final TaxReportService taxReportService;
     private final ChartOfAccountRepository chartOfAccountRepository;
     private final DraftTransactionRepository draftTransactionRepository;
+    private final AnalysisReportRepository analysisReportRepository;
     private final SecurityAuditService securityAuditService;
+    private final CompanyConfigRepository companyConfigRepository;
+
+    @GetMapping("/company")
+    public ResponseEntity<AnalysisResponse<CompanyDto>> getCompany() {
+        CompanyConfig config = companyConfigRepository.findFirst().orElse(null);
+        if (config == null) {
+            return ResponseEntity.ok(new AnalysisResponse<>(
+                    "company", LocalDateTime.now(), Map.of(),
+                    new CompanyDto(null, null, null, null, null, null),
+                    Map.of("description", "No company configuration found.")));
+        }
+
+        CompanyDto data = new CompanyDto(
+                config.getCompanyName(), config.getIndustry(),
+                config.getCurrencyCode(), config.getFiscalYearStartMonth(),
+                config.getIsPkp(), config.getNpwp());
+
+        auditAccess("company", Map.of());
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "company", LocalDateTime.now(), Map.of(), data,
+                Map.of("description", "Company configuration. The 'industry' field determines "
+                        + "which analysis types and KPIs are relevant for this business.")));
+    }
 
     @GetMapping("/snapshot")
     public ResponseEntity<AnalysisResponse<SnapshotDto>> getSnapshot(
@@ -359,6 +394,69 @@ public class FinancialAnalysisApiController {
                                 + "Higher confidence scores indicate more reliable AI extraction.")));
     }
 
+    @PostMapping("/reports")
+    @PreAuthorize("hasAuthority('SCOPE_analysis:write')")
+    public ResponseEntity<AnalysisResponse<ReportDto>> publishReport(
+            @Valid @RequestBody PublishReportRequest request,
+            Authentication authentication) {
+
+        AnalysisReport report = new AnalysisReport();
+        report.setTitle(request.title());
+        report.setReportType(request.reportType());
+        report.setIndustry(request.industry());
+        report.setExecutiveSummary(request.executiveSummary());
+        report.setMetrics(request.metrics());
+        report.setFindings(request.findings());
+        report.setRecommendations(request.recommendations());
+        report.setRisks(request.risks());
+        report.setPeriodStart(request.periodStart());
+        report.setPeriodEnd(request.periodEnd());
+        report.setAiSource(request.aiSource());
+        report.setAiModel(request.aiModel());
+
+        String username = authentication != null ? authentication.getName() : "api";
+        report.setCreatedBy(username);
+        report.setUpdatedBy(username);
+
+        AnalysisReport saved = analysisReportRepository.save(report);
+
+        auditAccess("publish-report", Map.of("reportId", saved.getId().toString(), "title", saved.getTitle()));
+
+        ReportDto dto = toReportDto(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AnalysisResponse<>(
+                "analysis-report", LocalDateTime.now(),
+                Map.of("reportId", saved.getId().toString()),
+                dto,
+                Map.of("description", "Published analysis report: " + saved.getTitle())));
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<AnalysisResponse<ReportListDto>> listReports() {
+
+        List<ReportDto> reports = analysisReportRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toReportDto)
+                .toList();
+
+        auditAccess("list-reports", Map.of());
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "analysis-reports", LocalDateTime.now(),
+                Map.of(),
+                new ReportListDto(reports, (long) reports.size()),
+                Map.of("description", "All published analysis reports, newest first.")));
+    }
+
+    private ReportDto toReportDto(AnalysisReport r) {
+        return new ReportDto(
+                r.getId(), r.getTitle(), r.getReportType(), r.getIndustry(),
+                r.getExecutiveSummary(),
+                r.getPeriodStart(), r.getPeriodEnd(),
+                r.getAiSource(), r.getAiModel(),
+                r.getMetrics(), r.getFindings(),
+                r.getRecommendations(), r.getRisks(),
+                r.getCreatedBy(), r.getCreatedAt());
+    }
+
     private void auditAccess(String reportType, Map<String, String> params) {
         securityAuditService.logAsync(AuditEventType.API_CALL,
                 "Analysis API: " + reportType + " " + params);
@@ -390,6 +488,15 @@ public class FinancialAnalysisApiController {
             Map<String, String> parameters,
             T data,
             Map<String, String> metadata
+    ) {}
+
+    public record CompanyDto(
+            String companyName,
+            String industry,
+            String currencyCode,
+            Integer fiscalYearStartMonth,
+            Boolean isPkp,
+            String npwp
     ) {}
 
     public record SnapshotDto(
@@ -504,5 +611,45 @@ public class FinancialAnalysisApiController {
             String suggestedTemplateName,
             String createdBy,
             LocalDateTime createdAt
+    ) {}
+
+    // --- Analysis Report DTOs ---
+
+    public record PublishReportRequest(
+            @NotBlank String title,
+            @NotBlank String reportType,
+            String industry,
+            String executiveSummary,
+            List<Map<String, String>> metrics,
+            List<Map<String, String>> findings,
+            List<Map<String, String>> recommendations,
+            List<Map<String, String>> risks,
+            LocalDate periodStart,
+            LocalDate periodEnd,
+            String aiSource,
+            String aiModel
+    ) {}
+
+    public record ReportDto(
+            UUID id,
+            String title,
+            String reportType,
+            String industry,
+            String executiveSummary,
+            LocalDate periodStart,
+            LocalDate periodEnd,
+            String aiSource,
+            String aiModel,
+            List<Map<String, String>> metrics,
+            List<Map<String, String>> findings,
+            List<Map<String, String>> recommendations,
+            List<Map<String, String>> risks,
+            String createdBy,
+            LocalDateTime createdAt
+    ) {}
+
+    public record ReportListDto(
+            List<ReportDto> reports,
+            long totalCount
     ) {}
 }

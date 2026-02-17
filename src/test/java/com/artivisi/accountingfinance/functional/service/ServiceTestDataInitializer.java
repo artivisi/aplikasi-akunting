@@ -88,9 +88,10 @@ public class ServiceTestDataInitializer {
             addTestFileToZip(zos, testDir, "company-config.csv", "01_company_config.csv");
             addTestFileToZip(zos, testDir, "clients.csv", "07_clients.csv");
             addTestFileToZip(zos, testDir, "projects.csv", "08_projects.csv");
-            addTestFileToZip(zos, testDir, "transactions.csv", "09_transactions.csv");
             addTestFileToZip(zos, testDir, "fiscal-periods.csv", "11_fiscal_periods.csv");
             addTestFileToZip(zos, testDir, "employees.csv", "15_employees.csv");
+            addTestFileToZip(zos, testDir, "financial-transactions.csv", "18_transactions.csv");
+            addTestFileToZip(zos, testDir, "financial-journal-entries.csv", "20_journal_entries.csv");
             addTestFileToZip(zos, testDir, "21_payroll_runs.csv", "21_payroll_runs.csv");
             addTestFileToZip(zos, testDir, "22_payroll_details.csv", "22_payroll_details.csv");
         }

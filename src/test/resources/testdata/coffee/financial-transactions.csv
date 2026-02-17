@@ -1,0 +1,8 @@
+transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
+33333333-3333-3333-3333-000000000001,CFE-TRX-001,2024-01-02,Setoran Modal,,150000000,Setoran Modal Awal Kedai Kopi,CAP-2024-001,,POSTED,,,,,2024-01-02 08:00:00,admin,
+33333333-3333-3333-3333-000000000002,CFE-TRX-002,2024-01-03,Pembelian Bahan Baku - Tunai,,18000000,Pembelian biji kopi + susu + gula Jan 2024,PO-2024-001,,POSTED,,,,,2024-01-03 09:00:00,admin,
+33333333-3333-3333-3333-000000000003,CFE-TRX-003,2024-01-31,Penjualan Tunai + COGS,,45000000,Penjualan minuman kopi Jan 2024,SALE-2024-001,,POSTED,,,,,2024-01-31 20:00:00,admin,
+33333333-3333-3333-3333-000000000004,CFE-TRX-004,2024-01-31,Penjualan Tunai + COGS,,12000000,Penjualan roti & kue Jan 2024,SALE-2024-002,,POSTED,,,,,2024-01-31 20:00:00,admin,
+33333333-3333-3333-3333-000000000005,CFE-TRX-005,2024-01-31,Bayar Sewa,,10000000,Sewa tempat Jan 2024,RENT-2024-001,,POSTED,,,,,2024-01-31 10:00:00,admin,
+33333333-3333-3333-3333-000000000006,CFE-TRX-006,2024-01-31,Bayar Listrik,,3000000,Listrik Jan 2024,PLN-2024-001,,POSTED,,,,,2024-01-31 10:00:00,admin,
+33333333-3333-3333-3333-000000000007,CFE-TRX-007,2024-01-31,Bayar Gaji,,15000000,Gaji barista + baker + kasir Jan 2024,GAJ-2024-001,,POSTED,,,,,2024-01-31 10:00:00,admin,

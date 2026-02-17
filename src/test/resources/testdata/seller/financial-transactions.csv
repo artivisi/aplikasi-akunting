@@ -1,0 +1,7 @@
+transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
+22222222-2222-2222-2222-000000000001,SLR-TRX-001,2024-01-02,Setoran Modal,,200000000,Setoran Modal Awal,CAP-2024-001,,POSTED,,,,,2024-01-02 09:00:00,admin,
+22222222-2222-2222-2222-000000000002,SLR-TRX-002,2024-01-05,Pembelian Barang Dagangan,,150000000,Pembelian iPhone 15 Pro 10 unit @ 15jt,PO-2024-001,,POSTED,,,,,2024-01-05 10:00:00,admin,
+22222222-2222-2222-2222-000000000003,SLR-TRX-003,2024-01-08,Pembelian Barang Dagangan,,240000000,Pembelian Samsung Galaxy S24 20 unit @ 12jt,PO-2024-002,,POSTED,,,,,2024-01-08 10:00:00,admin,
+22222222-2222-2222-2222-000000000004,SLR-TRX-004,2024-01-15,Penjualan Tokopedia,,95000000,Penjualan iPhone 5 unit @ 19jt via Tokopedia,TOPED-2024-001,,POSTED,,,,,2024-01-15 14:00:00,admin,
+22222222-2222-2222-2222-000000000005,SLR-TRX-005,2024-01-20,Penjualan Shopee,,112000000,Penjualan Samsung 8 unit @ 14jt via Shopee,SHOPEE-2024-001,,POSTED,,,,,2024-01-20 14:00:00,admin,
+22222222-2222-2222-2222-000000000006,SLR-TRX-006,2024-01-25,Ongkir Ditanggung Penjual,,3500000,Ongkir subsidi penjual Jan 2024,ONG-2024-001,,POSTED,,,,,2024-01-25 10:00:00,admin,

@@ -114,8 +114,8 @@ class DataExportImportTest {
 
         String header = lines[0];
         assertThat(header)
-            .as("Header should end with tax profile fields")
-            .endsWith("established_date,is_pkp,pkp_since");
+            .as("Header should end with industry field")
+            .endsWith("established_date,is_pkp,pkp_since,industry");
 
         // Data line should have the values
         String dataLine = lines[1];

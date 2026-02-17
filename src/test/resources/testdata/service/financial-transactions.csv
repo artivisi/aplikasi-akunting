@@ -1,0 +1,6 @@
+transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
+11111111-1111-1111-1111-000000000001,SVC-TRX-001,2024-01-01,Setoran Modal,,500000000,Setoran Modal Awal 2024,CAP-2024-001,,POSTED,,,,,2024-01-01 00:00:00,admin,
+11111111-1111-1111-1111-000000000002,SVC-TRX-002,2024-01-15,Pendapatan Jasa Konsultasi,,196200000,Konsultasi Core Banking - Milestone 1,INV-2024-001,,POSTED,,,,,2024-01-15 10:00:00,admin,
+11111111-1111-1111-1111-000000000003,SVC-TRX-003,2024-01-15,Bayar Beban Software & Lisensi,,3330000,JetBrains IntelliJ License 2024,JB-2024-001,,POSTED,,,,,2024-01-15 11:00:00,admin,
+11111111-1111-1111-1111-000000000004,SVC-TRX-004,2024-01-31,Bayar Beban Cloud & Server,,5550000,AWS Cloud Services Jan 2024,AWS-2024-001,,POSTED,,,,,2024-01-31 10:00:00,admin,
+11111111-1111-1111-1111-000000000005,SVC-TRX-005,2024-02-28,Pendapatan Jasa Training,,163500000,IT Security Training - Full Payment,INV-2024-002,,POSTED,,,,,2024-02-28 10:00:00,admin,

@@ -63,6 +63,8 @@ public class CampusTestDataInitializer {
             addTestFileToZip(zos, testDir, "company-config.csv", "01_company_config.csv");
             addTestFileToZip(zos, testDir, "fiscal-periods.csv", "11_fiscal_periods.csv");
             addTestFileToZip(zos, testDir, "employees.csv", "15_employees.csv");
+            addTestFileToZip(zos, testDir, "financial-transactions.csv", "18_transactions.csv");
+            addTestFileToZip(zos, testDir, "financial-journal-entries.csv", "20_journal_entries.csv");
             addTestFileToZip(zos, testDir, "students.csv", "42_students.csv");
             addTestFileToZip(zos, testDir, "programs.csv", "43_programs.csv");
         }

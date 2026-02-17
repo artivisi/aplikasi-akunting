@@ -1,4 +1,4 @@
-package com.artivisi.accountingfinance.functional.seller;
+package com.artivisi.accountingfinance.functional.manufacturing;
 
 import com.artivisi.accountingfinance.service.DataImportService;
 import lombok.RequiredArgsConstructor;
@@ -14,63 +14,61 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Test configuration specific to Online Seller industry tests.
- * Imports online seller seed data and test master data using DataImportService.
- * 
- * This initializer is scoped to seller industry tests only.
+ * Test configuration for Coffee Shop analysis report test.
+ * Imports coffee shop seed data + financial transactions for analysis.
+ *
+ * Separate from CoffeeTestDataInitializer because importing 18_transactions.csv
+ * triggers TRUNCATE TABLE transactions CASCADE, which cascades to production_orders
+ * (FK id_transaction). Manufacturing tests need production_orders intact.
  */
 @TestConfiguration
 @Profile("functional")
 @RequiredArgsConstructor
 @Slf4j
-public class SellerTestDataInitializer {
+public class CoffeeAnalysisTestDataInitializer {
 
     private final DataImportService dataImportService;
 
     @PostConstruct
-    public void importSellerTestData() {
+    public void importCoffeeAnalysisTestData() {
         try {
-            // Step 1: Import online seller industry seed pack (COA, Templates, etc.)
-            log.info("Importing Online Seller industry seed data...");
-            byte[] seedZip = createZipFromDirectory("industry-seed/online-seller/seed-data");
+            log.info("Importing Coffee Shop industry seed data (analysis)...");
+            byte[] seedZip = createZipFromDirectory("industry-seed/coffee-shop/seed-data");
             DataImportService.ImportResult seedResult = dataImportService.importAllData(seedZip);
-            log.info("Online Seller seed imported: {} records in {}ms", 
+            log.info("Coffee Shop seed imported: {} records in {}ms",
                 seedResult.totalRecords(), seedResult.durationMs());
-            
-            // Step 2: Import seller test master data (Company Config, Fiscal Periods, Clients, etc.)
-            log.info("Importing seller test master data...");
-            byte[] testDataZip = createZipFromTestData("src/test/resources/testdata/seller");
+
+            log.info("Importing coffee analysis test data...");
+            byte[] testDataZip = createZipFromTestData("src/test/resources/testdata/coffee");
             DataImportService.ImportResult testResult = dataImportService.importAllData(testDataZip);
-            log.info("Seller test master data imported: {} records in {}ms", 
+            log.info("Coffee analysis test data imported: {} records in {}ms",
                 testResult.totalRecords(), testResult.durationMs());
-                
+
         } catch (Exception e) {
-            log.error("Failed to import online seller test data", e);
-            throw new RuntimeException("Online seller test data initialization failed", e);
+            log.error("Failed to import coffee analysis test data", e);
+            throw new RuntimeException("Coffee analysis test data initialization failed", e);
         }
     }
-    
+
     private byte[] createZipFromTestData(String testDataDir) throws IOException {
         Path testDir = Paths.get(testDataDir).toAbsolutePath();
-        
+
         if (!Files.exists(testDir)) {
             throw new IOException("Test data directory not found: " + testDir);
         }
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-            // Map test CSV files to expected import format
             addTestFileToZip(zos, testDir, "company-config.csv", "01_company_config.csv");
-            addTestFileToZip(zos, testDir, "clients.csv", "07_clients.csv");
             addTestFileToZip(zos, testDir, "fiscal-periods.csv", "11_fiscal_periods.csv");
             addTestFileToZip(zos, testDir, "employees.csv", "15_employees.csv");
             addTestFileToZip(zos, testDir, "financial-transactions.csv", "18_transactions.csv");
             addTestFileToZip(zos, testDir, "financial-journal-entries.csv", "20_journal_entries.csv");
         }
-        
+
         return baos.toByteArray();
     }
-    
+
     private void addTestFileToZip(ZipOutputStream zos, Path testDir, String sourceFile, String zipEntry) throws IOException {
         Path filePath = testDir.resolve(sourceFile);
         if (Files.exists(filePath)) {
@@ -83,11 +81,11 @@ public class SellerTestDataInitializer {
 
     private byte[] createZipFromDirectory(String dirPath) throws IOException {
         Path seedDir = Paths.get(dirPath).toAbsolutePath();
-        
+
         if (!Files.exists(seedDir)) {
             throw new IOException("Seed data directory not found: " + seedDir);
         }
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             Files.walk(seedDir)
@@ -104,7 +102,7 @@ public class SellerTestDataInitializer {
                     }
                 });
         }
-        
+
         return baos.toByteArray();
     }
 }

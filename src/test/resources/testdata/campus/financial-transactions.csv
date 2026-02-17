@@ -1,0 +1,8 @@
+transaction_id,transaction_number,transaction_date,template_name,project_code,amount,description,reference_number,notes,status,void_reason,void_notes,voided_at,voided_by,posted_at,posted_by,created_at
+44444444-4444-4444-4444-000000000001,KMP-TRX-001,2024-07-01,Setoran Modal Yayasan,,1000000000,Setoran Modal Yayasan TA 2024/2025,CAP-2024-001,,POSTED,,,,,2024-07-01 08:00:00,admin,
+44444444-4444-4444-4444-000000000002,KMP-TRX-002,2024-07-15,Pembayaran SPP,,540000000,Pembayaran SPP Semester Ganjil 2024/2025 - 180 mahasiswa,SPP-2024-001,,POSTED,,,,,2024-07-15 10:00:00,admin,
+44444444-4444-4444-4444-000000000003,KMP-TRX-003,2024-07-10,Pembayaran Uang Pangkal,,180000000,Uang Pangkal Mahasiswa Baru 2024 - 60 mahasiswa,UKT-2024-001,,POSTED,,,,,2024-07-10 10:00:00,admin,
+44444444-4444-4444-4444-000000000004,KMP-TRX-004,2024-07-31,Gaji Dosen Tetap,,150000000,Gaji Dosen Tetap Jul 2024,GAJ-2024-001,,POSTED,,,,,2024-07-31 10:00:00,admin,
+44444444-4444-4444-4444-000000000005,KMP-TRX-005,2024-07-31,Gaji Karyawan,,60000000,Gaji Karyawan Administrasi Jul 2024,GAJ-2024-002,,POSTED,,,,,2024-07-31 10:00:00,admin,
+44444444-4444-4444-4444-000000000006,KMP-TRX-006,2024-07-31,Bayar Listrik Kampus,,25000000,Listrik Kampus Jul 2024,PLN-2024-001,,POSTED,,,,,2024-07-31 10:00:00,admin,
+44444444-4444-4444-4444-000000000007,KMP-TRX-007,2024-07-31,Beasiswa Prestasi,,18000000,Beasiswa Prestasi Semester Ganjil 2024/2025,BSW-2024-001,,POSTED,,,,,2024-07-31 10:00:00,admin,

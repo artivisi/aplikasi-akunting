@@ -54,6 +54,7 @@ public class CompanyConfigService {
         existing.setSigningOfficerName(updatedConfig.getSigningOfficerName());
         existing.setSigningOfficerTitle(updatedConfig.getSigningOfficerTitle());
         existing.setCompanyLogoPath(updatedConfig.getCompanyLogoPath());
+        existing.setIndustry(updatedConfig.getIndustry());
 
         return companyConfigRepository.save(existing);
     }

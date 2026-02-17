@@ -49,7 +49,15 @@ public class ScreenshotCapture {
             new PageDefinition("self-service-bukti-potong", "Bukti Potong Saya", "/self-service/bukti-potong", true,
                     "Bukti potong PPh 21 (1721-A1)", "layanan-mandiri"),
             new PageDefinition("self-service-profile", "Profil Saya", "/self-service/profile", true,
-                    "Informasi profil karyawan", "layanan-mandiri")
+                    "Informasi profil karyawan", "layanan-mandiri"),
+
+            // Analysis Reports (screenshots taken by AnalysisReportTest)
+            new PageDefinition("analysis-reports/list", "Daftar Laporan Analisis AI", "/analysis-reports", true,
+                    "Daftar laporan analisis yang dipublikasikan oleh AI tools", "analisis-ai"),
+            new PageDefinition("analysis-reports/detail-top", "Detail Laporan Analisis (Header + Metrik)", "/analysis-reports", true,
+                    "Header laporan, ringkasan eksekutif, dan indikator utama", "analisis-ai"),
+            new PageDefinition("analysis-reports/detail-bottom", "Detail Laporan Analisis (Temuan + Rekomendasi)", "/analysis-reports", true,
+                    "Temuan, rekomendasi, dan penilaian risiko", "analisis-ai")
         );
     }
 

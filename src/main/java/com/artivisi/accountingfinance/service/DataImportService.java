@@ -730,6 +730,11 @@ public class DataImportService {
         if (!pkpSinceStr.isEmpty()) {
             config.setPkpSince(parseDate(pkpSinceStr));
         }
+        // column 15 = industry
+        String industryStr = getField(row, 15);
+        if (!industryStr.isEmpty()) {
+            config.setIndustry(industryStr);
+        }
 
         companyConfigRepository.save(config);
         return 1;

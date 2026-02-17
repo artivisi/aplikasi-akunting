@@ -69,6 +69,10 @@ public class CompanyConfig extends BaseEntity {
     @Column(name = "company_logo_path", length = 500)
     private String companyLogoPath;
 
+    @Size(max = 50, message = "Industry must not exceed 50 characters")
+    @Column(name = "industry", length = 50)
+    private String industry;
+
     // Tax Profile Fields
     @Column(name = "established_date")
     private LocalDate establishedDate;

@@ -51,6 +51,9 @@ public final class ViewConstants {
     public static final String PAGE_INVENTORY_STOCK = "inventory-stock";
     public static final String PAGE_INVENTORY_TRANSACTIONS = "inventory-transactions";
 
+    // Current page values - Analysis Reports
+    public static final String PAGE_ANALYSIS_REPORTS = "analysis-reports";
+
     // Current page values - Bank Reconciliation
     public static final String PAGE_BANK_RECONCILIATION = "bank-reconciliation";
     public static final String PAGE_BANK_RECON_PARSER_CONFIGS = "bank-recon-parser-configs";
