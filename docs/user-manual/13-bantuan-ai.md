@@ -757,7 +757,13 @@ Klik tombol **Hapus** di halaman detail untuk menghapus laporan (soft delete). L
 
 ##### Jasa IT & Konsultasi
 
-Metrik utama: Pendapatan Bulanan, Beban Operasional, Laba Bersih, Margin Laba, Saldo Kas, Rasio Beban/Pendapatan.
+Metrik utama:
+- Pendapatan Bulanan
+- Beban Operasional
+- Laba Bersih
+- Margin Laba
+- Saldo Kas
+- Rasio Beban/Pendapatan
 
 ![Daftar Laporan - Jasa IT](screenshots/analysis-reports/list.png)
 
@@ -765,25 +771,49 @@ Metrik utama: Pendapatan Bulanan, Beban Operasional, Laba Bersih, Margin Laba, S
 
 ![Detail Laporan - Jasa IT (Temuan dan Rekomendasi)](screenshots/analysis-reports/detail-bottom.png)
 
+---
+
 ##### Toko Online / E-Commerce
 
-Metrik utama: Penjualan Bersih, HPP (Harga Pokok), Laba Kotor, Gross Margin, Biaya Marketplace, Biaya Pengiriman.
+Metrik utama:
+- Penjualan Bersih
+- HPP (Harga Pokok)
+- Laba Kotor
+- Gross Margin
+- Biaya Marketplace
+- Biaya Pengiriman
 
 ![Daftar Laporan - Toko Online](screenshots/analysis-reports/seller-list.png)
 
 ![Detail Laporan - Toko Online](screenshots/analysis-reports/seller-detail.png)
 
+---
+
 ##### Kedai Kopi / F&B
 
-Metrik utama: Pendapatan, Food Cost %, Labor Cost %, Prime Cost %, Laba Bersih, Net Margin.
+Metrik utama:
+- Pendapatan
+- Food Cost %
+- Labor Cost %
+- Prime Cost %
+- Laba Bersih
+- Net Margin
 
 ![Daftar Laporan - Kedai Kopi](screenshots/analysis-reports/coffee-list.png)
 
 ![Detail Laporan - Kedai Kopi](screenshots/analysis-reports/coffee-detail.png)
 
+---
+
 ##### Kampus / Pendidikan
 
-Metrik utama: Pendapatan Total, Pendapatan SPP, Biaya Dosen & Akademik, Rasio Beasiswa, Surplus Operasional, Margin Operasional.
+Metrik utama:
+- Pendapatan Total
+- Pendapatan SPP
+- Biaya Dosen & Akademik
+- Rasio Beasiswa
+- Surplus Operasional
+- Margin Operasional
 
 ![Daftar Laporan - Kampus](screenshots/analysis-reports/campus-list.png)
 

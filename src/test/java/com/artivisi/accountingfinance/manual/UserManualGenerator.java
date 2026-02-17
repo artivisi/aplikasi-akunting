@@ -581,6 +581,9 @@ public class UserManualGenerator {
                 <style>
                     .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #1e3a8a; }
                     .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
+                    .prose h4 { font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; }
+                    .prose h5 { font-size: 1rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.25rem; }
+                    .prose hr { border: none; border-top: 2px solid #e5e7eb; margin: 2rem 0; }
                     .prose p { margin-bottom: 1rem; line-height: 1.75; }
                     .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
                     .prose ul { list-style-type: disc; }
