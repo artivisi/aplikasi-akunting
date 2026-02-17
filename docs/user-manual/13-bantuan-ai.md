@@ -8,6 +8,7 @@ Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti 
 > - Template matching otomatis berdasarkan metadata
 > - User approval sebelum transaksi diposting
 > - Transaksi langsung tercatat (tanpa draft)
+> - Analisis keuangan: AI membaca laporan keuangan dan memberikan insight
 
 ---
 
@@ -267,6 +268,219 @@ Transaksi yang dibuat via AI akan memiliki:
 
 ---
 
+## Analisis Keuangan via AI
+
+Selain mencatat transaksi, AI assistant juga dapat **menganalisis data keuangan** perusahaan Anda. Aplikasi menyediakan 10 endpoint read-only di bawah `/api/analysis` yang mengembalikan data terstruktur — AI yang menginterpretasikan datanya.
+
+### Endpoint Analisis
+
+| Endpoint | Deskripsi | Parameter |
+|----------|-----------|-----------|
+| `GET /api/analysis/snapshot` | KPI bulanan (revenue, expense, profit, cash) | `month` (yyyy-MM) |
+| `GET /api/analysis/trial-balance` | Neraca saldo | `asOfDate` (yyyy-MM-dd) |
+| `GET /api/analysis/income-statement` | Laporan laba rugi | `startDate`, `endDate` |
+| `GET /api/analysis/balance-sheet` | Neraca | `asOfDate` |
+| `GET /api/analysis/cash-flow` | Laporan arus kas | `startDate`, `endDate` |
+| `GET /api/analysis/tax-summary` | Ringkasan pajak (PPN, PPh) | `startDate`, `endDate` |
+| `GET /api/analysis/receivables` | Piutang usaha | `asOfDate` |
+| `GET /api/analysis/payables` | Hutang usaha | `asOfDate` |
+| `GET /api/analysis/accounts` | Daftar akun (COA) | — |
+| `GET /api/analysis/drafts` | Draft transaksi pending | — |
+
+Semua parameter **wajib** (tidak ada nilai default). Request tanpa parameter yang diperlukan akan mengembalikan HTTP 400.
+
+### Format Response
+
+Semua endpoint mengembalikan format `AnalysisResponse` yang konsisten:
+
+```json
+{
+  "reportType": "trial-balance",
+  "generatedAt": "2026-02-17T14:30:00",
+  "parameters": {
+    "asOfDate": "2026-01-31"
+  },
+  "data": { ... },
+  "metadata": {
+    "currency": "IDR",
+    "accountingBasis": "accrual",
+    "description": "Trial balance as of 2026-01-31..."
+  }
+}
+```
+
+Field `metadata` memberikan konteks yang membantu AI memahami data (mata uang, basis akuntansi, penjelasan arti debit/credit, dll).
+
+### Contoh: KPI Snapshot
+
+```bash
+GET /api/analysis/snapshot?month=2026-01
+Authorization: Bearer {accessToken}
+```
+
+Response:
+```json
+{
+  "reportType": "snapshot",
+  "generatedAt": "2026-02-17T14:30:00",
+  "parameters": { "month": "2026-01" },
+  "data": {
+    "month": "2026-01",
+    "revenue": 50000000,
+    "revenueChange": 12.5,
+    "expense": 35000000,
+    "expenseChange": -3.2,
+    "netProfit": 15000000,
+    "profitChange": 8.7,
+    "profitMargin": 30.0,
+    "marginChange": 2.1,
+    "cashBalance": 125000000,
+    "receivablesBalance": 20000000,
+    "payablesBalance": 15000000,
+    "transactionCount": 47,
+    "cashBankItems": [
+      { "accountName": "Kas", "balance": 25000000 },
+      { "accountName": "Bank BCA", "balance": 100000000 }
+    ]
+  },
+  "metadata": {
+    "currency": "IDR",
+    "accountingBasis": "accrual",
+    "description": "Financial KPI snapshot for 2026-01. Change percentages are vs previous month."
+  }
+}
+```
+
+### Contoh: Neraca Saldo
+
+```bash
+GET /api/analysis/trial-balance?asOfDate=2026-01-31
+Authorization: Bearer {accessToken}
+```
+
+Response (ringkasan):
+```json
+{
+  "reportType": "trial-balance",
+  "data": {
+    "items": [
+      {
+        "accountCode": "1.1.01",
+        "accountName": "Kas",
+        "accountType": "ASSET",
+        "normalBalance": "DEBIT",
+        "debitBalance": 25000000,
+        "creditBalance": 0
+      },
+      {
+        "accountCode": "4.1.01",
+        "accountName": "Pendapatan Jasa",
+        "accountType": "REVENUE",
+        "normalBalance": "CREDIT",
+        "debitBalance": 0,
+        "creditBalance": 50000000
+      }
+    ],
+    "totalDebit": 85000000,
+    "totalCredit": 85000000
+  }
+}
+```
+
+### Contoh: Draft Transaksi Pending
+
+```bash
+GET /api/analysis/drafts
+Authorization: Bearer {accessToken}
+```
+
+Response:
+```json
+{
+  "reportType": "drafts",
+  "data": {
+    "items": [
+      {
+        "id": "a1b2c3d4-...",
+        "status": "PENDING",
+        "merchantName": "Starbucks Grand Indonesia",
+        "amount": 85000,
+        "currency": "IDR",
+        "transactionDate": "2026-02-12",
+        "source": "API",
+        "apiSource": "claude-code",
+        "overallConfidence": 0.95,
+        "suggestedTemplateName": "Konsumsi Karyawan",
+        "createdBy": "admin",
+        "createdAt": "2026-02-12T14:30:00"
+      }
+    ],
+    "pendingCount": 1
+  }
+}
+```
+
+AI dapat menggunakan data ini untuk merekomendasikan approval draft dengan confidence tinggi, atau menandai draft yang perlu review manual.
+
+### Contoh Interaksi Analisis
+
+**User:**
+```
+Bagaimana kondisi keuangan bulan Januari?
+```
+
+**AI:**
+```
+Berdasarkan data keuangan Januari 2026:
+
+Revenue:     Rp 50.000.000 (+12.5% vs Desember)
+Expense:     Rp 35.000.000 (-3.2% vs Desember)
+Net Profit:  Rp 15.000.000 (+8.7%)
+Margin:      30.0%
+
+Kas & Bank:
+  - Kas:      Rp 25.000.000
+  - Bank BCA: Rp 100.000.000
+
+Piutang:     Rp 20.000.000
+Hutang:      Rp 15.000.000
+
+Bulan ini cukup baik — revenue naik, expense turun, dan
+profit margin meningkat 2.1 poin.
+```
+
+**User:**
+```
+Ada pajak yang perlu dibayar?
+```
+
+**AI:**
+```
+Berdasarkan ringkasan pajak Januari 2026:
+
+PPN Keluaran:  Rp 5.000.000
+PPN Masukan:   Rp 2.000.000
+PPN Kurang Bayar: Rp 3.000.000
+
+PPh 23:        Rp 1.500.000 (sudah dipotong)
+PPh 21:        Rp 2.800.000 (gaji karyawan)
+
+Total kewajiban pajak bulan ini: Rp 7.300.000
+Batas setor PPN: 31 Februari 2026
+```
+
+### Otorisasi Scope
+
+Token yang diterbitkan melalui Device Flow secara otomatis memiliki scope `analysis:read`. Scope ini dibutuhkan untuk mengakses semua endpoint `/api/analysis/*`. Tanpa scope ini, request akan ditolak dengan HTTP 403.
+
+Scope yang diberikan pada token:
+- `drafts:create` — membuat draft transaksi
+- `drafts:approve` — approve/reject draft
+- `drafts:read` — membaca draft
+- `analysis:read` — membaca laporan keuangan
+
+---
+
 ## Contoh Interaksi dengan AI
 
 ### Skenario 1: Struk Kopi Starbucks
@@ -400,14 +614,39 @@ User dapat melihat dan mencabut device token di halaman Settings:
 
 ### Endpoint Summary
 
+**Autentikasi:**
+
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/device/code` | Request device code (public) |
 | POST | `/api/device/token` | Poll for access token (public) |
-| GET | `/api/templates` | List templates dengan metadata (auth required) |
-| GET | `/api/templates/{id}` | Get single template (auth required) |
-| POST | `/api/transactions` | Post transaction langsung (auth required) |
-| GET | `/api/drafts/accounts` | List chart of accounts (auth required) |
+
+**Transaksi (scope: `drafts:*`):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/templates` | List templates dengan metadata |
+| GET | `/api/templates/{id}` | Get single template |
+| POST | `/api/transactions` | Post transaction langsung |
+| POST | `/api/drafts/from-receipt` | Buat draft dari struk |
+| GET | `/api/drafts/{id}` | Get draft by ID |
+| POST | `/api/drafts/{id}/approve` | Approve draft |
+| POST | `/api/drafts/{id}/reject` | Reject draft |
+
+**Analisis Keuangan (scope: `analysis:read`):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/analysis/snapshot` | KPI bulanan |
+| GET | `/api/analysis/trial-balance` | Neraca saldo |
+| GET | `/api/analysis/income-statement` | Laporan laba rugi |
+| GET | `/api/analysis/balance-sheet` | Neraca |
+| GET | `/api/analysis/cash-flow` | Laporan arus kas |
+| GET | `/api/analysis/tax-summary` | Ringkasan pajak |
+| GET | `/api/analysis/receivables` | Piutang usaha |
+| GET | `/api/analysis/payables` | Hutang usaha |
+| GET | `/api/analysis/accounts` | Daftar akun (COA) |
+| GET | `/api/analysis/drafts` | Draft transaksi pending |
 
 ### Authentication
 
@@ -426,8 +665,10 @@ Authorization: Bearer {accessToken}
 
 | Code | Error | Deskripsi |
 |------|-------|-----------|
+| 400 | `MISSING_PARAMETER` | Parameter wajib tidak dikirim (contoh: `asOfDate`) |
 | 400 | `INVALID_REQUEST` | Request tidak valid (field required kosong, dll) |
 | 401 | `unauthorized` | Token tidak valid atau expired |
+| 403 | — | Scope tidak memadai (contoh: token tanpa `analysis:read`) |
 | 404 | `NOT_FOUND` | Template/resource tidak ditemukan |
 | 429 | `RATE_LIMIT_EXCEEDED` | Terlalu banyak request |
 | 500 | `INTERNAL_ERROR` | Server error |
@@ -518,6 +759,7 @@ Administrator dapat menambah metadata via:
 
 - [Setup Awal](01-setup-awal.md) - Setup aplikasi pertama kali
 - [Tutorial Akuntansi](02-tutorial-akuntansi.md) - Dasar-dasar akuntansi
+- [Rekonsiliasi Bank](14-rekonsiliasi-bank.md) - Bank reconciliation (data tersedia via `/api/analysis`)
 - [API Documentation](../ai-transaction-api-v2.md) - Technical API reference
 
 ---
@@ -532,7 +774,6 @@ Fitur yang akan ditambahkan:
 - [ ] AI confidence feedback loop
 - [ ] Multi-currency support dengan auto-conversion
 - [ ] PDF invoice parsing
-- [ ] Bank statement import otomatis
 - [ ] Template suggestion improvement (machine learning)
 
 ---
