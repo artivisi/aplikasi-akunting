@@ -24,6 +24,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='btn-import-statement']")).isVisible();
         assertThat(page.locator("[data-testid='btn-new-reconciliation']")).isVisible();
         assertThat(page.locator("[data-testid='btn-parser-configs']")).isVisible();
+
+        takeManualScreenshot("bank-recon/landing-page");
     }
 
     @Test
@@ -66,6 +68,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='parser-config-table']")).containsText("BCA");
         assertThat(page.locator("[data-testid='parser-config-table']")).containsText("Mandiri");
         assertThat(page.locator("[data-testid='parser-config-table']")).containsText("BNI");
+
+        takeManualScreenshot("bank-recon/parser-configs");
     }
 
     @Test
@@ -80,6 +84,9 @@ class BankReconciliationTest extends PlaywrightTestBase {
         page.locator("[data-testid='input-date-column']").fill("0");
         page.locator("[data-testid='input-desc-column']").fill("1");
         page.locator("[data-testid='input-date-format']").fill("dd/MM/yyyy");
+
+        takeManualScreenshot("bank-recon/parser-config-form");
+
         page.locator("[data-testid='btn-save-config']").click();
         waitForPageLoad();
 
@@ -102,6 +109,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='input-period-end']")).isVisible();
         assertThat(page.locator("[data-testid='input-file']")).isVisible();
         assertThat(page.locator("[data-testid='btn-import']")).isVisible();
+
+        takeManualScreenshot("bank-recon/import-form");
     }
 
     @Test
@@ -114,6 +123,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("#page-title")).containsText("Daftar Mutasi Bank");
         assertThat(page.locator("[data-testid='statements-table']")).isVisible();
         assertThat(page.locator("[data-testid='statements-table']")).containsText("BCA");
+
+        takeManualScreenshot("bank-recon/statements-list");
     }
 
     @Test
@@ -130,6 +141,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='stmt-bank']")).containsText("BCA");
         assertThat(page.locator("[data-testid='stmt-total-items']")).containsText("5");
         assertThat(page.locator("[data-testid='statement-items-table']")).isVisible();
+
+        takeManualScreenshot("bank-recon/statement-detail");
     }
 
     // ==================== Reconciliation ====================
@@ -144,6 +157,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("#page-title")).containsText("Rekonsiliasi Baru");
         assertThat(page.locator("[data-testid='select-statement']")).isVisible();
         assertThat(page.locator("[data-testid='btn-create-recon']")).isVisible();
+
+        takeManualScreenshot("bank-recon/recon-form");
     }
 
     @Test
@@ -157,6 +172,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='recon-book-balance']")).isVisible();
         assertThat(page.locator("[data-testid='recon-matched-count']")).isVisible();
         assertThat(page.locator("[data-testid='recon-difference']")).isVisible();
+
+        takeManualScreenshot("bank-recon/recon-detail");
     }
 
     @Test
@@ -181,6 +198,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
 
         assertThat(page.locator("[data-testid='recon-matched-count']")).isVisible();
         assertThat(page.locator("[data-testid='recon-status']")).isVisible();
+
+        takeManualScreenshot("bank-recon/recon-auto-match");
     }
 
     @Test
@@ -195,6 +214,8 @@ class BankReconciliationTest extends PlaywrightTestBase {
 
         assertThat(page.locator("[data-testid='reconciliation-statement']")).isVisible();
         assertThat(page.locator("[data-testid='btn-print']")).isVisible();
+
+        takeManualScreenshot("bank-recon/recon-report");
     }
 
     // ==================== Reconciliation List ====================
