@@ -51,6 +51,12 @@ public final class ViewConstants {
     public static final String PAGE_INVENTORY_STOCK = "inventory-stock";
     public static final String PAGE_INVENTORY_TRANSACTIONS = "inventory-transactions";
 
+    // Current page values - Bank Reconciliation
+    public static final String PAGE_BANK_RECONCILIATION = "bank-reconciliation";
+    public static final String PAGE_BANK_RECON_PARSER_CONFIGS = "bank-recon-parser-configs";
+    public static final String PAGE_BANK_RECON_STATEMENTS = "bank-recon-statements";
+    public static final String PAGE_BANK_RECON_RECONCILIATIONS = "bank-recon-reconciliations";
+
     // View paths - Products
     public static final String VIEW_PRODUCTS_LIST = "products/list";
     public static final String VIEW_PRODUCTS_FORM = "products/form";
@@ -68,6 +74,12 @@ public final class ViewConstants {
     public static final String VIEW_PAYROLL_FORM = "payroll/form";
     public static final String VIEW_PAYROLL_DETAIL = "payroll/detail";
     public static final String VIEW_SALARY_COMPONENTS_FORM = "salary-components/form";
+
+    // Redirect prefixes - Bank Reconciliation
+    public static final String REDIRECT_BANK_RECON = "redirect:/bank-reconciliation/";
+    public static final String REDIRECT_BANK_RECON_PARSER_CONFIGS = "redirect:/bank-reconciliation/parser-configs";
+    public static final String REDIRECT_BANK_RECON_STATEMENTS = "redirect:/bank-reconciliation/statements";
+    public static final String REDIRECT_BANK_RECON_RECONCILIATIONS = "redirect:/bank-reconciliation/reconciliations";
 
     // Redirect prefixes
     public static final String REDIRECT_INVOICES = "redirect:/invoices/";

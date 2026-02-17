@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Rekonsiliasi Bank</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title"
+        th:text="|Rekonsiliasi: ${recon.bankAccount.bankName} (${#temporals.format(recon.periodStart, 'dd/MM/yyyy')} - ${#temporals.format(recon.periodEnd, 'dd/MM/yyyy')})|">
+        Rekonsiliasi Bank
+    </h1>
+
+    <div layout:fragment="content">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-600" th:text="${successMessage}">Success</p>
+        </div>
+        <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-600" th:text="${errorMessage}">Error</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6" th:fragment="reconContent">
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-xs text-gray-500">Status</p>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1"
+                      th:classappend="${recon.status.name() == 'COMPLETED'} ? 'bg-green-100 text-green-800' : (${recon.status.name() == 'IN_PROGRESS'} ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')"
+                      th:text="${recon.status.indonesianName}" data-testid="recon-status">Draft</span>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-xs text-gray-500">Saldo Buku</p>
+                <p class="text-sm font-medium font-mono" data-testid="recon-book-balance"
+                   th:text="${recon.bookBalance != null ? #numbers.formatDecimal(recon.bookBalance, 0, 'COMMA', 0, 'POINT') : '-'}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-xs text-gray-500">Saldo Bank</p>
+                <p class="text-sm font-medium font-mono" data-testid="recon-bank-balance"
+                   th:text="${recon.bankBalance != null ? #numbers.formatDecimal(recon.bankBalance, 0, 'COMMA', 0, 'POINT') : '-'}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-xs text-gray-500">Cocok</p>
+                <p class="text-sm font-medium" data-testid="recon-matched-count"
+                   th:text="${(recon.matchedCount != null ? recon.matchedCount : 0) + ' / ' + (recon.totalStatementItems != null ? recon.totalStatementItems : 0)}">0/0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-xs text-gray-500">Selisih</p>
+                <p class="text-sm font-medium font-mono" data-testid="recon-difference"
+                   th:text="${recon.bookBalance != null && recon.bankBalance != null ? #numbers.formatDecimal(recon.bookBalance.subtract(recon.bankBalance), 0, 'COMMA', 0, 'POINT') : '-'}"
+                   th:classappend="${recon.bookBalance != null && recon.bankBalance != null && recon.bookBalance.compareTo(recon.bankBalance) != 0} ? 'text-red-600' : 'text-green-600'">0</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-2 mb-6" th:unless="${recon.completed}">
+            <form sec:authorize="hasAuthority('BANK_RECONCILIATION_MATCH')"
+                  th:action="@{/bank-reconciliation/reconciliations/{id}/auto-match(id=${recon.id})}" method="post" class="inline">
+                <button type="submit" data-testid="btn-auto-match"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">Auto-Match</button>
+            </form>
+            <form sec:authorize="hasAuthority('BANK_RECONCILIATION_COMPLETE')"
+                  th:action="@{/bank-reconciliation/reconciliations/{id}/complete(id=${recon.id})}" method="post" class="inline">
+                <button type="submit" data-testid="btn-complete"
+                        onclick="return confirm('Yakin menyelesaikan rekonsiliasi ini?')"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">Selesaikan</button>
+            </form>
+            <a th:href="@{/bank-reconciliation/reconciliations/{id}/report(id=${recon.id})}"
+               class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">Laporan</a>
+            <a th:href="@{/bank-reconciliation/reconciliations}"
+               class="px-4 py-2 text-gray-600 hover:text-gray-900 text-sm">Kembali</a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Panel: Bank Statement Items (Unmatched) -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b">
+                    <h3 class="text-sm font-medium text-gray-900">Mutasi Bank - Belum Cocok
+                        (<span th:text="${unmatchedBankItems.size()}">0</span>)</h3>
+                </div>
+                <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200" data-testid="unmatched-bank-items">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Tgl</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Deskripsi</th>
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500">Jumlah</th>
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr th:each="item : ${unmatchedBankItems}" th:id="'bank-item-' + ${item.id}">
+                                <td class="px-3 py-2 text-xs" th:text="${#temporals.format(item.transactionDate, 'dd/MM')}">01/01</td>
+                                <td class="px-3 py-2 text-xs max-w-32 truncate" th:text="${item.description}" th:title="${item.description}">Transfer</td>
+                                <td class="px-3 py-2 text-xs text-right font-mono"
+                                    th:text="${item.debitAmount != null && item.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? '-' + #numbers.formatDecimal(item.debitAmount, 0, 'COMMA', 0, 'POINT') : '+' + #numbers.formatDecimal(item.creditAmount != null ? item.creditAmount : T(java.math.BigDecimal).ZERO, 0, 'COMMA', 0, 'POINT')}"
+                                    th:classappend="${item.debitAmount != null && item.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-red-600' : 'text-green-600'">0</td>
+                                <td class="px-3 py-2 text-center" th:unless="${recon.completed}">
+                                    <div class="flex gap-1 justify-center">
+                                        <!-- Mark as bank-only -->
+                                        <form th:action="@{/bank-reconciliation/reconciliations/{id}/mark-bank-only(id=${recon.id})}" method="post" class="inline">
+                                            <input type="hidden" name="statementItemId" th:value="${item.id}">
+                                            <button type="submit" class="text-orange-500 hover:text-orange-700 text-xs" title="Hanya di Bank">B</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${unmatchedBankItems.isEmpty()}">
+                                <td colspan="4" class="px-3 py-4 text-center text-xs text-gray-500">Tidak ada item yang belum cocok</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Panel: Book Transactions (Unmatched) -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-4 py-3 border-b">
+                    <h3 class="text-sm font-medium text-gray-900">Transaksi Buku - Belum Cocok
+                        (<span th:text="${unmatchedBookTxns.size()}">0</span>)</h3>
+                </div>
+                <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200" data-testid="unmatched-book-txns">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Tgl</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Deskripsi</th>
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500">Jumlah</th>
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr th:each="txn : ${unmatchedBookTxns}" th:id="'book-txn-' + ${txn.id}">
+                                <td class="px-3 py-2 text-xs" th:text="${#temporals.format(txn.transactionDate, 'dd/MM')}">01/01</td>
+                                <td class="px-3 py-2 text-xs max-w-32 truncate" th:text="${txn.description}" th:title="${txn.description}">Payment</td>
+                                <td class="px-3 py-2 text-xs text-right font-mono" th:text="${#numbers.formatDecimal(txn.amount, 0, 'COMMA', 0, 'POINT')}">0</td>
+                                <td class="px-3 py-2 text-center" th:unless="${recon.completed}">
+                                    <form th:action="@{/bank-reconciliation/reconciliations/{id}/mark-book-only(id=${recon.id})}" method="post" class="inline">
+                                        <input type="hidden" name="transactionId" th:value="${txn.id}">
+                                        <button type="submit" class="text-purple-500 hover:text-purple-700 text-xs" title="Hanya di Buku">B</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${unmatchedBookTxns.isEmpty()}">
+                                <td colspan="4" class="px-3 py-4 text-center text-xs text-gray-500">Tidak ada transaksi yang belum cocok</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Match Form -->
+        <div class="bg-white rounded-lg shadow p-4 mt-6" th:unless="${recon.completed}">
+            <h3 class="text-sm font-medium text-gray-900 mb-3">Pencocokan Manual</h3>
+            <form th:action="@{/bank-reconciliation/reconciliations/{id}/match(id=${recon.id})}" method="post"
+                  class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs text-gray-600 mb-1">Item Mutasi Bank</label>
+                    <select name="statementItemId" data-testid="select-statement-item" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">-- Pilih Item --</option>
+                        <option th:each="item : ${unmatchedBankItems}" th:value="${item.id}"
+                                th:text="${#temporals.format(item.transactionDate, 'dd/MM') + ' | ' + (item.description != null && item.description.length() > 30 ? item.description.substring(0, 30) + '...' : item.description) + ' | ' + (item.debitAmount != null && item.debitAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? '-' + #numbers.formatDecimal(item.debitAmount, 0, 'COMMA', 0, 'POINT') : '+' + #numbers.formatDecimal(item.creditAmount != null ? item.creditAmount : T(java.math.BigDecimal).ZERO, 0, 'COMMA', 0, 'POINT'))}">
+                            01/01 | Transfer | -500,000
+                        </option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs text-gray-600 mb-1">Transaksi Buku</label>
+                    <select name="transactionId" data-testid="select-transaction" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">-- Pilih Transaksi --</option>
+                        <option th:each="txn : ${unmatchedBookTxns}" th:value="${txn.id}"
+                                th:text="${#temporals.format(txn.transactionDate, 'dd/MM') + ' | ' + (txn.description != null && txn.description.length() > 30 ? txn.description.substring(0, 30) + '...' : txn.description) + ' | ' + #numbers.formatDecimal(txn.amount, 0, 'COMMA', 0, 'POINT')}">
+                            01/01 | Payment | 500,000
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" data-testid="btn-manual-match"
+                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">Cocokkan</button>
+            </form>
+        </div>
+
+        <!-- Create Transaction from Statement Item -->
+        <div class="bg-white rounded-lg shadow p-4 mt-6" th:unless="${recon.completed}" th:if="${!unmatchedBankItems.isEmpty()}">
+            <h3 class="text-sm font-medium text-gray-900 mb-3">Buat Transaksi dari Item Bank</h3>
+            <form th:action="@{/bank-reconciliation/reconciliations/{id}/create-transaction(id=${recon.id})}" method="post"
+                  class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs text-gray-600 mb-1">Item Mutasi Bank</label>
+                    <select name="statementItemId" data-testid="select-create-item" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">-- Pilih Item --</option>
+                        <option th:each="item : ${unmatchedBankItems}" th:value="${item.id}"
+                                th:text="${#temporals.format(item.transactionDate, 'dd/MM') + ' | ' + item.description}">Item</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs text-gray-600 mb-1">Template Jurnal</label>
+                    <select name="templateId" data-testid="select-template" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">-- Pilih Template --</option>
+                        <option th:each="tpl : ${templates}" th:value="${tpl.id}" th:text="${tpl.templateName}">Template</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-48">
+                    <label class="block text-xs text-gray-600 mb-1">Deskripsi (opsional)</label>
+                    <input type="text" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                           placeholder="Deskripsi transaksi">
+                </div>
+                <button type="submit" data-testid="btn-create-transaction"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">Buat & Cocokkan</button>
+            </form>
+        </div>
+
+        <!-- Matched Items -->
+        <div class="bg-white rounded-lg shadow mt-6">
+            <div class="px-4 py-3 border-b">
+                <h3 class="text-sm font-medium text-gray-900">Item Sudah Dicocokkan
+                    (<span th:text="${reconItems.size()}">0</span>)</h3>
+            </div>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                <table class="min-w-full divide-y divide-gray-200" data-testid="matched-items-table">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Bank - Tanggal</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Bank - Deskripsi</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Buku - Deskripsi</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Tipe</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Status</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr th:each="ri : ${reconItems}">
+                            <td class="px-3 py-2 text-xs" th:text="${ri.statementItem != null ? #temporals.format(ri.statementItem.transactionDate, 'dd/MM/yyyy') : '-'}">01/01</td>
+                            <td class="px-3 py-2 text-xs max-w-32 truncate" th:text="${ri.statementItem != null ? ri.statementItem.description : '-'}" th:title="${ri.statementItem != null ? ri.statementItem.description : ''}">Bank desc</td>
+                            <td class="px-3 py-2 text-xs max-w-32 truncate" th:text="${ri.transaction != null ? ri.transaction.description : '-'}" th:title="${ri.transaction != null ? ri.transaction.description : ''}">Book desc</td>
+                            <td class="px-3 py-2 text-center">
+                                <span class="text-xs" th:text="${ri.matchType != null ? ri.matchType.indonesianName : '-'}">Manual</span>
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                                      th:classappend="${ri.matchStatus.name() == 'MATCHED'} ? 'bg-green-100 text-green-800' : (${ri.matchStatus.name() == 'BANK_ONLY'} ? 'bg-orange-100 text-orange-800' : (${ri.matchStatus.name() == 'BOOK_ONLY'} ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'))"
+                                      th:text="${ri.matchStatus.indonesianName}">Cocok</span>
+                            </td>
+                            <td class="px-3 py-2 text-center" th:unless="${recon.completed}">
+                                <form th:action="@{/bank-reconciliation/reconciliations/{rid}/unmatch/{iid}(rid=${recon.id}, iid=${ri.id})}" method="post" class="inline">
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-xs" title="Batalkan">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${reconItems.isEmpty()}">
+                            <td colspan="6" class="px-3 py-4 text-center text-xs text-gray-500">Belum ada item yang dicocokkan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

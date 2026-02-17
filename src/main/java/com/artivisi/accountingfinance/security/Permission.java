@@ -140,6 +140,13 @@ public final class Permission {
     public static final String DATA_SUBJECT_EXPORT = "DATA_SUBJECT_EXPORT";
     public static final String DATA_SUBJECT_ANONYMIZE = "DATA_SUBJECT_ANONYMIZE";
 
+    // Bank Reconciliation
+    public static final String BANK_RECONCILIATION_VIEW = "BANK_RECONCILIATION_VIEW";
+    public static final String BANK_RECONCILIATION_IMPORT = "BANK_RECONCILIATION_IMPORT";
+    public static final String BANK_RECONCILIATION_MATCH = "BANK_RECONCILIATION_MATCH";
+    public static final String BANK_RECONCILIATION_COMPLETE = "BANK_RECONCILIATION_COMPLETE";
+    public static final String BANK_RECONCILIATION_CONFIG = "BANK_RECONCILIATION_CONFIG";
+
     // User Management (Admin only)
     public static final String USER_VIEW = "USER_VIEW";
     public static final String USER_CREATE = "USER_CREATE";
@@ -178,6 +185,7 @@ public final class Permission {
                 SALARY_COMPONENT_VIEW, SALARY_COMPONENT_MANAGE,
                 PAYROLL_VIEW, PAYROLL_CREATE, PAYROLL_APPROVE, PAYROLL_POST, PAYROLL_CANCEL, PAYROLL_EXPORT,
                 CALCULATOR_USE,
+                BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE, BANK_RECONCILIATION_CONFIG,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
                 TELEGRAM_MANAGE,
@@ -208,6 +216,7 @@ public final class Permission {
                 SALARY_COMPONENT_VIEW, SALARY_COMPONENT_MANAGE,
                 PAYROLL_VIEW, PAYROLL_CREATE, PAYROLL_APPROVE, PAYROLL_POST, PAYROLL_CANCEL, PAYROLL_EXPORT,
                 CALCULATOR_USE,
+                BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE, BANK_RECONCILIATION_CONFIG,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
                 TELEGRAM_MANAGE,
@@ -235,6 +244,7 @@ public final class Permission {
                 EMPLOYEE_VIEW,
                 SALARY_COMPONENT_VIEW,
                 PAYROLL_VIEW, PAYROLL_CREATE, PAYROLL_APPROVE, PAYROLL_POST, PAYROLL_EXPORT,
+                BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE,
                 CALCULATOR_USE,
                 SETTINGS_VIEW, // Read-only access to settings (can view, but only edit own Telegram)
                 TELEGRAM_MANAGE,
@@ -255,6 +265,7 @@ public final class Permission {
                 INVOICE_VIEW,
                 ASSET_VIEW,
                 PRODUCT_VIEW, INVENTORY_VIEW,
+                BANK_RECONCILIATION_VIEW,
                 CALCULATOR_USE,
                 SETTINGS_VIEW, // Read-only access to settings (can view, but only edit own Telegram)
                 TELEGRAM_MANAGE,
@@ -281,6 +292,7 @@ public final class Permission {
                 EMPLOYEE_VIEW,
                 SALARY_COMPONENT_VIEW,
                 PAYROLL_VIEW, PAYROLL_EXPORT,
+                BANK_RECONCILIATION_VIEW,
                 CALCULATOR_USE,
                 AUDIT_LOG_VIEW,
                 OWN_PROFILE_VIEW

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Rekonsiliasi Bank - Cetak</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; font-size: 12px; color: #333; }
+        h1 { font-size: 18px; margin-bottom: 4px; }
+        h2 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+        .meta { color: #666; font-size: 11px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        th, td { padding: 4px 8px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+        .text-right { text-align: right; }
+        .font-mono { font-family: 'Courier New', monospace; }
+        .total-row { font-weight: 700; border-top: 2px solid #333; }
+        .pl-4 { padding-left: 24px; }
+        .text-green { color: #16a34a; }
+        .text-red { color: #dc2626; }
+        @media print { body { margin: 0; } }
+    </style>
+</head>
+<body>
+    <h1>Laporan Rekonsiliasi Bank</h1>
+    <div class="meta">
+        <span th:text="${recon.bankAccount.bankName}">BCA</span> |
+        Periode: <span th:text="${#temporals.format(recon.periodStart, 'dd/MM/yyyy') + ' - ' + #temporals.format(recon.periodEnd, 'dd/MM/yyyy')}">01/01 - 31/01</span> |
+        Status: <span th:text="${recon.status.indonesianName}">Selesai</span>
+        <span th:if="${recon.completedAt != null}">
+            | Diselesaikan: <span th:text="${#temporals.format(recon.completedAt, 'dd/MM/yyyy HH:mm')}">01/02 10:00</span>
+            oleh <span th:text="${recon.completedBy}">admin</span>
+        </span>
+    </div>
+
+    <h2>Ringkasan</h2>
+    <table>
+        <tr><td>Total Item Mutasi</td><td class="text-right" th:text="${summary['totalItems']}">0</td></tr>
+        <tr><td>Item Cocok</td><td class="text-right" th:text="${summary['matchedCount']}">0</td></tr>
+        <tr><td>Hanya di Bank</td><td class="text-right" th:text="${summary['bankOnlyCount']}">0</td></tr>
+        <tr><td>Hanya di Buku</td><td class="text-right" th:text="${summary['bookOnlyCount']}">0</td></tr>
+    </table>
+
+    <h2>Laporan Rekonsiliasi</h2>
+    <table>
+        <tr>
+            <td>Saldo per Buku Besar</td>
+            <td class="text-right font-mono" th:text="${#numbers.formatDecimal(statement['bookBalance'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr>
+            <td class="pl-4">+ Kredit hanya di bank</td>
+            <td class="text-right font-mono text-green" th:text="${#numbers.formatDecimal(statement['bankOnlyCreditTotal'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr>
+            <td class="pl-4">- Debit hanya di bank</td>
+            <td class="text-right font-mono text-red" th:text="${#numbers.formatDecimal(statement['bankOnlyDebitTotal'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr class="total-row">
+            <td>Saldo Buku Disesuaikan</td>
+            <td class="text-right font-mono" th:text="${#numbers.formatDecimal(statement['adjustedBookBalance'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr style="border-top: 3px solid #333;">
+            <td>Saldo per Bank</td>
+            <td class="text-right font-mono" th:text="${#numbers.formatDecimal(statement['bankBalance'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr>
+            <td class="pl-4">+ Transaksi hanya di buku</td>
+            <td class="text-right font-mono text-green" th:text="${#numbers.formatDecimal(statement['bookOnlyTotal'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr class="total-row">
+            <td>Saldo Bank Disesuaikan</td>
+            <td class="text-right font-mono" th:text="${#numbers.formatDecimal(statement['adjustedBankBalance'], 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+        <tr style="border-top: 3px double #333;">
+            <td style="font-size: 14px; font-weight: 700;">SELISIH</td>
+            <td class="text-right font-mono" style="font-size: 14px; font-weight: 700;"
+                th:text="${#numbers.formatDecimal(statement['difference'], 0, 'COMMA', 2, 'POINT')}"
+                th:classappend="${statement['difference'].compareTo(T(java.math.BigDecimal).ZERO) != 0} ? 'text-red' : 'text-green'">0</td>
+        </tr>
+    </table>
+
+    <div th:if="${outstanding != null && !outstanding.isEmpty()}">
+        <h2>Item Outstanding</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipe</th>
+                    <th>Tanggal</th>
+                    <th>Deskripsi</th>
+                    <th class="text-right">Jumlah</th>
+                    <th>Catatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${outstanding}">
+                    <td th:text="${item.matchStatus.indonesianName}">Type</td>
+                    <td th:text="${item.statementItem != null ? #temporals.format(item.statementItem.transactionDate, 'dd/MM/yyyy') : (item.transaction != null ? #temporals.format(item.transaction.transactionDate, 'dd/MM/yyyy') : '-')}">01/01</td>
+                    <td th:text="${item.statementItem != null ? item.statementItem.description : (item.transaction != null ? item.transaction.description : '-')}">Desc</td>
+                    <td class="text-right font-mono" th:text="${item.statementItem != null ? #numbers.formatDecimal(item.statementItem.netAmount.abs(), 0, 'COMMA', 0, 'POINT') : (item.transaction != null ? #numbers.formatDecimal(item.transaction.amount, 0, 'COMMA', 0, 'POINT') : '-')}">0</td>
+                    <td th:text="${item.notes != null ? item.notes : '-'}">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>window.print();</script>
+</body>
+</html>

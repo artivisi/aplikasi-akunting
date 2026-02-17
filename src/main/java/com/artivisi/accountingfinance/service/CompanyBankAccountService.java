@@ -71,6 +71,7 @@ public class CompanyBankAccountService {
         existing.setAccountName(updatedAccount.getAccountName());
         existing.setCurrencyCode(updatedAccount.getCurrencyCode());
         existing.setIsDefault(updatedAccount.getIsDefault());
+        existing.setGlAccount(updatedAccount.getGlAccount());
 
         return bankAccountRepository.save(existing);
     }

@@ -1,5 +1,6 @@
 package com.artivisi.accountingfinance.controller;
 
+import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.CompanyBankAccount;
 import com.artivisi.accountingfinance.entity.CompanyConfig;
 import com.artivisi.accountingfinance.entity.SecurityAuditLog;
@@ -8,6 +9,7 @@ import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.repository.TelegramUserLinkRepository;
 import com.artivisi.accountingfinance.repository.UserRepository;
+import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.CompanyBankAccountService;
 import com.artivisi.accountingfinance.service.CompanyConfigService;
 import com.artivisi.accountingfinance.service.DocumentStorageService;
@@ -71,6 +73,7 @@ public class SettingsController {
 
     private final CompanyConfigService companyConfigService;
     private final CompanyBankAccountService bankAccountService;
+    private final ChartOfAccountService chartOfAccountService;
     private final DocumentStorageService documentStorageService;
     private final TelegramBotService telegramBotService;
     private final TelegramUserLinkRepository telegramLinkRepository;
@@ -251,6 +254,7 @@ public class SettingsController {
     @GetMapping("/bank-accounts/new")
     public String newBankAccountForm(Model model) {
         model.addAttribute("bankAccount", new CompanyBankAccount());
+        model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
         return VIEW_BANK_FORM;
     }
@@ -260,10 +264,16 @@ public class SettingsController {
     public String createBankAccount(
             @Valid @ModelAttribute("bankAccount") CompanyBankAccount bankAccount,
             BindingResult bindingResult,
+            @RequestParam(value = "glAccountId", required = false) UUID glAccountId,
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        if (glAccountId != null) {
+            bankAccount.setGlAccount(chartOfAccountService.findById(glAccountId));
+        }
+
         if (bindingResult.hasErrors()) {
+            model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
             return VIEW_BANK_FORM;
         }
@@ -276,6 +286,7 @@ public class SettingsController {
             return REDIRECT_SETTINGS;
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("accountNumber", "duplicate", e.getMessage());
+            model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
             return VIEW_BANK_FORM;
         }
@@ -285,6 +296,7 @@ public class SettingsController {
     public String editBankAccountForm(@PathVariable UUID id, Model model) {
         CompanyBankAccount bankAccount = bankAccountService.findById(id);
         model.addAttribute("bankAccount", bankAccount);
+        model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
         return VIEW_BANK_FORM;
     }
@@ -295,11 +307,19 @@ public class SettingsController {
             @PathVariable UUID id,
             @Valid @ModelAttribute("bankAccount") CompanyBankAccount bankAccount,
             BindingResult bindingResult,
+            @RequestParam(value = "glAccountId", required = false) UUID glAccountId,
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        if (glAccountId != null) {
+            bankAccount.setGlAccount(chartOfAccountService.findById(glAccountId));
+        } else {
+            bankAccount.setGlAccount(null);
+        }
+
         if (bindingResult.hasErrors()) {
             bankAccount.setId(id);
+            model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
             return VIEW_BANK_FORM;
         }
@@ -313,6 +333,7 @@ public class SettingsController {
         } catch (IllegalArgumentException e) {
             bindingResult.rejectValue("accountNumber", "duplicate", e.getMessage());
             bankAccount.setId(id);
+            model.addAttribute("glAccounts", chartOfAccountService.findTransactableAccounts());
             model.addAttribute(ATTR_CURRENT_PAGE, PAGE_SETTINGS);
             return VIEW_BANK_FORM;
         }

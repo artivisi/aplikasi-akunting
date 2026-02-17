@@ -396,6 +396,24 @@ public class TransactionService {
     }
 
     @Transactional
+    public Transaction createFromReconciliation(UUID templateId, LocalDate transactionDate,
+                                                 BigDecimal amount, String description, String createdBy) {
+        JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
+
+        Transaction transaction = new Transaction();
+        transaction.setTransactionNumber(null);
+        transaction.setTransactionDate(transactionDate);
+        transaction.setJournalTemplate(template);
+        transaction.setAmount(amount);
+        transaction.setDescription(description);
+        transaction.setStatus(TransactionStatus.DRAFT);
+        transaction.setCreatedBy(createdBy);
+
+        journalTemplateService.recordUsage(template.getId());
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
     public Transaction createFromDraft(DraftTransaction draft, UUID templateId,
                                         String description, BigDecimal amount, String createdBy) {
         JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
