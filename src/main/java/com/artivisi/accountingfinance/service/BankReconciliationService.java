@@ -12,6 +12,7 @@ import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.MatchType;
 import com.artivisi.accountingfinance.enums.ReconciliationStatus;
 import com.artivisi.accountingfinance.enums.StatementItemMatchStatus;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import com.artivisi.accountingfinance.repository.BankReconciliationRepository;
 import com.artivisi.accountingfinance.repository.BankStatementItemRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
@@ -159,7 +160,8 @@ public class BankReconciliationService {
         updateReconciliationCounts(recon);
         reconciliationRepository.save(recon);
 
-        log.info("Auto-match completed for reconciliation {}: {} matches", reconciliationId, matchCount);
+        log.info("Auto-match completed for reconciliation {}: {} matches",
+                LogSanitizer.sanitize(reconciliationId.toString()), matchCount);
         return matchCount;
     }
 

@@ -106,6 +106,24 @@ Each exclusion must have a justification comment explaining the mitigation.
         <Bug pattern="CRLF_INJECTION_LOGS"/>
     </Match>
 
+    <!-- BankReconciliationService: Log params sanitized via LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.BankReconciliationService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- BankReconciliationController: Taint source for UUID path variable passed to service log -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.BankReconciliationController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- BankReconciliationApiController: Taint source for UUID path variable passed to service log -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.BankReconciliationApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
     <!--
     EI_EXPOSE_REP / EI_EXPOSE_REP2 - Spring Dependency Injection False Positives
 
