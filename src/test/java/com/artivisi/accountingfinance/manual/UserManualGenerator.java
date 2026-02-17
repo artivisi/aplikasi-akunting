@@ -86,7 +86,7 @@ public class UserManualGenerator {
                 new Section("transaksi-harian", "Transaksi Harian", "02-tutorial-akuntansi.md", List.of("service/transaction-list")),
                 new Section("jurnal-buku-besar", "Jurnal & Buku Besar", "02-tutorial-akuntansi.md", List.of("service/journals-list")),
                 new Section("penyesuaian", "Penyesuaian", "02-tutorial-akuntansi.md", List.of("amortization-list", "amortization-form")),
-                new Section("laporan-keuangan", "Laporan Keuangan", "02-tutorial-akuntansi.md", List.of("service/reports-trial-balance", "service/reports-balance-sheet", "service/reports-income-statement")),
+                new Section("laporan-keuangan", "Laporan Keuangan", "02-tutorial-akuntansi.md", List.of("service/report-trial-balance", "service/report-balance-sheet", "service/report-income-statement")),
                 new Section("tutup-buku", "Tutup Buku", "02-tutorial-akuntansi.md", List.of("reports-fiscal-closing"))
             )),
 
@@ -115,7 +115,7 @@ public class UserManualGenerator {
                 new Section("pph21-karyawan", "PPh 21 Karyawan", "05-penggajian.md", List.of("pph21-calculator")),
                 new Section("kapan-menggunakan-payroll", "Kapan Menggunakan Fitur Payroll?", "05-penggajian.md", List.of()),
                 new Section("proses-penggajian", "Proses Penggajian", "05-penggajian.md", List.of("payroll-list", "payroll-form", "payroll-detail")),
-                new Section("pembayaran-kewajiban", "Pembayaran Kewajiban Payroll", "05-penggajian.md", List.of("service/payroll-lifecycle-bayar-gaji-form", "service/payroll-lifecycle-bayar-bpjs-form", "service/payroll-lifecycle-setor-pph21-form")),
+                new Section("pembayaran-kewajiban", "Pembayaran Kewajiban Payroll", "05-penggajian.md", List.of("payroll-lifecycle-bayar-gaji-form", "payroll-lifecycle-bayar-bpjs-form", "payroll-lifecycle-setor-pph21-form")),
                 new Section("layanan-mandiri", "Layanan Mandiri Karyawan", "05-penggajian.md", List.of("self-service-payslips", "self-service-bukti-potong", "self-service-profile")),
                 new Section("bukti-potong-pph21", "Bukti Potong PPh 21", "05-penggajian.md", List.of()),
                 new Section("contoh-payroll-lengkap", "Contoh Lengkap: Proses Payroll Januari 2025", "05-penggajian.md", List.of()),
@@ -198,7 +198,7 @@ public class UserManualGenerator {
             // 14. BANTUAN AI
             new SectionGroup("bantuan-ai", "Bantuan AI", "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z", List.of(
                 new Section("bantuan-ai", "Bantuan AI untuk Pencatatan Transaksi", "13-bantuan-ai.md", List.of("ai-transaction/00-device-authorization", "ai-transaction/04-transactions-list")),
-                new Section("publikasi-analisis", "Publikasi Laporan Analisis", "13-bantuan-ai.md", List.of("analysis-reports/list", "analysis-reports/detail-top", "analysis-reports/detail-bottom"))
+                new Section("publikasi-analisis", "Publikasi Laporan Analisis", "13-bantuan-ai.md", List.of("analysis-reports/list", "analysis-reports/detail-top", "analysis-reports/detail-bottom", "analysis-reports/seller-list", "analysis-reports/seller-detail", "analysis-reports/coffee-list", "analysis-reports/coffee-detail", "analysis-reports/campus-list", "analysis-reports/campus-detail"))
             ))
         );
     }
@@ -693,7 +693,7 @@ public class UserManualGenerator {
     public static void main(String[] args) throws IOException {
         Path markdownDir = Paths.get("docs", "user-manual");
         Path outputDir = Paths.get("target", "user-manual");
-        Path screenshotsDir = Paths.get("target", "screenshots");  // Source directory where tests generate screenshots
+        Path screenshotsDir = Paths.get("target", "user-manual", "screenshots");  // All tests now save directly here
 
         UserManualGenerator generator = new UserManualGenerator(markdownDir, outputDir, screenshotsDir);
         generator.generate();

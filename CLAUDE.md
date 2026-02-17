@@ -26,6 +26,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 6.10: ✅ Complete (Security Documentation)
 - **Phase 7:** ⏳ Not Started (API Foundation)
 - **Phase 9:** ✅ Complete (Bank Reconciliation)
+- **AI Analysis Reports:** ✅ Complete (structured report publishing with per-industry KPIs)
 - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -46,7 +47,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 | Templates | `src/main/resources/templates/` |
 | Migrations (Production) | `src/main/resources/db/migration/` (V001-V007) |
 | Test Migrations (Integration) | `src/test/resources/db/test/integration/` (V900-V912) |
-| Industry Seed Packs | `industry-seed/{it-service,online-seller}/` (loaded via DataImportService) |
+| Industry Seed Packs | `industry-seed/{it-service,online-seller,coffee-shop,campus}/` (loaded via DataImportService) |
 | Functional Tests | `src/test/java/.../functional/` |
 | Infrastructure (Pulumi) | `deploy/pulumi/` |
 | Configuration (Ansible) | `deploy/ansible/` |
@@ -107,7 +108,17 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 9 (Bank Reconciliation) complete. Phase 6 (Security Hardening) partially complete.
+Phase 9 (Bank Reconciliation) complete. AI Analysis Reports complete. Phase 6 (Security Hardening) partially complete.
+
+AI Analysis Reports highlights (complete):
+- AI tools publish structured reports via POST /api/analysis/reports (JSONB: metrics, findings, recommendations, risks)
+- Per-industry KPIs: IT Service (margin, expense ratio), Online Seller (gross margin, COGS, marketplace fees), Coffee Shop (food/labor/prime cost %), Campus (SPP concentration, faculty cost ratio, scholarship ratio)
+- AnalysisReport entity (JSONB columns), AnalysisReportRepository, AnalysisReportController (web), API endpoints on FinancialAnalysisApiController
+- Web UI: list + detail pages with industry badges, structured sections
+- CompanyConfig.industry field for industry-specific analysis
+- ANALYSIS_REPORT_VIEW permission, analysis:write scope
+- 4 industry-specific Playwright functional tests (real financial data from API)
+- User manual: 13-bantuan-ai.md updated with per-industry screenshots (9 screenshots)
 
 Phase 9 highlights (complete):
 - Bank statement import (CSV parsing with configurable parsers for BCA, Mandiri, BNI, BSI, CIMB)
@@ -134,7 +145,7 @@ User Manual (14-section structure):
 - 10-industri-pendidikan.md: Education
 - 11-keamanan-kepatuhan.md: Security & Compliance
 - 12-lampiran-*.md: Appendices (glosarium, template, amortisasi, akun)
-- 13-bantuan-ai.md: AI-Assisted Transactions
+- 13-bantuan-ai.md: AI-Assisted Transactions & Analysis Reports
 - 14-rekonsiliasi-bank.md: Bank Reconciliation
 
 See `docs/06-implementation-plan.md` for full plan

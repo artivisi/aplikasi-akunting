@@ -51,8 +51,8 @@ class AiTransactionFlowTest extends PlaywrightTestBase {
         apiContext = playwright.request().newContext(new APIRequest.NewContextOptions()
                 .setBaseURL(baseUrl()));
 
-        // Create screenshots directory for user manual (matches other functional tests)
-        screenshotDir = Paths.get("target/screenshots/ai-transaction");
+        // Create screenshots directory in user-manual output (matches ScreenshotCaptureTest)
+        screenshotDir = Paths.get("target/user-manual/screenshots/ai-transaction");
         Files.createDirectories(screenshotDir);
 
         // Get access token via device flow
@@ -244,9 +244,17 @@ class AiTransactionFlowTest extends PlaywrightTestBase {
         log.info("\nStep 5: Verifying in web UI...");
 
         loginAsAdmin();
+
+        // Screenshot transactions list page
+        navigateTo("/transactions");
+        waitForPageLoad();
+        page.screenshot(new com.microsoft.playwright.Page.ScreenshotOptions()
+                .setPath(screenshotDir.resolve("04-transactions-list.png"))
+                .setFullPage(true));
+
+        // Screenshot transaction detail page
         navigateTo("/transactions/" + transactionId);
         waitForPageLoad();
-
         page.screenshot(new com.microsoft.playwright.Page.ScreenshotOptions()
                 .setPath(screenshotDir.resolve("04-transaction-detail.png"))
                 .setFullPage(true));
