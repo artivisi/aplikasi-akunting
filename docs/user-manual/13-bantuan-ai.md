@@ -175,7 +175,7 @@ Response (contoh 2 template dari 38 total):
 ]
 ```
 
-> **Catatan**: Data di atas adalah contoh template yang sudah dilengkapi metadata. Template dari seed pack IT Service saat ini belum memiliki metadata lengkap (akan dilengkapi di versi berikutnya).
+> **Catatan**: Semua template dari seed pack (IT Service, Online Seller, Coffee Shop, Campus) sudah dilengkapi metadata semantik untuk AI matching.
 
 ### Cara AI Matching Template
 

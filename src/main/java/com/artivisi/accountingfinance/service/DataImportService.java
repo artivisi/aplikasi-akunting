@@ -609,6 +609,19 @@ public class DataImportService {
         return row[index].trim();
     }
 
+    private String getFieldOrNull(String[] row, int index) {
+        String value = getField(row, index);
+        return value.isEmpty() ? null : value;
+    }
+
+    private String[] parseStringArray(String value) {
+        if (value == null || value.isEmpty()) return null;
+        return java.util.Arrays.stream(value.split("\\|"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
+    }
+
     private BigDecimal parseBigDecimal(String value) {
         if (value == null || value.isEmpty()) return null;
         try {
@@ -844,6 +857,14 @@ public class DataImportService {
         t.setVersion(parseInteger(getField(row, 7)));
         t.setUsageCount(parseInteger(getField(row, 8)));
         t.setLastUsedAt(parseDateTime(getField(row, 9)));
+
+        // AI-Friendly Semantic Metadata (fields 10-15)
+        t.setSemanticDescription(getFieldOrNull(row, 10));
+        t.setKeywords(parseStringArray(getField(row, 11)));
+        t.setExampleMerchants(parseStringArray(getField(row, 12)));
+        t.setTypicalAmountMin(parseBigDecimal(getField(row, 13)));
+        t.setTypicalAmountMax(parseBigDecimal(getField(row, 14)));
+        t.setMerchantPatterns(parseStringArray(getField(row, 15)));
 
         templateRepository.save(t);
         templateMap.put(t.getTemplateName(), t);

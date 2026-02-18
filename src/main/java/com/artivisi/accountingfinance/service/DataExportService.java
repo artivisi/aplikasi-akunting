@@ -313,7 +313,8 @@ public class DataExportService {
     private String exportJournalTemplates() {
         StringBuilder csv = new StringBuilder();
         csv.append("template_name,category,cash_flow_category,template_type,description,");
-        csv.append("is_system,active,version,usage_count,last_used_at\n");
+        csv.append("is_system,active,version,usage_count,last_used_at,");
+        csv.append("semantic_description,keywords,example_merchants,typical_amount_min,typical_amount_max,merchant_patterns\n");
 
         List<JournalTemplate> templates = templateRepository.findAll(Sort.by(SORT_TEMPLATE_NAME));
         for (JournalTemplate t : templates) {
@@ -326,9 +327,20 @@ public class DataExportService {
             csv.append(t.getActive()).append(",");
             csv.append(t.getVersion()).append(",");
             csv.append(t.getUsageCount()).append(",");
-            csv.append(t.getLastUsedAt() != null ? t.getLastUsedAt().format(DATETIME_FORMATTER) : "").append("\n");
+            csv.append(t.getLastUsedAt() != null ? t.getLastUsedAt().format(DATETIME_FORMATTER) : "").append(",");
+            csv.append(escapeCsv(t.getSemanticDescription())).append(",");
+            csv.append(formatStringArray(t.getKeywords())).append(",");
+            csv.append(formatStringArray(t.getExampleMerchants())).append(",");
+            csv.append(t.getTypicalAmountMin() != null ? t.getTypicalAmountMin() : "").append(",");
+            csv.append(t.getTypicalAmountMax() != null ? t.getTypicalAmountMax() : "").append(",");
+            csv.append(formatStringArray(t.getMerchantPatterns())).append("\n");
         }
         return csv.toString();
+    }
+
+    private String formatStringArray(String[] arr) {
+        if (arr == null || arr.length == 0) return "";
+        return String.join("|", arr);
     }
 
     // ============================================
