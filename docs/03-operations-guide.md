@@ -57,7 +57,7 @@ Ansible configures the JVM with G1GC (optimal for heaps <4GB):
 -Xss512k                        # Thread stack
 ```
 
-GC logging is enabled at `/var/log/<app>/gc.log` for diagnostics.
+GC logging is enabled at `/var/log/aplikasi-akunting/gc.log` for diagnostics.
 
 #### PostgreSQL Configuration
 
@@ -131,8 +131,8 @@ ansible-playbook -i inventory.ini deploy.yml
 ### Directory Structure
 
 ```
-/opt/accounting-finance/
-├── app.jar
+/opt/aplikasi-akunting/
+├── aplikasi-akunting.jar
 ├── application.properties
 ├── documents/
 ├── backup/
@@ -145,7 +145,7 @@ ansible-playbook -i inventory.ini deploy.yml
 ├── .backup-key
 └── .pgpass
 
-/var/log/accounting-finance/
+/var/log/aplikasi-akunting/
 ├── app.log
 ├── backup.log
 └── restore.log
@@ -165,6 +165,20 @@ Examples:
 ### Release Steps
 
 Follow these steps in order:
+
+#### 0. Manual Backup on Production
+
+Before any release, create a manual backup on the production server:
+
+```bash
+ssh endymuhardin@103.31.204.12
+sudo -u akunting /opt/aplikasi-akunting/scripts/backup.sh
+```
+
+Verify the backup was created:
+```bash
+ls -lh /opt/aplikasi-akunting/backup/ | tail -1
+```
 
 #### 1. Prepare Release Notes
 
@@ -283,6 +297,7 @@ git push origin main
 
 Use this checklist for each release:
 
+- [ ] Manual backup on production server
 - [ ] All tests passing (`./mvnw test`)
 - [ ] Release notes created in `docs/releases/`
 - [ ] Version updated in `pom.xml`
@@ -291,6 +306,8 @@ Use this checklist for each release:
 - [ ] Git tag created
 - [ ] Changes pushed to GitHub
 - [ ] GitHub Actions workflow completed (auto-creates release)
+- [ ] Deployed to production (`ansible-playbook -i inventory.ini deploy.yml`)
+- [ ] Production health verified (login page returns HTTP 200)
 - [ ] Next SNAPSHOT version prepared
 
 ### GitHub Actions (Optional)
@@ -310,15 +327,15 @@ on:
 
 | Type | Schedule | Retention | Location |
 |------|----------|-----------|----------|
-| Local | Daily 02:00 | 7 days | `/opt/accounting-finance/backup/` |
+| Local | Daily 02:00 | 7 days | `/opt/aplikasi-akunting/backup/` |
 | B2 | Daily 03:00 | 4 weeks | Backblaze B2 |
 | Google Drive | Daily 04:00 | 12 months | Google Drive |
 
 ### Backup Contents
 
 ```
-accounting-finance_20251129_020000.tar.gz
-└── accounting-finance_20251129_020000/
+aplikasi-akunting_20251129_020000.tar.gz
+└── aplikasi-akunting_20251129_020000/
     ├── database.sql
     ├── documents.tar.gz
     └── manifest.json
@@ -327,18 +344,18 @@ accounting-finance_20251129_020000.tar.gz
 ### Manual Backup
 
 ```bash
-sudo -u accounting /opt/accounting-finance/scripts/backup.sh
+sudo -u akunting /opt/aplikasi-akunting/scripts/backup.sh
 ```
 
 ### Restore Procedure
 
 ```bash
 # List available backups
-ls -la /opt/accounting-finance/backup/
+ls -la /opt/aplikasi-akunting/backup/
 
 # Restore
-sudo /opt/accounting-finance/scripts/restore.sh \
-  /opt/accounting-finance/backup/accounting-finance_20251129_020000.tar.gz
+sudo /opt/aplikasi-akunting/scripts/restore.sh \
+  /opt/aplikasi-akunting/backup/aplikasi-akunting_20251129_020000.tar.gz
 ```
 
 Restore process:
@@ -360,7 +377,7 @@ Restore process:
 
 ### Encryption Key Management
 
-Backup encryption key location: `/opt/accounting-finance/.backup-key`
+Backup encryption key location: `/opt/aplikasi-akunting/.backup-key`
 
 **CRITICAL:** Save this key externally. Without it, encrypted backups are unrecoverable.
 
@@ -375,16 +392,16 @@ Store in at least TWO locations:
 
 ```bash
 # Status
-sudo systemctl status accounting-finance
+sudo systemctl status aplikasi-akunting
 
 # Start/Stop/Restart
-sudo systemctl start accounting-finance
-sudo systemctl stop accounting-finance
-sudo systemctl restart accounting-finance
+sudo systemctl start aplikasi-akunting
+sudo systemctl stop aplikasi-akunting
+sudo systemctl restart aplikasi-akunting
 
 # Logs
-sudo journalctl -u accounting-finance -f
-tail -f /var/log/accounting-finance/app.log
+sudo journalctl -u aplikasi-akunting -f
+tail -f /var/log/aplikasi-akunting/app.log
 ```
 
 ### Nginx
@@ -454,18 +471,57 @@ echo | openssl s_client -servername akunting.artivisi.id \
 ### Application Won't Start
 
 ```bash
-sudo systemctl status accounting-finance
+sudo systemctl status aplikasi-akunting
 ps aux | grep java
 sudo netstat -tlnp | grep 10000
-tail -100 /var/log/accounting-finance/app.log
+tail -100 /var/log/aplikasi-akunting/app.log
 ```
+
+### Flyway Migration Checksum Mismatch
+
+This occurs when a migration file (e.g., V003) was modified after it was already applied to production. Flyway records checksums of applied migrations and rejects mismatches.
+
+```
+Migration checksum mismatch for migration version 003
+-> Applied to database : -1535984110
+-> Resolved locally    : -1414456606
+```
+
+**Fix:**
+
+1. Identify what schema changes were added to the modified migration (e.g., new columns)
+2. Apply those changes manually:
+
+```bash
+# Check current table schema
+PGPASSWORD='<db_password>' psql -U akunting -d accountingdb -c "\d <table_name>"
+
+# Add missing columns
+PGPASSWORD='<db_password>' psql -U akunting -d accountingdb \
+  -c "ALTER TABLE <table_name> ADD COLUMN <column_name> <type>;"
+```
+
+3. Update the checksum in Flyway's schema history to match the local file:
+
+```bash
+PGPASSWORD='<db_password>' psql -U akunting -d accountingdb \
+  -c "UPDATE flyway_schema_history SET checksum = <new_checksum> WHERE version = '<version>';"
+```
+
+4. Restart the application:
+
+```bash
+sudo systemctl restart aplikasi-akunting
+```
+
+**Note:** The new checksum value is shown in the error message as "Resolved locally".
 
 ### Database Connection Failed
 
 ```bash
 sudo systemctl status postgresql
 sudo -u postgres psql -d accountingdb -c "SELECT 1;"
-grep -i "datasource" /opt/accounting-finance/application.properties
+grep -i "datasource" /opt/aplikasi-akunting/application.properties
 ```
 
 ### SSL Certificate Expired
@@ -479,10 +535,10 @@ sudo systemctl restart nginx
 ### Backup Failed
 
 ```bash
-cat /var/log/accounting-finance/backup.log
+cat /var/log/aplikasi-akunting/backup.log
 df -h
-cat /opt/accounting-finance/.pgpass
-sudo -u accounting bash -x /opt/accounting-finance/scripts/backup.sh
+cat /opt/aplikasi-akunting/.pgpass
+sudo -u akunting bash -x /opt/aplikasi-akunting/scripts/backup.sh
 ```
 
 ### Database Reset (Clear All Data)
@@ -491,14 +547,14 @@ sudo -u accounting bash -x /opt/accounting-finance/scripts/backup.sh
 
 ```bash
 # Stop application first
-sudo systemctl stop accounting-finance
+sudo systemctl stop aplikasi-akunting
 
 # Drop and recreate database
 sudo -u postgres psql -c "DROP DATABASE IF EXISTS accountingdb;"
-sudo -u postgres psql -c "CREATE DATABASE accountingdb OWNER accounting;"
+sudo -u postgres psql -c "CREATE DATABASE accountingdb OWNER akunting;"
 
 # Restart application (Flyway will recreate schema and seed data)
-sudo systemctl start accounting-finance
+sudo systemctl start aplikasi-akunting
 ```
 
 ## PostgreSQL Major Version Upgrade
@@ -556,7 +612,7 @@ sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/17/main/postgresql.conf
 sudo pg_ctlcluster 17 main start
 
 # Restart application
-sudo systemctl restart accounting-finance
+sudo systemctl restart aplikasi-akunting
 ```
 
 After verification, remove old cluster:
@@ -572,11 +628,11 @@ sudo apt remove postgresql-17
 
 ```bash
 # Check backup exists
-ls -la /opt/accounting-finance/app.jar.backup
+ls -la /opt/aplikasi-akunting/aplikasi-akunting.jar.backup
 
 # Rollback
-mv /opt/accounting-finance/app.jar.backup /opt/accounting-finance/app.jar
-systemctl restart accounting-finance
+mv /opt/aplikasi-akunting/aplikasi-akunting.jar.backup /opt/aplikasi-akunting/aplikasi-akunting.jar
+sudo systemctl restart aplikasi-akunting
 
 # Verify
 curl -I http://localhost:10000/login
@@ -585,8 +641,8 @@ curl -I http://localhost:10000/login
 ### Database Rollback
 
 ```bash
-sudo /opt/accounting-finance/scripts/restore.sh \
-  /opt/accounting-finance/backup/LATEST.tar.gz
+sudo /opt/aplikasi-akunting/scripts/restore.sh \
+  /opt/aplikasi-akunting/backup/LATEST.tar.gz
 ```
 
 ## Configuration Reference
@@ -595,7 +651,7 @@ sudo /opt/accounting-finance/scripts/restore.sh \
 
 ```yaml
 # Application
-app_name: accounting-finance
+app_name: aplikasi-akunting
 app_domain: akunting.artivisi.id
 
 # Database
@@ -631,6 +687,6 @@ backup_gdrive_folder: "accounting-backup"
 ### inventory.ini
 
 ```ini
-[app]
-akunting.artivisi.id ansible_user=root
+[accounting]
+accounting-app ansible_host=103.31.204.12 ansible_user=endymuhardin
 ```
