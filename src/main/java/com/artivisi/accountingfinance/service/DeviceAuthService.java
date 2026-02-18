@@ -141,7 +141,7 @@ public class DeviceAuthService {
         deviceToken.setTokenHash(tokenHash);
         deviceToken.setClientId(clientId);
         deviceToken.setDeviceName(deviceName);
-        deviceToken.setScopes("drafts:create,drafts:approve,drafts:read,analysis:read,analysis:write");
+        deviceToken.setScopes("drafts:create,drafts:approve,drafts:read,analysis:read,analysis:write,transactions:post");
         deviceToken.setExpiresAt(LocalDateTime.now().plusDays(tokenExpiryDays));
         deviceToken.setCreatedBy(user.getUsername());
 

@@ -477,6 +477,7 @@ Token yang diterbitkan melalui Device Flow secara otomatis memiliki scope beriku
 - `drafts:read` — membaca draft
 - `analysis:read` — membaca laporan keuangan
 - `analysis:write` — mempublikasikan laporan analisis
+- `transactions:post` — posting transaksi DRAFT
 
 Tanpa scope yang sesuai, request akan ditolak dengan HTTP 403.
 
@@ -1008,6 +1009,8 @@ User dapat melihat dan mencabut device token di halaman Settings:
 | GET | `/api/analysis/payables` | Hutang usaha |
 | GET | `/api/analysis/accounts` | Daftar akun (COA) |
 | GET | `/api/analysis/drafts` | Draft transaksi pending |
+| GET | `/api/analysis/transactions` | List transaksi dengan filter (status, category, date range, search) |
+| GET | `/api/analysis/transactions/{id}` | Detail transaksi dengan jurnal entries |
 | GET | `/api/analysis/reports` | Daftar laporan analisis |
 
 **Publikasi Laporan Analisis (scope: `analysis:write`):**
@@ -1015,6 +1018,13 @@ User dapat melihat dan mencabut device token di halaman Settings:
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/analysis/reports` | Publikasi laporan analisis terstruktur |
+
+**Posting Transaksi (scope: `transactions:post`):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/transactions/{id}/post` | Post satu transaksi DRAFT |
+| POST | `/api/transactions/bulk-post` | Batch post transaksi DRAFT |
 
 ### Authentication
 
