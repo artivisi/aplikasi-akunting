@@ -373,12 +373,45 @@ Jika template standar tidak mencukupi:
 2. Klik **Template Baru**
 3. Isi:
    - Nama template
-   - Kategori
-   - Variabel input
+   - Kategori (Pendapatan, Pengeluaran, Transfer, dll)
+   - Klasifikasi Arus Kas (Operasional, Investasi, Pendanaan)
+   - Tipe Template (Sederhana / Terperinci)
    - Baris jurnal dengan formula
-4. Klik **Simpan**
+4. (Opsional) Buka bagian **Metadata AI** untuk mengisi metadata yang digunakan AI assistant saat mencocokkan template
+5. Klik **Simpan**
 
 Lihat [Setup Awal](01-setup-awal.md) untuk panduan detail.
+
+---
+
+## Metadata AI pada Template
+
+Setiap template memiliki field metadata opsional yang digunakan oleh AI assistant untuk mencocokkan template secara otomatis saat mencatat transaksi. Metadata ini dapat dikelola melalui bagian **Metadata AI** (collapsible) pada form template.
+
+### Field Metadata
+
+| Field | Deskripsi | Contoh |
+|-------|-----------|--------|
+| **Deskripsi Semantik** | Penjelasan kapan dan bagaimana template digunakan | "Gunakan template ini untuk mencatat pembayaran tagihan listrik bulanan ke PLN" |
+| **Keywords** | Kata kunci untuk matching, dipisah koma | `listrik, pln, token, utility` |
+| **Contoh Merchant** | Nama merchant yang biasa menggunakan template ini | `PLN, PLN Mobile, Tokopedia PLN` |
+| **Rentang Nominal** | Rentang jumlah transaksi tipikal (min-max) | Rp 50.000 - Rp 5.000.000 |
+| **Pola Merchant** | Regex pattern untuk matching merchant name | `.*pln.*, .*listrik.*` |
+
+### Tampilan di Halaman Detail
+
+Pada halaman detail template, metadata ditampilkan sebagai card **Metadata AI** dengan:
+- Deskripsi semantik sebagai paragraf teks
+- Keywords sebagai badge hijau
+- Contoh merchant sebagai badge biru
+- Rentang nominal dalam format `Rp X - Rp Y`
+- Pola merchant sebagai badge monospace
+
+Card ini hanya muncul jika minimal satu field metadata terisi.
+
+### Cara AI Menggunakan Metadata
+
+Lihat [Bantuan AI](13-bantuan-ai.md#template-journal-dengan-metadata) untuk penjelasan cara AI matching template berdasarkan metadata.
 
 ---
 

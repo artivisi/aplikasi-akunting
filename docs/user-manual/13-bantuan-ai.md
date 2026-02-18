@@ -1074,8 +1074,8 @@ Saat ini belum. Fitur batch import via CSV/Excel akan ditambahkan di versi berik
 ### Bagaimana cara menambah metadata ke template?
 
 Administrator dapat menambah metadata via:
-1. **API**: PUT /api/templates/{id}
-2. **Web UI**: (akan ditambahkan di versi berikutnya)
+1. **Web UI**: Buka template > Edit > buka bagian **Metadata AI** > isi field yang diperlukan > Simpan. Lihat [Referensi Template](12-lampiran-template.md#metadata-ai-pada-template) untuk detail field.
+2. **API**: PUT /api/templates/{id}
 
 ---
 
@@ -1104,7 +1104,7 @@ Administrator dapat menambah metadata via:
 **Penyebab**: Metadata template belum lengkap atau keyword tidak match
 
 **Solusi**:
-1. Lengkapi metadata template via API atau admin UI
+1. Lengkapi metadata template: buka template > Edit > bagian **Metadata AI**
 2. Tambahkan keyword yang lebih spesifik
 3. Tambahkan merchant patterns (regex)
 4. User bisa override template saat approve
@@ -1137,7 +1137,7 @@ Administrator dapat menambah metadata via:
 Fitur yang akan ditambahkan:
 
 - [ ] Batch transaction import (CSV/Excel)
-- [ ] Template metadata management UI
+- [x] Template metadata management UI
 - [ ] Webhook notifications (transaksi berhasil/gagal)
 - [ ] AI confidence feedback loop
 - [ ] Multi-currency support dengan auto-conversion
