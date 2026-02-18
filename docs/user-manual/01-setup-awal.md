@@ -148,6 +148,24 @@ Buka menu **Pengguna** di sidebar.
 
 3. Klik **Simpan**
 
+### Sesi Perangkat (Device Sessions)
+
+Di halaman detail pengguna, terdapat bagian **Sesi Perangkat Aktif** yang menampilkan daftar perangkat yang terhubung melalui OAuth Device Flow (misalnya Claude Code, Docker Desktop).
+
+![Sesi Perangkat](screenshots/users/device-sessions.png)
+
+Informasi yang ditampilkan:
+- **Perangkat** — nama perangkat yang didaftarkan
+- **Client ID** — identifier aplikasi
+- **Status** — Aktif atau Kedaluwarsa
+- **Dibuat** — tanggal token dibuat
+- **Terakhir Digunakan** — waktu terakhir token digunakan
+- **IP Terakhir** — alamat IP terakhir
+
+Untuk mencabut akses:
+- Klik **Cabut** pada sesi individual
+- Klik **Cabut Semua** untuk mencabut semua sesi sekaligus
+
 ### Role dan Permission
 
 | Role | Deskripsi | Permission |

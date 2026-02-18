@@ -1,7 +1,9 @@
 package com.artivisi.accountingfinance.functional;
 
+import com.artivisi.accountingfinance.entity.User;
 import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
 import com.artivisi.accountingfinance.repository.UserRepository;
+import com.artivisi.accountingfinance.service.DeviceAuthService;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,9 @@ class UserControllerFunctionalTest extends PlaywrightTestBase {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DeviceAuthService deviceAuthService;
 
     @BeforeEach
     void setupAndLogin() {
@@ -358,5 +363,83 @@ class UserControllerFunctionalTest extends PlaywrightTestBase {
         waitForPageLoad();
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/change-password.*"));
+    }
+
+    // ==================== DEVICE SESSIONS ====================
+
+    @Test
+    @DisplayName("Should display device sessions section with active token")
+    void shouldDisplayDeviceSessionsSection() {
+        User adminUser = userRepository.findByUsername("admin").orElseThrow();
+
+        // Create a device token
+        deviceAuthService.createAccessToken(adminUser, "test-client", "Test Device");
+
+        navigateTo("/users/" + adminUser.getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#device-sessions")).isVisible();
+        assertThat(page.locator("#device-sessions table")).isVisible();
+        assertThat(page.locator("#device-sessions td:has-text('Test Device')")).isVisible();
+        assertThat(page.locator("#device-sessions td:has-text('test-client')")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should display empty state when no device sessions")
+    void shouldDisplayEmptyStateWhenNoSessions() {
+        User adminUser = userRepository.findByUsername("admin").orElseThrow();
+
+        // Revoke all tokens to ensure clean state
+        deviceAuthService.revokeAllTokens(adminUser, "test-cleanup");
+
+        navigateTo("/users/" + adminUser.getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#device-sessions")).isVisible();
+        assertThat(page.locator("#device-sessions:has-text('Tidak ada sesi perangkat aktif')")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should revoke individual device session")
+    void shouldRevokeDeviceSession() {
+        User adminUser = userRepository.findByUsername("admin").orElseThrow();
+
+        // Clean state and create a token
+        deviceAuthService.revokeAllTokens(adminUser, "test-cleanup");
+        deviceAuthService.createAccessToken(adminUser, "revoke-test-client", "Revoke Test Device");
+
+        navigateTo("/users/" + adminUser.getId());
+        waitForPageLoad();
+
+        // Take screenshot before revoking (for user manual)
+        takeManualScreenshot("users/device-sessions");
+
+        // Accept confirm dialog and click Cabut
+        page.onDialog(dialog -> dialog.accept());
+        page.locator(".form-revoke-session button").first().click();
+        waitForPageLoad();
+
+        assertThat(page.locator(":has-text('Sesi perangkat berhasil dicabut')").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should revoke all device sessions")
+    void shouldRevokeAllDeviceSessions() {
+        User adminUser = userRepository.findByUsername("admin").orElseThrow();
+
+        // Clean state and create two tokens
+        deviceAuthService.revokeAllTokens(adminUser, "test-cleanup");
+        deviceAuthService.createAccessToken(adminUser, "client-a", "Device A");
+        deviceAuthService.createAccessToken(adminUser, "client-b", "Device B");
+
+        navigateTo("/users/" + adminUser.getId());
+        waitForPageLoad();
+
+        // Accept confirm dialog and click Cabut Semua
+        page.onDialog(dialog -> dialog.accept());
+        page.locator("#form-revoke-all button").click();
+        waitForPageLoad();
+
+        assertThat(page.locator(":has-text('sesi perangkat berhasil dicabut')").first()).isVisible();
     }
 }

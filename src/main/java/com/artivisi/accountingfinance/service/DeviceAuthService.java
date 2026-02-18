@@ -205,6 +205,19 @@ public class DeviceAuthService {
     }
 
     /**
+     * Revoke all active tokens for user.
+     */
+    public int revokeAllTokens(User user, String revokedBy) {
+        List<DeviceToken> tokens = deviceTokenRepository.findActiveByUser(user);
+        for (DeviceToken token : tokens) {
+            token.revoke(revokedBy);
+            deviceTokenRepository.save(token);
+        }
+        log.info("Revoked {} device tokens for user {} by {}", tokens.size(), user.getUsername(), revokedBy);
+        return tokens.size();
+    }
+
+    /**
      * Generate secure random token.
      */
     private String generateSecureToken(int length) {

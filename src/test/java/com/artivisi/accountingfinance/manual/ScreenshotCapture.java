@@ -57,6 +57,10 @@ public class ScreenshotCapture {
             new PageDefinition("ai-transaction/04-transactions-list", "Daftar Transaksi", "/transactions", true,
                     "Daftar transaksi yang dibuat via AI assistant", "bantuan-ai"),
 
+            // User Device Sessions (screenshot taken by UserControllerFunctionalTest)
+            new PageDefinition("users/device-sessions", "Sesi Perangkat Pengguna", "/users", true,
+                    "Halaman detail pengguna dengan sesi perangkat aktif", "pengguna"),
+
             // Analysis Reports (screenshots taken by AnalysisReportTest)
             new PageDefinition("analysis-reports/list", "Daftar Laporan Analisis AI", "/analysis-reports", true,
                     "Daftar laporan analisis yang dipublikasikan oleh AI tools", "analisis-ai"),

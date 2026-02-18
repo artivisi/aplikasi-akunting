@@ -5,6 +5,7 @@ import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.enums.Role;
 import com.artivisi.accountingfinance.security.PasswordValidator;
 import com.artivisi.accountingfinance.security.Permission;
+import com.artivisi.accountingfinance.service.DeviceAuthService;
 import com.artivisi.accountingfinance.service.SecurityAuditService;
 import com.artivisi.accountingfinance.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,6 +49,7 @@ public class UserController {
     private final UserService userService;
     private final PasswordValidator passwordValidator;
     private final SecurityAuditService securityAuditService;
+    private final DeviceAuthService deviceAuthService;
 
     @GetMapping
     public String list(
@@ -134,6 +137,7 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
 
         model.addAttribute("user", user);
+        model.addAttribute("deviceTokens", deviceAuthService.getActiveTokens(user));
         return "users/detail";
     }
 
@@ -247,6 +251,36 @@ public class UserController {
                 "User " + user.getUsername() + AUDIT_ID_SUFFIX + id + ") status changed from " +
                         (Boolean.TRUE.equals(wasActive) ? "active" : "inactive") + " to " + (Boolean.TRUE.equals(wasActive) ? "inactive" : "active"));
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Status pengguna berhasil diubah");
+        return REDIRECT_USERS_PREFIX + id;
+    }
+
+    @PostMapping("/{id}/revoke-session/{tokenId}")
+    @PreAuthorize("hasAuthority('" + Permission.USER_EDIT + "')")
+    public String revokeSession(@PathVariable UUID id, @PathVariable UUID tokenId,
+                                Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = userService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+
+        String revokedBy = authentication.getName();
+        deviceAuthService.revokeToken(tokenId, revokedBy);
+        securityAuditService.log(AuditEventType.USER_STATUS_CHANGED,
+                "Revoked device session " + tokenId + " for user: " + user.getUsername() + " by " + revokedBy);
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Sesi perangkat berhasil dicabut");
+        return REDIRECT_USERS_PREFIX + id;
+    }
+
+    @PostMapping("/{id}/revoke-all-sessions")
+    @PreAuthorize("hasAuthority('" + Permission.USER_EDIT + "')")
+    public String revokeAllSessions(@PathVariable UUID id,
+                                    Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = userService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+
+        String revokedBy = authentication.getName();
+        int count = deviceAuthService.revokeAllTokens(user, revokedBy);
+        securityAuditService.log(AuditEventType.USER_STATUS_CHANGED,
+                "Revoked all device sessions (" + count + ") for user: " + user.getUsername() + " by " + revokedBy);
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, count + " sesi perangkat berhasil dicabut");
         return REDIRECT_USERS_PREFIX + id;
     }
 
