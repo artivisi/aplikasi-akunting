@@ -21,9 +21,9 @@ viewBox="2700 3800 2900 4100">
   <style type="text/css">
    <![CDATA[
     @font-face { font-family:"Arial Black";font-variant:normal;font-weight:900;src:url("#FontID0") format(svg)}
-    .fil2 {fill:#194189}
+    .fil2 {fill:#ffffff}
     .fil0 {fill:#EE7B1D;fill-rule:nonzero}
-    .fil1 {fill:#194189;fill-rule:nonzero}
+    .fil1 {fill:#ffffff;fill-rule:nonzero}
     .fnt1 {font-weight:900;font-size:639.85px;font-family:'Arial Black'}
     .fnt0 {font-weight:900;font-size:710.94px;font-family:'Arial Black'}
    ]]>
