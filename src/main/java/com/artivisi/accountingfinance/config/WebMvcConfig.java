@@ -18,15 +18,19 @@ import java.util.EnumSet;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final CspNonceInterceptor cspNonceInterceptor;
+    private final ThemeInterceptor themeInterceptor;
 
-    public WebMvcConfig(CspNonceInterceptor cspNonceInterceptor) {
+    public WebMvcConfig(CspNonceInterceptor cspNonceInterceptor, ThemeInterceptor themeInterceptor) {
         this.cspNonceInterceptor = cspNonceInterceptor;
+        this.themeInterceptor = themeInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // Add CSP nonce to all Thymeleaf templates
         registry.addInterceptor(cspNonceInterceptor);
+        // Add theme config to all Thymeleaf templates
+        registry.addInterceptor(themeInterceptor);
     }
 
     /**
