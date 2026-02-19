@@ -36,7 +36,7 @@ public class SecurityConfig {
             // Add Bearer token authentication filter before username/password filter
             .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                auth.requestMatchers("/css/**", "/js/**", "/img/**", "/themes/**", "/webjars/**").permitAll()
                     .requestMatchers("/login", "/error").permitAll()
                     .requestMatchers("/api/telegram/webhook").permitAll()
                     // Device flow endpoints (unauthenticated)
