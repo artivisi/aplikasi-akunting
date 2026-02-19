@@ -80,6 +80,10 @@ google.cloud.vision.credentials-path=/opt/{{ app_name }}/gcp-credentials.json
 app.encryption.key={{ document_encryption_key }}
 {% endif %}
 
+# Theme configuration
+app.theme.name={{ app_theme_name | default('artivisi') }}
+app.theme.footer-text={{ app_theme_footer_text | default('ArtiVisi Intermedia') }}
+
 # Actuator endpoints for monitoring
 management.endpoints.web.exposure.include=health,info,metrics,prometheus
 management.endpoint.health.show-details=when-authorized

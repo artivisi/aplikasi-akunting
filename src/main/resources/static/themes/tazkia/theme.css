@@ -1,0 +1,24 @@
+/* Tazkia STMIK theme
+   Primary: navy blue derived from logo #194189
+   Accent: orange derived from logo #EE7B1D */
+:root {
+    --color-primary-50: #eff3f9;
+    --color-primary-100: #d4dfef;
+    --color-primary-200: #a9bfe0;
+    --color-primary-300: #7e9fd0;
+    --color-primary-400: #537fc1;
+    --color-primary-500: #2d5faf;
+    --color-primary-600: #21509a;
+    --color-primary-700: #194189;
+    --color-primary-800: #133370;
+    --color-primary-900: #0d2557;
+
+    --color-accent-50: #fef5ec;
+    --color-accent-100: #fce6ce;
+    --color-accent-200: #f9cc9c;
+    --color-accent-300: #f6b36b;
+    --color-accent-600: #d16a17;
+    --color-accent-700: #b45b13;
+    --color-accent-800: #874410;
+    --color-accent-900: #5b2e0b;
+}

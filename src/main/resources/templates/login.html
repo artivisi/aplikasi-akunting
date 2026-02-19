@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Akunting</title>
+    <title th:text="|Login - ${theme.footerText}|">Login - Akunting</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{${theme.themeCssPath}}">
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <!-- Logo and Title -->
         <div class="text-center mb-8">
-            <img th:src="@{/img/logo-artivisi.svg}" alt="ArtiVisi" class="h-12 mx-auto mb-4">
+            <img th:src="@{${theme.logoPath}}" th:alt="${theme.footerText}" class="h-12 mx-auto mb-4">
             <h1 class="text-2xl font-bold text-gray-900">Aplikasi Akunting</h1>
             <p class="text-gray-600 mt-1">Masuk ke akun Anda</p>
         </div>
@@ -78,7 +79,7 @@
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-sm text-gray-500">
-                &copy; 2025 ArtiVisi Intermedia. Trusted Since 2008.
+                <span th:text="|&copy; 2025 ${theme.footerText}|">&copy; 2025 ArtiVisi Intermedia</span>
             </p>
         </div>
     </div>

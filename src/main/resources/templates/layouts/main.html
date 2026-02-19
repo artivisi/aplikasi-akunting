@@ -11,6 +11,7 @@
     <title layout:title-pattern="$CONTENT_TITLE - Akunting">Akunting</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{${theme.themeCssPath}}">
     <script th:src="@{/js/htmx-2.0.7.min.js}"></script>
     <script th:attr="nonce=${cspNonce}">
         // Configure HTMX to include CSRF token in requests
@@ -57,7 +58,7 @@
             <div class="flex flex-col w-64 bg-primary-700 text-white">
                 <!-- Logo -->
                 <div class="flex items-center justify-center h-16 px-4 bg-primary-800">
-                    <img th:src="@{/img/logo-artivisi-dark.svg}" alt="ArtiVisi" class="h-8">
+                    <img th:src="@{${theme.logoDarkPath}}" th:alt="${theme.footerText}" class="h-8">
                 </div>
 
                 <!-- Navigation -->
@@ -293,7 +294,7 @@
             <div class="flex flex-col h-full">
                 <!-- Logo & Close -->
                 <div class="flex items-center justify-between h-16 px-4 bg-primary-800">
-                    <img th:src="@{/img/logo-artivisi-dark.svg}" alt="ArtiVisi" class="h-8">
+                    <img th:src="@{${theme.logoDarkPath}}" th:alt="${theme.footerText}" class="h-8">
                     <label for="mobile-sidebar-toggle" aria-label="Tutup menu" class="p-2 rounded-lg hover:bg-primary-600 cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
