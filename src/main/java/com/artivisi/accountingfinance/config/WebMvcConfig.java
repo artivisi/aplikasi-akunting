@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.EnumSet;
@@ -19,10 +20,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final CspNonceInterceptor cspNonceInterceptor;
     private final ThemeInterceptor themeInterceptor;
+    private final ThemeConfig themeConfig;
 
-    public WebMvcConfig(CspNonceInterceptor cspNonceInterceptor, ThemeInterceptor themeInterceptor) {
+    public WebMvcConfig(CspNonceInterceptor cspNonceInterceptor, ThemeInterceptor themeInterceptor,
+                        ThemeConfig themeConfig) {
         this.cspNonceInterceptor = cspNonceInterceptor;
         this.themeInterceptor = themeInterceptor;
+        this.themeConfig = themeConfig;
     }
 
     @Override
@@ -31,6 +35,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(cspNonceInterceptor);
         // Add theme config to all Thymeleaf templates
         registry.addInterceptor(themeInterceptor);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Serve /themes/** from external filesystem directory (priority),
+        // falling back to classpath for development defaults
+        String dir = themeConfig.getDir();
+        if (dir != null && !dir.isBlank()) {
+            String filePath = dir.endsWith("/") ? dir : dir + "/";
+            registry.addResourceHandler("/themes/**")
+                    .addResourceLocations("file:" + filePath)
+                    .addResourceLocations("classpath:/static/themes/");
+        }
     }
 
     /**

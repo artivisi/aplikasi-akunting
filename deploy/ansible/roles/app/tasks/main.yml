@@ -35,6 +35,26 @@
     - google_cloud_credentials_file | length > 0
   notify: restart app
 
+- name: Create themes directory
+  ansible.builtin.file:
+    path: "/opt/{{ app_name }}/themes"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Upload theme files
+  ansible.builtin.copy:
+    src: "{{ app_theme_dir }}/"
+    dest: "/opt/{{ app_name }}/themes/"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+    directory_mode: "0755"
+  when:
+    - app_theme_dir is defined
+    - app_theme_dir | length > 0
+
 - name: Create application configuration
   ansible.builtin.template:
     src: application.properties.j2

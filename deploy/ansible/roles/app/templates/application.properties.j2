@@ -83,6 +83,7 @@ app.encryption.key={{ document_encryption_key }}
 # Theme configuration
 app.theme.name={{ app_theme_name | default('artivisi') }}
 app.theme.footer-text={{ app_theme_footer_text | default('ArtiVisi Intermedia') }}
+app.theme.dir=/opt/{{ app_name }}/themes
 
 # Actuator endpoints for monitoring
 management.endpoints.web.exposure.include=health,info,metrics,prometheus

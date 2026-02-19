@@ -9,6 +9,7 @@ public class ThemeConfig {
 
     private String name;
     private String footerText;
+    private String dir;
 
     public String getName() {
         return name;
@@ -24,6 +25,14 @@ public class ThemeConfig {
 
     public void setFooterText(String footerText) {
         this.footerText = footerText;
+    }
+
+    public String getDir() {
+        return dir;
+    }
+
+    public void setDir(String dir) {
+        this.dir = dir;
     }
 
     public String getLogoPath() {
