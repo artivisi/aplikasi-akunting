@@ -75,7 +75,7 @@
         <div th:if="${report.metrics != null && !report.metrics.isEmpty()}" data-testid="metrics-section">
             <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Indikator Utama</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div th:each="metric : ${report.metrics}"
+                <dl th:each="metric : ${report.metrics}"
                      class="bg-white rounded-lg shadow p-4"
                      th:attr="data-testid='metric-' + ${metric['name']}">
                     <dt class="text-xs font-medium text-gray-500 truncate" th:text="${metric['name']}">Metric Name</dt>
@@ -99,9 +99,9 @@
                             <span th:text="${metric['change']}">+12.5%</span>
                         </span>
                     </dd>
-                    <div th:if="${metric['previousValue'] != null}" class="mt-1 text-xs text-gray-400"
-                         th:text="|Sebelumnya: ${metric['previousValue']}|">Sebelumnya: Rp 130.000.000</div>
-                </div>
+                    <dd th:if="${metric['previousValue'] != null}" class="mt-1 text-xs text-gray-400"
+                         th:text="|Sebelumnya: ${metric['previousValue']}|">Sebelumnya: Rp 130.000.000</dd>
+                </dl>
             </div>
         </div>
 

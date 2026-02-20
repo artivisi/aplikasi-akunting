@@ -34,14 +34,23 @@
 
     <h2>Ringkasan</h2>
     <table>
-        <tr><td>Total Item Mutasi</td><td class="text-right" th:text="${summary['totalItems']}">0</td></tr>
-        <tr><td>Item Cocok</td><td class="text-right" th:text="${summary['matchedCount']}">0</td></tr>
-        <tr><td>Hanya di Bank</td><td class="text-right" th:text="${summary['bankOnlyCount']}">0</td></tr>
-        <tr><td>Hanya di Buku</td><td class="text-right" th:text="${summary['bookOnlyCount']}">0</td></tr>
+        <thead>
+            <tr><th>Keterangan</th><th class="text-right">Jumlah</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Total Item Mutasi</td><td class="text-right" th:text="${summary['totalItems']}">0</td></tr>
+            <tr><td>Item Cocok</td><td class="text-right" th:text="${summary['matchedCount']}">0</td></tr>
+            <tr><td>Hanya di Bank</td><td class="text-right" th:text="${summary['bankOnlyCount']}">0</td></tr>
+            <tr><td>Hanya di Buku</td><td class="text-right" th:text="${summary['bookOnlyCount']}">0</td></tr>
+        </tbody>
     </table>
 
     <h2>Laporan Rekonsiliasi</h2>
     <table>
+        <thead>
+            <tr><th>Keterangan</th><th class="text-right">Jumlah</th></tr>
+        </thead>
+        <tbody>
         <tr>
             <td>Saldo per Buku Besar</td>
             <td class="text-right font-mono" th:text="${#numbers.formatDecimal(statement['bookBalance'], 0, 'COMMA', 2, 'POINT')}">0</td>
@@ -76,6 +85,7 @@
                 th:text="${#numbers.formatDecimal(statement['difference'], 0, 'COMMA', 2, 'POINT')}"
                 th:classappend="${statement['difference'].compareTo(T(java.math.BigDecimal).ZERO) != 0} ? 'text-red' : 'text-green'">0</td>
         </tr>
+        </tbody>
     </table>
 
     <div th:if="${outstanding != null && !outstanding.isEmpty()}">
