@@ -88,6 +88,9 @@ class DeviceTokenManagementTest extends PlaywrightTestBase {
         assertThat(table).isVisible();
         assertThat(table.locator("tbody tr")).hasCount(1);
 
+        // Capture screenshot for user manual
+        takeManualScreenshot("settings/devices");
+
         // Verify clientId column
         Locator row = table.locator("tbody tr").first();
         assertThat(row.locator("td").nth(1)).hasText("test-client-1");
