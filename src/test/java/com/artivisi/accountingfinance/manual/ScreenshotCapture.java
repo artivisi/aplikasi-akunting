@@ -57,6 +57,10 @@ public class ScreenshotCapture {
             new PageDefinition("ai-transaction/04-transactions-list", "Daftar Transaksi", "/transactions", true,
                     "Daftar transaksi yang dibuat via AI assistant", "bantuan-ai"),
 
+            // Device Token Management - Self-Service (screenshot taken by DeviceTokenManagementTest)
+            new PageDefinition("settings/devices", "Perangkat API", "/settings/devices", true,
+                    "Halaman self-service untuk melihat dan mencabut sesi perangkat aktif", "bantuan-ai"),
+
             // User Device Sessions (screenshot taken by UserControllerFunctionalTest)
             new PageDefinition("users/device-sessions", "Sesi Perangkat Pengguna", "/users", true,
                     "Halaman detail pengguna dengan sesi perangkat aktif", "pengguna"),

@@ -1041,22 +1041,33 @@ Semua API call tercatat di audit log dengan detail:
 - **IP Address**: IP address request
 - **Details**: Source (claude-code), merchant, amount, confidence
 
-### Token Management
+### Token Management (Self-Service)
 
-User dapat melihat dan mencabut device token di halaman Settings:
+Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman **Perangkat API**.
 
-**Lokasi:** Dashboard → Settings → Device Tokens
+**Lokasi:** Sidebar → Master Data → **Perangkat API**, atau langsung buka `/settings/devices`
 
-**Informasi yang ditampilkan:**
-- Device Name: "Claude Code di MacBook"
-- Client ID: claude-code
-- Created: 12 Feb 2026 14:56
-- Last Used: 12 Feb 2026 15:01
-- Expires: 13 Mar 2026
-- Status: Active
+![Halaman Perangkat API](screenshots/settings/devices.png)
 
-**Aksi:**
-- **Revoke**: Mencabut token (AI tidak bisa akses lagi)
+**Informasi yang ditampilkan per token:**
+
+| Kolom | Deskripsi |
+|-------|-----------|
+| Perangkat | Nama device (jika diisi saat otorisasi) |
+| Client ID | Identifier aplikasi (contoh: `claude-code`) |
+| Scope | Hak akses token (contoh: `drafts:create,analysis:read`) |
+| Status | Aktif (hijau) atau Kedaluwarsa (abu-abu) |
+| Dibuat | Waktu token diterbitkan |
+| Terakhir Digunakan | Waktu terakhir token digunakan untuk API call |
+| IP Terakhir | IP address terakhir yang menggunakan token |
+
+**Aksi yang tersedia:**
+- **Cabut** (per token): Mencabut satu token tertentu
+- **Cabut Semua**: Mencabut semua token aktif sekaligus
+
+> **Catatan**: Setelah token dicabut, AI assistant yang menggunakan token tersebut tidak dapat mengakses API lagi. User perlu melakukan device flow ulang untuk mendapatkan token baru.
+
+**Admin view**: Administrator juga dapat melihat dan mencabut token dari halaman detail pengguna di menu **Pengguna** > klik user > bagian **Sesi Perangkat Aktif**.
 
 ---
 
