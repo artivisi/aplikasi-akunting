@@ -17,14 +17,8 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
   - 5.3 Inventory Reports: ✅ Complete
   - 5.4 Simple Production (BOM): ✅ Complete
   - 5.5 Integration with Sales: ✅ Complete
-- **Phase 6:** 🔄 In Progress (Security Hardening)
-  - 6.1-6.5: ✅ Complete (Critical fixes, Encryption, Auth hardening, Input validation, Audit logging)
-  - 6.6: ✅ Complete (Data Protection)
-  - 6.7: ✅ Complete (API Security)
-  - 6.8: 🔄 Partial (GDPR/UU PDP - consent management, breach response pending)
-  - 6.9: 🔄 Partial (DevSecOps - container security, API fuzzing pending)
-  - 6.10: ✅ Complete (Security Documentation)
-- **Phase 7:** ⏳ Not Started (API Foundation)
+- **Phase 6:** ✅ Complete (Security Hardening)
+- **Phase 7:** 🔄 In Progress (API Foundation — core + pagination done, remaining: device token management UI)
 - **Phase 9:** ✅ Complete (Bank Reconciliation)
 - **AI Analysis Reports:** ✅ Complete (structured report publishing with per-industry KPIs)
 - See `docs/06-implementation-plan.md` for full plan
@@ -114,7 +108,7 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 6 (Security Hardening) partially complete. Next: Phase 7 (API Foundation).
+Phase 7 (API Foundation) in progress. Core API + pagination done; remaining: device token management UI.
 
 User Manual (14-section structure, published at artivisi.com/aplikasi-akunting/):
 - 01-setup-awal.md through 14-rekonsiliasi-bank.md
