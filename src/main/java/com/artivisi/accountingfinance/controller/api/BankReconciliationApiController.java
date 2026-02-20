@@ -153,8 +153,7 @@ public class BankReconciliationApiController {
 
     @PostMapping("/reconciliations/{id}/mark-book-only")
     public ResponseEntity<Void> markBookOnly(@PathVariable UUID id, @Valid @RequestBody MarkBookOnlyRequest request) {
-        String username = getCurrentUsername();
-        reconciliationService.markBookOnly(id, request.transactionId(), request.notes(), username);
+        reconciliationService.markBookOnly(id, request.transactionId(), request.notes());
         return ResponseEntity.ok().build();
     }
 

@@ -7,6 +7,7 @@ import com.artivisi.accountingfinance.entity.CompanyBankAccount;
 import com.artivisi.accountingfinance.enums.StatementItemMatchStatus;
 import com.artivisi.accountingfinance.repository.BankStatementItemRepository;
 import com.artivisi.accountingfinance.repository.BankStatementRepository;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +102,8 @@ public class BankStatementImportService {
             itemRepository.save(item);
         }
 
-        log.info("Imported bank statement: {} items from {}", items.size(), file.getOriginalFilename());
+        log.info("Imported bank statement: {} items from {}", items.size(),
+                LogSanitizer.sanitize(file.getOriginalFilename()));
         return statement;
     }
 
