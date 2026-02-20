@@ -339,7 +339,7 @@ public class BankReconciliationService {
     }
 
     @Transactional
-    public void markBookOnly(UUID reconciliationId, UUID transactionId, String notes, String username) {
+    public void markBookOnly(UUID reconciliationId, UUID transactionId, String notes) {
         BankReconciliation recon = findById(reconciliationId);
         if (recon.isCompleted()) {
             throw new IllegalStateException("Rekonsiliasi sudah selesai");

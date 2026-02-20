@@ -393,8 +393,7 @@ public class BankReconciliationController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            reconciliationService.markBookOnly(id, transactionId, notes, username);
+            reconciliationService.markBookOnly(id, transactionId, notes);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Transaksi ditandai sebagai hanya di buku");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());

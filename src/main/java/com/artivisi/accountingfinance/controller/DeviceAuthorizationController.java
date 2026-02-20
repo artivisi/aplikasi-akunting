@@ -107,8 +107,9 @@ public class DeviceAuthorizationController {
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS,
                     "Perangkat berhasil diotorisasi! Anda dapat kembali ke aplikasi.");
 
-            log.info("User {} authorized device with code {}",
+            log.info("User {} authorized device '{}' with code {}",
                     LogSanitizer.username(user.getUsername()),
+                    LogSanitizer.sanitize(deviceName),
                     LogSanitizer.sanitize(userCode));
 
             return "redirect:/device/success";
