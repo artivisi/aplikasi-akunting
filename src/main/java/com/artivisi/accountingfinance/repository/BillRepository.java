@@ -36,6 +36,19 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
             Pageable pageable);
 
     @Query("SELECT b FROM Bill b WHERE " +
+            "(:status IS NULL OR b.status = :status) AND " +
+            "(:vendorId IS NULL OR b.vendor.id = :vendorId) AND " +
+            "(:dateFrom IS NULL OR b.billDate >= :dateFrom) AND " +
+            "(:dateTo IS NULL OR b.billDate <= :dateTo) " +
+            "ORDER BY b.billDate DESC")
+    Page<Bill> findByFiltersWithDates(
+            @Param("status") BillStatus status,
+            @Param("vendorId") UUID vendorId,
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo,
+            Pageable pageable);
+
+    @Query("SELECT b FROM Bill b WHERE " +
             "b.status = 'APPROVED' AND b.dueDate < :today")
     List<Bill> findOverdueBills(@Param("today") LocalDate today);
 

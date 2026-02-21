@@ -48,6 +48,28 @@ public class VendorService {
     }
 
     @Transactional
+    public Vendor findOrCreateByName(String vendorName) {
+        return vendorRepository.findByNameIgnoreCase(vendorName)
+                .orElseGet(() -> {
+                    Vendor vendor = new Vendor();
+                    vendor.setName(vendorName);
+                    vendor.setCode(generateVendorCode());
+                    vendor.setActive(true);
+                    return vendorRepository.save(vendor);
+                });
+    }
+
+    private String generateVendorCode() {
+        long count = vendorRepository.count();
+        String code;
+        do {
+            count++;
+            code = "VND-" + String.format("%04d", count);
+        } while (vendorRepository.existsByCode(code));
+        return code;
+    }
+
+    @Transactional
     public Vendor create(Vendor vendor) {
         if (vendorRepository.existsByCode(vendor.getCode())) {
             throw new IllegalArgumentException("Kode vendor sudah digunakan: " + vendor.getCode());

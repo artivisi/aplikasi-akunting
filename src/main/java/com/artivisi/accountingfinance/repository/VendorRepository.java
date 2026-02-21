@@ -40,4 +40,6 @@ public interface VendorRepository extends JpaRepository<Vendor, UUID> {
             Pageable pageable);
 
     long countByActiveTrue();
+
+    Optional<Vendor> findByNameIgnoreCase(String name);
 }

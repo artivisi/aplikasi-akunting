@@ -52,6 +52,11 @@ public class BillService {
         return billRepository.findByFilters(status, vendorId, pageable);
     }
 
+    public Page<Bill> findByFiltersWithDates(BillStatus status, UUID vendorId,
+                                              LocalDate dateFrom, LocalDate dateTo, Pageable pageable) {
+        return billRepository.findByFiltersWithDates(status, vendorId, dateFrom, dateTo, pageable);
+    }
+
     public List<Bill> findByVendorId(UUID vendorId) {
         return billRepository.findByVendorId(vendorId);
     }
