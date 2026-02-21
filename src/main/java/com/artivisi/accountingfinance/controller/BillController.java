@@ -2,8 +2,10 @@ package com.artivisi.accountingfinance.controller;
 
 import com.artivisi.accountingfinance.entity.Bill;
 import com.artivisi.accountingfinance.entity.BillLine;
+import com.artivisi.accountingfinance.entity.BillPayment;
 import com.artivisi.accountingfinance.enums.AccountType;
 import com.artivisi.accountingfinance.enums.BillStatus;
+import com.artivisi.accountingfinance.enums.PaymentMethod;
 import com.artivisi.accountingfinance.service.BillService;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import com.artivisi.accountingfinance.service.ProductService;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -124,6 +127,8 @@ public class BillController {
         Bill bill = billService.findByBillNumber(billNumber);
 
         model.addAttribute(ATTR_BILL, bill);
+        model.addAttribute("payments", billService.findPaymentsByBillId(bill.getId()));
+        model.addAttribute("paymentMethods", PaymentMethod.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_BILLS);
         return VIEW_BILLS_DETAIL;
     }
@@ -199,6 +204,32 @@ public class BillController {
             billService.markAsPaid(bill.getId());
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Tagihan ditandai sudah dibayar");
         } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
+        }
+        return REDIRECT_BILLS + billNumber;
+    }
+
+    @PostMapping("/{billNumber}/payments")
+    public String recordPayment(
+            @PathVariable String billNumber,
+            @RequestParam LocalDate paymentDate,
+            @RequestParam BigDecimal amount,
+            @RequestParam PaymentMethod paymentMethod,
+            @RequestParam(required = false) String referenceNumber,
+            @RequestParam(required = false) String paymentNotes,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Bill bill = billService.findByBillNumber(billNumber);
+            BillPayment payment = new BillPayment();
+            payment.setPaymentDate(paymentDate);
+            payment.setAmount(amount);
+            payment.setPaymentMethod(paymentMethod);
+            payment.setReferenceNumber(referenceNumber);
+            payment.setNotes(paymentNotes);
+
+            billService.recordPayment(bill.getId(), payment);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pembayaran berhasil dicatat");
+        } catch (IllegalStateException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
         return REDIRECT_BILLS + billNumber;

@@ -4,7 +4,9 @@ import com.artivisi.accountingfinance.entity.CompanyBankAccount;
 import com.artivisi.accountingfinance.entity.CompanyConfig;
 import com.artivisi.accountingfinance.entity.Invoice;
 import com.artivisi.accountingfinance.entity.InvoiceLine;
+import com.artivisi.accountingfinance.entity.InvoicePayment;
 import com.artivisi.accountingfinance.enums.InvoiceStatus;
+import com.artivisi.accountingfinance.enums.PaymentMethod;
 import com.artivisi.accountingfinance.service.ClientService;
 import com.artivisi.accountingfinance.service.CompanyBankAccountService;
 import com.artivisi.accountingfinance.service.CompanyConfigService;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -138,6 +141,8 @@ public class InvoiceController {
         Invoice invoice = invoiceService.findByInvoiceNumber(invoiceNumber);
 
         model.addAttribute(ATTR_INVOICE, invoice);
+        model.addAttribute("payments", invoiceService.findPaymentsByInvoiceId(invoice.getId()));
+        model.addAttribute("paymentMethods", PaymentMethod.values());
         model.addAttribute(ATTR_CURRENT_PAGE, PAGE_INVOICES);
         return "invoices/detail";
     }
@@ -227,6 +232,32 @@ public class InvoiceController {
             invoiceService.markAsPaid(invoice.getId());
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Invoice ditandai sudah dibayar");
         } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
+        }
+        return REDIRECT_INVOICES_PREFIX + invoiceNumber;
+    }
+
+    @PostMapping("/{invoiceNumber}/payments")
+    public String recordPayment(
+            @PathVariable String invoiceNumber,
+            @RequestParam LocalDate paymentDate,
+            @RequestParam BigDecimal amount,
+            @RequestParam PaymentMethod paymentMethod,
+            @RequestParam(required = false) String referenceNumber,
+            @RequestParam(required = false) String paymentNotes,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Invoice invoice = invoiceService.findByInvoiceNumber(invoiceNumber);
+            InvoicePayment payment = new InvoicePayment();
+            payment.setPaymentDate(paymentDate);
+            payment.setAmount(amount);
+            payment.setPaymentMethod(paymentMethod);
+            payment.setReferenceNumber(referenceNumber);
+            payment.setNotes(paymentNotes);
+
+            invoiceService.recordPayment(invoice.getId(), payment);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Pembayaran berhasil dicatat");
+        } catch (IllegalStateException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, e.getMessage());
         }
         return REDIRECT_INVOICES_PREFIX + invoiceNumber;
