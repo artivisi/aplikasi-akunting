@@ -21,7 +21,7 @@
 | **7** | API Foundation | ✅ Complete |
 | **8** | Bank Reconciliation | ✅ Complete |
 | **9** | Analytics & Insights | ✅ Complete |
-| **10+** | Budget, Marketplace, Advanced Features | ⏳ Not Started |
+| **—** | Future Enhancements | As needed |
 
 ---
 
@@ -1092,96 +1092,15 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 10+: Future Enhancements
+## Future Enhancements (As Needed)
 
-### Advanced Marketplace Features
+Items below are not planned phases. They are implemented only when a concrete client need arises.
 
-**Goal:** Advanced marketplace settlement reconciliation and automation (basic seller accounting is already supported via industry seed packs)
-
-**Target users:** Tokopedia, Shopee, Bukalapak, Lazada sellers
-
-**Note:** Basic online seller accounting (COA, inventory, COGS) is already complete via the "Online Seller" industry seed pack. This phase adds automated CSV reconciliation and fee extraction.
-
-#### Marketplace Reconciliation
-- [ ] Marketplace parser config entity
-- [ ] ConfigurableMarketplaceParser class
-- [ ] Preload configs (Tokopedia, Shopee, Bukalapak, Lazada)
-- [ ] Settlement report upload and parsing
-- [ ] Order matching (marketplace order ID ↔ transaction)
-- [ ] Fee extraction (platform fee, payment fee, promo subsidy)
-- [ ] Auto-create fee expense transactions
-- [ ] Reconciliation status tracking (matched, unmatched, discrepancy)
-- [ ] Marketplace reconciliation report
-- [ ] Functional tests
-- [ ] User manual
-
-#### Shipping Cost Tracking
-- [ ] Shipping entity (order_id, courier, cost, status)
-- [ ] Link shipping to sales transaction
-- [ ] Shipping cost report (by courier, by period)
-- [ ] COD handling (cash on delivery reconciliation)
-
-#### Seller Dashboard
-- [ ] GMV (Gross Merchandise Value) per marketplace
-- [ ] Platform fees summary
-- [ ] Net profit per marketplace
-- [ ] Top selling products (requires inventory module)
-- [ ] Marketplace comparison chart
-
-### Industry Seed Packs ✅
-- [x] IT Services seed pack (75 COA, 37 templates, 17 salary components)
-- [x] Online Seller seed pack (80 COA, marketplace-specific accounts)
-- [x] Manufacturing seed pack (Coffee Shop - 90 COA, 33 templates, BOM products)
-- [x] Education seed pack (Campus - 87 COA, 31 templates, student billing)
-- [x] Functional tests for all 4 industries (115 total tests)
-- [x] User manuals for all 4 industries
-
-### Additional Industry Templates (Future)
-- [ ] Photography COA and journal templates
-- [ ] General Freelancer COA and journal templates
-
-### Account Balances (Materialized) - Performance Optimization
-
-**Not implemented.** The system uses real-time calculation by querying journal_entries directly.
-
-**Why not materialized?**
-- Current approach: Sum debit/credit from journal_entries for each report
-- PostgreSQL performance with indexes is excellent for typical transaction volumes
-- Materialization adds complexity: triggers, recalculation logic, cascade updates
-- Trade-off: Simple architecture vs. marginal performance gain
-
-**Performance analysis (PostgreSQL with proper indexes):**
-- 10,000 journal lines: <50ms (5 years @ 80 tx/month)
-- 50,000 journal lines: ~100ms (5 years @ 400 tx/month)
-- 100,000 journal lines: ~200ms (5 years @ 800 tx/month)
-- 500,000 journal lines: ~500ms (5 years @ 4,000 tx/month)
-
-**For typical small IT services (100 tx/month):** Would take 40+ years to reach 100,000 lines.
-
-**When to reconsider:** Only if report generation consistently exceeds 2 seconds and users report slowness (>500 transactions/month sustained for several years).
-
-**Implementation approach if needed:**
-- [ ] Create account_balances table with monthly snapshots
-- [ ] Trigger balance update on journal entry post/void
-- [ ] Background job for period-based aggregation
-- [ ] Balance recalculation utility for data fixes
-- [ ] Modify ReportService to query materialized balances instead of journal_entries
-
-### Document Management Enhancements
-- [ ] S3-compatible storage backend
-- [ ] Image compression on upload
-- [ ] PDF optimization
-- [ ] ClamAV virus scanning
-- [ ] Bulk upload
-- [ ] Document access logging
-
-### Advanced Features (As Needed)
+### Infrastructure
+- [ ] S3-compatible document storage backend
+- [ ] ClamAV virus scanning for uploads
 - [ ] Multi-currency support
-- [ ] API for mobile app
-- [ ] Custom report builder
-- [ ] Dashboard analytics
-- [ ] Automated backups
-- [ ] Admin: view soft-deleted records
+- [ ] Materialized account balances (only if report queries exceed 2s — current performance analysis shows this is decades away for typical usage)
 
 ### Custom Projects (Per Client Request)
 - [ ] PJAP integration (e-Faktur, e-Bupot)

@@ -109,7 +109,7 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phase 9 (Analytics & Insights) complete. Next candidates: Phase 10+ (Marketplace Features, Advanced Features).
+All planned phases (0-9) complete. Remaining items are future enhancements implemented on-demand per client need.
 
 User Manual (15-section structure, published at artivisi.com/aplikasi-akunting/):
 - 01-setup-awal.md through 15-peringatan.md
