@@ -21,7 +21,7 @@
 | **7** | API Foundation | ✅ Complete |
 | **8** | Bank Reconciliation | ✅ Complete |
 | **9** | Analytics & Insights | ✅ Complete |
-| **10** | Aging Reports & Customer Statements | ⏳ Not Started |
+| **10** | Invoice & Bill Management | ⏳ Not Started |
 | **11** | Recurring Transactions | ⏳ Not Started |
 | **12** | WhatsApp Notifications | ⏳ Not Started |
 | **—** | Future Enhancements | As needed |
@@ -1095,24 +1095,56 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 10: Aging Reports & Customer Statements
+## Phase 10: Invoice & Bill Management
 
-**Goal:** Receivables/payables aging analysis and printable per-client statements
+**Goal:** Standalone invoice/bill cycle with line items, payment tracking, and aging reports
 
-### 10.1 Aging Reports
-- [ ] Receivables aging report (current, 30d, 60d, 90d, >90d buckets)
-- [ ] Payables aging report (same buckets)
+**Note:** The existing Invoice entity is project-milestone-bound. This phase adds a general-purpose invoice/bill system usable by all industries, and extends aging/statement reports on top of it.
+
+### 10.1 Outbound Invoice (Faktur Penjualan)
+- [ ] Extend Invoice entity: optional project (currently required), add line items
+- [ ] InvoiceLine entity (description, quantity, unit_price, tax, amount)
+- [ ] Invoice numbering (auto-increment per year, configurable prefix)
+- [ ] Invoice CRUD UI (create from scratch or from transaction)
+- [ ] Invoice PDF generation (printable, sendable to client)
+- [ ] Invoice status workflow: DRAFT → SENT → PARTIAL → PAID / OVERDUE / CANCELLED
+- [ ] Mark as sent (records sent_at)
+- [ ] Functional tests
+- [ ] User manual
+
+### 10.2 Vendor Bill (Faktur Pembelian)
+- [ ] Bill entity (vendor/supplier, bill_number, bill_date, due_date, amount, status)
+- [ ] BillLine entity (description, quantity, unit_price, tax, amount)
+- [ ] Vendor entity (or reuse Client with type flag)
+- [ ] Bill CRUD UI
+- [ ] Bill status workflow: DRAFT → APPROVED → PARTIAL → PAID / OVERDUE / CANCELLED
+- [ ] Link bill to purchase transaction
+- [ ] Functional tests
+- [ ] User manual
+
+### 10.3 Payment Tracking
+- [ ] Record payment against specific invoice (full or partial)
+- [ ] Record payment against specific bill (full or partial)
+- [ ] Auto-create receipt/payment journal entry on payment recording
+- [ ] Payment history per invoice/bill
+- [ ] Outstanding balance calculation (invoice amount - sum of payments)
+- [ ] Auto-update status (PARTIAL when partially paid, PAID when fully paid)
+- [ ] Functional tests
+
+### 10.4 Aging Reports
+- [ ] Receivables aging report (current, 30d, 60d, 90d, >90d buckets) based on invoice due dates
+- [ ] Payables aging report (same buckets) based on bill due dates
 - [ ] Aging by client/vendor
-- [ ] Date range selection (aging as-of date)
+- [ ] As-of date selection
 - [ ] PDF/Excel export
 - [ ] Functional tests
 - [ ] User manual
 
-### 10.2 Customer/Vendor Statements
+### 10.5 Customer/Vendor Statements
 - [ ] Per-client statement (outstanding invoices, payments received, balance)
 - [ ] Per-vendor statement (outstanding bills, payments made, balance)
 - [ ] Date range filter
-- [ ] Printable format (PDF, suitable for sending to client as payment reminder)
+- [ ] Printable PDF (suitable for sending to client as payment reminder)
 - [ ] Functional tests
 - [ ] User manual
 
