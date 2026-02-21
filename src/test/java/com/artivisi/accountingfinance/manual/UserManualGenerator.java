@@ -193,7 +193,16 @@ public class UserManualGenerator {
                 new Section("publikasi-analisis", "Publikasi Laporan Analisis", "13-bantuan-ai.md", List.of("analysis-reports/list", "analysis-reports/detail-top", "analysis-reports/detail-bottom"))
             )),
 
-            // 15. LAMPIRAN (last)
+            // 15. PERINGATAN (SMART ALERTS)
+            new SectionGroup("peringatan", "Peringatan", "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", List.of(
+                new Section("konsep-peringatan", "Konsep Peringatan", "15-peringatan.md", List.of()),
+                new Section("konfigurasi-peringatan", "Konfigurasi Peringatan", "15-peringatan.md", List.of("alerts/config")),
+                new Section("peringatan-aktif", "Peringatan Aktif", "15-peringatan.md", List.of("alerts/active")),
+                new Section("widget-dashboard-alerts", "Widget Dashboard", "15-peringatan.md", List.of("alerts/dashboard-widget")),
+                new Section("riwayat-peringatan", "Riwayat Peringatan", "15-peringatan.md", List.of("alerts/history"))
+            )),
+
+            // 16. LAMPIRAN (last)
             new SectionGroup("lampiran", "Lampiran", "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", List.of(
                 new Section("glosarium", "Glosarium", "12-lampiran-glosarium.md", List.of()),
                 new Section("referensi-template", "Referensi Template", "12-lampiran-template.md", List.of("service/templates-list", "service/templates-metadata-detail", "service/templates-metadata-form")),

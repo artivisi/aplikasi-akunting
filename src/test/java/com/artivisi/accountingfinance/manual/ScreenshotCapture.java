@@ -71,7 +71,17 @@ public class ScreenshotCapture {
             new PageDefinition("analysis-reports/detail-top", "Detail Laporan Analisis (Header + Metrik)", "/analysis-reports", true,
                     "Header laporan, ringkasan eksekutif, dan indikator utama", "analisis-ai"),
             new PageDefinition("analysis-reports/detail-bottom", "Detail Laporan Analisis (Temuan + Rekomendasi)", "/analysis-reports", true,
-                    "Temuan, rekomendasi, dan penilaian risiko", "analisis-ai")
+                    "Temuan, rekomendasi, dan penilaian risiko", "analisis-ai"),
+
+            // Smart Alerts
+            new PageDefinition("alerts/config", "Konfigurasi Peringatan", "/alerts/config", true,
+                    "Halaman konfigurasi aturan peringatan: ambang batas dan status aktif", "peringatan"),
+            new PageDefinition("alerts/active", "Peringatan Aktif", "/alerts", true,
+                    "Daftar peringatan aktif yang belum dikonfirmasi", "peringatan"),
+            new PageDefinition("alerts/dashboard-widget", "Widget Peringatan Dashboard", "/dashboard", true,
+                    "Widget peringatan pada halaman dashboard", "peringatan"),
+            new PageDefinition("alerts/history", "Riwayat Peringatan", "/alerts/history", true,
+                    "Riwayat semua peringatan dengan filter", "peringatan")
         );
     }
 

@@ -34,6 +34,8 @@ class AlertConfigTest extends PlaywrightTestBase {
         assertThat(page.locator(".font-medium:text-is('Margin Proyek Turun')")).isVisible();
         assertThat(page.locator(".font-medium:text-is('Penagihan Melambat')")).isVisible();
         assertThat(page.locator(".font-medium:text-is('Konsentrasi Klien')")).isVisible();
+
+        takeManualScreenshot("alerts/config");
     }
 
     @Test
@@ -96,5 +98,7 @@ class AlertConfigTest extends PlaywrightTestBase {
         waitForPageLoad();
 
         assertThat(page.locator("#page-title, h1").first()).containsText("Riwayat Peringatan");
+
+        takeManualScreenshot("alerts/history");
     }
 }

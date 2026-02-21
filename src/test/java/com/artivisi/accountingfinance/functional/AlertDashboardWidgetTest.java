@@ -41,6 +41,8 @@ class AlertDashboardWidgetTest extends PlaywrightTestBase {
         page.waitForSelector("#alert-widget-content", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(10000));
         assertThat(page.locator("#alert-widget-content")).isVisible();
         assertThat(page.locator("#alert-widget-content")).containsText("Peringatan");
+
+        takeManualScreenshot("alerts/dashboard-widget");
     }
 
     @Test
@@ -62,6 +64,8 @@ class AlertDashboardWidgetTest extends PlaywrightTestBase {
 
         // Verify alert is visible
         assertThat(page.locator("text=Test: Saldo kas rendah")).isVisible();
+
+        takeManualScreenshot("alerts/active");
 
         // Acknowledge it
         page.locator("button:has-text('Konfirmasi')").first().click();
