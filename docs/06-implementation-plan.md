@@ -19,10 +19,9 @@
 | **5** | Inventory & Production | ✅ Complete |
 | **6** | Security Hardening | ✅ Complete |
 | **7** | API Foundation | ✅ Complete |
-| **8** | Advanced Marketplace Features | ⏳ Not Started |
-| **9** | Bank Reconciliation | ✅ Complete |
-| **10** | Analytics & Insights | ⏳ Not Started |
-| **11+** | Budget, Advanced Features | ⏳ Not Started |
+| **8** | Bank Reconciliation | ✅ Complete |
+| **9** | Analytics & Insights | ✅ Complete |
+| **10+** | Budget, Marketplace, Advanced Features | ⏳ Not Started |
 
 ---
 
@@ -1005,7 +1004,107 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 8: Advanced Marketplace Features
+## Phase 8: Bank Reconciliation ✅
+
+**Goal:** Automate bank statement matching with recorded transactions
+
+### 8.1 Bank Statement Import
+- [x] Bank parser config entity
+- [x] ConfigurableBankStatementParser class
+- [x] Column name matching with fallback
+- [x] Preload configs (BCA, BNI, Mandiri, BSI, CIMB)
+- [x] Admin UI for parser config
+- [x] CSV/Excel upload and parsing
+- [x] Statement item entity (date, description, amount, balance)
+
+### 8.2 Transaction Matching
+- [x] Bank reconciliation entity (period, status, bank account)
+- [x] Auto-matching rules:
+  - [x] Exact match (date + amount)
+  - [x] Fuzzy match (±1 day, same amount)
+  - [x] Description keyword matching
+- [x] Manual matching UI (drag-and-drop or checkbox)
+- [x] Create missing transactions from unmatched statement items
+- [x] Mark as "bank only" or "book only" for discrepancies
+
+### 8.3 Reconciliation Reports
+- [x] Reconciliation summary (matched, unmatched, discrepancies)
+- [x] Bank reconciliation statement (book balance → bank balance)
+- [x] Outstanding items list
+- [x] PDF/Excel export
+
+**Value analysis (manual reconciliation time per month):**
+- 20-30 transactions: 5-10 min (easy, no automation needed)
+- 50-100 transactions: 15-30 min (manageable)
+- 200-300 transactions: 1-2 hours (tedious, automation helpful)
+- 500+ transactions: 3+ hours (automation essential)
+
+**Phase 8 Deliverable:** Bank statement import, auto-matching, manual matching UI, and reconciliation reports.
+
+---
+
+## Phase 9: Analytics & Insights
+
+**Goal:** Provide smart alerts and flexible transaction tagging
+
+### 9.1 Trend Analysis — N/A
+- N/A ~~Revenue trend chart (12 months)~~ — covered by AI analysis via `/api/analysis/snapshot` and published reports
+- N/A ~~Expense trend by category (12 months)~~ — covered by AI analysis via `/api/analysis/income-statement`
+- N/A ~~Profit margin trend (12 months)~~ — covered by AI analysis (KPI metrics with period-over-period change)
+- N/A ~~Cash flow trend (12 months)~~ — covered by AI analysis via `/api/analysis/cash-flow`
+- N/A ~~Comparison: current period vs previous period~~ — AI snapshot already includes `*Change` fields
+- N/A ~~Comparison: current period vs same period last year~~ — AI can compute from existing endpoints
+- N/A ~~Chart library integration (Chart.js or similar)~~ — static charts low ROI vs AI-generated contextual analysis
+
+### 9.2 Smart Alerts ✅
+- [x] AlertRule entity (type, threshold, enabled, last_triggered, description)
+- [x] AlertEvent entity (rule, severity, message, details, acknowledged_at/by)
+- [x] Alert types:
+  - [x] Cash low warning (CASH_LOW)
+  - [x] Overdue receivables (RECEIVABLE_OVERDUE)
+  - [x] Expense spike vs average (EXPENSE_SPIKE)
+  - [x] Project cost overrun (PROJECT_COST_OVERRUN)
+  - [x] Project margin drop (PROJECT_MARGIN_DROP)
+  - [x] Payment collection slowdown (COLLECTION_SLOWDOWN)
+  - [x] Client concentration risk (CLIENT_CONCENTRATION)
+- [x] Alert threshold settings per type
+- [x] Enable/disable individual alerts
+- [x] Dashboard notification widget (HTMX, severity counts, top 5 recent)
+- N/A ~~Email notification~~ — dashboard widget and active alerts page sufficient for single-company app
+- [x] Alert history and acknowledgment
+- [x] Daily evaluation scheduler (8am, configurable via `app.alerts.schedule`)
+- [x] 24h dedup (skip if unacknowledged event for same rule exists within 24h)
+- [x] V009 migration (schema + 7 seed rules)
+- [x] 3 permissions: ALERT_VIEW, ALERT_CONFIG, ALERT_ACKNOWLEDGE
+- [x] 7 Playwright functional tests (5 config + 2 widget)
+- [x] User manual (15-peringatan.md) with 4 automated screenshots
+
+### 9.3 Transaction Tags ✅
+- [x] Tag type entity (user-defined: "Channel", "Campaign", "Category")
+- [x] Tag entity (values per type)
+- [x] Tag type CRUD UI
+- [x] Tag CRUD UI
+- [x] Multi-tag per transaction (journal entry)
+- [x] Tag filters in transaction list
+- [x] Tag-based reports (summary by tag)
+
+**Phase 9 Deliverable:** ✅ Complete — Configurable smart alerts with 7 evaluator types, daily evaluation, dashboard widget, and flexible transaction tagging.
+
+---
+
+## Phase 10+: Future Enhancements
+
+### Budget Management
+- [ ] Budget entity (account, period, amount)
+- [ ] Budget per account per period
+- [ ] Budget CRUD UI
+- [ ] Copy from previous period
+- [ ] Budget vs Actual report
+- [ ] Variance analysis
+- [ ] Over-budget highlighting
+- [ ] PDF/Excel export
+
+### Advanced Marketplace Features
 
 **Goal:** Advanced marketplace settlement reconciliation and automation (basic seller accounting is already supported via industry seed packs)
 
@@ -1013,7 +1112,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Note:** Basic online seller accounting (COA, inventory, COGS) is already complete via the "Online Seller" industry seed pack. This phase adds automated CSV reconciliation and fee extraction.
 
-### 8.1 Marketplace Reconciliation
+#### Marketplace Reconciliation
 - [ ] Marketplace parser config entity
 - [ ] ConfigurableMarketplaceParser class
 - [ ] Preload configs (Tokopedia, Shopee, Bukalapak, Lazada)
@@ -1026,115 +1125,18 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Functional tests
 - [ ] User manual
 
-### 8.2 Shipping Cost Tracking
+#### Shipping Cost Tracking
 - [ ] Shipping entity (order_id, courier, cost, status)
 - [ ] Link shipping to sales transaction
 - [ ] Shipping cost report (by courier, by period)
 - [ ] COD handling (cash on delivery reconciliation)
 
-### 8.3 Seller Dashboard
+#### Seller Dashboard
 - [ ] GMV (Gross Merchandise Value) per marketplace
 - [ ] Platform fees summary
 - [ ] Net profit per marketplace
 - [ ] Top selling products (requires inventory module)
 - [ ] Marketplace comparison chart
-
-**Phase 8 Deliverable:** Marketplace settlement reconciliation, fee tracking, and seller-specific dashboard.
-
----
-
-## Phase 9: Bank Reconciliation
-
-**Goal:** Automate bank statement matching with recorded transactions
-
-### 9.1 Bank Statement Import
-- [ ] Bank parser config entity
-- [ ] ConfigurableBankStatementParser class
-- [ ] Column name matching with fallback
-- [ ] Preload configs (BCA, BNI, Mandiri, BSI, CIMB)
-- [ ] Admin UI for parser config
-- [ ] CSV/Excel upload and parsing
-- [ ] Statement item entity (date, description, amount, balance)
-
-### 9.2 Transaction Matching
-- [ ] Bank reconciliation entity (period, status, bank account)
-- [ ] Auto-matching rules:
-  - [ ] Exact match (date + amount)
-  - [ ] Fuzzy match (±1 day, same amount)
-  - [ ] Description keyword matching
-- [ ] Manual matching UI (drag-and-drop or checkbox)
-- [ ] Create missing transactions from unmatched statement items
-- [ ] Mark as "bank only" or "book only" for discrepancies
-
-### 9.3 Reconciliation Reports
-- [ ] Reconciliation summary (matched, unmatched, discrepancies)
-- [ ] Bank reconciliation statement (book balance → bank balance)
-- [ ] Outstanding items list
-- [ ] PDF/Excel export
-
-**Value analysis (manual reconciliation time per month):**
-- 20-30 transactions: 5-10 min (easy, no automation needed)
-- 50-100 transactions: 15-30 min (manageable)
-- 200-300 transactions: 1-2 hours (tedious, automation helpful)
-- 500+ transactions: 3+ hours (automation essential)
-
-**Phase 9 Deliverable:** Bank statement import, auto-matching, manual matching UI, and reconciliation reports.
-
----
-
-## Phase 10: Analytics & Insights
-
-**Goal:** Provide trend analysis, smart alerts, and flexible transaction tagging
-
-### 10.1 Trend Analysis — N/A
-- N/A ~~Revenue trend chart (12 months)~~ — covered by AI analysis via `/api/analysis/snapshot` and published reports
-- N/A ~~Expense trend by category (12 months)~~ — covered by AI analysis via `/api/analysis/income-statement`
-- N/A ~~Profit margin trend (12 months)~~ — covered by AI analysis (KPI metrics with period-over-period change)
-- N/A ~~Cash flow trend (12 months)~~ — covered by AI analysis via `/api/analysis/cash-flow`
-- N/A ~~Comparison: current period vs previous period~~ — AI snapshot already includes `*Change` fields
-- N/A ~~Comparison: current period vs same period last year~~ — AI can compute from existing endpoints
-- N/A ~~Chart library integration (Chart.js or similar)~~ — static charts low ROI vs AI-generated contextual analysis
-
-### 10.2 Smart Alerts
-- [ ] Alert entity (type, threshold, enabled, last_triggered)
-- [ ] Alert types:
-  - [ ] Cash low warning
-  - [ ] Overdue receivables
-  - [ ] Expense spike (vs average)
-  - [ ] Project cost overrun
-  - [ ] Project margin drop
-  - [ ] Payment collection slowdown
-  - [ ] Client concentration risk
-- [ ] Alert threshold settings per type
-- [ ] Enable/disable individual alerts
-- [ ] Dashboard notification display
-- [ ] Email notification (optional)
-- [ ] Alert history and acknowledgment
-
-### 10.3 Transaction Tags
-- [ ] Tag type entity (user-defined: "Channel", "Campaign", "Category")
-- [ ] Tag entity (values per type)
-- [ ] Tag type CRUD UI
-- [ ] Tag CRUD UI
-- [ ] Multi-tag per transaction (journal entry)
-- [ ] Tag filters in transaction list
-- [ ] Tag-based reports (summary by tag)
-
-**Phase 10 Deliverable:** Trend charts, configurable alerts, and flexible transaction tagging.
-
----
-
-## Phase 11+: Future Enhancements
-
-### Budget Management
-- [ ] Budget entity (account, period, amount)
-- [ ] Budget per account per period
-- [ ] Budget CRUD UI
-- [ ] Copy from previous period
-- [ ] Budget vs Actual report
-- [ ] Variance analysis
-- [ ] Over-budget highlighting
-- [ ] PDF/Excel export
 
 ### Industry Seed Packs ✅
 - [x] IT Services seed pack (75 COA, 37 templates, 17 salary components)
