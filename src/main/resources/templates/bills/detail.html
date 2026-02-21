@@ -45,8 +45,16 @@
                     <p class="font-medium" th:classappend="${bill.overdue} ? 'text-red-600' : ''" th:text="${#temporals.format(bill.dueDate, 'dd MMMM yyyy')}">15 January 2025</p>
                 </div>
                 <div>
-                    <p class="text-gray-500">Jumlah</p>
-                    <p class="font-medium text-lg" th:text="'Rp ' + ${#numbers.formatDecimal(bill.amount, 0, 'COMMA', 0, 'POINT')}">Rp 0</p>
+                    <p class="text-gray-500">Total</p>
+                    <p class="font-medium text-lg" th:text="'Rp ' + ${#numbers.formatDecimal(bill.totalAmount, 0, 'COMMA', 0, 'POINT')}">Rp 0</p>
+                </div>
+                <div th:if="${bill.paidAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                    <p class="text-gray-500">Sudah Dibayar</p>
+                    <p class="font-medium text-green-600" th:text="'Rp ' + ${#numbers.formatDecimal(bill.paidAmount, 0, 'COMMA', 0, 'POINT')}">Rp 0</p>
+                </div>
+                <div th:if="${bill.status.name() != 'DRAFT' and bill.status.name() != 'CANCELLED' and bill.status.name() != 'PAID'}">
+                    <p class="text-gray-500">Sisa Tagihan</p>
+                    <p class="font-medium text-lg text-red-600" data-testid="balance-due" th:text="'Rp ' + ${#numbers.formatDecimal(bill.balanceDue, 0, 'COMMA', 0, 'POINT')}">Rp 0</p>
                 </div>
                 <div th:if="${bill.taxAmount != null && bill.taxAmount > 0}">
                     <p class="text-gray-500">PPN</p>
@@ -108,10 +116,84 @@
                     </tr>
                     <tr>
                         <td colspan="6" class="px-4 py-2 text-right font-bold">Total</td>
-                        <td class="px-4 py-2 text-right font-bold text-lg" th:text="'Rp ' + ${#numbers.formatDecimal(bill.amount + bill.taxAmount, 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+                        <td class="px-4 py-2 text-right font-bold text-lg" th:text="'Rp ' + ${#numbers.formatDecimal(bill.totalAmount, 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
                     </tr>
                 </tfoot>
             </table>
+        </div>
+
+        <!-- Payment History -->
+        <div class="bg-white rounded-lg shadow p-6" th:if="${!payments.isEmpty()}" data-testid="payment-history">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Riwayat Pembayaran</h3>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Metode</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Referensi</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr th:each="pmt : ${payments}">
+                        <td class="px-4 py-2 text-sm" th:text="${#temporals.format(pmt.paymentDate, 'dd MMM yyyy')}">01 Jan 2025</td>
+                        <td class="px-4 py-2 text-sm" th:text="${pmt.paymentMethod.indonesianName}">Transfer</td>
+                        <td class="px-4 py-2 text-sm" th:text="${pmt.referenceNumber ?: '-'}">-</td>
+                        <td class="px-4 py-2 text-sm text-right font-medium" th:text="'Rp ' + ${#numbers.formatDecimal(pmt.amount, 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Record Payment Form -->
+        <div th:if="${bill.status.name() == 'APPROVED' || bill.status.name() == 'OVERDUE' || bill.status.name() == 'PARTIAL'}"
+             sec:authorize="hasAuthority('BILL_MARK_PAID')"
+             class="bg-white rounded-lg shadow p-6" x-data="{ showForm: false }" data-testid="payment-form-section">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Catat Pembayaran</h3>
+                <button type="button" @click="showForm = !showForm"
+                        class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200"
+                        x-text="showForm ? 'Tutup' : 'Catat Pembayaran'" data-testid="toggle-payment-form">Catat Pembayaran</button>
+            </div>
+            <form x-show="showForm" x-cloak
+                  th:action="@{/bills/{num}/payments(num=${bill.billNumber})}"
+                  method="post" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="paymentDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pembayaran *</label>
+                        <input type="date" id="paymentDate" name="paymentDate" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp) *</label>
+                        <input type="number" id="amount" name="amount" required min="1" step="1"
+                               th:attr="max=${bill.balanceDue}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label for="paymentMethod" class="block text-sm font-medium text-gray-700 mb-1">Metode *</label>
+                        <select id="paymentMethod" name="paymentMethod" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                            <option th:each="pm : ${paymentMethods}" th:value="${pm.name()}" th:text="${pm.indonesianName}">Transfer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="referenceNumber" class="block text-sm font-medium text-gray-700 mb-1">No. Referensi</label>
+                        <input type="text" id="referenceNumber" name="referenceNumber"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="paymentNotes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                        <input type="text" id="paymentNotes" name="paymentNotes"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm" data-testid="submit-payment">
+                        Simpan Pembayaran
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Actions -->

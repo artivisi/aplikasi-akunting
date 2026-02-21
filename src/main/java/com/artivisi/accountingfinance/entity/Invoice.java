@@ -100,6 +100,10 @@ public class Invoice {
     @OrderBy("lineOrder ASC")
     private List<InvoiceLine> lines = new ArrayList<>();
 
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("paymentDate ASC")
+    private List<InvoicePayment> payments = new ArrayList<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -141,6 +145,20 @@ public class Invoice {
 
     public boolean isCancelled() {
         return status == InvoiceStatus.CANCELLED;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return amount.add(taxAmount);
+    }
+
+    public BigDecimal getPaidAmount() {
+        return payments.stream()
+                .map(InvoicePayment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getBalanceDue() {
+        return getTotalAmount().subtract(getPaidAmount());
     }
 
     public void recalculateFromLines() {

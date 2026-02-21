@@ -97,6 +97,10 @@ public class Bill {
     @OrderBy("lineOrder ASC")
     private List<BillLine> lines = new ArrayList<>();
 
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("paymentDate ASC")
+    private List<BillPayment> payments = new ArrayList<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -134,6 +138,20 @@ public class Bill {
 
     public boolean isCancelled() {
         return status == BillStatus.CANCELLED;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return amount.add(taxAmount);
+    }
+
+    public BigDecimal getPaidAmount() {
+        return payments.stream()
+                .map(BillPayment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getBalanceDue() {
+        return getTotalAmount().subtract(getPaidAmount());
     }
 
     public void recalculateFromLines() {

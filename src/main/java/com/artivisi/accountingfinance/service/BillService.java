@@ -2,15 +2,18 @@ package com.artivisi.accountingfinance.service;
 
 import com.artivisi.accountingfinance.entity.Bill;
 import com.artivisi.accountingfinance.entity.BillLine;
+import com.artivisi.accountingfinance.entity.BillPayment;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.entity.Product;
 import com.artivisi.accountingfinance.entity.Vendor;
 import com.artivisi.accountingfinance.enums.BillStatus;
+import com.artivisi.accountingfinance.repository.BillPaymentRepository;
 import com.artivisi.accountingfinance.repository.BillRepository;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.ProductRepository;
 import com.artivisi.accountingfinance.repository.VendorRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +33,7 @@ import java.util.UUID;
 public class BillService {
 
     private final BillRepository billRepository;
+    private final BillPaymentRepository billPaymentRepository;
     private final VendorRepository vendorRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
     private final ProductRepository productRepository;
@@ -175,6 +179,41 @@ public class BillService {
         bill.setStatus(BillStatus.PAID);
         bill.setPaidAt(LocalDateTime.now());
         return billRepository.save(bill);
+    }
+
+    @Transactional
+    public Bill recordPayment(UUID billId, BillPayment payment) {
+        Bill bill = findById(billId);
+
+        if (bill.getStatus() != BillStatus.APPROVED && bill.getStatus() != BillStatus.OVERDUE
+                && bill.getStatus() != BillStatus.PARTIAL) {
+            throw new IllegalStateException("Pembayaran hanya bisa dicatat untuk tagihan berstatus Disetujui, Jatuh Tempo, atau Sebagian");
+        }
+
+        BigDecimal existingPayments = billPaymentRepository.sumPaymentsByBillId(billId);
+        BigDecimal totalAfterPayment = existingPayments.add(payment.getAmount());
+        BigDecimal totalAmount = bill.getTotalAmount();
+
+        if (totalAfterPayment.compareTo(totalAmount) > 0) {
+            throw new IllegalArgumentException("Total pembayaran (Rp " + totalAfterPayment +
+                    ") melebihi total tagihan (Rp " + totalAmount + ")");
+        }
+
+        payment.setBill(bill);
+        billPaymentRepository.save(payment);
+
+        if (totalAfterPayment.compareTo(totalAmount) == 0) {
+            bill.setStatus(BillStatus.PAID);
+            bill.setPaidAt(LocalDateTime.now());
+        } else {
+            bill.setStatus(BillStatus.PARTIAL);
+        }
+
+        return billRepository.save(bill);
+    }
+
+    public List<BillPayment> findPaymentsByBillId(UUID billId) {
+        return billPaymentRepository.findByBillIdOrderByPaymentDateAsc(billId);
     }
 
     @Transactional

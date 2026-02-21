@@ -63,4 +63,26 @@ public interface BillRepository extends JpaRepository<Bill, UUID> {
     @Query("SELECT MAX(CAST(SUBSTRING(b.billNumber, LENGTH(:prefix) + 1) AS int)) " +
             "FROM Bill b WHERE b.billNumber LIKE :prefix")
     Integer findMaxSequenceByPrefix(@Param("prefix") String prefix);
+
+    @Query("SELECT b FROM Bill b JOIN FETCH b.vendor WHERE " +
+            "b.status IN ('APPROVED', 'PARTIAL', 'OVERDUE')")
+    List<Bill> findOutstandingBills();
+
+    @Query("SELECT b FROM Bill b JOIN FETCH b.vendor WHERE " +
+            "b.vendor.id = :vendorId AND " +
+            "b.billDate >= :dateFrom AND b.billDate <= :dateTo AND " +
+            "b.status IN ('APPROVED', 'PARTIAL', 'OVERDUE', 'PAID') " +
+            "ORDER BY b.billDate ASC, b.billNumber ASC")
+    List<Bill> findByVendorIdAndDateRange(
+            @Param("vendorId") UUID vendorId,
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo);
+
+    @Query("SELECT COALESCE(SUM(b.amount + b.taxAmount), 0) FROM Bill b WHERE " +
+            "b.vendor.id = :vendorId AND " +
+            "b.billDate < :date AND " +
+            "b.status IN ('APPROVED', 'PARTIAL', 'OVERDUE', 'PAID')")
+    BigDecimal sumBillsBeforeDate(
+            @Param("vendorId") UUID vendorId,
+            @Param("date") LocalDate date);
 }

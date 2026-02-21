@@ -62,4 +62,26 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     @Query("SELECT MAX(CAST(SUBSTRING(i.invoiceNumber, LENGTH(:prefix) + 1) AS int)) " +
             "FROM Invoice i WHERE i.invoiceNumber LIKE :prefix")
     Integer findMaxSequenceByPrefix(@Param("prefix") String prefix);
+
+    @Query("SELECT i FROM Invoice i JOIN FETCH i.client WHERE " +
+            "i.status IN ('SENT', 'PARTIAL', 'OVERDUE')")
+    List<Invoice> findOutstandingInvoices();
+
+    @Query("SELECT i FROM Invoice i JOIN FETCH i.client WHERE " +
+            "i.client.id = :clientId AND " +
+            "i.invoiceDate >= :dateFrom AND i.invoiceDate <= :dateTo AND " +
+            "i.status IN ('SENT', 'PARTIAL', 'OVERDUE', 'PAID') " +
+            "ORDER BY i.invoiceDate ASC, i.invoiceNumber ASC")
+    List<Invoice> findByClientIdAndDateRange(
+            @Param("clientId") UUID clientId,
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo);
+
+    @Query("SELECT COALESCE(SUM(i.amount + i.taxAmount), 0) FROM Invoice i WHERE " +
+            "i.client.id = :clientId AND " +
+            "i.invoiceDate < :date AND " +
+            "i.status IN ('SENT', 'PARTIAL', 'OVERDUE', 'PAID')")
+    BigDecimal sumInvoicesBeforeDate(
+            @Param("clientId") UUID clientId,
+            @Param("date") LocalDate date);
 }

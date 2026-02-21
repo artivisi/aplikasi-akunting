@@ -69,6 +69,14 @@ public final class ViewConstants {
     // Current page values - Vendors
     public static final String PAGE_VENDORS = "vendors";
 
+    // Current page values - Aging Reports
+    public static final String PAGE_AGING_RECEIVABLES = "aging-receivables";
+    public static final String PAGE_AGING_PAYABLES = "aging-payables";
+
+    // Current page values - Statements
+    public static final String PAGE_CLIENT_STATEMENT = "client-statement";
+    public static final String PAGE_VENDOR_STATEMENT = "vendor-statement";
+
     // Current page values - Bills
     public static final String PAGE_BILLS = "bills";
 

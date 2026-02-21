@@ -3,12 +3,14 @@ package com.artivisi.accountingfinance.service;
 import com.artivisi.accountingfinance.entity.Client;
 import com.artivisi.accountingfinance.entity.Invoice;
 import com.artivisi.accountingfinance.entity.InvoiceLine;
+import com.artivisi.accountingfinance.entity.InvoicePayment;
 import com.artivisi.accountingfinance.entity.Product;
 import com.artivisi.accountingfinance.entity.Project;
 import com.artivisi.accountingfinance.entity.ProjectPaymentTerm;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.InvoiceStatus;
 import com.artivisi.accountingfinance.repository.ClientRepository;
+import com.artivisi.accountingfinance.repository.InvoicePaymentRepository;
 import com.artivisi.accountingfinance.repository.InvoiceRepository;
 import com.artivisi.accountingfinance.repository.ProductRepository;
 import com.artivisi.accountingfinance.repository.ProjectPaymentTermRepository;
@@ -33,6 +35,7 @@ import java.util.UUID;
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final InvoicePaymentRepository invoicePaymentRepository;
     private final ClientRepository clientRepository;
     private final ProjectRepository projectRepository;
     private final ProjectPaymentTermRepository paymentTermRepository;
@@ -271,6 +274,41 @@ public class InvoiceService {
         invoice.setStatus(InvoiceStatus.PAID);
         invoice.setPaidAt(LocalDateTime.now());
         return invoiceRepository.save(invoice);
+    }
+
+    @Transactional
+    public Invoice recordPayment(UUID invoiceId, InvoicePayment payment) {
+        Invoice invoice = findById(invoiceId);
+
+        if (invoice.getStatus() != InvoiceStatus.SENT && invoice.getStatus() != InvoiceStatus.OVERDUE
+                && invoice.getStatus() != InvoiceStatus.PARTIAL) {
+            throw new IllegalStateException("Pembayaran hanya bisa dicatat untuk invoice berstatus Terkirim, Jatuh Tempo, atau Sebagian");
+        }
+
+        BigDecimal existingPayments = invoicePaymentRepository.sumPaymentsByInvoiceId(invoiceId);
+        BigDecimal totalAfterPayment = existingPayments.add(payment.getAmount());
+        BigDecimal totalAmount = invoice.getTotalAmount();
+
+        if (totalAfterPayment.compareTo(totalAmount) > 0) {
+            throw new IllegalArgumentException("Total pembayaran (Rp " + totalAfterPayment +
+                    ") melebihi total invoice (Rp " + totalAmount + ")");
+        }
+
+        payment.setInvoice(invoice);
+        invoicePaymentRepository.save(payment);
+
+        if (totalAfterPayment.compareTo(totalAmount) == 0) {
+            invoice.setStatus(InvoiceStatus.PAID);
+            invoice.setPaidAt(LocalDateTime.now());
+        } else {
+            invoice.setStatus(InvoiceStatus.PARTIAL);
+        }
+
+        return invoiceRepository.save(invoice);
+    }
+
+    public List<InvoicePayment> findPaymentsByInvoiceId(UUID invoiceId) {
+        return invoicePaymentRepository.findByInvoiceIdOrderByPaymentDateAsc(invoiceId);
     }
 
     @Transactional
