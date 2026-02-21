@@ -143,6 +143,12 @@ public final class Permission {
     // Analysis Reports
     public static final String ANALYSIS_REPORT_VIEW = "ANALYSIS_REPORT_VIEW";
 
+    // Tags
+    public static final String TAG_VIEW = "TAG_VIEW";
+    public static final String TAG_CREATE = "TAG_CREATE";
+    public static final String TAG_EDIT = "TAG_EDIT";
+    public static final String TAG_DELETE = "TAG_DELETE";
+
     // Bank Reconciliation
     public static final String BANK_RECONCILIATION_VIEW = "BANK_RECONCILIATION_VIEW";
     public static final String BANK_RECONCILIATION_IMPORT = "BANK_RECONCILIATION_IMPORT";
@@ -190,6 +196,7 @@ public final class Permission {
                 CALCULATOR_USE,
                 BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE, BANK_RECONCILIATION_CONFIG,
                 ANALYSIS_REPORT_VIEW,
+                TAG_VIEW, TAG_CREATE, TAG_EDIT, TAG_DELETE,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
                 TELEGRAM_MANAGE,
@@ -222,6 +229,7 @@ public final class Permission {
                 CALCULATOR_USE,
                 BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE, BANK_RECONCILIATION_CONFIG,
                 ANALYSIS_REPORT_VIEW,
+                TAG_VIEW, TAG_CREATE, TAG_EDIT, TAG_DELETE,
                 DATA_IMPORT,
                 SETTINGS_VIEW, SETTINGS_EDIT,
                 TELEGRAM_MANAGE,
@@ -251,6 +259,7 @@ public final class Permission {
                 PAYROLL_VIEW, PAYROLL_CREATE, PAYROLL_APPROVE, PAYROLL_POST, PAYROLL_EXPORT,
                 BANK_RECONCILIATION_VIEW, BANK_RECONCILIATION_IMPORT, BANK_RECONCILIATION_MATCH, BANK_RECONCILIATION_COMPLETE,
                 ANALYSIS_REPORT_VIEW,
+                TAG_VIEW, TAG_CREATE, TAG_EDIT,
                 CALCULATOR_USE,
                 SETTINGS_VIEW, // Read-only access to settings (can view, but only edit own Telegram)
                 TELEGRAM_MANAGE,
@@ -273,6 +282,7 @@ public final class Permission {
                 PRODUCT_VIEW, INVENTORY_VIEW,
                 BANK_RECONCILIATION_VIEW,
                 ANALYSIS_REPORT_VIEW,
+                TAG_VIEW,
                 CALCULATOR_USE,
                 SETTINGS_VIEW, // Read-only access to settings (can view, but only edit own Telegram)
                 TELEGRAM_MANAGE,
@@ -301,6 +311,7 @@ public final class Permission {
                 PAYROLL_VIEW, PAYROLL_EXPORT,
                 BANK_RECONCILIATION_VIEW,
                 ANALYSIS_REPORT_VIEW,
+                TAG_VIEW,
                 CALCULATOR_USE,
                 AUDIT_LOG_VIEW,
                 OWN_PROFILE_VIEW

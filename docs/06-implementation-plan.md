@@ -18,7 +18,7 @@
 | **4** | Fixed Assets | ✅ Complete |
 | **5** | Inventory & Production | ✅ Complete |
 | **6** | Security Hardening | ✅ Complete |
-| **7** | API Foundation | 🔄 In Progress |
+| **7** | API Foundation | ✅ Complete |
 | **8** | Advanced Marketplace Features | ⏳ Not Started |
 | **9** | Bank Reconciliation | ✅ Complete |
 | **10** | Analytics & Insights | ⏳ Not Started |
@@ -950,7 +950,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 7: API Foundation 🔄
+## Phase 7: API Foundation ✅
 
 **Goal:** Expose REST API for external integrations, mobile apps, and domain-specific applications
 
@@ -993,10 +993,13 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [x] `GET /api/analysis/reports` — paginated (page, size params, default 0/20)
 - [x] `GET /api/analysis/drafts` — paginated (page, size params, default 0/20)
 
-### 7.3 Device Token Management UI
-- [ ] Device token list page (`/settings/devices`) — view active tokens with device name, last used, created date
-- [ ] Revoke device token (with confirmation)
-- [ ] Token usage info (last_used_at, last_used_ip)
+### 7.3 Device Token Management UI ✅
+- [x] Device token list page (`/settings/devices`) — view active tokens with device name, last used, created date
+- [x] Revoke device token (with confirmation)
+- [x] Revoke all tokens for current user
+- [x] Token usage info (last_used_at, last_used_ip)
+- [x] Sidebar link (Perangkat API) in Master Data group
+- [x] 5 Playwright functional tests
 
 **Phase 7 Deliverable:** REST API with OAuth 2.0 device auth, 7 API controllers, structured error handling, and device token management UI.
 
@@ -1083,14 +1086,14 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 **Goal:** Provide trend analysis, smart alerts, and flexible transaction tagging
 
-### 10.1 Trend Analysis
-- [ ] Revenue trend chart (12 months)
-- [ ] Expense trend by category (12 months)
-- [ ] Profit margin trend (12 months)
-- [ ] Cash flow trend (12 months)
-- [ ] Comparison: current period vs previous period
-- [ ] Comparison: current period vs same period last year
-- [ ] Chart library integration (Chart.js or similar)
+### 10.1 Trend Analysis — N/A
+- N/A ~~Revenue trend chart (12 months)~~ — covered by AI analysis via `/api/analysis/snapshot` and published reports
+- N/A ~~Expense trend by category (12 months)~~ — covered by AI analysis via `/api/analysis/income-statement`
+- N/A ~~Profit margin trend (12 months)~~ — covered by AI analysis (KPI metrics with period-over-period change)
+- N/A ~~Cash flow trend (12 months)~~ — covered by AI analysis via `/api/analysis/cash-flow`
+- N/A ~~Comparison: current period vs previous period~~ — AI snapshot already includes `*Change` fields
+- N/A ~~Comparison: current period vs same period last year~~ — AI can compute from existing endpoints
+- N/A ~~Chart library integration (Chart.js or similar)~~ — static charts low ROI vs AI-generated contextual analysis
 
 ### 10.2 Smart Alerts
 - [ ] Alert entity (type, threshold, enabled, last_triggered)

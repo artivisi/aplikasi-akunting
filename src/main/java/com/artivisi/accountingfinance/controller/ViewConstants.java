@@ -51,6 +51,10 @@ public final class ViewConstants {
     public static final String PAGE_INVENTORY_STOCK = "inventory-stock";
     public static final String PAGE_INVENTORY_TRANSACTIONS = "inventory-transactions";
 
+    // Current page values - Tags
+    public static final String PAGE_TAG_TYPES = "tag-types";
+    public static final String PAGE_TAGS = "tags";
+
     // Current page values - Device Management
     public static final String PAGE_DEVICES = "devices";
 

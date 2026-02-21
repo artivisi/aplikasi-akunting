@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,5 +44,8 @@ public record TransactionDto(
         Map<UUID, UUID> accountMappings,
 
         // For DETAILED templates - variable values keyed by variable name
-        Map<String, BigDecimal> variables
+        Map<String, BigDecimal> variables,
+
+        // Tag IDs to assign to the transaction
+        List<UUID> tagIds
 ) {}

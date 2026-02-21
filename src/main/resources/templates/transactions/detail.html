@@ -224,6 +224,18 @@
                         </div>
                     </div>
 
+                    <!-- Tags if any -->
+                    <div th:if="${transaction.transactionTags != null and !transaction.transactionTags.isEmpty()}" class="mt-6 pt-6 border-t border-gray-200">
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Label</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span th:each="tt : ${transaction.transactionTags}"
+                                  class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs">
+                                <span class="text-gray-400 mr-1" th:text="|${tt.tag.tagType.name}:|">Type:</span>
+                                <span th:text="${tt.tag.name}">Tag</span>
+                            </span>
+                        </div>
+                    </div>
+
                     <!-- Notes if any -->
                     <div th:if="${transaction.notes != null and !transaction.notes.isEmpty()}" class="mt-6 pt-6 border-t border-gray-200">
                         <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Catatan</p>

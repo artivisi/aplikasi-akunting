@@ -18,6 +18,7 @@ import com.artivisi.accountingfinance.service.InvoiceService;
 import com.artivisi.accountingfinance.service.JournalTemplateService;
 import com.artivisi.accountingfinance.service.ProjectService;
 import com.artivisi.accountingfinance.service.TemplateExecutionEngine;
+import com.artivisi.accountingfinance.service.TagService;
 import com.artivisi.accountingfinance.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,7 @@ public class TransactionController {
     private final ChartOfAccountService chartOfAccountService;
     private final ProjectService projectService;
     private final InvoiceService invoiceService;
+    private final TagService tagService;
     private final TemplateExecutionEngine templateExecutionEngine;
     private final com.artivisi.accountingfinance.service.DashboardService dashboardService;
 
@@ -76,6 +78,7 @@ public class TransactionController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String projectCode,
+            @RequestParam(required = false) UUID tagId,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
@@ -87,12 +90,14 @@ public class TransactionController {
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("selectedProjectCode", projectCode);
+        model.addAttribute("selectedTagId", tagId);
         model.addAttribute("searchQuery", search);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("statuses", TransactionStatus.values());
         model.addAttribute("categories", TemplateCategory.values());
         model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+        model.addAttribute("tagsByType", tagService.findAllActiveGroupedByType());
         List<JournalTemplate> templates = journalTemplateService.findAll();
         model.addAttribute(ATTR_TEMPLATES, templates);
         // Group templates by category for dropdown
@@ -124,7 +129,7 @@ public class TransactionController {
         if (search != null && !search.isEmpty()) {
             transactionPage = transactionService.search(search, pageable);
         } else {
-            transactionPage = transactionService.findByFilters(statusEnum, categoryEnum, projectId, startDate, endDate, pageable);
+            transactionPage = transactionService.findByFilters(statusEnum, categoryEnum, projectId, tagId, startDate, endDate, pageable);
         }
 
         model.addAttribute("transactions", transactionPage.getContent());
@@ -149,6 +154,7 @@ public class TransactionController {
         model.addAttribute(ATTR_TEMPLATES, journalTemplateService.findAllWithLines());
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+        model.addAttribute("tagsByType", tagService.findAllActiveGroupedByType());
 
         if (templateId != null) {
             JournalTemplate template = journalTemplateService.findByIdWithLines(templateId);
@@ -215,6 +221,9 @@ public class TransactionController {
         model.addAttribute(ATTR_TEMPLATES, journalTemplateService.findAll());
         model.addAttribute(ATTR_ACCOUNTS, chartOfAccountService.findTransactableAccounts());
         model.addAttribute(ATTR_PROJECTS, projectService.findActiveProjects());
+        model.addAttribute("tagsByType", tagService.findAllActiveGroupedByType());
+        model.addAttribute("selectedTagIds", transaction.getTransactionTags().stream()
+                .map(tt -> tt.getTag().getId()).toList());
 
         // Add initial values for Alpine.js
         model.addAttribute("initialAmount", transaction.getAmount() != null ? transaction.getAmount() : BigDecimal.ZERO);
@@ -393,6 +402,10 @@ public class TransactionController {
 
         Transaction saved = transactionService.create(transaction, dto.accountMappings(), dto.variables());
 
+        if (dto.tagIds() != null && !dto.tagIds().isEmpty()) {
+            transactionService.assignTags(saved, dto.tagIds());
+        }
+
         // If this is an invoice payment, link transaction to invoice and mark as paid
         if (dto.invoiceId() != null) {
             invoiceService.linkTransactionAndMarkPaid(dto.invoiceId(), saved);
@@ -408,7 +421,9 @@ public class TransactionController {
             @PathVariable("id") Transaction existing,
             @Valid @RequestBody TransactionDto dto) {
         Transaction transactionData = mapDtoToEntity(dto);
-        return ResponseEntity.ok(transactionService.update(existing, transactionData));
+        Transaction updated = transactionService.update(existing, transactionData);
+        transactionService.assignTags(updated, dto.tagIds());
+        return ResponseEntity.ok(updated);
     }
 
     @PostMapping("/api/{id}/post")

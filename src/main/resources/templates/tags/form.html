@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="${tag.id != null ? 'Edit Label' : 'Label Baru'}">Label</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="${tag.id != null ? 'Edit Label' : 'Label Baru'}">Label</h1>
+
+    <div layout:fragment="content" class="max-w-2xl">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center text-sm text-gray-500 mb-6">
+            <a th:href="@{/tags/types}" class="hover:text-primary-600">Label Transaksi</a>
+            <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <a th:href="@{/tags/types/{id}/tags(id=${tagType.id})}" class="hover:text-primary-600" th:text="${tagType.name}">Tipe</a>
+            <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-gray-900" th:text="${tag.id != null ? 'Edit' : 'Baru'}">Baru</span>
+        </nav>
+
+        <div class="bg-white rounded-lg shadow">
+            <form th:action="${tag.id != null ? '/tags/types/' + tagType.id + '/tags/' + tag.id + '/edit' : '/tags/types/' + tagType.id + '/tags/new'}"
+                  th:object="${tag}" method="post" class="p-6 space-y-6">
+
+                <!-- Global Errors -->
+                <div th:if="${#fields.hasGlobalErrors()}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="text-sm text-red-600"></p>
+                </div>
+
+                <!-- Tag Type (read-only) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tipe Label</label>
+                    <p class="mt-1 text-sm text-gray-900" th:text="${tagType.name}">Departemen</p>
+                </div>
+
+                <!-- Code -->
+                <div>
+                    <label for="code" class="block text-sm font-medium text-gray-700">Kode <span class="text-red-500">*</span></label>
+                    <input type="text" id="code" th:field="*{code}" maxlength="20"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                           th:classappend="${#fields.hasErrors('code')} ? 'border-red-500'">
+                    <p th:if="${#fields.hasErrors('code')}" th:errors="*{code}" class="mt-1 text-sm text-red-600"></p>
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nama <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" th:field="*{name}" maxlength="100"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                           th:classappend="${#fields.hasErrors('name')} ? 'border-red-500'">
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-600"></p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                    <textarea id="description" th:field="*{description}" rows="3" maxlength="255"
+                              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500"></textarea>
+                </div>
+
+                <!-- Active -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="active" th:field="*{active}"
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="active" class="ml-2 block text-sm text-gray-900">Aktif</label>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-4 pt-4 border-t border-gray-200">
+                    <button type="submit" id="btn-save"
+                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Simpan
+                    </button>
+                    <a th:href="@{/tags/types/{id}/tags(id=${tagType.id})}"
+                       class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -260,6 +260,9 @@
                             <a sec:authorize="hasAuthority('AUDIT_LOG_VIEW')" id="nav-audit-log" th:href="@{/audit-log}"
                                th:classappend="${#strings.equals(currentPage, 'audit-log')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                                class="flex items-center px-3 py-2 rounded-lg transition-colors">Log Audit</a>
+                            <a sec:authorize="hasAuthority('TAG_VIEW')" id="nav-tags" th:href="@{/tags/types}"
+                               th:classappend="${currentPage != null and currentPage.startsWith('tag')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                               class="flex items-center px-3 py-2 rounded-lg transition-colors">Label Transaksi</a>
                         </div>
                     </details>
                 </nav>
@@ -475,6 +478,8 @@
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Perangkat API</a>
                             <a sec:authorize="hasAuthority('AUDIT_LOG_VIEW')" th:href="@{/audit-log}"
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Log Audit</a>
+                            <a sec:authorize="hasAuthority('TAG_VIEW')" th:href="@{/tags/types}"
+                               class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Label Transaksi</a>
                         </div>
                     </details>
                 </nav>

@@ -78,6 +78,22 @@
                             th:selected="${selectedProjectCode != null and selectedProjectCode == prj.code}">Project</option>
                 </select>
 
+                <!-- Tag Filter -->
+                <select id="filter-tag" name="tagId" th:if="${tagsByType != null and !tagsByType.isEmpty()}"
+                        hx-get="/transactions"
+                        hx-target="#transaction-table"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#filter-form"
+                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">Semua Label</option>
+                    <optgroup th:each="entry : ${tagsByType}" th:label="${entry.key.name}">
+                        <option th:each="tag : ${entry.value}" th:value="${tag.id}"
+                                th:text="${tag.name}"
+                                th:selected="${selectedTagId != null and selectedTagId.equals(tag.id)}">Tag</option>
+                    </optgroup>
+                </select>
+
                 <button type="submit" id="btn-filter" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     Filter
                 </button>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title th:text="|Label: ${tagType.name}|">Label</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title" th:text="|Label: ${tagType.name}|">Label</h1>
+
+    <div layout:fragment="content" class="space-y-6">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center text-sm text-gray-500">
+            <a th:href="@{/tags/types}" class="hover:text-primary-600">Label Transaksi</a>
+            <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-gray-900" th:text="${tagType.name}">Tipe</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4 flex-wrap">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           id="search-input"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Cari label..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                           th:hx-get="@{/tags/types/{id}/tags(id=${tagType.id})}"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#tag-table"
+                           hx-swap="outerHTML">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a sec:authorize="hasAuthority('TAG_CREATE')" th:href="@{/tags/types/{id}/tags/new(id=${tagType.id})}"
+                   id="btn-new-tag"
+                   class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Label Baru
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-600" th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-600" th:text="${errorMessage}"></p>
+        </div>
+
+        <!-- Tag Table -->
+        <div class="bg-white rounded-lg shadow">
+            <th:block th:insert="~{tags/fragments/tag-table :: table}"/>
+        </div>
+    </div>
+</body>
+</html>

@@ -115,6 +115,12 @@ public class Transaction extends BaseEntity {
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<JournalEntry> journalEntries = new ArrayList<>();
 
+    @JsonIgnore
+    @Getter(AccessLevel.NONE)
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 20)
+    private List<TransactionTag> transactionTags = new ArrayList<>();
+
     public List<TransactionAccountMapping> getAccountMappings() {
         return Collections.unmodifiableList(accountMappings);
     }
@@ -125,6 +131,17 @@ public class Transaction extends BaseEntity {
 
     public List<JournalEntry> getJournalEntries() {
         return Collections.unmodifiableList(journalEntries);
+    }
+
+    public List<TransactionTag> getTransactionTags() {
+        return Collections.unmodifiableList(transactionTags);
+    }
+
+    public void setTransactionTags(List<TransactionTag> tags) {
+        transactionTags.clear();
+        if (tags != null) {
+            transactionTags.addAll(tags);
+        }
     }
 
     public void addAccountMapping(TransactionAccountMapping mapping) {

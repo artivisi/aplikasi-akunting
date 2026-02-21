@@ -7,9 +7,11 @@ import com.artivisi.accountingfinance.entity.JournalEntry;
 import com.artivisi.accountingfinance.entity.JournalTemplate;
 import com.artivisi.accountingfinance.entity.JournalTemplateLine;
 import com.artivisi.accountingfinance.entity.Project;
+import com.artivisi.accountingfinance.entity.Tag;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.entity.TransactionAccountMapping;
 import com.artivisi.accountingfinance.entity.TransactionSequence;
+import com.artivisi.accountingfinance.entity.TransactionTag;
 import com.artivisi.accountingfinance.entity.TransactionVariable;
 import com.artivisi.accountingfinance.enums.JournalPosition;
 import com.artivisi.accountingfinance.enums.TemplateCategory;
@@ -18,6 +20,7 @@ import com.artivisi.accountingfinance.enums.VoidReason;
 import com.artivisi.accountingfinance.repository.ChartOfAccountRepository;
 import com.artivisi.accountingfinance.repository.JournalEntryRepository;
 import com.artivisi.accountingfinance.repository.ProjectRepository;
+import com.artivisi.accountingfinance.repository.TagRepository;
 import com.artivisi.accountingfinance.repository.TransactionRepository;
 import com.artivisi.accountingfinance.repository.TransactionSequenceRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -51,6 +54,7 @@ public class TransactionService {
     private final JournalEntryRepository journalEntryRepository;
     private final ChartOfAccountRepository chartOfAccountRepository;
     private final ProjectRepository projectRepository;
+    private final TagRepository tagRepository;
     private final JournalTemplateService journalTemplateService;
     private final FormulaEvaluator formulaEvaluator;
 
@@ -76,6 +80,13 @@ public class TransactionService {
         String statusName = status != null ? status.name() : null;
         String categoryName = category != null ? category.name() : null;
         return transactionRepository.findByFilters(statusName, categoryName, projectId, startDate, endDate, pageable);
+    }
+
+    public Page<Transaction> findByFilters(TransactionStatus status, TemplateCategory category, UUID projectId,
+                                           UUID tagId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        String statusName = status != null ? status.name() : null;
+        String categoryName = category != null ? category.name() : null;
+        return transactionRepository.findByFiltersWithTag(statusName, categoryName, projectId, tagId, startDate, endDate, pageable);
     }
 
     public Page<Transaction> search(String search, Pageable pageable) {
@@ -175,6 +186,23 @@ public class TransactionService {
 
         // Validation happens when saving the existing entity which has all required fields
         return transactionRepository.save(existing);
+    }
+
+    @Transactional
+    public void assignTags(Transaction transaction, List<UUID> tagIds) {
+        List<TransactionTag> newTags = new ArrayList<>();
+        if (tagIds != null) {
+            for (UUID tagId : tagIds) {
+                Tag tag = tagRepository.findById(tagId)
+                        .orElseThrow(() -> new EntityNotFoundException("Tag not found: " + tagId));
+                TransactionTag tt = new TransactionTag();
+                tt.setTransaction(transaction);
+                tt.setTag(tag);
+                newTags.add(tt);
+            }
+        }
+        transaction.setTransactionTags(newTags);
+        transactionRepository.save(transaction);
     }
 
     @Transactional
