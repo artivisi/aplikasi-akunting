@@ -1122,7 +1122,18 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Functional tests
 - [ ] User manual
 
-### 10.3 Payment Tracking
+### 10.3 Vendor Bill API
+- [ ] `POST /api/bills` — create bill from AI-parsed data (vendor, lines, dates, amounts)
+- [ ] `POST /api/bills/{id}/approve` — approve and post journal entry
+- [ ] `GET /api/bills` — list bills (paginated, filterable by status/vendor/date)
+- [ ] `GET /api/bills/{id}` — bill detail
+- [ ] OAuth scope: `bills:create`, `bills:approve`, `bills:read`
+- [ ] Input: structured JSON (vendor name, bill number, date, due date, line items with description/quantity/unit_price/tax)
+- [ ] Vendor matching: match by name against existing vendors, create new if not found
+- [ ] Account mapping: use configurable default expense accounts per vendor or category
+- [ ] Functional tests
+
+### 10.4 Payment Tracking
 - [ ] Record payment against specific invoice (full or partial)
 - [ ] Record payment against specific bill (full or partial)
 - [ ] Auto-create receipt/payment journal entry on payment recording
@@ -1131,7 +1142,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Auto-update status (PARTIAL when partially paid, PAID when fully paid)
 - [ ] Functional tests
 
-### 10.4 Aging Reports
+### 10.5 Aging Reports
 - [ ] Receivables aging report (current, 30d, 60d, 90d, >90d buckets) based on invoice due dates
 - [ ] Payables aging report (same buckets) based on bill due dates
 - [ ] Aging by client/vendor
@@ -1140,7 +1151,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 - [ ] Functional tests
 - [ ] User manual
 
-### 10.5 Customer/Vendor Statements
+### 10.6 Customer/Vendor Statements
 - [ ] Per-client statement (outstanding invoices, payments received, balance)
 - [ ] Per-vendor statement (outstanding bills, payments made, balance)
 - [ ] Date range filter
