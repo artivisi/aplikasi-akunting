@@ -1094,16 +1094,6 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ## Phase 10+: Future Enhancements
 
-### Budget Management
-- [ ] Budget entity (account, period, amount)
-- [ ] Budget per account per period
-- [ ] Budget CRUD UI
-- [ ] Copy from previous period
-- [ ] Budget vs Actual report
-- [ ] Variance analysis
-- [ ] Over-budget highlighting
-- [ ] PDF/Excel export
-
 ### Advanced Marketplace Features
 
 **Goal:** Advanced marketplace settlement reconciliation and automation (basic seller accounting is already supported via industry seed packs)
