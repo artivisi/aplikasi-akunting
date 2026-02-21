@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      lang="id">
+<head>
+    <title>Laporan Klien</title>
+</head>
+<body>
+    <h1 id="page-title" layout:fragment="page-title">Laporan Klien</h1>
+
+    <div layout:fragment="content" class="h-full flex flex-col overflow-y-auto" data-testid="client-statement">
+        <div class="max-w-6xl">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/clients/{code}(code=${client.code})}" class="hover:text-primary-600 transition-colors" th:text="${client.name}">Client</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span class="text-gray-900">Laporan</span>
+            </nav>
+
+            <!-- Filter -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <form th:action="@{/statements/client/{code}(code=${client.code})}" method="get" class="flex flex-wrap items-end gap-4">
+                    <div class="flex-1 min-w-[180px]">
+                        <label for="dateFrom" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                        <input type="date" id="dateFrom" name="dateFrom" th:value="${statement.dateFrom()}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div class="flex-1 min-w-[180px]">
+                        <label for="dateTo" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                        <input type="date" id="dateTo" name="dateTo" th:value="${statement.dateTo()}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            Tampilkan
+                        </button>
+                        <a th:href="@{/statements/client/{code}/print(code=${client.code}, dateFrom=${statement.dateFrom()}, dateTo=${statement.dateTo()})}"
+                           target="_blank"
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            Cetak
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Statement Header -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900" th:text="${statement.entityName()}">Client Name</h2>
+                        <p class="text-sm text-gray-500 font-mono" th:text="${statement.entityCode()}">CLT-001</p>
+                    </div>
+                    <div class="text-right text-sm text-gray-500">
+                        <p th:text="|Periode: ${#temporals.format(statement.dateFrom(), 'dd MMM yyyy')} - ${#temporals.format(statement.dateTo(), 'dd MMM yyyy')}|">Periode</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statement Table -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" data-testid="statement-table">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipe</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Referensi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Invoice</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Pembayaran</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <!-- Opening Balance -->
+                        <tr class="bg-gray-50 font-medium" data-testid="opening-balance">
+                            <td class="px-4 py-2 text-sm" th:text="${#temporals.format(statement.dateFrom(), 'dd MMM yyyy')}">01 Jan</td>
+                            <td class="px-4 py-2 text-sm" colspan="3">Saldo Awal</td>
+                            <td class="px-4 py-2 text-sm text-right">-</td>
+                            <td class="px-4 py-2 text-sm text-right">-</td>
+                            <td class="px-4 py-2 text-sm text-right font-mono" th:text="'Rp ' + ${#numbers.formatDecimal(statement.openingBalance(), 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+                        </tr>
+                        <!-- Entries -->
+                        <tr th:each="entry : ${statement.entries()}"
+                            th:classappend="${entry.type() == 'PAYMENT'} ? 'bg-green-50' : ''">
+                            <td class="px-4 py-2 text-sm" th:text="${#temporals.format(entry.date(), 'dd MMM yyyy')}">01 Jan</td>
+                            <td class="px-4 py-2 text-sm">
+                                <span th:if="${entry.type() == 'INVOICE'}" class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Invoice</span>
+                                <span th:if="${entry.type() == 'PAYMENT'}" class="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700">Pembayaran</span>
+                            </td>
+                            <td class="px-4 py-2 text-sm font-mono" th:text="${entry.referenceNumber()}">REF-001</td>
+                            <td class="px-4 py-2 text-sm" th:text="${entry.description()}">Description</td>
+                            <td class="px-4 py-2 text-sm text-right font-mono"
+                                th:text="${entry.invoiceAmount().compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'Rp ' + ${#numbers.formatDecimal(entry.invoiceAmount(), 0, 'COMMA', 0, 'POINT')} : '-'">-</td>
+                            <td class="px-4 py-2 text-sm text-right font-mono text-green-600"
+                                th:text="${entry.paymentAmount().compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'Rp ' + ${#numbers.formatDecimal(entry.paymentAmount(), 0, 'COMMA', 0, 'POINT')} : '-'">-</td>
+                            <td class="px-4 py-2 text-sm text-right font-mono font-medium" th:text="'Rp ' + ${#numbers.formatDecimal(entry.runningBalance(), 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+                        </tr>
+                        <!-- Closing Balance -->
+                        <tr class="bg-gray-100 font-bold" data-testid="closing-balance">
+                            <td class="px-4 py-3 text-sm" th:text="${#temporals.format(statement.dateTo(), 'dd MMM yyyy')}">31 Jan</td>
+                            <td class="px-4 py-3 text-sm" colspan="3">Saldo Akhir</td>
+                            <td class="px-4 py-3 text-sm text-right">-</td>
+                            <td class="px-4 py-3 text-sm text-right">-</td>
+                            <td class="px-4 py-3 text-sm text-right font-mono" th:text="'Rp ' + ${#numbers.formatDecimal(statement.closingBalance(), 0, 'COMMA', 0, 'POINT')}">Rp 0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- No data -->
+                <div th:if="${statement.entries().isEmpty()}" class="p-8 text-center text-gray-500" data-testid="no-data">
+                    Tidak ada transaksi pada periode ini
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
