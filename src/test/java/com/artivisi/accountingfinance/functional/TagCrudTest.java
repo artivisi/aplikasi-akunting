@@ -1,7 +1,9 @@
 package com.artivisi.accountingfinance.functional;
 
+import com.artivisi.accountingfinance.entity.Tag;
 import com.artivisi.accountingfinance.entity.TagType;
 import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
+import com.artivisi.accountingfinance.repository.TagRepository;
 import com.artivisi.accountingfinance.repository.TagTypeRepository;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,14 +12,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @DisplayName("Tag CRUD Tests")
 @Import(ServiceTestDataInitializer.class)
 class TagCrudTest extends PlaywrightTestBase {
 
+    private static final List<String> TEST_TAG_CODES = List.of("MKT", "DUPTAG", "EDTAG", "DELTAG");
+
     @Autowired
     private TagTypeRepository tagTypeRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     private TagType tagType;
 
@@ -33,6 +42,15 @@ class TagCrudTest extends PlaywrightTestBase {
             tagType.setActive(true);
             tagType = tagTypeRepository.save(tagType);
         }
+
+        // Clean up tags from previous test runs to ensure idempotency
+        List<Tag> existingTags = tagRepository.findByTagTypeIdOrderByName(tagType.getId());
+        for (Tag tag : existingTags) {
+            if (TEST_TAG_CODES.contains(tag.getCode())) {
+                tagRepository.delete(tag);
+            }
+        }
+        tagRepository.flush();
     }
 
     @Test
