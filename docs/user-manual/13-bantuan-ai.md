@@ -17,17 +17,21 @@ Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti 
 ### Alur Umum
 
 ```
-1. User mengirim struk/dokumen ke AI assistant
+1. AI membaca capabilities.json (GET /api/capabilities.json)
    ↓
-2. AI menganalisis dokumen (merchant, jumlah, tanggal)
+2. AI melakukan autentikasi (OAuth 2.0 Device Flow)
    ↓
-3. AI mencocokkan template journal yang sesuai
+3. User mengirim struk/dokumen ke AI assistant
    ↓
-4. AI menampilkan preview dan meminta persetujuan user
+4. AI menganalisis dokumen (merchant, jumlah, tanggal)
    ↓
-5. User menyetujui → AI posting transaksi ke aplikasi
+5. AI mencocokkan template journal yang sesuai
    ↓
-6. Transaksi tercatat di aplikasi
+6. AI menampilkan preview dan meminta persetujuan user
+   ↓
+7. User menyetujui → AI posting transaksi ke aplikasi
+   ↓
+8. Transaksi tercatat di aplikasi
 ```
 
 ### Keuntungan
@@ -36,6 +40,54 @@ Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti 
 - **Akurat**: AI membaca struk dengan akurasi tinggi
 - **Konsisten**: Template journal dipilih otomatis
 - **Audit Trail**: Semua API call tercatat
+
+---
+
+## API Discovery via capabilities.json
+
+Sebelum mulai berinteraksi dengan API, AI assistant sebaiknya membaca file **capabilities.json** yang mendeskripsikan seluruh kemampuan API aplikasi ini. File ini tersedia tanpa autentikasi.
+
+### Endpoint
+
+```bash
+GET /api/capabilities.json
+# Tidak perlu Authorization header
+```
+
+### Isi capabilities.json
+
+| Bagian | Deskripsi |
+|--------|-----------|
+| `authentication` | Alur OAuth 2.0 Device Flow lengkap (step 1-3), daftar scope, expiry |
+| `endpointGroups` | Semua endpoint dikelompokkan per domain (Draft Transactions, Transactions, Templates, Financial Analysis, Analysis Reports, Data Import, Bank Reconciliation) |
+| `workflows` | Alur kerja end-to-end (receipt-based, text-based, direct posting, financial analysis, bank reconciliation, client onboarding, correction workflows) |
+| `csvFiles` | Spesifikasi CSV untuk data import (nama kolom, tipe data, catatan) |
+| `industries` | Daftar kode industri yang didukung (`it-service`, `online-seller`, `coffee-shop`, `campus`) |
+| `errorCodes` | Daftar kode error dan HTTP status |
+
+### Cara AI Menggunakan capabilities.json
+
+```
+1. AI membaca capabilities.json (GET /api/capabilities.json)
+   ↓
+2. AI memahami:
+   - Endpoint apa saja yang tersedia
+   - Field apa yang wajib/opsional per endpoint
+   - Scope apa yang diperlukan
+   - Alur kerja (workflow) yang benar
+   ↓
+3. AI mengikuti alur autentikasi dari capabilities.json
+   ↓
+4. AI memanggil endpoint sesuai workflow
+```
+
+### Keuntungan
+
+- **Self-describing API**: AI tidak perlu dokumentasi terpisah — semua informasi ada di capabilities.json
+- **Selalu sinkron**: capabilities.json diperbarui bersama kode, sehingga selalu akurat
+- **Tanpa autentikasi**: AI dapat membaca capabilities.json sebelum melakukan device flow
+
+> **Untuk pengembang AI assistant**: Langkah pertama integrasi adalah selalu `GET /api/capabilities.json` untuk mengetahui endpoint, field, dan workflow yang tersedia.
 
 ---
 
@@ -268,6 +320,84 @@ Transaksi yang dibuat via AI akan memiliki:
 
 ---
 
+## Koreksi Transaksi via AI
+
+Jika AI salah mengklasifikasi transaksi atau ada kesalahan pada draft/transaksi, AI dapat memperbaikinya tanpa perlu intervensi manual di web UI.
+
+### Koreksi Draft (PENDING)
+
+Draft yang masih berstatus PENDING dapat dikoreksi sebelum di-approve:
+
+```bash
+PATCH /api/drafts/{id}
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Body** (semua field opsional, hanya field yang dikirim yang diperbarui):
+```json
+{
+  "merchantName": "Starbucks Reserve",
+  "amount": 95000,
+  "description": "Coffee meeting with client",
+  "suggestedTemplateId": "UUID-template-lain",
+  "category": "Entertainment"
+}
+```
+
+### Koreksi Transaksi DRAFT (Belum Posted)
+
+Transaksi yang sudah di-approve dari draft tetapi belum di-post (status DRAFT) dapat dikoreksi:
+
+```bash
+PUT /api/transactions/{id}
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Body** (semua field opsional):
+```json
+{
+  "templateId": "UUID-template-yang-benar",
+  "description": "Deskripsi yang diperbaiki",
+  "amount": 350000,
+  "transactionDate": "2026-02-10"
+}
+```
+
+Validasi:
+- Hanya transaksi berstatus **DRAFT** yang bisa dikoreksi
+- Tanggal transaksi tidak boleh di masa depan
+- Jika `templateId` diubah, jurnal entries akan di-regenerate sesuai template baru
+
+### Hapus Transaksi DRAFT
+
+Transaksi DRAFT yang salah total dapat dihapus:
+
+```bash
+DELETE /api/transactions/{id}
+Authorization: Bearer {accessToken}
+```
+
+Response: `204 No Content`
+
+Hanya transaksi berstatus **DRAFT** yang bisa dihapus. Transaksi yang sudah POSTED tidak bisa dihapus via API.
+
+### Alur Koreksi
+
+```
+Skenario 1: Koreksi sebelum approve
+  PATCH /api/drafts/{id}  →  POST /api/drafts/{id}/approve
+
+Skenario 2: Koreksi setelah approve, sebelum post
+  PUT /api/transactions/{id}  →  POST /api/transactions/{id}/post
+
+Skenario 3: Hapus dan buat ulang
+  DELETE /api/transactions/{id}  →  (buat draft/transaksi baru)
+```
+
+---
+
 ## Analisis Keuangan via AI
 
 Selain mencatat transaksi, AI assistant juga dapat **menganalisis data keuangan** perusahaan Anda. Aplikasi menyediakan 10 endpoint read-only di bawah `/api/analysis` yang mengembalikan data terstruktur — AI yang menginterpretasikan datanya.
@@ -472,13 +602,16 @@ Batas setor PPN: 31 Februari 2026
 ### Otorisasi Scope
 
 Token yang diterbitkan melalui Device Flow secara otomatis memiliki scope berikut:
-- `drafts:create` — membuat draft transaksi
+- `drafts:create` — membuat dan mengedit draft transaksi
 - `drafts:approve` — approve/reject draft
 - `drafts:read` — membaca draft
 - `analysis:read` — membaca laporan keuangan
 - `analysis:write` — mempublikasikan laporan analisis
-- `transactions:post` — posting transaksi DRAFT
+- `transactions:post` — posting, koreksi, dan hapus transaksi DRAFT
 - `data:import` — import data dari file ZIP
+- `bills:read` — membaca vendor bills
+- `bills:create` — membuat vendor bills
+- `bills:approve` — approve vendor bills
 
 Tanpa scope yang sesuai, request akan ditolak dengan HTTP 403.
 
@@ -1075,24 +1208,49 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 
 ### Endpoint Summary
 
-**Autentikasi:**
+**Discovery (public, tanpa autentikasi):**
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| POST | `/api/device/code` | Request device code (public) |
-| POST | `/api/device/token` | Poll for access token (public) |
+| GET | `/api/capabilities.json` | Deskripsi lengkap seluruh API (endpoint, workflow, scope) |
 
-**Transaksi (scope: `drafts:*`):**
+**Autentikasi (public):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/device/code` | Request device code |
+| POST | `/api/device/token` | Poll for access token |
+
+**Draft Transaksi (scope: `drafts:*`):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/drafts/from-receipt` | Buat draft dari struk |
+| POST | `/api/drafts/from-text` | Buat draft dari teks |
+| GET | `/api/drafts/{id}` | Get draft by ID |
+| PATCH | `/api/drafts/{id}` | Koreksi draft PENDING |
+| POST | `/api/drafts/{id}/approve` | Approve draft |
+| POST | `/api/drafts/{id}/reject` | Reject draft |
+
+**Template (scope: `drafts:read`, `drafts:create`):**
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | GET | `/api/templates` | List templates dengan metadata |
 | GET | `/api/templates/{id}` | Get single template |
+| POST | `/api/templates` | Buat template baru |
+| PUT | `/api/templates/{id}` | Update template |
+| DELETE | `/api/templates/{id}` | Hapus template (soft delete) |
+
+**Transaksi (scope: `transactions:post`):**
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
 | POST | `/api/transactions` | Post transaction langsung |
-| POST | `/api/drafts/from-receipt` | Buat draft dari struk |
-| GET | `/api/drafts/{id}` | Get draft by ID |
-| POST | `/api/drafts/{id}/approve` | Approve draft |
-| POST | `/api/drafts/{id}/reject` | Reject draft |
+| PUT | `/api/transactions/{id}` | Koreksi transaksi DRAFT |
+| DELETE | `/api/transactions/{id}` | Hapus transaksi DRAFT |
+| POST | `/api/transactions/{id}/post` | Post satu transaksi DRAFT |
+| POST | `/api/transactions/bulk-post` | Batch post transaksi DRAFT |
 
 **Analisis Keuangan (scope: `analysis:read`):**
 
@@ -1119,13 +1277,6 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 |--------|----------|-----------|
 | POST | `/api/analysis/reports` | Publikasi laporan analisis terstruktur |
 
-**Posting Transaksi (scope: `transactions:post`):**
-
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| POST | `/api/transactions/{id}/post` | Post satu transaksi DRAFT |
-| POST | `/api/transactions/bulk-post` | Batch post transaksi DRAFT |
-
 **Manajemen Data (scope: `data:import`):**
 
 | Method | Endpoint | Deskripsi |
@@ -1134,7 +1285,12 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 
 ### Authentication
 
-Semua endpoint kecuali `/api/device/**` memerlukan Bearer token:
+Endpoint yang **tidak** memerlukan autentikasi:
+- `GET /api/capabilities.json`
+- `POST /api/device/code`
+- `POST /api/device/token`
+
+Semua endpoint lainnya memerlukan Bearer token:
 
 ```
 Authorization: Bearer {accessToken}
@@ -1154,6 +1310,7 @@ Authorization: Bearer {accessToken}
 | 401 | `unauthorized` | Token tidak valid atau expired |
 | 403 | — | Scope tidak memadai (contoh: token tanpa `analysis:read`) |
 | 404 | `NOT_FOUND` | Template/resource tidak ditemukan |
+| 409 | `CONFLICT` | State conflict (contoh: transaksi sudah POSTED, tidak bisa dihapus) |
 | 429 | `RATE_LIMIT_EXCEEDED` | Terlalu banyak request |
 | 500 | `INTERNAL_ERROR` | Server error |
 
@@ -1179,9 +1336,10 @@ API ini generik dan dapat digunakan oleh AI assistant apapun yang mendukung HTTP
 ### Bagaimana jika AI salah pilih template?
 
 Anda bisa:
-1. **Edit di chat**: Minta AI ganti template sebelum posting
-2. **Edit di web**: Setelah posted, edit transaksi di web UI
-3. **Void dan re-create**: Void transaksi dan buat ulang
+1. **Koreksi draft**: AI menggunakan `PATCH /api/drafts/{id}` untuk memperbaiki draft sebelum approve
+2. **Koreksi transaksi DRAFT**: AI menggunakan `PUT /api/transactions/{id}` untuk reklasifikasi template sebelum posting
+3. **Hapus dan buat ulang**: AI menggunakan `DELETE /api/transactions/{id}` lalu buat transaksi baru
+4. **Edit di web**: Setelah posted, edit transaksi di web UI
 
 ### Apakah bisa batch import banyak transaksi?
 
