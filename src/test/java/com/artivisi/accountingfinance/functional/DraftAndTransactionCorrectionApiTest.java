@@ -306,6 +306,39 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         }
 
         @Test
+        @DisplayName("Should re-apply lineAccountOverrides without 409 Conflict")
+        void shouldReApplyLineAccountOverrides() throws Exception {
+            String transactionId = createDraftTransaction();
+            String accountId = getFirstAccountId();
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("lineAccountOverrides", Map.of(2, accountId));
+
+            // First PUT
+            APIResponse response1 = apiContext.put("/api/transactions/" + transactionId,
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/json")
+                            .setHeader("Authorization", "Bearer " + accessToken)
+                            .setData(update));
+
+            assertThat(response1.ok())
+                    .as("First PUT with lineAccountOverrides failed: %d %s", response1.status(), response1.text())
+                    .isTrue();
+
+            // Second PUT with same overrides — should NOT return 409
+            APIResponse response2 = apiContext.put("/api/transactions/" + transactionId,
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/json")
+                            .setHeader("Authorization", "Bearer " + accessToken)
+                            .setData(update));
+
+            assertThat(response2.ok())
+                    .as("Second PUT with lineAccountOverrides returned %d (expected 200): %s",
+                            response2.status(), response2.text())
+                    .isTrue();
+        }
+
+        @Test
         @DisplayName("Should reject future transaction date")
         void shouldRejectFutureDate() throws Exception {
             String transactionId = createDraftTransaction();

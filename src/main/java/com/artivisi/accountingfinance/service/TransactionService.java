@@ -372,6 +372,8 @@ public class TransactionService {
         JournalTemplate template = journalTemplateService.findByIdWithLines(transaction.getJournalTemplate().getId());
 
         transaction.clearAccountMappings();
+        transactionRepository.save(transaction);
+        transactionRepository.flush();
         for (JournalTemplateLine line : template.getLines()) {
             UUID overrideAccountId = accountMappings.get(line.getId());
             if (overrideAccountId != null) {
