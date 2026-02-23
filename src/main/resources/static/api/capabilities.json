@@ -218,8 +218,10 @@
           "description": "Create new journal template",
           "requestBody": {
             "templateName": "string (required)",
-            "category": "INCOME|EXPENSE|TRANSFER|ADJUSTMENT (required)",
-            "description": "string (required)"
+            "category": "INCOME|EXPENSE|PAYMENT|RECEIPT|TRANSFER (required)",
+            "cashFlowCategory": "OPERATING|INVESTING|FINANCING (required)",
+            "templateType": "SIMPLE|VARIABLE|SPLIT|MULTI_LINE (optional, default SIMPLE)",
+            "description": "string (optional)"
           },
           "response": "TemplateDto: id, name, category, description"
         },
@@ -229,9 +231,11 @@
           "scope": "drafts:create",
           "description": "Update existing template",
           "requestBody": {
-            "templateName": "string",
-            "category": "string",
-            "description": "string"
+            "templateName": "string (optional)",
+            "category": "INCOME|EXPENSE|PAYMENT|RECEIPT|TRANSFER (optional)",
+            "cashFlowCategory": "OPERATING|INVESTING|FINANCING (optional)",
+            "templateType": "SIMPLE|VARIABLE|SPLIT|MULTI_LINE (optional)",
+            "description": "string (optional)"
           },
           "response": "TemplateDto"
         },
@@ -407,7 +411,7 @@
           "filename": "04_journal_templates.csv",
           "description": "Journal templates",
           "columns": "template_name,category,cash_flow_category,template_type,description,is_system,active,version,usage_count,last_used_at,semantic_description,keywords,example_merchants,typical_amount_min,typical_amount_max,merchant_patterns",
-          "notes": "category: REVENUE|EXPENSE|TRANSFER|ADJUSTMENT|PAYROLL|TAX|RECEIVABLE|PAYABLE|ASSET_PURCHASE|ASSET_DEPRECIATION. cash_flow_category: OPERATING|INVESTING|FINANCING. template_type: SIMPLE|VARIABLE|SPLIT|MULTI_LINE. Pipe-delimited multi-values: keywords, example_merchants, merchant_patterns"
+          "notes": "category: INCOME|EXPENSE|PAYMENT|RECEIPT|TRANSFER. cash_flow_category: OPERATING|INVESTING|FINANCING. template_type: SIMPLE|VARIABLE|SPLIT|MULTI_LINE. Pipe-delimited multi-values: keywords, example_merchants, merchant_patterns"
         },
         {
           "filename": "05_journal_template_lines.csv",
