@@ -18,7 +18,7 @@ Panduan pencatatan transaksi pajak dan laporan untuk kepatuhan perpajakan Indone
 
 ## Transaksi PPN
 
-### Konsep PPN
+### Konsep PPN (DPP Nilai Lain — PMK 131/2024)
 
 **PPN Keluaran** - PPN yang Anda pungut dari pembeli
 **PPN Masukan** - PPN yang Anda bayar ke penjual
@@ -27,32 +27,51 @@ Panduan pencatatan transaksi pajak dan laporan untuk kepatuhan perpajakan Indone
 Net PPN = PPN Keluaran - PPN Masukan
 ```
 
+Sejak 1 Januari 2025, perhitungan PPN menggunakan DPP Nilai Lain (PMK 131/2024):
+- **DPP** = Harga Jual × 11/12
+- **PPN** = DPP × 12% = **Harga Jual × 11%**
+- Field `amount` di template = **Harga Jual** (sebelum PPN)
+
 ### Mencatat Pendapatan dengan PPN
 
 1. Buka menu **Transaksi** > **Transaksi Baru**
 
 ![Form Transaksi](screenshots/transactions-form.png)
 
-2. Pilih template **Pendapatan Jasa dengan PPN**
-3. Isi jumlah inklusif PPN
+2. Pilih template **Pendapatan Jasa + PPN**
+3. Isi Harga Jual (sebelum PPN), contoh: Rp 10.000.000
 4. Preview jurnal:
    ```
-   Dr. Bank                    11.100.000
-       Cr. Hutang PPN              1.100.000
-       Cr. Pendapatan             10.000.000
+   Dr. Bank                    11.100.000  (amount * 1.11)
+       Cr. Hutang PPN              1.100.000  (amount * 0.11)
+       Cr. Pendapatan             10.000.000  (amount)
    ```
 5. Klik **Simpan & Posting**
 
 ### Mencatat Pembelian dengan PPN Masukan
 
 1. Pilih template **Pembelian dengan PPN**
-2. Isi jumlah inklusif PPN
+2. Isi Harga Jual (sebelum PPN), contoh: Rp 10.000.000
 3. Preview jurnal:
    ```
-   Dr. Beban/Aset             10.000.000
-   Dr. PPN Masukan             1.100.000
-       Cr. Bank                   11.100.000
+   Dr. Beban/Aset             10.000.000  (amount)
+   Dr. PPN Masukan             1.100.000  (amount * 0.11)
+       Cr. Bank                   11.100.000  (amount * 1.11)
    ```
+
+### Pendapatan Jasa BUMN (FP 03)
+
+Untuk klien BUMN/Pemerintah yang menggunakan Faktur Pajak kode 03 (PPN dipungut pembeli):
+
+1. Pilih template **Pendapatan Jasa BUMN (FP 03)**
+2. Isi Harga Jual, contoh: Rp 10.000.000
+3. Preview jurnal:
+   ```
+   Dr. Bank                     9.800.000  (amount * 0.98)
+   Dr. Kredit PPh 23              200.000  (amount * 0.02)
+       Cr. Pendapatan            10.000.000  (amount)
+   ```
+4. PPN tidak masuk jurnal karena dipungut dan disetor oleh pembeli (BUMN)
 
 ### Laporan Ringkasan PPN
 

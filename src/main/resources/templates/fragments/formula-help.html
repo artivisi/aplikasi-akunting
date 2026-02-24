@@ -93,13 +93,13 @@
                                     class="px-2 py-1 text-xs font-mono bg-white border border-blue-200 rounded hover:bg-blue-100 transition-colors">
                                 amount * 0.11
                             </button>
-                            <button type="button" @click="setFormulaDpp"
+                            <button type="button" @click="setFormulaGrossWithPpn"
                                     class="px-2 py-1 text-xs font-mono bg-white border border-blue-200 rounded hover:bg-blue-100 transition-colors">
-                                amount / 1.11
+                                amount * 1.11
                             </button>
-                            <button type="button" @click="setFormulaPpnFromGross"
+                            <button type="button" @click="setFormulaNetPpnPph23"
                                     class="px-2 py-1 text-xs font-mono bg-white border border-blue-200 rounded hover:bg-blue-100 transition-colors">
-                                amount - (amount / 1.11)
+                                amount * 1.09
                             </button>
                             <button type="button" @click="setFormulaPph23"
                                     class="px-2 py-1 text-xs font-mono bg-white border border-blue-200 rounded hover:bg-blue-100 transition-colors">
@@ -136,8 +136,8 @@
                             </tr>
                             <tr class="border-b border-blue-100">
                                 <td class="py-2 pr-4 font-medium">Pembagian</td>
-                                <td class="py-2 pr-4 font-mono bg-white px-2 rounded">amount / 1.11</td>
-                                <td class="py-2">Ekstrak DPP dari gross</td>
+                                <td class="py-2 pr-4 font-mono bg-white px-2 rounded">amount / 3</td>
+                                <td class="py-2">Bagi rata ke 3 pos</td>
                             </tr>
                             <tr class="border-b border-blue-100">
                                 <td class="py-2 pr-4 font-medium">Pengurangan</td>
@@ -188,30 +188,30 @@
                     </div>
                 </div>
 
-                <!-- Scenario 2: Sale with PPN -->
+                <!-- Scenario 2: Sale with PPN (DPP Nilai Lain PMK 131/2024) -->
                 <div class="bg-white rounded-lg p-3 border border-blue-100">
-                    <h5 class="text-xs font-semibold text-gray-800 mb-2">2. Penjualan dengan PPN 11%</h5>
-                    <p class="text-xs text-gray-600 mb-2">Jual jasa Rp 11.100.000 (sudah termasuk PPN)</p>
+                    <h5 class="text-xs font-semibold text-gray-800 mb-2">2. Pendapatan Jasa dengan PPN 11%</h5>
+                    <p class="text-xs text-gray-600 mb-2">Jasa Rp 10.000.000 (Harga Jual, sebelum PPN)</p>
                     <div class="text-xs text-gray-600 mb-2 bg-yellow-50 p-2 rounded">
-                        <strong>Perhitungan:</strong><br/>
-                        DPP = 11.100.000 / 1.11 = Rp 10.000.000<br/>
-                        PPN = 11.100.000 - 10.000.000 = Rp 1.100.000
+                        <strong>Perhitungan (PMK 131/2024):</strong><br/>
+                        PPN = Harga Jual × 11% = Rp 1.100.000<br/>
+                        Total diterima = 10.000.000 + 1.100.000 = Rp 11.100.000
                     </div>
                     <div class="bg-gray-50 rounded p-2 font-mono text-xs space-y-1">
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-green-700">Debit - Bank</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold">amount</span>
+                            <span class="font-semibold">amount * 1.11</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-red-700">Kredit - Pendapatan</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold">amount / 1.11</span>
+                            <span class="font-semibold">amount</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-red-700">Kredit - PPN Keluaran</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold text-[10px]">amount - (amount / 1.11)</span>
+                            <span class="font-semibold">amount * 0.11</span>
                         </div>
                     </div>
                 </div>
@@ -219,22 +219,27 @@
                 <!-- Scenario 3: Purchase with PPN -->
                 <div class="bg-white rounded-lg p-3 border border-blue-100">
                     <h5 class="text-xs font-semibold text-gray-800 mb-2">3. Pembelian dengan PPN 11%</h5>
-                    <p class="text-xs text-gray-600 mb-2">Beli perlengkapan Rp 5.550.000 (sudah termasuk PPN)</p>
+                    <p class="text-xs text-gray-600 mb-2">Beli perlengkapan Rp 5.000.000 (Harga Jual, sebelum PPN)</p>
+                    <div class="text-xs text-gray-600 mb-2 bg-yellow-50 p-2 rounded">
+                        <strong>Perhitungan:</strong><br/>
+                        PPN = 5.000.000 × 11% = Rp 550.000<br/>
+                        Total bayar = 5.000.000 + 550.000 = Rp 5.550.000
+                    </div>
                     <div class="bg-gray-50 rounded p-2 font-mono text-xs space-y-1">
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-green-700">Debit - Perlengkapan</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold">amount / 1.11</span>
+                            <span class="font-semibold">amount</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-green-700">Debit - PPN Masukan</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold text-[10px]">amount - (amount / 1.11)</span>
+                            <span class="font-semibold">amount * 0.11</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <span class="text-red-700">Kredit - Kas/Bank</span>
                             <span class="text-gray-500">:</span>
-                            <span class="font-semibold">amount</span>
+                            <span class="font-semibold">amount * 1.11</span>
                         </div>
                     </div>
                 </div>
@@ -344,12 +349,12 @@
                     this.tryFormula = 'amount * 0.11'
                     this.debouncedPreview()
                 },
-                setFormulaDpp() {
-                    this.tryFormula = 'amount / 1.11'
+                setFormulaGrossWithPpn() {
+                    this.tryFormula = 'amount * 1.11'
                     this.debouncedPreview()
                 },
-                setFormulaPpnFromGross() {
-                    this.tryFormula = 'amount - (amount / 1.11)'
+                setFormulaNetPpnPph23() {
+                    this.tryFormula = 'amount * 1.09'
                     this.debouncedPreview()
                 },
                 setFormulaPph23() {

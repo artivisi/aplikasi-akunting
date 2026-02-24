@@ -93,24 +93,25 @@ class FormulaEvaluatorTest {
         }
 
         @Test
-        @DisplayName("Should extract DPP from gross (amount / 1.11)")
-        void shouldExtractDppFromGross() {
-            // Gross amount including PPN 11%
-            FormulaContext context = FormulaContext.of(11_100_000L);
+        @DisplayName("Should calculate gross with PPN (amount * 1.11)")
+        void shouldCalculateGrossWithPpn() {
+            // Harga Jual = 10,000,000, total = Harga Jual + PPN 11%
+            FormulaContext context = FormulaContext.of(10_000_000L);
 
-            BigDecimal result = evaluator.evaluate("amount / 1.11", context);
+            BigDecimal result = evaluator.evaluate("amount * 1.11", context);
 
-            assertThat(result).isEqualByComparingTo("10000000.00");
+            assertThat(result).isEqualByComparingTo("11100000.00");
         }
 
         @Test
-        @DisplayName("Should calculate PPN from gross (amount - (amount / 1.11))")
-        void shouldCalculatePpnFromGross() {
-            FormulaContext context = FormulaContext.of(11_100_000L);
+        @DisplayName("Should calculate net with PPN and PPh 23 (amount * 1.09)")
+        void shouldCalculateNetWithPpnAndPph23() {
+            // Harga Jual = 10,000,000, net = Harga Jual + PPN 11% - PPh 23 2%
+            FormulaContext context = FormulaContext.of(10_000_000L);
 
-            BigDecimal result = evaluator.evaluate("amount - (amount / 1.11)", context);
+            BigDecimal result = evaluator.evaluate("amount * 1.09", context);
 
-            assertThat(result).isEqualByComparingTo("1100000.00");
+            assertThat(result).isEqualByComparingTo("10900000.00");
         }
     }
 

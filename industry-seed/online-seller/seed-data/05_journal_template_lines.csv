@@ -16,9 +16,9 @@ Penjualan TikTok Shop,2,5.2.05,,DEBIT,adminFee,Biaya admin TikTok Shop
 Penjualan TikTok Shop,3,4.1.05,,CREDIT,grossSales,Penjualan TikTok Shop (bruto)
 Penjualan Offline/COD,1,1.1.01,,DEBIT,amount,Penerimaan kas
 Penjualan Offline/COD,2,4.1.06,,CREDIT,amount,Penjualan offline/COD
-Penjualan + PPN,1,,BANK,DEBIT,amount,Penerimaan kas/bank (DPP + PPN)
-Penjualan + PPN,2,,PENDAPATAN,CREDIT,amount / 1.11,Pendapatan (DPP)
-Penjualan + PPN,3,2.1.03,,CREDIT,amount - (amount / 1.11),PPN Keluaran 11%
+Penjualan + PPN,1,,BANK,DEBIT,amount * 1.11,Penerimaan kas/bank (Harga Jual + PPN 11%)
+Penjualan + PPN,2,,PENDAPATAN,CREDIT,amount,Pendapatan (Harga Jual)
+Penjualan + PPN,3,2.1.03,,CREDIT,amount * 0.11,PPN Keluaran 11%
 Withdraw Saldo Tokopedia,1,,BANK,DEBIT,amount,Bank tujuan
 Withdraw Saldo Tokopedia,2,1.1.04,,CREDIT,amount,Saldo Tokopedia
 Withdraw Saldo Shopee,1,,BANK,DEBIT,amount,Bank tujuan
@@ -35,9 +35,9 @@ Bayar Iklan Marketplace,1,5.2.10,,DEBIT,amount,Biaya iklan marketplace
 Bayar Iklan Marketplace,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Pembelian Barang Dagangan,1,1.1.20,,DEBIT,amount,Persediaan barang dagangan
 Pembelian Barang Dagangan,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Pembelian Barang + PPN,1,1.1.20,,DEBIT,amount / 1.11,Persediaan barang dagangan (DPP)
-Pembelian Barang + PPN,2,1.1.25,,DEBIT,amount - (amount / 1.11),PPN Masukan 11%
-Pembelian Barang + PPN,3,,BANK,CREDIT,amount,Pembayaran dari bank
+Pembelian Barang + PPN,1,1.1.20,,DEBIT,amount,Persediaan barang dagangan (Harga Jual)
+Pembelian Barang + PPN,2,1.1.25,,DEBIT,amount * 0.11,PPN Masukan 11%
+Pembelian Barang + PPN,3,,BANK,CREDIT,amount * 1.11,Pembayaran dari bank (Harga Jual + PPN)
 Bayar Supplier,1,2.1.02,,DEBIT,amount,Hutang supplier
 Bayar Supplier,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Ongkir Ditanggung Penjual,1,5.3.01,,DEBIT,amount,Ongkir ditanggung penjual

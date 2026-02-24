@@ -8,7 +8,7 @@ Daftar template transaksi standar yang tersedia dalam seed data. Template memper
 
 | Kategori | Jumlah | Deskripsi |
 |----------|--------|-----------|
-| Pendapatan | 8 | Template untuk mencatat penerimaan |
+| Pendapatan | 9 | Template untuk mencatat penerimaan |
 | Pengeluaran | 12 | Template untuk mencatat pembayaran |
 | Transfer | 3 | Template untuk transfer antar akun |
 | Pajak | 6 | Template untuk setoran pajak |
@@ -21,17 +21,17 @@ Daftar template transaksi standar yang tersedia dalam seed data. Template memper
 
 ### Pendapatan Jasa + PPN (PKP)
 
-**Digunakan**: Menerima pembayaran jasa dari klien (PKP)
+**Digunakan**: Menerima pembayaran jasa dari klien (PKP). DPP Nilai Lain (PMK 131/2024).
 
 | Field | Input |
 |-------|-------|
-| Jumlah | Total inklusif PPN |
+| Jumlah | Harga Jual (sebelum PPN) |
 
 **Jurnal**:
 ```
-Dr. Bank/Kas                    amount
-    Cr. Hutang PPN                  amount * 11/111
-    Cr. Pendapatan Jasa             amount * 100/111
+Dr. Bank/Kas                    amount * 1.11
+    Cr. Hutang PPN                  amount * 0.11
+    Cr. Pendapatan Jasa             amount
 ```
 
 ### Pendapatan Jasa (Non-PKP)
@@ -86,13 +86,13 @@ Dr. Bank                        amount
 
 ### Penjualan Barang + PPN
 
-**Digunakan**: Menjual barang dengan PPN
+**Digunakan**: Menjual barang dengan PPN. DPP Nilai Lain (PMK 131/2024).
 
 **Jurnal**:
 ```
-Dr. Bank/Kas                    amount
-    Cr. Hutang PPN                  amount * 11/111
-    Cr. Penjualan                   amount * 100/111
+Dr. Bank/Kas                    amount * 1.11
+    Cr. Hutang PPN                  amount * 0.11
+    Cr. Penjualan                   amount
 ```
 
 ### Penjualan Barang (Non-PKP)
@@ -103,6 +103,21 @@ Dr. Bank/Kas                    amount
 ```
 Dr. Bank/Kas                    amount
     Cr. Penjualan                   amount
+```
+
+### Pendapatan Jasa BUMN (FP 03)
+
+**Digunakan**: Pendapatan jasa ke klien BUMN/Pemerintah. PPN dipungut pembeli (Faktur Pajak kode 03), PPh 23 dipotong.
+
+| Field | Input |
+|-------|-------|
+| Jumlah | Harga Jual |
+
+**Jurnal**:
+```
+Dr. Bank/Kas                    amount * 0.98
+Dr. Kredit PPh 23               amount * 0.02
+    Cr. Pendapatan Jasa             amount
 ```
 
 ---
@@ -125,13 +140,13 @@ Dr. [Akun Beban]                amount
 
 ### Beban dengan PPN (dapat dikreditkan)
 
-**Digunakan**: Pembelian dengan faktur pajak
+**Digunakan**: Pembelian dengan faktur pajak. DPP Nilai Lain (PMK 131/2024).
 
 **Jurnal**:
 ```
-Dr. [Akun Beban]                amount * 100/111
-Dr. PPN Masukan                 amount * 11/111
-    Cr. Bank/Kas                    amount
+Dr. [Akun Beban]                amount
+Dr. PPN Masukan                 amount * 0.11
+    Cr. Bank/Kas                    amount * 1.11
 ```
 
 ### Pembelian Aset Tetap

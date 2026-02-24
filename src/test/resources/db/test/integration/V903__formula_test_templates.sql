@@ -8,40 +8,40 @@ INSERT INTO chart_of_accounts (id, account_code, account_name, account_type, nor
 ('50000000-0000-0000-0000-000000000110', '5.1.10', 'Beban Jasa Profesional', 'EXPENSE', 'DEBIT', '50000000-0000-0000-0000-000000000011', 3, FALSE, TRUE, FALSE);
 
 -- =====================================================
--- Template 1: Penjualan dengan PPN 11%
--- Scenario: Gross amount includes PPN
--- Input: Rp 11,100,000 (gross)
--- Output: DPP = 10,000,000, PPN = 1,100,000
+-- Template 1: Penjualan dengan PPN 11% (DPP Nilai Lain PMK 131/2024)
+-- Scenario: Amount = Harga Jual (sebelum PPN)
+-- Input: Rp 10,000,000 (Harga Jual)
+-- Output: Bank = 11,100,000, Pendapatan = 10,000,000, PPN = 1,100,000
 -- =====================================================
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active, version) VALUES
 ('f0000000-0000-0000-0000-000000000011', 'Penjualan Jasa dengan PPN', 'INCOME', 'OPERATING', 'SIMPLE',
- 'Mencatat penjualan jasa dengan PPN 11%. Input jumlah gross (sudah termasuk PPN).', FALSE, TRUE, 1);
+ 'Mencatat penjualan jasa dengan PPN 11%. Input Harga Jual (sebelum PPN).', FALSE, TRUE, 1);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description) VALUES
--- Debit Bank: full amount
-('f1000000-0000-0000-0000-000000000011', 'f0000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount', 1, 'Terima dari pelanggan'),
--- Credit Pendapatan: DPP = amount / 1.11
-('f1000000-0000-0000-0000-000000000012', 'f0000000-0000-0000-0000-000000000011', '40000000-0000-0000-0000-000000000101', 'CREDIT', 'amount / 1.11', 2, 'DPP pendapatan'),
--- Credit PPN Keluaran: PPN = amount - (amount / 1.11)
-('f1000000-0000-0000-0000-000000000013', 'f0000000-0000-0000-0000-000000000011', '20000000-0000-0000-0000-000000000103', 'CREDIT', 'amount - (amount / 1.11)', 3, 'PPN Keluaran 11%');
+-- Debit Bank: Harga Jual + PPN 11%
+('f1000000-0000-0000-0000-000000000011', 'f0000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000102', 'DEBIT', 'amount * 1.11', 1, 'Terima dari pelanggan'),
+-- Credit Pendapatan: Harga Jual
+('f1000000-0000-0000-0000-000000000012', 'f0000000-0000-0000-0000-000000000011', '40000000-0000-0000-0000-000000000101', 'CREDIT', 'amount', 2, 'Pendapatan jasa'),
+-- Credit PPN Keluaran: 11% dari Harga Jual
+('f1000000-0000-0000-0000-000000000013', 'f0000000-0000-0000-0000-000000000011', '20000000-0000-0000-0000-000000000103', 'CREDIT', 'amount * 0.11', 3, 'PPN Keluaran 11%');
 
 -- =====================================================
--- Template 2: Pembelian Perlengkapan dengan PPN 11%
--- Scenario: Purchase with input VAT
--- Input: Rp 5,550,000 (gross including PPN)
--- Output: DPP = 5,000,000, PPN Masukan = 550,000
+-- Template 2: Pembelian Perlengkapan dengan PPN 11% (DPP Nilai Lain PMK 131/2024)
+-- Scenario: Amount = Harga Jual (sebelum PPN)
+-- Input: Rp 5,000,000 (Harga Jual)
+-- Output: Beban = 5,000,000, PPN Masukan = 550,000, Bank = 5,550,000
 -- =====================================================
 INSERT INTO journal_templates (id, template_name, category, cash_flow_category, template_type, description, is_system, active, version) VALUES
 ('f0000000-0000-0000-0000-000000000012', 'Pembelian dengan PPN', 'EXPENSE', 'OPERATING', 'SIMPLE',
- 'Mencatat pembelian dengan PPN 11% masukan. Input jumlah gross.', FALSE, TRUE, 1);
+ 'Mencatat pembelian dengan PPN 11% masukan. Input Harga Jual (sebelum PPN).', FALSE, TRUE, 1);
 
 INSERT INTO journal_template_lines (id, id_journal_template, id_account, position, formula, line_order, description) VALUES
--- Debit Perlengkapan: DPP
-('f1000000-0000-0000-0000-000000000021', 'f0000000-0000-0000-0000-000000000012', '50000000-0000-0000-0000-000000000105', 'DEBIT', 'amount / 1.11', 1, 'DPP pembelian'),
--- Debit PPN Masukan
-('f1000000-0000-0000-0000-000000000022', 'f0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000109', 'DEBIT', 'amount - (amount / 1.11)', 2, 'PPN Masukan 11%'),
--- Credit Bank: full amount
-('f1000000-0000-0000-0000-000000000023', 'f0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount', 3, 'Bayar ke supplier');
+-- Debit Perlengkapan: Harga Jual
+('f1000000-0000-0000-0000-000000000021', 'f0000000-0000-0000-0000-000000000012', '50000000-0000-0000-0000-000000000105', 'DEBIT', 'amount', 1, 'Beban pembelian'),
+-- Debit PPN Masukan: 11% dari Harga Jual
+('f1000000-0000-0000-0000-000000000022', 'f0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000109', 'DEBIT', 'amount * 0.11', 2, 'PPN Masukan 11%'),
+-- Credit Bank: Harga Jual + PPN 11%
+('f1000000-0000-0000-0000-000000000023', 'f0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000102', 'CREDIT', 'amount * 1.11', 3, 'Bayar ke supplier');
 
 -- =====================================================
 -- Template 3: Bayar Jasa dengan PPh 23 (Conditional)
