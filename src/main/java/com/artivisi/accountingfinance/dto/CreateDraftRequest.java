@@ -38,6 +38,13 @@ public record CreateDraftRequest(
          * Used to specify accounts for template lines that have accountHint instead of a fixed account.
          * Key = accountHint string from template line, Value = accountId UUID.
          */
-        Map<String, UUID> accountSlots
+        Map<String, UUID> accountSlots,
+
+        /**
+         * Formula variable values for DETAILED templates.
+         * Key = variable name from template formula (e.g. "assetCost"), Value = amount.
+         * Required when template uses non-standard formulas (not just "amount").
+         */
+        Map<String, BigDecimal> variables
 ) {
 }

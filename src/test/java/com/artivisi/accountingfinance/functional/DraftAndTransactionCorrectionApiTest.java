@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -653,6 +654,99 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         }
     }
 
+    @Nested
+    @DisplayName("DETAILED template (formula variables)")
+    class DetailedTemplate {
+
+        @Test
+        @DisplayName("Should create draft with DETAILED template variables and post successfully")
+        void shouldCreateDraftWithVariablesAndPost() throws Exception {
+            // Find "Pembelian Aset Tetap" template (DETAILED, formula: assetCost)
+            String templateId = getDetailedTemplateId();
+            Map<String, String> accountSlotIds = getAccountSlotsForDetailedTemplate(templateId);
+
+            Map<String, Object> request = new HashMap<>();
+            request.put("templateId", templateId);
+            request.put("description", "Pembelian laptop Lenovo untuk operasional kantor");
+            request.put("amount", 3681200);
+            request.put("transactionDate", "2026-02-15");
+            request.put("accountSlots", accountSlotIds);
+            request.put("variables", Map.of("assetCost", 3681200));
+
+            // Create draft
+            APIResponse createResponse = apiContext.post("/api/drafts",
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/json")
+                            .setHeader("Authorization", "Bearer " + accessToken)
+                            .setData(request));
+
+            assertThat(createResponse.status())
+                    .as("Create draft failed: %d %s", createResponse.status(), createResponse.text())
+                    .isEqualTo(201);
+
+            JsonNode createBody = objectMapper.readTree(createResponse.text());
+            assertThat(createBody.get("status").asText()).isEqualTo("DRAFT");
+            String transactionId = createBody.get("transactionId").asText();
+
+            // Post the draft
+            APIResponse postResponse = apiContext.post("/api/transactions/" + transactionId + "/post",
+                    RequestOptions.create()
+                            .setHeader("Authorization", "Bearer " + accessToken));
+
+            assertThat(postResponse.ok())
+                    .as("Post failed: %d %s", postResponse.status(), postResponse.text())
+                    .isTrue();
+
+            JsonNode postBody = objectMapper.readTree(postResponse.text());
+            assertThat(postBody.get("status").asText()).isEqualTo("POSTED");
+            assertThat(postBody.get("journalEntries").size()).isEqualTo(2);
+
+            // Verify journal entries have correct amounts
+            for (JsonNode entry : postBody.get("journalEntries")) {
+                BigDecimal debit = new BigDecimal(entry.get("debitAmount").asText());
+                BigDecimal credit = new BigDecimal(entry.get("creditAmount").asText());
+                // One entry should be debit 3681200, the other credit 3681200
+                if (debit.compareTo(BigDecimal.ZERO) > 0) {
+                    assertThat(debit).isEqualByComparingTo(new BigDecimal("3681200"));
+                } else {
+                    assertThat(credit).isEqualByComparingTo(new BigDecimal("3681200"));
+                }
+            }
+        }
+
+        @Test
+        @DisplayName("Should create and post transaction directly with DETAILED template variables")
+        void shouldPostDirectlyWithVariables() throws Exception {
+            String templateId = getDetailedTemplateId();
+            Map<String, String> accountSlotIds = getAccountSlotsForDetailedTemplate(templateId);
+
+            Map<String, Object> request = new HashMap<>();
+            request.put("templateId", templateId);
+            request.put("merchant", "Enterkomputer");
+            request.put("amount", 5500000);
+            request.put("transactionDate", "2026-02-12");
+            request.put("description", "Pembelian monitor Dell 27 inch");
+            request.put("source", "correction-test");
+            request.put("userApproved", true);
+            request.put("accountSlots", accountSlotIds);
+            request.put("variables", Map.of("assetCost", 5500000));
+
+            APIResponse response = apiContext.post("/api/transactions",
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/json")
+                            .setHeader("Authorization", "Bearer " + accessToken)
+                            .setData(request));
+
+            assertThat(response.status())
+                    .as("Create with variables failed: %d %s", response.status(), response.text())
+                    .isEqualTo(201);
+
+            JsonNode body = objectMapper.readTree(response.text());
+            assertThat(body.get("status").asText()).isEqualTo("POSTED");
+            assertThat(body.get("journalEntries").size()).isEqualTo(2);
+        }
+    }
+
     // ========== Helper methods ==========
 
     private String createPendingDraft(String merchant, int amount) throws Exception {
@@ -801,6 +895,93 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         assertThat(templates.size()).isGreaterThan(1);
 
         return templates.get(1).get("id").asText();
+    }
+
+    /**
+     * Find the DETAILED template (Pembelian Aset Tetap) that uses non-standard formula variables.
+     */
+    private String getDetailedTemplateId() throws Exception {
+        APIResponse response = apiContext.get("/api/templates",
+                RequestOptions.create()
+                        .setHeader("Authorization", "Bearer " + accessToken));
+
+        assertThat(response.ok()).isTrue();
+
+        JsonNode templates = objectMapper.readTree(response.text());
+        for (JsonNode template : templates) {
+            String name = template.get("name").asText();
+            if (name.contains("Pembelian Aset Tetap")) {
+                return template.get("id").asText();
+            }
+        }
+        throw new RuntimeException("DETAILED template 'Pembelian Aset Tetap' not found in seed data");
+    }
+
+    /**
+     * Find account IDs to fill the accountSlots for a DETAILED template.
+     * Looks at template lines with accountHint and finds matching accounts.
+     */
+    private Map<String, String> getAccountSlotsForDetailedTemplate(String templateId) throws Exception {
+        // Get template with lines
+        APIResponse templateResponse = apiContext.get("/api/templates/" + templateId,
+                RequestOptions.create()
+                        .setHeader("Authorization", "Bearer " + accessToken));
+        assertThat(templateResponse.ok()).isTrue();
+
+        JsonNode template = objectMapper.readTree(templateResponse.text());
+        JsonNode lines = template.get("lines");
+
+        // Get all accounts
+        APIResponse accountsResponse = apiContext.get("/api/analysis/accounts",
+                RequestOptions.create()
+                        .setHeader("Authorization", "Bearer " + accessToken));
+        assertThat(accountsResponse.ok()).isTrue();
+
+        JsonNode accountsBody = objectMapper.readTree(accountsResponse.text());
+        JsonNode accounts = accountsBody.get("data").get("accounts");
+
+        Map<String, String> slots = new HashMap<>();
+        for (JsonNode line : lines) {
+            if (line.has("accountHint") && !line.get("accountHint").isNull()
+                    && !line.get("accountHint").asText().isBlank()) {
+                String hint = line.get("accountHint").asText();
+                // Find a suitable account based on hint
+                String accountId = findAccountForHint(hint, accounts);
+                slots.put(hint, accountId);
+            }
+        }
+
+        assertThat(slots).as("No accountHint slots found in template").isNotEmpty();
+        return slots;
+    }
+
+    private String findAccountForHint(String hint, JsonNode accounts) {
+        // For ASET_TETAP, find an asset account; for BANK, find a bank/cash account
+        String hintLower = hint.toLowerCase();
+        for (JsonNode account : accounts) {
+            String type = account.get("type").asText();
+            String name = account.get("name").asText().toLowerCase();
+            if (hintLower.contains("aset") && type.equals("ASSET")
+                    && (name.contains("peralatan") || name.contains("aset tetap") || name.contains("komputer"))) {
+                return account.get("id").asText();
+            }
+            if (hintLower.contains("bank") && type.equals("ASSET")
+                    && (name.contains("bank") || name.contains("kas"))) {
+                return account.get("id").asText();
+            }
+        }
+        // Fallback: return first account of matching type
+        for (JsonNode account : accounts) {
+            String type = account.get("type").asText();
+            if (hintLower.contains("aset") && type.equals("ASSET")) {
+                return account.get("id").asText();
+            }
+            if (hintLower.contains("bank") && type.equals("ASSET")) {
+                return account.get("id").asText();
+            }
+        }
+        // Last resort: return any account
+        return accounts.get(0).get("id").asText();
     }
 
     private String getTemplateWithHintLine() throws Exception {

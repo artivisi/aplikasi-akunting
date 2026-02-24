@@ -48,7 +48,8 @@
             "description": "string (required)",
             "amount": "number (required)",
             "transactionDate": "yyyy-MM-dd (required)",
-            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line, Value = account UUID."
+            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line, Value = account UUID.",
+            "variables": "Map<string,BigDecimal> (optional). Formula variable values for DETAILED templates. Key = variable name from template formula (e.g. assetCost), Value = amount. Required when template uses non-standard formulas (not just 'amount')."
           },
           "response": "TransactionResponse: transactionId, transactionNumber, status=DRAFT, amount, journalEntries"
         },
@@ -165,7 +166,8 @@
             "userApproved": "boolean (required, must be true)",
             "description": "string (optional)",
             "referenceNumber": "string (optional)",
-            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line. Example: {\"Kas / Bank\": \"uuid-of-bank-account\"}"
+            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line. Example: {\"Kas / Bank\": \"uuid-of-bank-account\"}",
+            "variables": "Map<string,BigDecimal> (optional). Formula variable values for DETAILED templates. Key = variable name from template formula (e.g. assetCost), Value = amount. Required when template uses non-standard formulas (not just 'amount'). Example: {\"assetCost\": 3681200}"
           },
           "response": "TransactionResponse: transactionId, transactionNumber, status, amount, journalEntries"
         },
@@ -179,7 +181,8 @@
             "description": "string (optional, fix remarks)",
             "amount": "number (optional, correct amount)",
             "transactionDate": "yyyy-MM-dd (optional, fix date)",
-            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line. Example: {\"Kas / Bank\": \"uuid-of-bank-account\"}"
+            "accountSlots": "Map<string,UUID> (optional). Maps accountHint to accountId for lines without a fixed account. Key = accountHint from template line. Example: {\"Kas / Bank\": \"uuid-of-bank-account\"}",
+            "variables": "Map<string,BigDecimal> (optional). Formula variable values for DETAILED templates. Key = variable name from template formula (e.g. assetCost), Value = amount."
           },
           "response": "TransactionResponse: transactionId, transactionNumber, status, amount, journalEntries"
         },

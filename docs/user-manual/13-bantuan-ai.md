@@ -261,6 +261,26 @@ Content-Type: application/json
 }
 ```
 
+Untuk template DETAILED yang menggunakan formula non-standar, tambahkan `variables`:
+```json
+{
+  "templateId": "UUID-template-pembelian-aset",
+  "merchant": "Tokopedia",
+  "amount": 3681200,
+  "transactionDate": "2026-02-12",
+  "description": "Pembelian laptop Lenovo",
+  "source": "claude-code",
+  "userApproved": true,
+  "accountSlots": {
+    "ASET_TETAP": "UUID-akun-peralatan",
+    "BANK": "UUID-akun-bank"
+  },
+  "variables": {
+    "assetCost": 3681200
+  }
+}
+```
+
 ### Response
 
 ```json
@@ -330,6 +350,28 @@ Content-Type: application/json
 ```
 
 Field `accountSlots` memetakan `accountHint` template ke akun yang dipilih. Key = string `accountHint` dari template line, Value = UUID akun. Gunakan `GET /api/templates` untuk melihat `accountHint` mana yang perlu diisi.
+
+#### Template DETAILED (Formula Non-Standar)
+
+Beberapa template menggunakan formula selain `amount` (contoh: template "Pembelian Aset Tetap" menggunakan formula `assetCost`). Untuk template seperti ini, tambahkan field `variables` yang memetakan nama variabel formula ke nilainya:
+
+```json
+{
+  "templateId": "UUID-template-pembelian-aset",
+  "description": "Pembelian laptop Lenovo untuk operasional kantor",
+  "amount": 3681200,
+  "transactionDate": "2026-02-10",
+  "accountSlots": {
+    "ASET_TETAP": "UUID-akun-peralatan-kantor",
+    "BANK": "UUID-akun-bank-bca"
+  },
+  "variables": {
+    "assetCost": 3681200
+  }
+}
+```
+
+Field `variables` hanya diperlukan jika template menggunakan formula selain `amount`. Cek field `formula` di template lines (`GET /api/templates`) untuk mengetahui variabel yang dibutuhkan.
 
 ### Response
 

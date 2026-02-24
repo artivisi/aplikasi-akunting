@@ -578,7 +578,7 @@ public class TransactionApiService {
 
         Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
 
-        Transaction saved = transactionService.create(transaction, accountMappings, null);
+        Transaction saved = transactionService.create(transaction, accountMappings, request.variables());
 
         log.info("Created draft transaction {} via direct API", saved.getId());
 
@@ -618,7 +618,7 @@ public class TransactionApiService {
         Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
 
         // Save transaction (creates in DRAFT status)
-        Transaction saved = transactionService.create(transaction, accountMappings, null);
+        Transaction saved = transactionService.create(transaction, accountMappings, request.variables());
 
         // Post transaction immediately
         Transaction posted = transactionService.post(saved.getId(), username != null ? username : "API");
