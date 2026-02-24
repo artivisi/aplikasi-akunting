@@ -23,7 +23,7 @@
 | **9** | Analytics & Insights | ✅ Complete |
 | **10** | Invoice & Bill Management | ✅ Complete |
 | **11** | Recurring Transactions | ✅ Complete |
-| **12** | Tax Data Management | ⏳ Not Started |
+| **12** | Tax Data Management | 🔧 In Progress |
 | **13** | WhatsApp Notifications | ⏳ Not Started |
 | **—** | Future Enhancements | As needed |
 
@@ -1262,13 +1262,17 @@ Key difference: **BUMN is pemungut PPN** — they withhold PPN and remit it dire
 
 **Step 7: Same** (annual kredit pajak PPh 23 offset)
 
-### 12.1 Fix PPN Template Formula
-- [ ] Current formula `amount × 11/111` is incorrect for 2025 PPN (DPP Nilai Lain regime)
-- [ ] Correct formula: `DPP = amount × 11/12`, `PPN = DPP × 12%` (equivalent to `amount × 11%`)
-- [ ] Update all PPN-related journal templates (Pendapatan Jasa + PPN, Penjualan Barang + PPN, Beban dengan PPN)
-- [ ] Update seed data in V004 and industry seed packs
-- [ ] Functional tests for corrected PPN calculation
-- [ ] Document the DPP Nilai Lain formula in user manual section 04-perpajakan.md
+### 12.1 Fix PPN Template Formula ✅
+- [x] Current formula `amount × 11/111` is incorrect for 2025 PPN (DPP Nilai Lain regime)
+- [x] Correct formula: `DPP = amount × 11/12`, `PPN = DPP × 12%` (equivalent to `amount × 11%`)
+- [x] Update all PPN-related journal templates (Pendapatan Jasa + PPN, Penjualan Barang + PPN, Beban dengan PPN)
+- [x] Update seed data in industry seed packs (it-service, online-seller, artivisi)
+- [x] New template: Pendapatan Jasa BUMN (FP 03) — PPN dipungut pembeli, PPh 23 dipotong
+- [x] FormulaEvaluatorTest updated (amount * 1.11, amount * 1.09)
+- [x] V903 test templates updated
+- [x] Formula help UI updated (quick examples, syntax table, scenario walkthroughs)
+- [x] Document the DPP Nilai Lain formula in user manual (04-perpajakan.md, 12-lampiran-template.md)
+- [x] Production database updated via SQL script
 
 ### 12.2 Tax Transaction Detail Entry (Web UI)
 - [ ] Tax detail form on transaction detail page (inline or modal)
