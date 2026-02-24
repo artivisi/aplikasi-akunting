@@ -64,8 +64,8 @@ Penjualan Persediaan,1,,BANK,DEBIT,revenueAmount,Penerimaan penjualan
 Penjualan Persediaan,2,,HPP,DEBIT,cogsAmount,Harga pokok penjualan
 Penjualan Persediaan,3,,PENJUALAN,CREDIT,revenueAmount,Pendapatan penjualan
 Penjualan Persediaan,4,,PERSEDIAAN,CREDIT,cogsAmount,Persediaan keluar
-Transfer Antar Bank,1,,BANK,DEBIT,amount,Bank tujuan
-Transfer Antar Bank,2,,BANK,CREDIT,amount,Bank asal
+Transfer Antar Bank,1,,Bank Tujuan,DEBIT,amount,Bank tujuan
+Transfer Antar Bank,2,,Bank Asal,CREDIT,amount,Bank asal
 Setoran Modal,1,,BANK,DEBIT,amount,Penerimaan kas/bank
 Setoran Modal,2,3.1.01,,CREDIT,amount,Modal disetor
 Prive / Pengambilan Pribadi,1,3.1.02,,DEBIT,amount,Prive

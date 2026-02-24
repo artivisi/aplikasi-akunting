@@ -51,11 +51,11 @@ public record CreateTransactionRequest(
         Boolean userApproved,
 
         /**
-         * Map of template lineOrder to accountId.
+         * Map of accountHint to accountId.
          * Used to specify accounts for template lines that have accountHint instead of a fixed account.
-         * Example: {"2": "e7e8f9a0-..."} sets the account for line 2.
+         * Key = accountHint string from template line, Value = accountId UUID.
          */
-        Map<Integer, UUID> lineAccountOverrides
+        Map<String, UUID> accountSlots
 ) {
 
     /**

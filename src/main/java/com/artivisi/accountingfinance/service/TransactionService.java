@@ -291,6 +291,10 @@ public class TransactionService {
 
         for (JournalTemplateLine line : template.getLines()) {
             ChartOfAccount account = accountOverrides.getOrDefault(line.getId(), line.getAccount());
+            if (account == null) {
+                throw new IllegalArgumentException(
+                        "Account not specified for template line: " + line.getAccountHint());
+            }
             BigDecimal amount = calculateAmount(line.getFormula(), context);
 
             JournalEntry entry = new JournalEntry();

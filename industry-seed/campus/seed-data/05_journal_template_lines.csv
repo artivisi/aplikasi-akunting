@@ -57,8 +57,8 @@ Beban Keamanan,1,5.2.15,,DEBIT,amount,Beban Keamanan
 Beban Keamanan,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Beban Kebersihan,1,5.2.14,,DEBIT,amount,Beban Kebersihan
 Beban Kebersihan,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Transfer Antar Bank,1,,BANK,DEBIT,amount,Penerimaan di bank tujuan
-Transfer Antar Bank,2,,BANK,CREDIT,amount,Pengeluaran dari bank asal
+Transfer Antar Bank,1,,Bank Tujuan,DEBIT,amount,Penerimaan di bank tujuan
+Transfer Antar Bank,2,,Bank Asal,CREDIT,amount,Pengeluaran dari bank asal
 Setoran Modal Yayasan,1,,BANK,DEBIT,amount,Penerimaan kas/bank
 Setoran Modal Yayasan,2,3.1.01,,CREDIT,amount,Modal Yayasan
 Beban Admin Bank,1,5.4.01,,DEBIT,amount,Beban Admin Bank

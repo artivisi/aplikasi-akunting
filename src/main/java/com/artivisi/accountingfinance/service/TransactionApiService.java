@@ -249,16 +249,16 @@ public class TransactionApiService {
             transaction.setJournalTemplate(template);
             journalTemplateService.recordUsage(template.getId());
 
-            // Apply account overrides for the new template
-            Map<UUID, UUID> accountMappings = resolveLineAccountOverrides(template, request.lineAccountOverrides());
+            // Apply account slots for the new template
+            Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
             if (!accountMappings.isEmpty()) {
                 transactionService.replaceAccountMappings(transaction, accountMappings);
             }
-        } else if (request.lineAccountOverrides() != null && !request.lineAccountOverrides().isEmpty()) {
-            // Apply account overrides to existing template
+        } else if (request.accountSlots() != null && !request.accountSlots().isEmpty()) {
+            // Apply account slots to existing template
             JournalTemplate template = journalTemplateService.findByIdWithLines(
                     transaction.getJournalTemplate().getId());
-            Map<UUID, UUID> accountMappings = resolveLineAccountOverrides(template, request.lineAccountOverrides());
+            Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
             if (!accountMappings.isEmpty()) {
                 transactionService.replaceAccountMappings(transaction, accountMappings);
             }
@@ -335,19 +335,21 @@ public class TransactionApiService {
     }
 
     /**
-     * Convert lineOrder-based account overrides to templateLineId-based mappings.
-     * API accepts lineOrder (1, 2, 3...) for ergonomics; internal code uses template line UUIDs.
+     * Convert accountHint-based account slots to templateLineId-based mappings.
+     * API accepts accountHint strings for clarity; internal code uses template line UUIDs.
      */
-    private Map<UUID, UUID> resolveLineAccountOverrides(JournalTemplate template, Map<Integer, UUID> lineAccountOverrides) {
-        if (lineAccountOverrides == null || lineAccountOverrides.isEmpty()) {
+    private Map<UUID, UUID> resolveAccountSlots(JournalTemplate template, Map<String, UUID> accountSlots) {
+        if (accountSlots == null || accountSlots.isEmpty()) {
             return Map.of();
         }
 
         Map<UUID, UUID> accountMappings = new HashMap<>();
         for (JournalTemplateLine line : template.getLines()) {
-            UUID accountId = lineAccountOverrides.get(line.getLineOrder());
-            if (accountId != null) {
-                accountMappings.put(line.getId(), accountId);
+            if (line.getAccountHint() != null) {
+                UUID accountId = accountSlots.get(line.getAccountHint());
+                if (accountId != null) {
+                    accountMappings.put(line.getId(), accountId);
+                }
             }
         }
         return accountMappings;
@@ -574,7 +576,7 @@ public class TransactionApiService {
         transaction.setDescription(request.description());
         transaction.setCreatedBy(username);
 
-        Map<UUID, UUID> accountMappings = resolveLineAccountOverrides(template, request.lineAccountOverrides());
+        Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
 
         Transaction saved = transactionService.create(transaction, accountMappings, null);
 
@@ -612,8 +614,8 @@ public class TransactionApiService {
         // Record template usage
         journalTemplateService.recordUsage(template.getId());
 
-        // Resolve lineOrder-based overrides to templateLineId-based mappings
-        Map<UUID, UUID> accountMappings = resolveLineAccountOverrides(template, request.lineAccountOverrides());
+        // Resolve accountHint-based slots to templateLineId-based mappings
+        Map<UUID, UUID> accountMappings = resolveAccountSlots(template, request.accountSlots());
 
         // Save transaction (creates in DRAFT status)
         Transaction saved = transactionService.create(transaction, accountMappings, null);

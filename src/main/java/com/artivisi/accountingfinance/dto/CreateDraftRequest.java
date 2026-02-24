@@ -34,9 +34,10 @@ public record CreateDraftRequest(
         LocalDate transactionDate,
 
         /**
-         * Map of template lineOrder to accountId.
+         * Map of accountHint to accountId.
          * Used to specify accounts for template lines that have accountHint instead of a fixed account.
+         * Key = accountHint string from template line, Value = accountId UUID.
          */
-        Map<Integer, UUID> lineAccountOverrides
+        Map<String, UUID> accountSlots
 ) {
 }

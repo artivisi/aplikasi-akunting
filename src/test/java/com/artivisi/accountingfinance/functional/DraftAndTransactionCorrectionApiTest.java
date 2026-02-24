@@ -264,13 +264,13 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         }
 
         @Test
-        @DisplayName("Should update DRAFT transaction with lineAccountOverrides")
+        @DisplayName("Should update DRAFT transaction with accountSlots")
         void shouldUpdateWithLineAccountOverrides() throws Exception {
             String transactionId = createDraftTransaction();
             String accountId = getFirstAccountId();
 
             Map<String, Object> update = new HashMap<>();
-            update.put("lineAccountOverrides", Map.of(2, accountId));
+            update.put("accountSlots", Map.of("BANK", accountId));
 
             APIResponse response = apiContext.put("/api/transactions/" + transactionId,
                     RequestOptions.create()
@@ -279,20 +279,20 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
                             .setData(update));
 
             assertThat(response.ok())
-                    .as("Update with lineAccountOverrides failed: %d %s", response.status(), response.text())
+                    .as("Update with accountSlots failed: %d %s", response.status(), response.text())
                     .isTrue();
         }
 
         @Test
-        @DisplayName("Should reclassify template with lineAccountOverrides")
-        void shouldReclassifyWithLineAccountOverrides() throws Exception {
+        @DisplayName("Should reclassify template with accountSlots")
+        void shouldReclassifyWithAccountSlots() throws Exception {
             String transactionId = createDraftTransaction();
             String templateId = getSecondTemplateId();
             String accountId = getFirstAccountId();
 
             Map<String, Object> update = new HashMap<>();
             update.put("templateId", templateId);
-            update.put("lineAccountOverrides", Map.of(1, accountId, 2, accountId));
+            update.put("accountSlots", Map.of("BANK", accountId));
 
             APIResponse response = apiContext.put("/api/transactions/" + transactionId,
                     RequestOptions.create()
@@ -306,13 +306,13 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         }
 
         @Test
-        @DisplayName("Should re-apply lineAccountOverrides without 409 Conflict")
-        void shouldReApplyLineAccountOverrides() throws Exception {
+        @DisplayName("Should re-apply accountSlots without 409 Conflict")
+        void shouldReApplyAccountSlots() throws Exception {
             String transactionId = createDraftTransaction();
             String accountId = getFirstAccountId();
 
             Map<String, Object> update = new HashMap<>();
-            update.put("lineAccountOverrides", Map.of(2, accountId));
+            update.put("accountSlots", Map.of("BANK", accountId));
 
             // First PUT
             APIResponse response1 = apiContext.put("/api/transactions/" + transactionId,
@@ -322,7 +322,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
                             .setData(update));
 
             assertThat(response1.ok())
-                    .as("First PUT with lineAccountOverrides failed: %d %s", response1.status(), response1.text())
+                    .as("First PUT with accountSlots failed: %d %s", response1.status(), response1.text())
                     .isTrue();
 
             // Second PUT with same overrides — should NOT return 409
@@ -333,7 +333,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
                             .setData(update));
 
             assertThat(response2.ok())
-                    .as("Second PUT with lineAccountOverrides returned %d (expected 200): %s",
+                    .as("Second PUT with accountSlots returned %d (expected 200): %s",
                             response2.status(), response2.text())
                     .isTrue();
         }
@@ -374,8 +374,8 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         }
 
         @Test
-        @DisplayName("Should create and post transaction with lineAccountOverrides")
-        void shouldPostWithLineAccountOverrides() throws Exception {
+        @DisplayName("Should create and post transaction with accountSlots")
+        void shouldPostWithAccountSlots() throws Exception {
             String templateId = getFirstTemplateId();
             String accountId = getFirstAccountId();
 
@@ -387,7 +387,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
             request.put("description", "Transaction with account overrides");
             request.put("source", "correction-test");
             request.put("userApproved", true);
-            request.put("lineAccountOverrides", Map.of(1, accountId, 2, accountId));
+            request.put("accountSlots", Map.of("BANK", accountId));
 
             APIResponse response = apiContext.post("/api/transactions",
                     RequestOptions.create()
@@ -431,7 +431,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
             request.put("description", "Direct draft creation test");
             request.put("amount", 120000);
             request.put("transactionDate", "2026-02-15");
-            request.put("lineAccountOverrides", Map.of(1, accountId, 2, accountId));
+            request.put("accountSlots", Map.of("BANK", accountId));
 
             APIResponse createResponse = apiContext.post("/api/drafts",
                     RequestOptions.create()
@@ -460,6 +460,41 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
             JsonNode postBody = objectMapper.readTree(postResponse.text());
             assertThat(postBody.get("status").asText()).isEqualTo("POSTED");
             assertThat(postBody.get("journalEntries").size()).isGreaterThanOrEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("Should return 400 when posting draft without required accountSlots")
+        void shouldReturn400WhenPostingWithoutAccountSlots() throws Exception {
+            String templateId = getTemplateWithHintLine();
+
+            // Create draft WITHOUT accountSlots — template has hint lines that need accounts
+            Map<String, Object> request = new HashMap<>();
+            request.put("templateId", templateId);
+            request.put("description", "Missing account slots test");
+            request.put("amount", 80000);
+            request.put("transactionDate", "2026-02-15");
+
+            APIResponse createResponse = apiContext.post("/api/drafts",
+                    RequestOptions.create()
+                            .setHeader("Content-Type", "application/json")
+                            .setHeader("Authorization", "Bearer " + accessToken)
+                            .setData(request));
+
+            assertThat(createResponse.status())
+                    .as("Create draft failed: %d %s", createResponse.status(), createResponse.text())
+                    .isEqualTo(201);
+
+            JsonNode createBody = objectMapper.readTree(createResponse.text());
+            String transactionId = createBody.get("transactionId").asText();
+
+            // Attempt to post — should return 400 because hint line has no account
+            APIResponse postResponse = apiContext.post("/api/transactions/" + transactionId + "/post",
+                    RequestOptions.create()
+                            .setHeader("Authorization", "Bearer " + accessToken));
+
+            assertThat(postResponse.status())
+                    .as("Expected 400 but got %d: %s", postResponse.status(), postResponse.text())
+                    .isEqualTo(400);
         }
 
         @Test
@@ -532,7 +567,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
             request.put("description", "Journal preview test");
             request.put("amount", 95000);
             request.put("transactionDate", "2026-02-10");
-            request.put("lineAccountOverrides", Map.of(1, accountId, 2, accountId));
+            request.put("accountSlots", Map.of("BANK", accountId));
 
             APIResponse createResponse = apiContext.post("/api/drafts",
                     RequestOptions.create()
@@ -766,6 +801,28 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
         assertThat(templates.size()).isGreaterThan(1);
 
         return templates.get(1).get("id").asText();
+    }
+
+    private String getTemplateWithHintLine() throws Exception {
+        APIResponse response = apiContext.get("/api/templates",
+                RequestOptions.create()
+                        .setHeader("Authorization", "Bearer " + accessToken));
+
+        assertThat(response.ok()).isTrue();
+
+        JsonNode templates = objectMapper.readTree(response.text());
+        for (JsonNode template : templates) {
+            JsonNode lines = template.get("lines");
+            if (lines != null) {
+                for (JsonNode line : lines) {
+                    if (line.has("accountHint") && !line.get("accountHint").isNull()
+                            && !line.get("accountHint").asText().isBlank()) {
+                        return template.get("id").asText();
+                    }
+                }
+            }
+        }
+        throw new RuntimeException("No template with accountHint found in seed data");
     }
 
     private String authenticateViaDeviceFlow() throws Exception {

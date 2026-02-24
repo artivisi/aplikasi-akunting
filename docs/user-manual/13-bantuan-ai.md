@@ -209,7 +209,7 @@ Response (contoh 1 template, field `lines` disertakan):
 
 Setiap template menyertakan array `lines` yang menunjukkan struktur jurnal:
 - **accountId/accountCode/accountName**: Akun tetap (sudah ditentukan di template)
-- **accountHint**: Akun yang perlu dipilih saat transaksi (gunakan `lineAccountOverrides` untuk menentukan akun)
+- **accountHint**: Akun yang perlu dipilih saat transaksi (gunakan `accountSlots` dengan accountHint sebagai key untuk menentukan akun)
 
 > **Catatan**: Semua template dari seed pack (IT Service, Online Seller, Coffee Shop, Campus) sudah dilengkapi metadata semantik untuk AI matching.
 
@@ -323,13 +323,13 @@ Content-Type: application/json
   "description": "Bayar listrik Januari 2026",
   "amount": 350000,
   "transactionDate": "2026-02-10",
-  "lineAccountOverrides": {
-    "2": "UUID-akun-bank-bca"
+  "accountSlots": {
+    "Kas / Bank": "UUID-akun-bank-bca"
   }
 }
 ```
 
-Field `lineAccountOverrides` memetakan `lineOrder` template ke akun yang dipilih. Gunakan ini untuk line yang memiliki `accountHint` (lihat `lines` di response GET /api/templates).
+Field `accountSlots` memetakan `accountHint` template ke akun yang dipilih. Key = string `accountHint` dari template line, Value = UUID akun. Gunakan `GET /api/templates` untuk melihat `accountHint` mana yang perlu diisi.
 
 ### Response
 
@@ -452,8 +452,8 @@ Content-Type: application/json
   "description": "Deskripsi yang diperbaiki",
   "amount": 350000,
   "transactionDate": "2026-02-10",
-  "lineAccountOverrides": {
-    "2": "UUID-akun-bank-lain"
+  "accountSlots": {
+    "Kas / Bank": "UUID-akun-bank-lain"
   }
 }
 ```
@@ -461,7 +461,7 @@ Content-Type: application/json
 Validasi:
 - Hanya transaksi berstatus **DRAFT** yang bisa dikoreksi
 - Tanggal transaksi tidak boleh di masa depan
-- `lineAccountOverrides` dapat dikirim berulang kali (idempotent) — overrides sebelumnya akan diganti
+- `accountSlots` dapat dikirim berulang kali (idempotent) — slot sebelumnya akan diganti
 
 ### Hapus Transaksi DRAFT
 
@@ -1345,7 +1345,7 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/transactions` | Post transaction langsung |
-| PUT | `/api/transactions/{id}` | Koreksi transaksi DRAFT (termasuk lineAccountOverrides) |
+| PUT | `/api/transactions/{id}` | Koreksi transaksi DRAFT (termasuk accountSlots) |
 | DELETE | `/api/transactions/{id}` | Hapus transaksi DRAFT |
 | POST | `/api/transactions/{id}/post` | Post satu transaksi DRAFT |
 | GET | `/api/transactions/{id}/journal-preview` | Preview jurnal entries sebelum posting |

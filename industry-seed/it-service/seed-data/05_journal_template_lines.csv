@@ -51,8 +51,8 @@ Karyawan Reimburse Pengeluaran,1,,BEBAN,DEBIT,amount,Beban yang dibayar karyawan
 Karyawan Reimburse Pengeluaran,2,2.1.11,,CREDIT,amount,Hutang reimbursement karyawan
 Bayar Reimbursement ke Karyawan,1,2.1.11,,DEBIT,amount,Hutang reimbursement karyawan
 Bayar Reimbursement ke Karyawan,2,,BANK,CREDIT,amount,Pembayaran dari bank
-Transfer Antar Bank,1,,BANK,DEBIT,amount,Bank tujuan
-Transfer Antar Bank,2,,BANK,CREDIT,amount,Bank asal
+Transfer Antar Bank,1,,Bank Tujuan,DEBIT,amount,Bank tujuan
+Transfer Antar Bank,2,,Bank Asal,CREDIT,amount,Bank asal
 Setoran Modal,1,,BANK,DEBIT,amount,Penerimaan kas/bank
 Setoran Modal,2,3.1.01,,CREDIT,amount,Modal disetor
 Prive / Pengambilan Pribadi,1,3.1.01,,DEBIT,amount,Modal disetor

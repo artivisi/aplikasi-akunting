@@ -326,13 +326,28 @@ public class JournalTemplateService {
             throw new IllegalArgumentException("Template must have at least one debit and one credit line");
         }
 
-        // Validate formulas for each line
+        // Validate formulas and accountHint for each line
+        java.util.Set<String> hints = new java.util.HashSet<>();
         for (int i = 0; i < template.getLines().size(); i++) {
             JournalTemplateLine line = template.getLines().get(i);
             List<String> errors = formulaEvaluator.validate(line.getFormula());
             if (!errors.isEmpty()) {
                 throw new IllegalArgumentException(
                         String.format("Invalid formula on line %d: %s", i + 1, String.join(", ", errors)));
+            }
+
+            // Lines without a fixed account must have a non-blank accountHint
+            boolean hasAccount = line.getAccount() != null && line.getAccount().getId() != null;
+            if (!hasAccount) {
+                if (line.getAccountHint() == null || line.getAccountHint().isBlank()) {
+                    throw new IllegalArgumentException(
+                            String.format("Line %d has no account and no accountHint", i + 1));
+                }
+                // accountHint must be unique within the template (across hint lines)
+                if (!hints.add(line.getAccountHint())) {
+                    throw new IllegalArgumentException(
+                            String.format("Duplicate accountHint '%s' on line %d", line.getAccountHint(), i + 1));
+                }
             }
         }
     }
