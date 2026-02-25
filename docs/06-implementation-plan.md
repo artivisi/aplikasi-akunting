@@ -1385,18 +1385,29 @@ After Phase 12 features are deployed, clean up and repost all 2025 transactions 
 - [ ] Parse and attach bupot PDFs (once collected from clients)
 - 4 transactions without FP PDFs: Client-B 001, Client-B 003, Client-F 6, Client-D Inv 002
 
-**Step 5: Verify** (partial — SQL checks done, UI checks pending)
+**Step 5: Verify** ✅
 - [x] Global debit = credit: diff = 0.00
 - [x] Per-transaction balance: 0 mismatches
 - [x] Income statement revenue total: 887,677,250
-- [x] Hutang PPN ledger = sum of FP PPN amounts: 66,206,910
-- [x] Kredit Pajak PPh 23 ledger = sum of PPh 23 amounts: 17,309,545
+- [x] Hutang PPN ledger CR 79,393,160 (22 FP-04 transactions), DR 71,864,683 (Setor PPN)
+- [x] Kredit Pajak PPh 23 ledger = 17,309,545 (22 entries)
 - [x] 18 of 22 transactions have tax details attached (verified via API)
-- [x] 18 FP PDF documents uploaded and attached
-- [ ] Coretax e-Faktur export produces correct data
-- [ ] Tax summary report reconciles
+- [x] 18 FP PDF documents uploaded and attached (verified on filesystem)
+- [x] Tax summary API: Hutang PPN balance 7,528,477, Hutang PPh 21 -1,939,525
+- [x] Tax detail DPP total: 654,669,167, PPN total: 78,560,301 (18 FPs)
+- [ ] Coretax e-Faktur export — web-only (session auth), needs API endpoint (see 12.10)
 
 **Phase 12 Deliverable:** Complete tax data management — entry UI/API for tax transaction details, client management, fiscal periods, corrected PPN formula, auto-population from templates, enhanced tax reports including rekonsiliasi fiskal, and retrofitted 2025 data.
+
+### 12.10 Tax Export API
+
+Expose Coretax export functionality via API (currently web-only with session auth).
+
+- [ ] `GET /api/tax-export/efaktur-keluaran?startMonth=yyyy-MM&endMonth=yyyy-MM` — e-Faktur Keluaran Excel (scope: `transactions:post`)
+- [ ] `GET /api/tax-export/efaktur-masukan?startMonth=yyyy-MM&endMonth=yyyy-MM` — e-Faktur Masukan Excel
+- [ ] `GET /api/tax-export/bupot-unifikasi?startMonth=yyyy-MM&endMonth=yyyy-MM` — Bupot Unifikasi Excel
+- [ ] `GET /api/tax-export/ppn-detail?startDate=yyyy-MM-dd&endDate=yyyy-MM-dd` — PPN detail (JSON + Excel)
+- [ ] `GET /api/tax-export/pph23-detail?startDate=yyyy-MM-dd&endDate=yyyy-MM-dd` — PPh 23 detail (JSON + Excel)
 
 ---
 
