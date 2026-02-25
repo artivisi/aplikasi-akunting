@@ -1103,62 +1103,62 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **Note:** The existing Invoice entity is project-milestone-bound. This phase adds a general-purpose invoice/bill system usable by all industries, and extends aging/statement reports on top of it.
 
 ### 10.1 Outbound Invoice (Faktur Penjualan)
-- [ ] Extend Invoice entity: optional project (currently required), add line items
-- [ ] InvoiceLine entity (description, quantity, unit_price, tax, amount)
-- [ ] Invoice numbering (auto-increment per year, configurable prefix)
-- [ ] Invoice CRUD UI (create from scratch or from transaction)
-- [ ] Invoice PDF generation (printable, sendable to client)
-- [ ] Invoice status workflow: DRAFT → SENT → PARTIAL → PAID / OVERDUE / CANCELLED
-- [ ] Mark as sent (records sent_at)
-- [ ] Functional tests
-- [ ] User manual
+- [x] Extend Invoice entity: optional project (currently required), add line items
+- [x] InvoiceLine entity (description, quantity, unit_price, tax, amount)
+- [x] Invoice numbering (auto-increment per year, configurable prefix)
+- [x] Invoice CRUD UI (create from scratch or from transaction)
+- [x] Invoice PDF generation (printable, sendable to client)
+- [x] Invoice status workflow: DRAFT → SENT → PARTIAL → PAID / OVERDUE / CANCELLED
+- [x] Mark as sent (records sent_at)
+- [x] Functional tests
+- [x] User manual
 
 ### 10.2 Vendor Bill (Faktur Pembelian)
-- [ ] Bill entity (vendor/supplier, bill_number, bill_date, due_date, amount, status)
-- [ ] BillLine entity (description, quantity, unit_price, tax, amount)
-- [ ] Vendor entity (dedicated table — separate from Client, different data needs: default expense account, tax withholding)
-- [ ] Bill CRUD UI
-- [ ] Bill status workflow: DRAFT → APPROVED → PARTIAL → PAID / OVERDUE / CANCELLED
-- [ ] Link bill to purchase transaction
-- [ ] Functional tests
-- [ ] User manual
+- [x] Bill entity (vendor/supplier, bill_number, bill_date, due_date, amount, status)
+- [x] BillLine entity (description, quantity, unit_price, tax, amount)
+- [x] Vendor entity (dedicated table — separate from Client, different data needs: default expense account, tax withholding)
+- [x] Bill CRUD UI
+- [x] Bill status workflow: DRAFT → APPROVED → PARTIAL → PAID / OVERDUE / CANCELLED
+- [x] Link bill to purchase transaction
+- [x] Functional tests
+- [x] User manual
 
 ### 10.3 Vendor Bill API
-- [ ] `POST /api/bills` — create bill from AI-parsed data (vendor, lines, dates, amounts)
-- [ ] `POST /api/bills/{id}/approve` — approve and post journal entry
-- [ ] `GET /api/bills` — list bills (paginated, filterable by status/vendor/date)
-- [ ] `GET /api/bills/{id}` — bill detail
-- [ ] OAuth scope: `bills:create`, `bills:approve`, `bills:read`
-- [ ] Input: structured JSON (vendor name, bill number, date, due date, line items with description/quantity/unit_price/tax)
-- [ ] Vendor matching: match by name against existing vendors, create new if not found
-- [ ] Account mapping: use configurable default expense accounts per vendor or category
-- [ ] Functional tests
+- [x] `POST /api/bills` — create bill from AI-parsed data (vendor, lines, dates, amounts)
+- [x] `POST /api/bills/{id}/approve` — approve and post journal entry
+- [x] `GET /api/bills` — list bills (paginated, filterable by status/vendor/date)
+- [x] `GET /api/bills/{id}` — bill detail
+- [x] OAuth scope: `bills:create`, `bills:approve`, `bills:read`
+- [x] Input: structured JSON (vendor name, bill number, date, due date, line items with description/quantity/unit_price/tax)
+- [x] Vendor matching: match by name against existing vendors, create new if not found
+- [x] Account mapping: use configurable default expense accounts per vendor or category
+- [x] Functional tests
 
 ### 10.4 Payment Tracking
-- [ ] Record payment against specific invoice (full or partial)
-- [ ] Record payment against specific bill (full or partial)
-- [ ] Auto-create receipt/payment journal entry on payment recording
-- [ ] Payment history per invoice/bill
-- [ ] Outstanding balance calculation (invoice amount - sum of payments)
-- [ ] Auto-update status (PARTIAL when partially paid, PAID when fully paid)
-- [ ] Functional tests
+- [x] Record payment against specific invoice (full or partial)
+- [x] Record payment against specific bill (full or partial)
+- [x] Auto-create receipt/payment journal entry on payment recording
+- [x] Payment history per invoice/bill
+- [x] Outstanding balance calculation (invoice amount - sum of payments)
+- [x] Auto-update status (PARTIAL when partially paid, PAID when fully paid)
+- [x] Functional tests
 
 ### 10.5 Aging Reports
-- [ ] Receivables aging report (current, 30d, 60d, 90d, >90d buckets) based on invoice due dates
-- [ ] Payables aging report (same buckets) based on bill due dates
-- [ ] Aging by client/vendor
-- [ ] As-of date selection
-- [ ] PDF/Excel export
-- [ ] Functional tests
-- [ ] User manual
+- [x] Receivables aging report (current, 30d, 60d, 90d, >90d buckets) based on invoice due dates
+- [x] Payables aging report (same buckets) based on bill due dates
+- [x] Aging by client/vendor
+- [x] As-of date selection
+- [x] PDF/Excel export
+- [x] Functional tests
+- [x] User manual
 
 ### 10.6 Customer/Vendor Statements
-- [ ] Per-client statement (outstanding invoices, payments received, balance)
-- [ ] Per-vendor statement (outstanding bills, payments made, balance)
-- [ ] Date range filter
-- [ ] Printable PDF (suitable for sending to client as payment reminder)
-- [ ] Functional tests
-- [ ] User manual
+- [x] Per-client statement (outstanding invoices, payments received, balance)
+- [x] Per-vendor statement (outstanding bills, payments made, balance)
+- [x] Date range filter
+- [x] Printable PDF (suitable for sending to client as payment reminder)
+- [x] Functional tests
+- [x] User manual
 
 ---
 
@@ -1167,19 +1167,19 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 **Goal:** Auto-posting scheduled transactions for predictable recurring expenses/revenues
 
 ### 11.1 Recurring Schedule
-- [ ] RecurringTransaction entity (template, frequency, start/end date, next_run, status)
-- [ ] Frequency options: daily, weekly, monthly, quarterly, yearly
-- [ ] Recurring transaction CRUD UI
-- [ ] Preview next N occurrences
-- [ ] Pause/resume schedule
+- [x] RecurringTransaction entity (template, frequency, start/end date, next_run, status)
+- [x] Frequency options: daily, weekly, monthly, quarterly, yearly
+- [x] Recurring transaction CRUD UI
+- [x] Preview next N occurrences
+- [x] Pause/resume schedule
 
 ### 11.2 Auto-Posting
-- [ ] Scheduler job (daily, creates and posts transactions on due date)
-- [ ] Skip weekends/holidays option
-- [ ] Notification on auto-post (dashboard widget)
-- [ ] Error handling (log failures, retry next day)
-- [ ] Functional tests
-- [ ] User manual
+- [x] Scheduler job (daily, creates and posts transactions on due date)
+- [x] Skip weekends/holidays option
+- [x] Notification on auto-post (dashboard widget)
+- [x] Error handling (log failures, retry next day)
+- [x] Functional tests
+- [x] User manual
 
 ---
 
