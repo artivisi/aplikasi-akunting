@@ -1322,7 +1322,7 @@ Key difference: **BUMN is pemungut PPN** — they withhold PPN and remit it dire
 - [x] Permission: CLIENT_VIEW / CLIENT_CREATE / CLIENT_EDIT / CLIENT_DELETE
 - [x] Sidebar link in Proyek group
 - [x] Functional tests (18 tests)
-- [ ] User manual update
+- [x] User manual update
 
 ### 12.6 Fiscal Period Management UI
 - [x] Fiscal period list page (12 months per year, with status badges)
@@ -1333,7 +1333,7 @@ Key difference: **BUMN is pemungut PPN** — they withhold PPN and remit it dire
 - [x] Year selector
 - [x] Permission: SETTINGS_VIEW / SETTINGS_EDIT
 - [x] Functional tests
-- [ ] User manual update
+- [x] User manual update
 
 ### 12.7 Tax Report Enhancements
 - [x] PPN detail report: per-faktur breakdown (FP number, client, DPP, PPN, date) from tax_transaction_details

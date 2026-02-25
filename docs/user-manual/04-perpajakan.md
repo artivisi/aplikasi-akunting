@@ -117,26 +117,81 @@ Buka menu **Laporan** > **Ringkasan Pajak**.
 
 ## Periode Fiskal
 
+Periode fiskal mengontrol kapan transaksi dapat diposting. Setiap bulan memiliki status yang menentukan apakah jurnal dapat dibuat di bulan tersebut.
+
 ### Melihat Periode Fiskal
 
-Buka menu **Pengaturan** > **Periode Fiskal**.
+Buka menu **Pengaturan** > **Periode Fiskal** di sidebar.
 
 ![Daftar Periode Fiskal](screenshots/fiscal-periods-list.png)
 
+Fitur daftar periode:
+- **Filter tahun** — pilih tahun untuk melihat 12 periode
+- **Filter status** — tampilkan semua atau filter berdasarkan status tertentu
+
+### Generate Periode Satu Tahun
+
+Untuk membuat 12 periode sekaligus:
+
+1. Isi tahun pada kolom **Tahun** di bagian atas halaman
+2. Klik **Generate**
+3. Sistem membuat periode Januari–Desember untuk tahun tersebut (periode yang sudah ada dilewati)
+
+Atau buat periode satuan via **Periode Baru** (pilih tahun dan bulan manual).
+
 ### Status Periode
 
-| Status | Arti |
-|--------|------|
-| OPEN | Transaksi dapat dicatat |
-| CLOSED | Transaksi tidak dapat dicatat |
+| Status | Label | Arti |
+|--------|-------|------|
+| OPEN | Terbuka | Transaksi dapat diposting ke periode ini |
+| MONTH_CLOSED | Tutup Bulan | Transaksi tidak dapat diposting; periode masih bisa dibuka kembali |
+| TAX_FILED | SPT Dilaporkan | SPT sudah dilaporkan ke DJP; periode tidak bisa dibuka kembali |
+
+Alur status:
+
+```
+OPEN → MONTH_CLOSED → TAX_FILED
+```
+
+### Detail Periode
+
+Klik periode di daftar untuk melihat detail:
+- Tanggal mulai dan berakhir
+- Siapa dan kapan menutup bulan
+- Siapa dan kapan melaporkan SPT
+- Visualisasi alur status (3 tahap)
 
 ### Menutup Periode
 
-Tutup periode setelah semua transaksi dan penyesuaian selesai:
+1. Buka detail periode yang berstatus **Terbuka**
+2. Klik **Tutup Bulan**
+3. Konfirmasi pada dialog
 
-1. Pilih periode
-2. Klik **Tutup Periode**
-3. Konfirmasi
+Setelah ditutup, sistem memblokir posting transaksi ke periode tersebut. Jika ada transaksi draf yang belum diposting di periode tersebut, penutupan akan ditolak.
+
+### Melaporkan SPT
+
+Setelah SPT Masa sudah dilaporkan ke DJP:
+
+1. Buka detail periode yang berstatus **Tutup Bulan**
+2. Klik **Lapor SPT**
+3. Konfirmasi pada dialog
+
+Periode dengan status **SPT Dilaporkan** tidak bisa dibuka kembali.
+
+### Membuka Kembali Periode
+
+Periode dengan status **Tutup Bulan** dapat dibuka kembali:
+
+1. Buka detail periode
+2. Klik **Buka Kembali**
+3. Konfirmasi pada dialog
+
+Periode dengan status **SPT Dilaporkan** tidak bisa dibuka kembali.
+
+### Posting Guard
+
+Saat pengguna mencoba memposting transaksi ke bulan yang sudah ditutup, sistem menampilkan pesan error dan transaksi tidak akan diposting. Pastikan periode dalam status **Terbuka** sebelum memposting transaksi.
 
 ---
 

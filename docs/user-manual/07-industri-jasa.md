@@ -57,30 +57,73 @@ Buka menu **Akuntansi** > **Bagan Akun**.
 
 ### Melihat Daftar Klien
 
-Buka menu **Klien** > **Daftar Klien**.
+Buka menu **Proyek** > **Klien** di sidebar.
 
 ![Daftar Klien](screenshots/service/clients-list.png)
 
-### Detail Klien
-
-Klik klien untuk melihat:
-- Informasi kontak
-- Daftar proyek
-- History invoice
-- Total revenue dari klien
+Fitur daftar klien:
+- **Pencarian** — cari berdasarkan nama atau kode klien
+- **Filter status** — tampilkan semua, hanya Aktif, atau hanya Nonaktif
+- **Paginasi** — navigasi halaman via HTMX (tanpa reload)
 
 ### Menambah Klien Baru
 
-1. Klik **Klien Baru**
+1. Klik **Klien Baru** di halaman daftar klien
+2. Isi data klien:
 
-2. Isi:
-   - Kode klien (unik)
-   - Nama perusahaan
-   - NPWP
-   - Alamat
-   - Contact person
-   - Email, telepon
-3. Klik **Simpan**
+| Field | Keterangan | Wajib |
+|-------|------------|-------|
+| Kode | Kode unik klien, misal `CLT-001` | Ya |
+| Nama | Nama perusahaan/perorangan | Ya |
+| Kontak | Nama contact person | Tidak |
+| Email | Alamat email | Tidak |
+| Telepon | Nomor telepon | Tidak |
+| Alamat | Alamat lengkap | Tidak |
+| Catatan | Catatan tambahan | Tidak |
+
+3. Isi data pajak (bagian **Informasi Pajak**):
+
+| Field | Keterangan |
+|-------|------------|
+| Tipe Identitas | `NPWP` untuk PKP, `NIK` untuk non-PKP |
+| NPWP | Format: `XX.XXX.XXX.X-XXX.XXX` (15-16 digit) |
+| NITKU | Nomor Identitas Tempat Kegiatan Usaha (22 karakter: NPWP + 6 digit kode cabang) |
+| NIK | Nomor Induk Kependudukan (16 digit), untuk pembeli non-PKP |
+
+4. Klik **Simpan**
+
+Data pajak klien (NPWP, NITKU) diperlukan untuk ekspor e-Faktur dan e-Bupot ke Coretax. Saat transaksi dicatat menggunakan template PPN, data counterparty pada detail pajak otomatis terisi dari data klien yang terhubung via proyek.
+
+### Detail Klien
+
+Klik nama klien di daftar untuk membuka halaman detail. Informasi yang ditampilkan:
+
+- **Informasi Klien** — kontak, email, telepon, alamat, catatan, tanggal dibuat
+- **Informasi Pajak** — tipe identitas (NPWP/NIK), NPWP, NITKU, NIK
+- **Proyek** — daftar proyek yang terhubung dengan klien (link ke detail proyek)
+- **Invoice** — daftar invoice klien (nomor, tanggal, jatuh tempo, jumlah, status)
+- **Ringkasan Pajak** — jumlah e-Faktur, e-Bupot, total DPP, total PPN, total PPh
+
+Dari halaman detail, Anda dapat:
+- **Lihat Laporan** — buka laporan statement klien
+- **Edit** — ubah data klien
+- **Nonaktifkan/Aktifkan** — ubah status aktif klien
+
+### Mengaktifkan/Menonaktifkan Klien
+
+Klien yang tidak aktif tetap tersimpan di database tetapi tidak muncul di dropdown pemilihan klien. Untuk mengubah status:
+
+1. Buka halaman detail klien
+2. Klik **Nonaktifkan** (untuk menonaktifkan) atau **Aktifkan** (untuk mengaktifkan kembali)
+
+### Hak Akses
+
+| Permission | Fungsi |
+|------------|--------|
+| CLIENT_VIEW | Melihat daftar dan detail klien |
+| CLIENT_CREATE | Menambah klien baru |
+| CLIENT_EDIT | Mengubah data klien |
+| CLIENT_DELETE | Menghapus klien |
 
 ---
 

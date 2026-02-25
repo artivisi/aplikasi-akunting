@@ -73,6 +73,7 @@ paths = [
     '''target/.*''',                     # Build output
     '''node_modules/.*''',               # Node modules
     '''\.mvn/.*''',                      # Maven wrapper
+    '''src/main/resources/templates/.*\.html$''',  # Thymeleaf templates (placeholder text, not real data)
 ]
 
 regexes = [
