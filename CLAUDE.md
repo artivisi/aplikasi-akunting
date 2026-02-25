@@ -24,7 +24,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - **AI Analysis Reports:** ✅ Complete (structured report publishing with per-industry KPIs)
 - **Phase 10:** ✅ Complete (Invoice & Bill Management — invoices, vendor bills, bill API, payment tracking, aging reports, customer/vendor statements)
 - **Phase 11:** ✅ Complete (Recurring Transactions — templates, scheduling, auto-posting)
-- **Phase 12:** 🔧 In Progress (Tax Data Management — 12.1 PPN formula fix ✅, 12.2 tax detail entry UI ✅, 12.3 tax detail & document API ✅, 12.4 auto-populate tax details ✅, 12.5 client management UI ✅, 12.6 fiscal period management ✅, 12.7 tax report enhancements ✅, 12.8 tax deadline updates ✅, 12.9 retrofit 2025 data 🔧 steps 1-3 ✅ executed on production, step 4 pending)
+- **Phase 12:** 🔧 In Progress (Tax Data Management — 12.1 PPN formula fix ✅, 12.2 tax detail entry UI ✅, 12.3 tax detail & document API ✅, 12.4 auto-populate tax details ✅, 12.5 client management UI ✅, 12.6 fiscal period management ✅, 12.7 tax report enhancements ✅, 12.8 tax deadline updates ✅, 12.9 retrofit 2025 data 🔧 steps 1-4 ✅, step 5 UI verification pending)
 - **Phase 13:** ⏳ Not Started (WhatsApp Notifications)
 - See `docs/06-implementation-plan.md` for full plan
 
@@ -113,7 +113,7 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phases 0-11 complete. Phase 12 in progress (12.1-12.8 ✅, 12.9 steps 1-3 executed on production ✅, step 4 attach tax details pending). Retrofit scripts in aplikasi-akunting-deploy repo (`retrofit-2025/`).
+Phases 0-11 complete. Phase 12 in progress (12.1-12.8 ✅, 12.9 steps 1-4 ✅, step 5 UI verification pending). 18/22 transactions have FP tax details + PDF documents attached. 4 transactions without FP PDFs (Client-B 001/003, Client-F 6, Client-D 002). Bupot PDFs pending collection from clients. Retrofit scripts in aplikasi-akunting-deploy repo (`retrofit-2025/`).
 
 User Manual (15-section structure, published at artivisi.com/aplikasi-akunting/):
 - 01-setup-awal.md through 15-peringatan.md

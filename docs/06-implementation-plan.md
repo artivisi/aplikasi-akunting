@@ -1377,21 +1377,24 @@ After Phase 12 features are deployed, clean up and repost all 2025 transactions 
 - [x] Repost 9 FP-03 BUMN transactions: "Pendapatan Jasa BUMN (FP 03)" template (DR Bank ×0.98, DR PPh23 ×0.02, CR Pendapatan — no Hutang PPN)
 - [x] Verified: global debit=credit (diff=0), all 22 transactions balanced, PPN expected=actual (66,206,910), PPh23 expected=actual (17,309,545)
 
-**Step 4: Attach tax details** (via API — pending)
-- [ ] Parse 18 FP PDFs from `faktur-pajak/` folder
-- [ ] Match each FP to the corresponding reposted transaction (by amount, date, client)
-- [ ] Post structured FP data to `POST /api/transactions/{id}/tax-details`
-- [ ] Upload FP PDFs to `POST /api/transactions/{id}/documents`
+**Step 4: Attach tax details** ✅ (via API — completed)
+- [x] Parse 18 FP PDFs from `faktur-pajak/` folder (extracted faktur number, DPP, PPN, counterparty NPWP/address)
+- [x] Match each FP to the corresponding reposted transaction (by amount + invoice number in description)
+- [x] Post 18 structured FP data to `POST /api/transactions/{id}/tax-details` (all PPN_KELUARAN, with counterparty info)
+- [x] Upload 18 FP PDFs to `POST /api/transactions/{id}/documents` (all HTTP 201)
 - [ ] Parse and attach bupot PDFs (once collected from clients)
+- 4 transactions without FP PDFs: Client-B 001, Client-B 003, Client-F 6, Client-D Inv 002
 
-**Step 5: Verify** (partial — SQL checks done, UI checks pending after step 4)
+**Step 5: Verify** (partial — SQL checks done, UI checks pending)
 - [x] Global debit = credit: diff = 0.00
 - [x] Per-transaction balance: 0 mismatches
 - [x] Income statement revenue total: 887,677,250
 - [x] Hutang PPN ledger = sum of FP PPN amounts: 66,206,910
 - [x] Kredit Pajak PPh 23 ledger = sum of PPh 23 amounts: 17,309,545
-- [ ] Coretax e-Faktur export produces correct data (after step 4)
-- [ ] Tax summary report reconciles (after step 4)
+- [x] 18 of 22 transactions have tax details attached (verified via API)
+- [x] 18 FP PDF documents uploaded and attached
+- [ ] Coretax e-Faktur export produces correct data
+- [ ] Tax summary report reconciles
 
 **Phase 12 Deliverable:** Complete tax data management — entry UI/API for tax transaction details, client management, fiscal periods, corrected PPN formula, auto-population from templates, enhanced tax reports including rekonsiliasi fiskal, and retrofitted 2025 data.
 
