@@ -1,0 +1,244 @@
+{
+  "x-authentication": {
+    "type": "OAuth 2.0 Device Authorization (RFC 8628)",
+    "steps": [
+      {
+        "step": 1,
+        "action": "POST /api/device/code",
+        "body": { "clientId": "your-app-name" },
+        "description": "Request device code. Returns deviceCode, userCode, verificationUri"
+      },
+      {
+        "step": 2,
+        "action": "User opens verificationUri in browser, enters userCode, logs in, authorizes device"
+      },
+      {
+        "step": 3,
+        "action": "POST /api/device/token",
+        "body": { "deviceCode": "from-step-1" },
+        "description": "Poll every 5s until authorized. Returns accessToken (Bearer)"
+      }
+    ],
+    "tokenUsage": "Set header: Authorization: Bearer <accessToken>",
+    "tokenExpiry": "30 days",
+    "scopes": [
+      { "scope": "drafts:create", "description": "Create draft transactions from receipt/text" },
+      { "scope": "drafts:approve", "description": "Approve or reject draft transactions" },
+      { "scope": "drafts:read", "description": "Read draft transaction details" },
+      { "scope": "analysis:read", "description": "Read all financial analysis reports" },
+      { "scope": "analysis:write", "description": "Publish AI-generated analysis reports" },
+      { "scope": "transactions:post", "description": "Post draft transactions to ledger" },
+      { "scope": "data:import", "description": "Import bulk data via ZIP" },
+      { "scope": "tax-export:read", "description": "Export tax data (e-Faktur, e-Bupot, PPN/PPh reports)" }
+    ]
+  },
+  "x-workflows": [
+    {
+      "name": "Receipt-Based Transaction",
+      "steps": [
+        "POST /api/drafts/from-receipt",
+        "Show user the draft + suggested template",
+        "POST /api/drafts/{id}/approve"
+      ]
+    },
+    {
+      "name": "Text-Based Transaction",
+      "steps": [
+        "POST /api/drafts/from-text",
+        "Show user the draft + suggested template",
+        "POST /api/drafts/{id}/approve"
+      ]
+    },
+    {
+      "name": "Draft Then Post (Two-Step)",
+      "steps": [
+        "GET /api/templates (find matching template, check lines for accountHint)",
+        "POST /api/drafts (create DRAFT with templateId + accountSlots)",
+        "GET /api/transactions/{id}/journal-preview (optional, preview entries)",
+        "PUT /api/transactions/{id} (optional, correct fields)",
+        "POST /api/transactions/{id}/post (post to ledger)"
+      ]
+    },
+    {
+      "name": "Direct Transaction (User Pre-Approved)",
+      "steps": [
+        "GET /api/templates (find matching template)",
+        "POST /api/transactions (with userApproved=true)"
+      ]
+    },
+    {
+      "name": "Financial Analysis",
+      "steps": [
+        "GET /api/analysis/company (determine industry)",
+        "GET /api/analysis/snapshot?month=yyyy-MM",
+        "GET /api/analysis/income-statement, balance-sheet, cash-flow, etc.",
+        "POST /api/analysis/reports (publish structured analysis)"
+      ]
+    },
+    {
+      "name": "Bank Reconciliation",
+      "steps": [
+        "GET /api/bank-reconciliation/parser-configs",
+        "POST /api/bank-reconciliation/statements/import",
+        "POST /api/bank-reconciliation/reconciliations",
+        "POST /api/bank-reconciliation/reconciliations/{id}/auto-match",
+        "Review unmatched items, manual match or mark bank/book-only",
+        "POST /api/bank-reconciliation/reconciliations/{id}/complete"
+      ]
+    },
+    {
+      "name": "New Client Onboarding from Financial Reports",
+      "steps": [
+        "Receive client's existing financial reports (PDF/XLS: neraca, laba rugi, buku besar)",
+        "Extract Chart of Accounts structure, journal templates, and initial data",
+        "Generate CSV files matching expected format (see x-csv-files)",
+        "Minimum required: 01_company_config.csv, 02_chart_of_accounts.csv, 04_journal_templates.csv, 05_journal_template_lines.csv",
+        "Package CSVs into ZIP file",
+        "POST /api/data-import (multipart/form-data, param: file)"
+      ]
+    },
+    {
+      "name": "Bulk Data Import",
+      "steps": [
+        "Prepare ZIP with CSV files (numbered in dependency order: 01_, 02_, etc.)",
+        "POST /api/data-import (multipart/form-data)"
+      ]
+    },
+    {
+      "name": "Correct Misclassified Draft",
+      "steps": [
+        "GET /api/drafts/{id} (review current state)",
+        "PATCH /api/drafts/{id} (fix merchantName, amount, suggestedTemplateId, etc.)",
+        "POST /api/drafts/{id}/approve (approve with corrected data)"
+      ]
+    },
+    {
+      "name": "Correct Draft Transaction Before Posting",
+      "steps": [
+        "GET /api/analysis/transactions/{id} (review current state)",
+        "PUT /api/transactions/{id} (reclassify templateId, fix description/amount/date)",
+        "POST /api/transactions/{id}/post (post after correction)"
+      ]
+    },
+    {
+      "name": "Delete Bad Draft Transaction",
+      "steps": [
+        "DELETE /api/transactions/{id} (only DRAFT status)"
+      ]
+    },
+    {
+      "name": "Void Posted Transaction",
+      "steps": [
+        "POST /api/transactions/{id}/void (with reason: INPUT_ERROR|DUPLICATE|CANCELLED|OTHER)"
+      ]
+    },
+    {
+      "name": "Tax Export for SPT Preparation",
+      "steps": [
+        "GET /api/tax-export/efaktur-keluaran?startMonth=2025-01&endMonth=2025-12 (download e-Faktur Keluaran Excel)",
+        "GET /api/tax-export/efaktur-masukan?startMonth=2025-01&endMonth=2025-12 (download e-Faktur Masukan Excel)",
+        "GET /api/tax-export/bupot-unifikasi?startMonth=2025-01&endMonth=2025-12 (download e-Bupot Excel)",
+        "GET /api/tax-export/ppn-detail?startDate=2025-01-01&endDate=2025-12-31 (PPN summary JSON or ?format=excel)",
+        "GET /api/tax-export/pph23-detail?startDate=2025-01-01&endDate=2025-12-31 (PPh 23 summary)",
+        "GET /api/tax-export/rekonsiliasi-fiskal?year=2025 (fiscal reconciliation)",
+        "GET /api/tax-export/pph-badan?year=2025 (PPh Badan calculation)"
+      ]
+    }
+  ],
+  "x-csv-files": [
+    {
+      "filename": "01_company_config.csv",
+      "description": "Company configuration (1 row)",
+      "columns": "company_name,company_address,company_phone,company_email,tax_id,npwp,nitku,fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path,established_date,is_pkp,pkp_since,industry",
+      "notes": "Essential for new client setup. industry: it-service|online-seller|coffee-shop|campus"
+    },
+    {
+      "filename": "02_chart_of_accounts.csv",
+      "description": "Chart of Accounts",
+      "columns": "account_code,account_name,account_type,parent_code,normal_balance,active,is_permanent",
+      "notes": "account_type: ASSET|LIABILITY|EQUITY|REVENUE|EXPENSE. normal_balance: DEBIT|CREDIT. parent_code: empty for top-level, parent's code for sub-accounts"
+    },
+    {
+      "filename": "04_journal_templates.csv",
+      "description": "Journal templates",
+      "columns": "template_name,category,cash_flow_category,template_type,description,is_system,active,version,usage_count,last_used_at,semantic_description,keywords,example_merchants,typical_amount_min,typical_amount_max,merchant_patterns",
+      "notes": "category: INCOME|EXPENSE|PAYMENT|RECEIPT|TRANSFER. cash_flow_category: OPERATING|INVESTING|FINANCING. template_type: SIMPLE|VARIABLE|SPLIT|MULTI_LINE. Pipe-delimited multi-values: keywords, example_merchants, merchant_patterns"
+    },
+    {
+      "filename": "05_journal_template_lines.csv",
+      "description": "Template journal entry lines",
+      "columns": "template_name,line_order,account_code,account_hint,position,formula,description",
+      "notes": "position: DEBIT|CREDIT. formula: AMOUNT (full value), AMOUNT * 0.11 (PPN 11%), etc."
+    },
+    {
+      "filename": "03_salary_components.csv",
+      "description": "Salary components",
+      "notes": "Optional. For payroll setup."
+    },
+    {
+      "filename": "07_clients.csv",
+      "description": "Client/customer master data",
+      "notes": "Optional. For service/project-based businesses."
+    },
+    {
+      "filename": "08_projects.csv",
+      "description": "Projects",
+      "notes": "Optional. References clients."
+    },
+    {
+      "filename": "11_fiscal_periods.csv",
+      "description": "Fiscal periods",
+      "notes": "Optional. Defines accounting periods."
+    },
+    {
+      "filename": "12_tax_deadlines.csv",
+      "description": "Tax filing deadlines",
+      "notes": "Optional. Indonesian tax calendar."
+    },
+    {
+      "filename": "13_company_bank_accounts.csv",
+      "description": "Bank accounts",
+      "notes": "Optional. For bank reconciliation."
+    },
+    {
+      "filename": "14_merchant_mappings.csv",
+      "description": "Merchant-to-template mappings",
+      "notes": "Optional. Maps merchant names to journal templates for AI auto-matching."
+    },
+    {
+      "filename": "18_transactions.csv",
+      "description": "Historical transactions",
+      "notes": "Optional. For migrating existing transaction data."
+    },
+    {
+      "filename": "34_asset_categories.csv",
+      "description": "Fixed asset categories",
+      "notes": "Optional. For fixed asset management."
+    },
+    {
+      "filename": "35_product_categories.csv",
+      "description": "Product categories",
+      "notes": "Optional. For inventory/manufacturing."
+    },
+    {
+      "filename": "36_products.csv",
+      "description": "Product master data",
+      "notes": "Optional. For inventory/manufacturing."
+    },
+    {
+      "filename": "37_bill_of_materials.csv",
+      "description": "Bill of materials",
+      "notes": "Optional. For manufacturing/production."
+    }
+  ],
+  "x-industries": ["it-service", "online-seller", "coffee-shop", "campus"],
+  "x-error-codes": {
+    "VALIDATION_ERROR": "400 - Request body validation failed",
+    "MISSING_PARAMETER": "400 - Required query parameter missing",
+    "UNAUTHORIZED": "401 - Missing or invalid Bearer token",
+    "FORBIDDEN": "403 - Token lacks required scope",
+    "NOT_FOUND": "404 - Resource not found",
+    "CONFLICT": "409 - Duplicate or state conflict",
+    "INTERNAL_ERROR": "500 - Unexpected server error"
+  }
+}

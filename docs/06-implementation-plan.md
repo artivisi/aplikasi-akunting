@@ -1428,31 +1428,33 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 **Goal:** Replace custom `capabilities.json` with auto-generated OpenAPI spec (springdoc-openapi). Reduces maintenance burden — endpoint docs are generated from controller annotations, AI-specific metadata lives in `x-` extensions.
 
 ### 13.1 springdoc-openapi Setup
-- [ ] Add `springdoc-openapi-starter-webmvc-ui` dependency
-- [ ] Configure OpenAPI metadata bean (title, version, description, contact)
-- [ ] Configure OAuth 2.0 Device Authorization security scheme
-- [ ] Verify Swagger UI accessible at `/swagger-ui.html`
-- [ ] Add `/swagger-ui.html` and `/v3/api-docs/**` to Spring Security `permitAll()` whitelist
+- [x] Add `springdoc-openapi-starter-webmvc-ui:3.0.1` dependency
+- [x] Configure OpenAPI metadata bean (title, version, description, Apache 2.0 license)
+- [x] Configure Bearer token security scheme (HTTP Bearer with Device Flow description)
+- [x] Verify Swagger UI accessible at `/swagger-ui.html`
+- [x] Add `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**` to Spring Security `permitAll()`
 
 ### 13.2 Controller Annotations
-- [ ] Add `@Tag` to all API controllers (group endpoints)
-- [ ] Add `@Operation(summary, description)` to endpoints that need clarification beyond method names
-- [ ] Add `@Parameter` annotations for non-obvious query params
-- [ ] Add `@Schema` annotations to DTO records where field names aren't self-documenting
-- [ ] Verify all scopes appear correctly in generated spec
+- [x] Add `@Tag` to all 11 API controllers (DeviceAuth, DraftTransaction, Transaction, FinancialAnalysis, Template, BankReconciliation, Bill, DataImport, TaxDetail, Document, TaxExport)
+- [x] Add `@SecurityRequirements` (empty) on DeviceAuthApiController for unauthenticated endpoints
+- [x] Add `@Operation` on TaxExport endpoints with dual JSON/Excel responses
+- [x] Add `@Parameter` on startMonth/endMonth/format query params
+- [x] Add `@ApiResponse` on 3 wildcard `ResponseEntity<?>` endpoints in TaxExportApiController
 
 ### 13.3 AI Extensions & Custom Metadata
-- [ ] Create `OpenApiCustomizer` bean with `x-workflows` (migrate from capabilities.json)
-- [ ] Add `x-csv-files` extension (data import CSV specs)
-- [ ] Add `x-industries` extension
-- [ ] Add `x-ai-hints` on endpoints that need semantic descriptions for AI matching
+- [x] Create `OpenApiCustomizer` bean that loads `openapi/extensions.json`
+- [x] `x-authentication`: OAuth 2.0 Device Flow steps, 8 scopes, token usage
+- [x] `x-workflows`: 13 workflow definitions
+- [x] `x-csv-files`: 16 CSV file specifications
+- [x] `x-industries`: 4 supported industries
+- [x] `x-error-codes`: 7 HTTP error code definitions
 
 ### 13.4 Cleanup & Verification
-- [ ] Delete `capabilities.json`
-- [ ] Update any code/docs referencing `capabilities.json`
-- [ ] Functional test: verify `/v3/api-docs` returns valid OpenAPI JSON with extensions
-- [ ] Functional test: verify Swagger UI loads
-- [ ] Update user manual (API section)
+- [x] Delete `capabilities.json`
+- [x] Remove `capabilities.json` permitAll() from SecurityConfig
+- [x] Replace `CapabilitiesApiTest` with `OpenApiTest` (10 test cases)
+- [x] Update user manual `13-bantuan-ai.md` — replace all capabilities.json references with /v3/api-docs
+- [x] Update implementation plan and CLAUDE.md
 
 ---
 

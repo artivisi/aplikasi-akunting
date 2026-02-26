@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -56,6 +57,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/analysis")
+@Tag(name = "Financial Analysis", description = "Read-only financial data for AI analysis (reports, snapshots, ledgers)")
 @PreAuthorize("hasAuthority('SCOPE_analysis:read')")
 @RequiredArgsConstructor
 @Slf4j

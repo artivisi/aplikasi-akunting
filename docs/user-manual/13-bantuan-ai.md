@@ -17,7 +17,7 @@ Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti 
 ### Alur Umum
 
 ```
-1. AI membaca capabilities.json (GET /api/capabilities.json)
+1. AI membaca OpenAPI spec (GET /v3/api-docs)
    ↓
 2. AI melakukan autentikasi (OAuth 2.0 Device Flow)
    ↓
@@ -43,51 +43,58 @@ Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti 
 
 ---
 
-## API Discovery via capabilities.json
+## API Discovery via OpenAPI Spec
 
-Sebelum mulai berinteraksi dengan API, AI assistant sebaiknya membaca file **capabilities.json** yang mendeskripsikan seluruh kemampuan API aplikasi ini. File ini tersedia tanpa autentikasi.
+Sebelum mulai berinteraksi dengan API, AI assistant sebaiknya membaca **OpenAPI spec** yang mendeskripsikan seluruh kemampuan API aplikasi ini. Spec ini di-generate otomatis oleh springdoc-openapi dan tersedia tanpa autentikasi.
 
 ### Endpoint
 
 ```bash
-GET /api/capabilities.json
+GET /v3/api-docs
 # Tidak perlu Authorization header
+# Returns OpenAPI 3.x JSON spec
 ```
 
-### Isi capabilities.json
+Swagger UI juga tersedia di `/swagger-ui.html` untuk eksplorasi interaktif.
+
+### Isi OpenAPI Spec
 
 | Bagian | Deskripsi |
 |--------|-----------|
-| `authentication` | Alur OAuth 2.0 Device Flow lengkap (step 1-3), daftar scope, expiry |
-| `endpointGroups` | Semua endpoint dikelompokkan per domain (Draft Transactions, Transactions, Templates, Financial Analysis, Analysis Reports, Data Import, Bank Reconciliation) |
-| `workflows` | Alur kerja end-to-end (receipt-based, text-based, direct posting, financial analysis, bank reconciliation, client onboarding, correction workflows) |
-| `csvFiles` | Spesifikasi CSV untuk data import (nama kolom, tipe data, catatan) |
-| `industries` | Daftar kode industri yang didukung (`it-service`, `online-seller`, `coffee-shop`, `campus`) |
-| `errorCodes` | Daftar kode error dan HTTP status |
+| `paths` | Seluruh endpoint API, auto-generated dari controller annotations |
+| `components.schemas` | Request/response schema dari DTO records |
+| `security` | Bearer token authentication scheme |
+| `x-authentication` | Alur OAuth 2.0 Device Flow lengkap (step 1-3), daftar 8 scope, expiry |
+| `x-workflows` | 13 alur kerja end-to-end (receipt-based, text-based, direct posting, financial analysis, bank reconciliation, client onboarding, correction workflows, tax export) |
+| `x-csv-files` | 16 spesifikasi CSV untuk data import (nama kolom, tipe data, catatan) |
+| `x-industries` | Daftar kode industri yang didukung (`it-service`, `online-seller`, `coffee-shop`, `campus`) |
+| `x-error-codes` | 7 kode error dan HTTP status |
 
-### Cara AI Menggunakan capabilities.json
+### Cara AI Menggunakan OpenAPI Spec
 
 ```
-1. AI membaca capabilities.json (GET /api/capabilities.json)
+1. AI membaca OpenAPI spec (GET /v3/api-docs)
    ↓
 2. AI memahami:
-   - Endpoint apa saja yang tersedia
-   - Field apa yang wajib/opsional per endpoint
-   - Scope apa yang diperlukan
-   - Alur kerja (workflow) yang benar
+   - Endpoint apa saja yang tersedia (dari paths)
+   - Field apa yang wajib/opsional per endpoint (dari schemas)
+   - Scope apa yang diperlukan (dari x-authentication)
+   - Alur kerja (workflow) yang benar (dari x-workflows)
    ↓
-3. AI mengikuti alur autentikasi dari capabilities.json
+3. AI mengikuti alur autentikasi dari x-authentication
    ↓
-4. AI memanggil endpoint sesuai workflow
+4. AI memanggil endpoint sesuai x-workflows
 ```
 
 ### Keuntungan
 
-- **Self-describing API**: AI tidak perlu dokumentasi terpisah — semua informasi ada di capabilities.json
-- **Selalu sinkron**: capabilities.json diperbarui bersama kode, sehingga selalu akurat
-- **Tanpa autentikasi**: AI dapat membaca capabilities.json sebelum melakukan device flow
+- **Auto-generated**: Spec di-generate langsung dari kode (controller annotations, DTO records), sehingga selalu sinkron
+- **Standard format**: OpenAPI 3.x yang dipahami oleh semua AI assistant dan developer tools
+- **AI extensions**: Metadata khusus AI (workflows, CSV specs, industries) disimpan di `x-` extensions
+- **Swagger UI**: Eksplorasi API interaktif di `/swagger-ui.html`
+- **Tanpa autentikasi**: AI dapat membaca spec sebelum melakukan device flow
 
-> **Untuk pengembang AI assistant**: Langkah pertama integrasi adalah selalu `GET /api/capabilities.json` untuk mengetahui endpoint, field, dan workflow yang tersedia.
+> **Untuk pengembang AI assistant**: Langkah pertama integrasi adalah selalu `GET /v3/api-docs` untuk mengetahui endpoint, schema, dan workflow yang tersedia. Metadata AI ada di `x-` extensions.
 
 ---
 
@@ -1355,7 +1362,8 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/api/capabilities.json` | Deskripsi lengkap seluruh API (endpoint, workflow, scope) |
+| GET | `/v3/api-docs` | OpenAPI spec — seluruh endpoint, schema, x- extensions (workflow, scope, CSV specs) |
+| GET | `/swagger-ui.html` | Swagger UI — eksplorasi API interaktif |
 
 **Autentikasi (public):**
 
@@ -1433,7 +1441,8 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 ### Authentication
 
 Endpoint yang **tidak** memerlukan autentikasi:
-- `GET /api/capabilities.json`
+- `GET /v3/api-docs` (OpenAPI spec)
+- `GET /swagger-ui.html` (Swagger UI)
 - `POST /api/device/code`
 - `POST /api/device/token`
 

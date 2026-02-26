@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,8 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/device")
+@Tag(name = "Device Authentication", description = "OAuth 2.0 Device Authorization Flow (RFC 8628). No Bearer token required.")
+@SecurityRequirements
 @RequiredArgsConstructor
 @Slf4j
 public class DeviceAuthApiController {

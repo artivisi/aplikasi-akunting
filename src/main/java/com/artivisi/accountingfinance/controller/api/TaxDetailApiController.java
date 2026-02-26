@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@Tag(name = "Tax Details", description = "CRUD and bulk operations for tax transaction details (e-Faktur, e-Bupot)")
 @RequiredArgsConstructor
 @Slf4j
 public class TaxDetailApiController {

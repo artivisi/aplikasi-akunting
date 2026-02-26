@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -40,6 +41,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/bills")
+@Tag(name = "Bills", description = "Vendor bill management (create, approve, mark paid)")
 @RequiredArgsConstructor
 @Slf4j
 public class BillApiController {

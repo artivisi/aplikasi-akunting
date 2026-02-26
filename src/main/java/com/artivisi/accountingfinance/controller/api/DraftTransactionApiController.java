@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,6 +42,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/drafts")
+@Tag(name = "Draft Transactions", description = "Create and manage AI-parsed transaction drafts")
 @RequiredArgsConstructor
 @Slf4j
 public class DraftTransactionApiController {

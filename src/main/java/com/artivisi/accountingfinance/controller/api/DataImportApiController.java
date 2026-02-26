@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/data-import")
+@Tag(name = "Data Import", description = "Bulk data import via ZIP file (CSV-based)")
 @PreAuthorize("hasAuthority('SCOPE_data:import')")
 @RequiredArgsConstructor
 @Slf4j

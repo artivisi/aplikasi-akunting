@@ -87,6 +87,12 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.12.0</version>
 		</dependency>
+		<!-- OpenAPI / Swagger UI for auto-generated API documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.0.1</version>
+		</dependency>
 		<dependency>
 			<groupId>nz.net.ultraq.thymeleaf</groupId>
 			<artifactId>thymeleaf-layout-dialect</artifactId>

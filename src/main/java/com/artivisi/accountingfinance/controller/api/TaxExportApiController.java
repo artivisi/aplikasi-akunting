@@ -12,6 +12,12 @@ import com.artivisi.accountingfinance.service.TaxReportDetailService.PPhBadanCal
 import com.artivisi.accountingfinance.service.TaxReportDetailService.PPNDetailReport;
 import com.artivisi.accountingfinance.service.TaxReportDetailService.PPh23DetailReport;
 import com.artivisi.accountingfinance.service.TaxReportDetailService.RekonsiliasiFiskalReport;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +41,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tax-export")
+@Tag(name = "Tax Export", description = "Export tax data for SPT preparation (e-Faktur, e-Bupot, PPN/PPh reports)")
 @PreAuthorize("hasAuthority('SCOPE_tax-export:read')")
 @RequiredArgsConstructor
 @Slf4j
@@ -51,9 +58,10 @@ public class TaxExportApiController {
     // ==================== EXCEL EXPORT ENDPOINTS ====================
 
     @GetMapping("/efaktur-keluaran")
+    @Operation(summary = "Export e-Faktur Keluaran (output VAT) to Coretax-compatible Excel")
     public ResponseEntity<byte[]> exportEfakturKeluaran(
-            @RequestParam String startMonth,
-            @RequestParam String endMonth) throws IOException {
+            @Parameter(description = "Start month (yyyy-MM)") @RequestParam String startMonth,
+            @Parameter(description = "End month (yyyy-MM)") @RequestParam String endMonth) throws IOException {
 
         LocalDate[] range = parseMonthRange(startMonth, endMonth);
 
@@ -69,9 +77,10 @@ public class TaxExportApiController {
     }
 
     @GetMapping("/efaktur-masukan")
+    @Operation(summary = "Export e-Faktur Masukan (input VAT) to Coretax-compatible Excel")
     public ResponseEntity<byte[]> exportEfakturMasukan(
-            @RequestParam String startMonth,
-            @RequestParam String endMonth) throws IOException {
+            @Parameter(description = "Start month (yyyy-MM)") @RequestParam String startMonth,
+            @Parameter(description = "End month (yyyy-MM)") @RequestParam String endMonth) throws IOException {
 
         LocalDate[] range = parseMonthRange(startMonth, endMonth);
 
@@ -87,9 +96,10 @@ public class TaxExportApiController {
     }
 
     @GetMapping("/bupot-unifikasi")
+    @Operation(summary = "Export e-Bupot Unifikasi (PPh withholding) to Coretax-compatible Excel")
     public ResponseEntity<byte[]> exportBupotUnifikasi(
-            @RequestParam String startMonth,
-            @RequestParam String endMonth) throws IOException {
+            @Parameter(description = "Start month (yyyy-MM)") @RequestParam String startMonth,
+            @Parameter(description = "End month (yyyy-MM)") @RequestParam String endMonth) throws IOException {
 
         LocalDate[] range = parseMonthRange(startMonth, endMonth);
 
@@ -108,10 +118,16 @@ public class TaxExportApiController {
 
     @GetMapping("/ppn-detail")
     @Transactional(readOnly = true)
+    @Operation(summary = "PPN detail report (JSON or Excel)",
+            description = "PPN detail with Faktur Keluaran/Masukan breakdown. Add ?format=excel for XLSX.")
+    @ApiResponse(responseCode = "200", description = "JSON report",
+            content = @Content(schema = @Schema(implementation = PPNDetailData.class)))
+    @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
+            content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
     public ResponseEntity<?> getPpnDetail(
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam(required = false) String format) {
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
 
         LocalDate start = parseDate(startDate);
         LocalDate end = parseDate(endDate);
@@ -141,10 +157,16 @@ public class TaxExportApiController {
 
     @GetMapping("/pph23-detail")
     @Transactional(readOnly = true)
+    @Operation(summary = "PPh 23 withholding tax detail report (JSON or Excel)",
+            description = "PPh 23 detail report. Add ?format=excel for XLSX.")
+    @ApiResponse(responseCode = "200", description = "JSON report",
+            content = @Content(schema = @Schema(implementation = PPh23DetailData.class)))
+    @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
+            content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
     public ResponseEntity<?> getPph23Detail(
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam(required = false) String format) {
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
 
         LocalDate start = parseDate(startDate);
         LocalDate end = parseDate(endDate);
@@ -174,9 +196,15 @@ public class TaxExportApiController {
 
     @GetMapping("/rekonsiliasi-fiskal")
     @Transactional(readOnly = true)
+    @Operation(summary = "Fiscal reconciliation: commercial income to taxable income (JSON or Excel)",
+            description = "Fiscal reconciliation report. Add ?format=excel for XLSX.")
+    @ApiResponse(responseCode = "200", description = "JSON report",
+            content = @Content(schema = @Schema(implementation = RekonsiliasiFiskalData.class)))
+    @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
+            content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
     public ResponseEntity<?> getRekonsiliasiFiskal(
             @RequestParam int year,
-            @RequestParam(required = false) String format) {
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
 
         RekonsiliasiFiskalReport report = taxReportDetailService.generateRekonsiliasiFiskal(year);
 
