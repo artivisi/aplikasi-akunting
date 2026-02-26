@@ -23,8 +23,9 @@
 | **9** | Analytics & Insights | ✅ Complete |
 | **10** | Invoice & Bill Management | ✅ Complete |
 | **11** | Recurring Transactions | ✅ Complete |
-| **12** | Tax Data Management | 🔧 In Progress |
-| **13** | WhatsApp Notifications | ⏳ Not Started |
+| **12** | Tax Data Management | ✅ Complete |
+| **13** | OpenAPI Migration | ✅ Complete |
+| **14** | WhatsApp Notifications | ⏳ Not Started |
 | **—** | Future Enhancements | As needed |
 
 ---
@@ -1183,7 +1184,7 @@ Additive is ~3x simpler. Role switching only needed for strict audit trails or c
 
 ---
 
-## Phase 12: Tax Data Management
+## Phase 12: Tax Data Management ✅
 
 **Goal:** Complete the tax data entry pipeline so all tax-related data (faktur pajak, bukti potong, client NPWP, fiscal periods) can be managed from within the app, eliminating reliance on external PDFs and Coretax as data sources.
 
@@ -1410,7 +1411,7 @@ Expose Coretax export functionality via API (currently web-only with session aut
 - [x] `GET /api/tax-export/pph23-detail?startDate=yyyy-MM-dd&endDate=yyyy-MM-dd` — PPh 23 detail (JSON + Excel)
 - [x] `GET /api/tax-export/rekonsiliasi-fiskal?year=yyyy` — Rekonsiliasi Fiskal (JSON + Excel)
 - [x] `GET /api/tax-export/pph-badan?year=yyyy` — PPh Badan calculation summary (JSON)
-- [x] Register new endpoints in `capabilities.json`
+- [x] Register new endpoints (now auto-generated via springdoc-openapi, Phase 13)
 - [x] Functional tests (12 tests passing)
 
 ### 12.11 PPN Documentation Update
@@ -1423,7 +1424,7 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 
 ---
 
-## Phase 13: OpenAPI Migration
+## Phase 13: OpenAPI Migration ✅
 
 **Goal:** Replace custom `capabilities.json` with auto-generated OpenAPI spec (springdoc-openapi). Reduces maintenance burden — endpoint docs are generated from controller annotations, AI-specific metadata lives in `x-` extensions.
 
@@ -1440,6 +1441,7 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 - [x] Add `@Operation` on TaxExport endpoints with dual JSON/Excel responses
 - [x] Add `@Parameter` on startMonth/endMonth/format query params
 - [x] Add `@ApiResponse` on 3 wildcard `ResponseEntity<?>` endpoints in TaxExportApiController
+- [x] Add `@Hidden` on 9 MVC controllers to exclude internal endpoints from spec
 
 ### 13.3 AI Extensions & Custom Metadata
 - [x] Create `OpenApiCustomizer` bean that loads `openapi/extensions.json`
@@ -1452,7 +1454,7 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 ### 13.4 Cleanup & Verification
 - [x] Delete `capabilities.json`
 - [x] Remove `capabilities.json` permitAll() from SecurityConfig
-- [x] Replace `CapabilitiesApiTest` with `OpenApiTest` (10 test cases)
+- [x] Replace `CapabilitiesApiTest` with `OpenApiTest` (11 test cases incl. MVC-hidden check)
 - [x] Update user manual `13-bantuan-ai.md` — replace all capabilities.json references with /v3/api-docs
 - [x] Update implementation plan and CLAUDE.md
 
