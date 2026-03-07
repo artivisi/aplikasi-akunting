@@ -142,6 +142,54 @@ Each exclusion must have a justification comment explaining the mitigation.
         <Bug pattern="CRLF_INJECTION_LOGS"/>
     </Match>
 
+    <!-- FiscalAdjustmentApiController: Log params are UUID/int (validated by Spring type binding) + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.FiscalAdjustmentApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- PayrollApiController: Log params are UUID/int (validated by Spring type binding) + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.PayrollApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- SalaryComponentApiController: Log params are UUID (validated by Spring type binding) + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.SalaryComponentApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- EmployeeApiController: Log params are UUID/name + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.EmployeeApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!--
+    DB_DUPLICATE_BRANCHES - EmployeeApiController.list() intentional fallthrough
+
+    The list() method has identical code for both branches of the active/status filter:
+    both call findAll() when no filter is provided. This is intentional for readability —
+    the conditional structure documents that active and status are independent filters.
+    -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.EmployeeApiController"/>
+        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+    </Match>
+
+    <!-- TaxReportDetailService: Taint flows through FiscalAdjustmentApiController log calls + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.TaxReportDetailService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- SalaryComponentService: Taint flows through SalaryComponentApiController log calls + Logback %replace strips CRLF -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.SalaryComponentService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
     <!--
     EI_EXPOSE_REP / EI_EXPOSE_REP2 - Spring Dependency Injection False Positives
 
