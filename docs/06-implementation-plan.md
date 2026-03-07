@@ -1485,6 +1485,42 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 
 ---
 
+## Phase 16: User Manual Revamp — AI-Operated Lifecycle ✅
+
+**Goal:** Revamp `13-bantuan-ai.md` from narrow "transaction posting" scope to cover the full AI-operated application lifecycle end-to-end: installation, data analysis, seed data generation, daily operations, reporting, and tax filing.
+
+### 16.1 Structure Revamp
+- [x] Rename H1 to "Operasi Aplikasi dengan Bantuan AI"
+- [x] Rewrite intro paragraph to cover full lifecycle
+- [x] New "Gambaran Umum" section — lifecycle diagram from VPS setup to tax filing
+- [x] Keep "API Discovery via OpenAPI Spec" (minor updates)
+- [x] Keep "Setup Autentikasi" (as-is)
+
+### 16.2 New Sections — Setup & Data Migration
+- [x] "Instalasi dan Deploy" — point Claude Code to GitHub repo, SSH to clean VPS, Ansible provisioning, service startup
+- [x] "Analisis Data Existing" — AI reads Excel ledgers (transactions, initial balances), suggests COA structure and journal templates, generates CSV seed data
+- [x] Expand "Inisialisasi Data" — seed data generation workflow, initial balance population, data import API, industry seed pack reference
+
+### 16.3 Consolidate & Expand Operations
+- [x] Consolidate 5 transaction sections (posting, drafts, preview, corrections, template matching) into single "Pencatatan Transaksi" section
+- [x] New "Penggajian (Payroll)" — employee setup → salary components → payroll run → PPh 21 calculation → posting → 1721-A1
+- [x] New "Tagihan Vendor (Bills)" — create bills from vendor invoices, approve, mark paid
+- [x] New "Rekonsiliasi Bank" — parser config, statement import, auto-match, manual match, completion
+- [x] Expand "Laporan Keuangan dan Analisis" — reading all report endpoints, publishing analysis reports
+
+### 16.4 New Section — Tax Filing
+- [x] "Perpajakan" — PPN (e-Faktur export), PPh 21 (1721-A1, annual summary), PPh Badan (fiscal adjustments, rekonsiliasi fiskal), tax detail management, tax export API
+
+### 16.5 Cleanup
+- [x] Update API Reference tables with all 16 controllers
+- [x] Update FAQ and Troubleshooting
+- [x] Remove "Contoh Interaksi dengan AI" (inline examples per section instead)
+- [x] Remove "Pengembangan Selanjutnya" (roadmap doesn't belong in operational manual)
+- [x] Remove "Lihat Juga" (cross-references inline)
+- [x] Update UserManualGenerator Section entries — H1 title updated
+
+---
+
 ## Bug Fixes
 
 ### BUG-001: PPN Rounding Inconsistency (FP 03 BUMN Pemungut) ✅

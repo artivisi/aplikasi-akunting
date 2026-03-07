@@ -1,51 +1,60 @@
-# Bantuan AI untuk Pencatatan Transaksi
+# Operasi Aplikasi dengan Bantuan AI
 
-Aplikasi ini mendukung pencatatan transaksi dengan bantuan AI assistant seperti Claude Code, Gemini CLI, atau asisten AI lainnya. AI assistant dapat membaca struk, invoice, atau dokumen keuangan lainnya, kemudian secara otomatis membuat transaksi akuntansi yang sesuai.
+Aplikasi ini dirancang untuk dioperasikan sepenuhnya oleh AI assistant (Claude Code, Gemini CLI, atau AI lainnya). AI dapat menangani seluruh siklus hidup aplikasi — mulai dari instalasi server, migrasi data dari Excel, pencatatan transaksi harian, penggajian, pelaporan keuangan, hingga pelaporan pajak.
 
-> **Fitur Utama:**
-> - Autentikasi aman via OAuth 2.0 Device Flow
-> - AI membaca dan menganalisis dokumen (struk, invoice, bank statement)
-> - Template matching otomatis berdasarkan metadata
-> - User approval sebelum transaksi diposting
-> - Transaksi langsung tercatat (tanpa draft)
-> - Analisis keuangan: AI membaca laporan keuangan dan memberikan insight
+> **Cakupan AI:**
+> - Instalasi dan deploy ke VPS via Ansible
+> - Analisis data Excel existing (transaksi, saldo awal) dan generate seed data
+> - Pencatatan transaksi harian (struk, invoice, text input)
+> - Penggajian dan PPh 21
+> - Tagihan vendor (bills)
+> - Rekonsiliasi bank
+> - Laporan keuangan dan analisis bisnis
+> - Pelaporan pajak (PPN, PPh 21, PPh Badan)
 
 ---
 
-## Cara Kerja
+## Gambaran Umum
 
-### Alur Umum
+### Siklus Hidup Operasi AI
 
 ```
-1. AI membaca OpenAPI spec (GET /v3/api-docs)
-   ↓
-2. AI melakukan autentikasi (OAuth 2.0 Device Flow)
-   ↓
-3. User mengirim struk/dokumen ke AI assistant
-   ↓
-4. AI menganalisis dokumen (merchant, jumlah, tanggal)
-   ↓
-5. AI mencocokkan template journal yang sesuai
-   ↓
-6. AI menampilkan preview dan meminta persetujuan user
-   ↓
-7. User menyetujui → AI posting transaksi ke aplikasi
-   ↓
-8. Transaksi tercatat di aplikasi
+1. Instalasi & Deploy
+   AI clone repo GitHub → setup VPS via Ansible → aplikasi live
+   |
+2. Analisis Data Existing
+   AI baca file Excel (transaksi, neraca) → analisis struktur akun
+   |
+3. Inisialisasi Data
+   AI generate CSV (COA, template, saldo awal) → ZIP → POST /api/data-import
+   |
+4. Operasi Harian
+   AI baca struk/invoice → matching template → posting transaksi
+   AI buat tagihan vendor → approve → mark paid
+   AI import mutasi bank → auto-match → rekonsiliasi
+   |
+5. Penggajian Bulanan
+   AI buat payroll run → hitung PPh 21 → approve → posting ke jurnal
+   |
+6. Laporan & Analisis
+   AI baca laporan keuangan → analisis → publikasi insight
+   |
+7. Pelaporan Pajak
+   AI export e-Faktur, Bukti Potong → generate SPT → koreksi fiskal
 ```
 
-### Keuntungan
+### Prasyarat
 
-- **Cepat**: Tidak perlu input manual di web
-- **Akurat**: AI membaca struk dengan akurasi tinggi
-- **Konsisten**: Template journal dipilih otomatis
-- **Audit Trail**: Semua API call tercatat
+- **AI assistant** dengan kemampuan HTTP API (Claude Code, Gemini CLI, atau tool dengan `curl`/HTTP client)
+- **VPS** dengan Ubuntu 22.04+ dan akses SSH (untuk instalasi)
+- **Domain** dengan DNS pointing ke VPS (untuk HTTPS)
+- Aplikasi sudah ter-deploy dan dapat diakses via HTTPS
 
 ---
 
 ## API Discovery via OpenAPI Spec
 
-Sebelum mulai berinteraksi dengan API, AI assistant sebaiknya membaca **OpenAPI spec** yang mendeskripsikan seluruh kemampuan API aplikasi ini. Spec ini di-generate otomatis oleh springdoc-openapi dan tersedia tanpa autentikasi.
+Sebelum mulai berinteraksi dengan API, AI assistant membaca **OpenAPI spec** yang mendeskripsikan seluruh kemampuan API. Spec ini di-generate otomatis oleh springdoc-openapi dan tersedia tanpa autentikasi.
 
 ### Endpoint
 
@@ -64,7 +73,7 @@ Swagger UI juga tersedia di `/swagger-ui.html` untuk eksplorasi interaktif.
 | `paths` | Seluruh endpoint API, auto-generated dari controller annotations |
 | `components.schemas` | Request/response schema dari DTO records |
 | `security` | Bearer token authentication scheme |
-| `x-authentication` | Alur OAuth 2.0 Device Flow lengkap (step 1-3), daftar 8 scope, expiry |
+| `x-authentication` | Alur OAuth 2.0 Device Flow lengkap (step 1-3), daftar scope, expiry |
 | `x-workflows` | 13 alur kerja end-to-end (receipt-based, text-based, direct posting, financial analysis, bank reconciliation, client onboarding, correction workflows, tax export) |
 | `x-csv-files` | 16 spesifikasi CSV untuk data import (nama kolom, tipe data, catatan) |
 | `x-industries` | Daftar kode industri yang didukung (`it-service`, `online-seller`, `coffee-shop`, `campus`) |
@@ -74,33 +83,25 @@ Swagger UI juga tersedia di `/swagger-ui.html` untuk eksplorasi interaktif.
 
 ```
 1. AI membaca OpenAPI spec (GET /v3/api-docs)
-   ↓
+   |
 2. AI memahami:
    - Endpoint apa saja yang tersedia (dari paths)
    - Field apa yang wajib/opsional per endpoint (dari schemas)
    - Scope apa yang diperlukan (dari x-authentication)
    - Alur kerja (workflow) yang benar (dari x-workflows)
-   ↓
+   |
 3. AI mengikuti alur autentikasi dari x-authentication
-   ↓
+   |
 4. AI memanggil endpoint sesuai x-workflows
 ```
 
-### Keuntungan
-
-- **Auto-generated**: Spec di-generate langsung dari kode (controller annotations, DTO records), sehingga selalu sinkron
-- **Standard format**: OpenAPI 3.x yang dipahami oleh semua AI assistant dan developer tools
-- **AI extensions**: Metadata khusus AI (workflows, CSV specs, industries) disimpan di `x-` extensions
-- **Swagger UI**: Eksplorasi API interaktif di `/swagger-ui.html`
-- **Tanpa autentikasi**: AI dapat membaca spec sebelum melakukan device flow
-
-> **Untuk pengembang AI assistant**: Langkah pertama integrasi adalah selalu `GET /v3/api-docs` untuk mengetahui endpoint, schema, dan workflow yang tersedia. Metadata AI ada di `x-` extensions.
+> **Langkah pertama integrasi**: Selalu `GET /v3/api-docs` untuk mengetahui endpoint, schema, dan workflow yang tersedia. Metadata AI ada di `x-` extensions.
 
 ---
 
 ## Setup Autentikasi
 
-AI assistant memerlukan autentikasi untuk mengakses aplikasi Anda. Proses ini menggunakan **OAuth 2.0 Device Flow** yang aman.
+AI assistant memerlukan autentikasi untuk mengakses aplikasi. Proses ini menggunakan **OAuth 2.0 Device Flow** yang aman.
 
 ### Langkah 1: AI Meminta Kode
 
@@ -160,20 +161,335 @@ Setelah Anda otorisasi, AI akan mendapat access token:
 
 Token ini berlaku 30 hari. AI akan menyimpannya untuk digunakan di request berikutnya.
 
+### Scope yang Tersedia
+
+Token yang diterbitkan melalui Device Flow memiliki scope berikut:
+
+| Scope | Hak Akses |
+|-------|-----------|
+| `drafts:create` | Membuat dan mengedit draft transaksi |
+| `drafts:approve` | Approve/reject draft |
+| `drafts:read` | Membaca draft |
+| `analysis:read` | Membaca laporan keuangan |
+| `analysis:write` | Mempublikasikan laporan analisis |
+| `transactions:post` | Posting, koreksi, dan hapus transaksi DRAFT |
+| `data:import` | Import data dari file ZIP |
+| `bills:read` | Membaca vendor bills |
+| `bills:create` | Membuat vendor bills |
+| `bills:approve` | Approve dan mark-paid vendor bills |
+| `bank-recon:read` | Membaca data rekonsiliasi bank |
+| `bank-recon:write` | Import statement, matching, complete reconciliation |
+| `tax-export:read` | Export data pajak dan membaca data karyawan/payroll |
+
+Tanpa scope yang sesuai, request akan ditolak dengan HTTP 403.
+
 ---
 
-## Template Journal dengan Metadata
+## Instalasi dan Deploy
 
-AI memilih template journal berdasarkan **metadata semantik** yang terdapat pada setiap template.
+AI assistant dapat menginstal aplikasi dari nol ke VPS kosong menggunakan Ansible playbook yang tersedia di repository.
 
-### Contoh Response Template API
+### Prasyarat
+
+- VPS dengan Ubuntu 22.04+ (minimal 2GB RAM, 20GB disk)
+- Domain yang sudah pointing ke IP VPS
+- SSH key access ke VPS (root atau user dengan sudo)
+
+### Alur Kerja
+
+```
+1. AI clone repository
+   git clone https://github.com/artivisi/aplikasi-akunting.git
+   |
+2. AI konfigurasi inventory Ansible
+   Edit deploy/ansible/inventory.ini — set IP, domain, credentials
+   |
+3. AI jalankan full setup (pertama kali)
+   ansible-playbook -i inventory.ini site.yml
+   |
+   Roles yang dijalankan:
+   - common: Java 21, system packages, firewall
+   - postgresql: PostgreSQL 17, database + user
+   - app: Systemd service, build JAR, Flyway migration
+   - nginx: Reverse proxy, HTTPS (Let's Encrypt)
+   |
+4. AI verifikasi aplikasi berjalan
+   curl -s https://domain.example.com/actuator/health
+   → {"status":"UP"}
+   |
+5. Untuk deploy selanjutnya (update kode):
+   ansible-playbook -i inventory.ini deploy.yml
+```
+
+### Struktur Ansible
+
+```
+deploy/ansible/
+  site.yml              # Full setup (pertama kali)
+  deploy.yml            # Deploy update (build + restart)
+  setup-ssl.yml         # Setup Let's Encrypt SSL
+  backup.yml            # Backup database
+  restore.yml           # Restore database
+  requirements.yml      # Ansible Galaxy dependencies
+  roles/
+    common/tasks/       # Java, packages, firewall
+    postgresql/tasks/   # PostgreSQL setup
+    app/tasks/          # Application service
+    nginx/tasks/        # Reverse proxy
+    backup/tasks/       # Automated backup
+```
+
+### Konfigurasi Inventory
+
+AI perlu membuat file `inventory.ini` dengan konfigurasi server:
+
+```ini
+[app]
+server1 ansible_host=IP_VPS ansible_user=root
+
+[app:vars]
+app_domain=akunting.example.com
+db_name=accountingdb
+db_user=akunting
+db_password=SECURE_PASSWORD
+```
+
+### Verifikasi
+
+Setelah deploy, AI memverifikasi:
+
+```bash
+# Health check
+curl -s https://akunting.example.com/actuator/health
+
+# OpenAPI spec tersedia
+curl -s https://akunting.example.com/v3/api-docs | head -c 200
+
+# Login page accessible
+curl -s -o /dev/null -w "%{http_code}" https://akunting.example.com/login
+# → 200
+```
+
+---
+
+## Analisis Data Existing
+
+Sebelum menginisialisasi aplikasi, AI menganalisis data keuangan yang sudah ada (biasanya dalam format Excel) untuk merancang struktur Chart of Accounts (COA) dan template jurnal yang sesuai.
+
+### Alur Kerja
+
+```
+1. User memberikan file Excel ke AI
+   - Laporan keuangan (neraca, laba rugi)
+   - Buku besar / general ledger
+   - Data transaksi harian
+   - Daftar aset tetap
+   - Data karyawan dan gaji
+   |
+2. AI menganalisis struktur data
+   - Mengidentifikasi akun-akun yang digunakan
+   - Mengelompokkan ke ASSET, LIABILITY, EQUITY, REVENUE, EXPENSE
+   - Menentukan parent-child hierarchy
+   - Mengidentifikasi pola transaksi berulang
+   |
+3. AI merancang COA
+   - Memetakan akun Excel ke format aplikasi
+   - Menentukan account_code, account_type, normal_balance
+   - Mengatur hierarki (parent_code)
+   |
+4. AI merancang template jurnal
+   - Mengidentifikasi pola transaksi berulang (listrik, gaji, penjualan, dll)
+   - Membuat template dengan formula yang sesuai
+   - Mengisi metadata AI (keywords, merchant patterns, semantic description)
+   |
+5. AI menghitung saldo awal
+   - Mengambil saldo per akun dari neraca terakhir
+   - Membuat transaksi saldo awal (template "Saldo Awal")
+   |
+6. AI generate CSV files → ZIP → POST /api/data-import
+```
+
+### Contoh Analisis Excel
+
+**Input:** File Excel "Buku Besar 2025.xlsx" dengan kolom:
+```
+Tanggal | Kode Akun | Nama Akun | Debit | Kredit | Keterangan
+```
+
+**Output AI:**
+
+1. **COA yang diidentifikasi:**
+   - `1.1.01` Kas (ASSET, DEBIT)
+   - `1.1.02` Bank BCA (ASSET, DEBIT)
+   - `2.1.01` Hutang Usaha (LIABILITY, CREDIT)
+   - `4.1.01` Pendapatan Jasa (REVENUE, CREDIT)
+   - `5.1.01` Beban Gaji (EXPENSE, DEBIT)
+   - ... dst
+
+2. **Template yang disarankan:**
+   - "Pendapatan Jasa Konsultasi" — pola: klien bayar ke bank, keywords: konsultasi, jasa, proyek
+   - "Bayar Beban Listrik" — pola: kas/bank keluar ke PLN, keywords: listrik, pln
+   - "Bayar Gaji Karyawan" — pola: kas/bank keluar untuk gaji, keywords: gaji, salary
+   - ... dst
+
+3. **Saldo awal per 31 Desember 2025:**
+   - Kas: Rp 25.000.000 (D)
+   - Bank BCA: Rp 100.000.000 (D)
+   - Hutang Usaha: Rp 15.000.000 (C)
+   - Modal: Rp 110.000.000 (C)
+
+### Referensi Industry Seed Pack
+
+Untuk mempercepat analisis, AI dapat melihat contoh seed data per industri di repository:
+
+```
+industry-seed/
+  it-service/seed-data/       # Jasa IT & Konsultasi
+  online-seller/seed-data/    # Toko Online / E-Commerce
+  coffee-shop/seed-data/      # Kedai Kopi / F&B
+  campus/seed-data/           # Kampus / Pendidikan
+```
+
+Setiap seed pack berisi file CSV lengkap (COA, template, produk, BOM, dll) yang bisa dijadikan referensi struktur.
+
+---
+
+## Inisialisasi Data
+
+Setelah menganalisis data existing, AI membuat file CSV dan mengirimnya ke aplikasi via `POST /api/data-import`.
+
+### Alur Kerja
+
+```
+1. AI generate file CSV sesuai format yang diharapkan
+   |
+2. AI membuat ZIP dari file-file CSV
+   |
+3. AI mengirim ZIP ke POST /api/data-import
+   |
+4. Aplikasi memproses ZIP: truncate tabel yang ada CSV-nya, lalu import
+   |
+5. AI memverifikasi data via GET /api/analysis/accounts
+   |
+6. AI membuat transaksi saldo awal jika diperlukan
+```
+
+### Format CSV
+
+ZIP berisi file CSV dengan nama berurut (dependency order). File utama untuk onboarding:
+
+**`01_company_config.csv`** -- Konfigurasi perusahaan (1 baris data):
+
+```
+company_name,company_address,company_phone,company_email,tax_id,npwp,nitku,fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path,established_date,is_pkp,pkp_since,industry
+```
+
+**`02_chart_of_accounts.csv`** -- Daftar akun:
+
+```
+account_code,account_name,account_type,parent_code,normal_balance,active,is_permanent
+```
+
+- `account_type`: `ASSET`, `LIABILITY`, `EQUITY`, `REVENUE`, `EXPENSE`
+- `normal_balance`: `DEBIT` atau `CREDIT`
+- `parent_code`: kosong jika akun top-level, isi kode parent jika sub-akun
+
+**`04_journal_templates.csv`** -- Template jurnal:
+
+```
+template_name,category,cash_flow_category,template_type,description,is_system,active,version,usage_count,last_used_at,semantic_description,keywords,example_merchants,typical_amount_min,typical_amount_max,merchant_patterns
+```
+
+- `category`: `REVENUE`, `EXPENSE`, `TRANSFER`, `ADJUSTMENT`, `PAYROLL`, `TAX`, `RECEIVABLE`, `PAYABLE`, `ASSET_PURCHASE`, `ASSET_DEPRECIATION`
+- `cash_flow_category`: `OPERATING`, `INVESTING`, `FINANCING`
+- `template_type`: `SIMPLE`, `VARIABLE`, `SPLIT`, `MULTI_LINE`
+- `keywords`, `example_merchants`, `merchant_patterns`: nilai dipisahkan dengan `|` (pipe)
+
+**`05_journal_template_lines.csv`** -- Baris template jurnal:
+
+```
+template_name,line_order,account_code,account_hint,position,formula,description
+```
+
+- `position`: `DEBIT` atau `CREDIT`
+- `formula`: `AMOUNT` (nilai penuh), `AMOUNT * 0.11` (PPN 11%), dsb.
+
+### API Import
+
+```bash
+curl -X POST https://akunting.example.com/api/data-import \
+  -H "Authorization: Bearer {accessToken}" \
+  -F "file=@seed-data.zip"
+```
+
+Response (HTTP 201):
+
+```json
+{
+  "totalRecords": 45,
+  "documentCount": 0,
+  "durationMs": 1234
+}
+```
+
+### Populasi Saldo Awal
+
+Setelah COA dan template ter-import, AI membuat transaksi saldo awal:
+
+```bash
+POST /api/transactions
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+```json
+{
+  "templateId": "UUID-template-saldo-awal",
+  "description": "Saldo awal per 31 Desember 2025",
+  "amount": 125000000,
+  "transactionDate": "2025-12-31",
+  "source": "claude-code",
+  "userApproved": true
+}
+```
+
+Ulangi untuk setiap akun yang memiliki saldo awal. Atau gunakan data import dengan file `18_transactions.csv` yang berisi transaksi saldo awal.
+
+### Verifikasi
+
+```bash
+# Cek COA ter-import
+GET /api/analysis/accounts
+
+# Cek saldo awal tercatat
+GET /api/analysis/trial-balance?asOfDate=2025-12-31
+
+# Cek neraca balance
+GET /api/analysis/balance-sheet?asOfDate=2025-12-31
+```
+
+### Catatan
+
+- Import mengganti (truncate) data pada tabel yang memiliki CSV di dalam ZIP. Tabel tanpa CSV di ZIP tidak terpengaruh
+- File CSV boleh hanya berisi header (tanpa data) -- tabel tersebut akan dilewati
+- Lihat direktori `industry-seed/` di source code untuk contoh lengkap seed data per industri
+
+---
+
+## Pencatatan Transaksi
+
+AI assistant mencatat transaksi akuntansi melalui API -- baik dari struk, invoice, text input, maupun input langsung.
+
+### Template Journal dengan Metadata
+
+AI memilih template journal berdasarkan metadata semantik. Untuk melihat template yang tersedia:
 
 ```bash
 GET /api/templates
 Authorization: Bearer {accessToken}
 ```
 
-Response (contoh 1 template, field `lines` disertakan):
+Response (contoh 1 template):
 
 ```json
 [
@@ -181,8 +497,7 @@ Response (contoh 1 template, field `lines` disertakan):
     "id": "1bbc7ccc-4e8f-44ef-87d3-0cd011fbc56d",
     "name": "Bayar Beban Listrik",
     "category": "EXPENSE",
-    "description": "Pembayaran listrik kantor",
-    "semanticDescription": "Gunakan template ini untuk mencatat pembayaran tagihan listrik bulanan ke PLN atau penyedia listrik lainnya.",
+    "semanticDescription": "Gunakan template ini untuk mencatat pembayaran tagihan listrik bulanan ke PLN.",
     "keywords": ["listrik", "electricity", "pln", "token", "utility"],
     "exampleMerchants": ["PLN", "PLN Mobile", "Tokopedia PLN"],
     "typicalAmountMin": 50000,
@@ -192,12 +507,10 @@ Response (contoh 1 template, field `lines` disertakan):
       {
         "lineOrder": 1,
         "position": "DEBIT",
-        "accountId": "uuid-akun-beban-listrik",
         "accountCode": "5.1.05",
         "accountName": "Beban Listrik",
         "accountHint": null,
-        "formula": "AMOUNT",
-        "description": null
+        "formula": "AMOUNT"
       },
       {
         "lineOrder": 2,
@@ -206,45 +519,22 @@ Response (contoh 1 template, field `lines` disertakan):
         "accountCode": null,
         "accountName": null,
         "accountHint": "Kas / Bank",
-        "formula": "AMOUNT",
-        "description": null
+        "formula": "AMOUNT"
       }
     ]
   }
 ]
 ```
 
-Setiap template menyertakan array `lines` yang menunjukkan struktur jurnal:
-- **accountId/accountCode/accountName**: Akun tetap (sudah ditentukan di template)
-- **accountHint**: Akun yang perlu dipilih saat transaksi (gunakan `accountSlots` dengan accountHint sebagai key untuk menentukan akun)
+Keterangan:
+- **accountCode/accountName**: Akun tetap (sudah ditentukan di template)
+- **accountHint**: Akun yang perlu dipilih saat transaksi (gunakan `accountSlots` dengan accountHint sebagai key)
 
-> **Catatan**: Semua template dari seed pack (IT Service, Online Seller, Coffee Shop, Campus) sudah dilengkapi metadata semantik untuk AI matching.
+AI mencocokkan template berdasarkan: keyword matching, merchant matching, regex pattern (`merchantPatterns`), amount range, dan semantic similarity.
 
-### Cara AI Matching Template
+### Posting Transaksi Langsung
 
-AI menggunakan metadata untuk mencocokkan template:
-
-1. **Keyword matching**: Cocokkan kategori/deskripsi dengan array `keywords`
-2. **Merchant matching**: Cocokkan nama merchant dengan `exampleMerchants`
-3. **Regex pattern**: Cocokkan dengan `merchantPatterns`
-4. **Amount range**: Validasi jumlah dalam rentang `typicalAmountMin` - `typicalAmountMax`
-5. **Semantic similarity**: Cocokkan deskripsi dengan `semanticDescription`
-
-**Contoh matching:**
-- User: "Bayar listrik PLN 350 ribu"
-- AI matching:
-  - Keyword: "listrik" ✓
-  - Merchant: "PLN" ✓
-  - Amount: 350000 (dalam range 50k-5jt) ✓
-  - **Result**: Template "Bayar Beban Listrik"
-
----
-
-## Posting Transaksi Langsung
-
-Setelah AI matching template dan user approve, AI langsung posting transaksi (tanpa draft).
-
-### Request
+Setelah matching template dan user approve:
 
 ```bash
 POST /api/transactions
@@ -252,27 +542,28 @@ Authorization: Bearer {accessToken}
 Content-Type: application/json
 ```
 
-**Body:**
 ```json
 {
-  "templateId": "9aa9c785-bb32-4e1e-80db-1c30a10aa3e3",
-  "merchant": "Starbucks Grand Indonesia",
-  "amount": 85000,
-  "transactionDate": "2026-02-12",
-  "currency": "IDR",
-  "description": "Team coffee break at Starbucks",
-  "category": "Food & Beverage",
-  "items": ["Caffe Latte Grande", "Blueberry Muffin"],
+  "templateId": "UUID-template",
+  "merchant": "PLN",
+  "amount": 350000,
+  "transactionDate": "2026-02-10",
+  "description": "Bayar listrik Januari 2026",
   "source": "claude-code",
-  "userApproved": true
+  "userApproved": true,
+  "accountSlots": {
+    "Kas / Bank": "UUID-akun-bank-bca"
+  }
 }
 ```
 
-Untuk template DETAILED yang menggunakan formula non-standar, tambahkan `variables`:
+`accountSlots` memetakan `accountHint` dari template ke UUID akun yang dipilih.
+
+Untuk template DETAILED (formula non-standar), tambahkan `variables`:
+
 ```json
 {
   "templateId": "UUID-template-pembelian-aset",
-  "merchant": "Tokopedia",
   "amount": 3681200,
   "transactionDate": "2026-02-12",
   "description": "Pembelian laptop Lenovo",
@@ -288,134 +579,15 @@ Untuk template DETAILED yang menggunakan formula non-standar, tambahkan `variabl
 }
 ```
 
-### Response
+Response:
 
 ```json
 {
   "transactionId": "83da31e4-acdc-4ca9-898e-df2cefbe95c7",
   "transactionNumber": "TRX-2026-0001",
   "status": "POSTED",
-  "merchant": "Team coffee break at Starbucks",
-  "amount": 85000,
-  "transactionDate": "2026-02-12",
-  "description": "Team coffee break at Starbucks",
+  "amount": 350000,
   "journalEntries": [
-    {
-      "journalNumber": "JE-2026-0001-01",
-      "accountCode": "5.1.01",
-      "accountName": "Beban Gaji",
-      "debitAmount": 85000,
-      "creditAmount": 0
-    },
-    {
-      "journalNumber": "JE-2026-0001-02",
-      "accountCode": "2.1.10",
-      "accountName": "Hutang Gaji",
-      "debitAmount": 0,
-      "creditAmount": 85000
-    }
-  ]
-}
-```
-
-### Verifikasi di Web UI
-
-Setelah transaksi diposting, Anda dapat melihatnya di halaman Transaksi:
-
-![Daftar Transaksi](screenshots/ai-transaction/04-transactions-list.png)
-
-Transaksi yang dibuat via AI akan memiliki:
-- **Transaction Number**: TRX-2026-0001 (auto-generated)
-- **Status**: POSTED (langsung posted, bukan draft)
-- **Created By**: Nama user yang otorisasi device
-
----
-
-## Buat Draft Langsung via API
-
-Selain alur dari-teks/dari-struk, AI juga dapat membuat transaksi DRAFT langsung dengan template dan account overrides dalam satu panggilan. Alur ini cocok ketika AI sudah tahu template mana yang harus dipakai.
-
-### Request
-
-```bash
-POST /api/drafts
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
-
-**Body:**
-```json
-{
-  "templateId": "UUID-template",
-  "description": "Bayar listrik Januari 2026",
-  "amount": 350000,
-  "transactionDate": "2026-02-10",
-  "accountSlots": {
-    "Kas / Bank": "UUID-akun-bank-bca"
-  }
-}
-```
-
-Field `accountSlots` memetakan `accountHint` template ke akun yang dipilih. Key = string `accountHint` dari template line, Value = UUID akun. Gunakan `GET /api/templates` untuk melihat `accountHint` mana yang perlu diisi.
-
-#### Template DETAILED (Formula Non-Standar)
-
-Beberapa template menggunakan formula selain `amount` (contoh: template "Pembelian Aset Tetap" menggunakan formula `assetCost`). Untuk template seperti ini, tambahkan field `variables` yang memetakan nama variabel formula ke nilainya:
-
-```json
-{
-  "templateId": "UUID-template-pembelian-aset",
-  "description": "Pembelian laptop Lenovo untuk operasional kantor",
-  "amount": 3681200,
-  "transactionDate": "2026-02-10",
-  "accountSlots": {
-    "ASET_TETAP": "UUID-akun-peralatan-kantor",
-    "BANK": "UUID-akun-bank-bca"
-  },
-  "variables": {
-    "assetCost": 3681200
-  }
-}
-```
-
-Field `variables` hanya diperlukan jika template menggunakan formula selain `amount`. Cek field `formula` di template lines (`GET /api/templates`) untuk mengetahui variabel yang dibutuhkan.
-
-### Response
-
-```json
-{
-  "transactionId": "uuid-transaksi-baru",
-  "transactionNumber": null,
-  "status": "DRAFT",
-  "amount": 350000,
-  "transactionDate": "2026-02-10",
-  "description": "Bayar listrik Januari 2026",
-  "journalEntries": []
-}
-```
-
-Transaksi dibuat dalam status **DRAFT**. Langkah selanjutnya:
-1. (Opsional) Preview jurnal: `GET /api/transactions/{id}/journal-preview`
-2. (Opsional) Koreksi: `PUT /api/transactions/{id}`
-3. Posting: `POST /api/transactions/{id}/post`
-
----
-
-## Preview Jurnal Sebelum Posting
-
-Sebelum mem-posting transaksi DRAFT, AI dapat melihat preview jurnal yang akan dihasilkan:
-
-```bash
-GET /api/transactions/{id}/journal-preview
-Authorization: Bearer {accessToken}
-```
-
-**Response:**
-```json
-{
-  "valid": true,
-  "errors": [],
-  "entries": [
     {
       "accountCode": "5.1.05",
       "accountName": "Beban Listrik",
@@ -428,74 +600,102 @@ Authorization: Bearer {accessToken}
       "debitAmount": 0,
       "creditAmount": 350000
     }
+  ]
+}
+```
+
+Transaksi yang dibuat via AI terlihat di halaman Transaksi:
+
+![Daftar Transaksi](screenshots/ai-transaction/04-transactions-list.png)
+
+### Alur Draft (Review Sebelum Posting)
+
+Jika AI ingin user review sebelum posting, gunakan alur draft:
+
+```
+POST /api/drafts              → buat DRAFT
+GET /api/transactions/{id}/journal-preview  → preview jurnal
+PUT /api/transactions/{id}    → koreksi (opsional)
+POST /api/transactions/{id}/post            → posting
+```
+
+**Buat draft:**
+
+```bash
+POST /api/drafts
+```
+
+```json
+{
+  "templateId": "UUID-template",
+  "description": "Bayar listrik Januari 2026",
+  "amount": 350000,
+  "transactionDate": "2026-02-10",
+  "accountSlots": {
+    "Kas / Bank": "UUID-akun-bank-bca"
+  }
+}
+```
+
+**Preview jurnal:**
+
+```bash
+GET /api/transactions/{id}/journal-preview
+```
+
+```json
+{
+  "valid": true,
+  "errors": [],
+  "entries": [
+    { "accountCode": "5.1.05", "accountName": "Beban Listrik", "debitAmount": 350000, "creditAmount": 0 },
+    { "accountCode": "1.1.02", "accountName": "Bank BCA", "debitAmount": 0, "creditAmount": 350000 }
   ],
   "totalDebit": 350000,
   "totalCredit": 350000
 }
 ```
 
-Jika `valid` bernilai `false`, field `errors` berisi daftar masalah (contoh: akun belum dipilih untuk line dengan accountHint).
+Jika `valid` bernilai `false`, field `errors` berisi daftar masalah.
 
----
-
-## Koreksi Transaksi via AI
-
-Jika AI salah mengklasifikasi transaksi atau ada kesalahan pada draft/transaksi, AI dapat memperbaikinya tanpa perlu intervensi manual di web UI.
-
-### Koreksi Draft (PENDING)
-
-Draft yang masih berstatus PENDING dapat dikoreksi sebelum di-approve:
+**Posting:**
 
 ```bash
-PATCH /api/drafts/{id}
-Authorization: Bearer {accessToken}
-Content-Type: application/json
+POST /api/transactions/{id}/post
 ```
 
-**Body** (semua field opsional, hanya field yang dikirim yang diperbarui):
+**Batch posting:**
+
+```bash
+POST /api/transactions/bulk-post
+```
+
 ```json
 {
-  "merchantName": "Starbucks Reserve",
-  "amount": 95000,
-  "description": "Coffee meeting with client",
-  "suggestedTemplateId": "UUID-template-lain",
-  "category": "Entertainment"
+  "transactionIds": ["uuid-1", "uuid-2", "uuid-3"]
 }
 ```
 
-### Approve Draft → transactionId
+### Koreksi dan Pembatalan
 
-Setelah approve, response menyertakan `transactionId` dari transaksi yang dibuat:
+```
+Koreksi draft PENDING:
+  PATCH /api/drafts/{id}
 
-```bash
-POST /api/drafts/{id}/approve
+Koreksi transaksi DRAFT (belum posted):
+  PUT /api/transactions/{id}
+
+Hapus transaksi DRAFT:
+  DELETE /api/transactions/{id}
+
+Void transaksi POSTED (reversing entries otomatis):
+  POST /api/transactions/{id}/void
 ```
 
-Response:
+**Koreksi transaksi DRAFT:**
+
 ```json
-{
-  "draftId": "uuid-draft",
-  "status": "APPROVED",
-  "transactionId": "uuid-transaksi-yang-dibuat",
-  "merchant": "Starbucks Reserve",
-  "amount": 95000
-}
-```
-
-> **Catatan**: Draft endpoints mengembalikan `draftId` (bukan `id`) untuk membedakan konteks draft dari transaksi.
-
-### Koreksi Transaksi DRAFT (Belum Posted)
-
-Transaksi yang sudah di-approve dari draft tetapi belum di-post (status DRAFT) dapat dikoreksi:
-
-```bash
 PUT /api/transactions/{id}
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
-
-**Body** (semua field opsional):
-```json
 {
   "templateId": "UUID-template-yang-benar",
   "description": "Deskripsi yang diperbaiki",
@@ -510,51 +710,323 @@ Content-Type: application/json
 Validasi:
 - Hanya transaksi berstatus **DRAFT** yang bisa dikoreksi
 - Tanggal transaksi tidak boleh di masa depan
-- `accountSlots` dapat dikirim berulang kali (idempotent) — slot sebelumnya akan diganti
+- `accountSlots` dapat dikirim berulang kali (idempotent) -- slot sebelumnya akan diganti
 
-### Hapus Transaksi DRAFT
+### Template CRUD via API
 
-Transaksi DRAFT yang salah total dapat dihapus:
-
-```bash
-DELETE /api/transactions/{id}
-Authorization: Bearer {accessToken}
-```
-
-Response: `204 No Content`
-
-Hanya transaksi berstatus **DRAFT** yang bisa dihapus. Transaksi yang sudah POSTED tidak bisa dihapus via API.
-
-### Alur Koreksi
+AI juga dapat membuat dan mengelola template jurnal:
 
 ```
-Skenario 1: Koreksi sebelum approve
-  PATCH /api/drafts/{id}  →  POST /api/drafts/{id}/approve
-
-Skenario 2: Buat draft langsung, preview, lalu post
-  POST /api/drafts  →  GET /api/transactions/{id}/journal-preview
-  →  PUT /api/transactions/{id} (opsional)  →  POST /api/transactions/{id}/post
-
-Skenario 3: Koreksi setelah approve, sebelum post
-  PUT /api/transactions/{id}  →  POST /api/transactions/{id}/post
-
-Skenario 4: Hapus dan buat ulang
-  DELETE /api/transactions/{id}  →  (buat draft/transaksi baru)
-
-Skenario 5: Void transaksi yang sudah POSTED
-  POST /api/transactions/{id}/void  →  (status jadi VOID, reversing entries dibuat otomatis)
+GET /api/templates           → list semua template
+GET /api/templates/{id}      → detail template
+POST /api/templates          → buat template baru
+PUT /api/templates/{id}      → update template
+DELETE /api/templates/{id}   → hapus (soft delete)
 ```
 
 ---
 
-## Analisis Keuangan via AI
+## Penggajian (Payroll)
 
-Selain mencatat transaksi, AI assistant juga dapat **menganalisis data keuangan** perusahaan Anda. Aplikasi menyediakan 10 endpoint read-only di bawah `/api/analysis` yang mengembalikan data terstruktur — AI yang menginterpretasikan datanya.
+AI mengelola siklus penggajian lengkap -- dari setup karyawan hingga posting jurnal gaji dan perhitungan PPh 21.
 
-### Endpoint Analisis
+### Alur Kerja
+
+```
+1. Setup komponen gaji
+   POST /api/salary-components (Gaji Pokok, Tunjangan Transport, dll)
+   |
+2. Setup karyawan
+   POST /api/employees
+   POST /api/employees/{id}/salary-components (assign komponen + nominal)
+   |
+3. Buat payroll run bulanan
+   POST /api/payroll { "month": 1, "year": 2026, "description": "Gaji Januari 2026" }
+   |
+4. Hitung PPh 21
+   POST /api/payroll/{id}/calculate
+   → Sistem menghitung: bruto → biaya jabatan → neto → PTKP → PKP → tarif progresif
+   |
+5. Review dan approve
+   GET /api/payroll/{id} (review detail per karyawan)
+   POST /api/payroll/{id}/approve
+   |
+6. Posting ke jurnal akuntansi
+   POST /api/payroll/{id}/post
+   |
+7. Generate data pajak
+   GET /api/payroll/employees/{id}/1721-a1?year=2026
+   GET /api/payroll/pph21/summary?year=2026
+```
+
+### Komponen Gaji
+
+```bash
+# List komponen aktif
+GET /api/salary-components
+
+# Buat komponen
+POST /api/salary-components
+{
+  "name": "Gaji Pokok",
+  "type": "EARNING",
+  "taxable": true,
+  "description": "Gaji pokok bulanan"
+}
+
+# Update
+PUT /api/salary-components/{id}
+
+# Nonaktifkan
+DELETE /api/salary-components/{id}
+```
+
+### Karyawan
+
+```bash
+# List karyawan (filter: active, status)
+GET /api/employees?active=true
+
+# Buat karyawan
+POST /api/employees
+{
+  "employeeId": "EMP-001",
+  "fullName": "Ahmad Fauzi",
+  "email": "ahmad@example.com",
+  "joinDate": "2024-01-15",
+  "ptkpStatus": "K_1",
+  "npwp": "12.345.678.9-012.000",
+  "bankAccountNumber": "1234567890",
+  "bankName": "BCA"
+}
+
+# Assign komponen gaji
+POST /api/employees/{id}/salary-components
+{
+  "salaryComponentId": "UUID-gaji-pokok",
+  "amount": 8000000,
+  "effectiveDate": "2024-01-15"
+}
+```
+
+### Payroll Run
+
+```bash
+# Buat payroll (DRAFT)
+POST /api/payroll
+{
+  "month": 1,
+  "year": 2026,
+  "description": "Gaji Januari 2026"
+}
+
+# Hitung PPh 21 (annualized progressive rate)
+POST /api/payroll/{id}/calculate
+
+# Review detail
+GET /api/payroll/{id}
+# → Response berisi detail per karyawan: bruto, potongan, neto, PPh 21
+
+# Approve
+POST /api/payroll/{id}/approve
+
+# Post ke jurnal akuntansi
+POST /api/payroll/{id}/post
+
+# Hapus (hanya DRAFT)
+DELETE /api/payroll/{id}
+```
+
+### PPh 21
+
+Perhitungan PPh 21 menggunakan metode annualisasi (Pasal 17 UU HPP):
+
+| Lapisan PKP | Tarif |
+|-------------|-------|
+| 0 - 60 juta | 5% |
+| 60 - 250 juta | 15% |
+| 250 - 500 juta | 25% |
+| 500 juta - 5 miliar | 30% |
+| > 5 miliar | 35% |
+
+PTKP (PMK 101/2016): TK/0 = Rp 54.000.000, K/0 = Rp 58.500.000, dst.
+
+```bash
+# Data 1721-A1 per karyawan
+GET /api/payroll/employees/{id}/1721-a1?year=2026
+# → Monthly breakdown: bruto, biaya jabatan, neto, PTKP, PKP, PPh 21
+
+# Summary PPh 21 seluruh karyawan
+GET /api/payroll/pph21/summary?year=2026
+```
+
+---
+
+## Tagihan Vendor (Bills)
+
+AI membuat tagihan vendor dari invoice/dokumen yang diterima, lalu melacak pembayarannya.
+
+### Alur Kerja
+
+```
+1. AI menerima invoice vendor (PDF/foto)
+   |
+2. AI ekstrak data: vendor, tanggal, item, nominal
+   |
+3. AI buat bill
+   POST /api/bills
+   |
+4. Review dan approve
+   POST /api/bills/{id}/approve
+   |
+5. Setelah dibayar
+   POST /api/bills/{id}/mark-paid
+```
+
+### API
+
+```bash
+# List bills (filter: status, vendor, date range)
+GET /api/bills?status=DRAFT&vendorId=UUID&dateFrom=2026-01-01&dateTo=2026-01-31
+
+# Detail bill
+GET /api/bills/{id}
+
+# Buat bill
+POST /api/bills
+{
+  "vendorName": "PT Telkom Indonesia",
+  "billDate": "2026-02-01",
+  "dueDate": "2026-02-28",
+  "vendorInvoiceNumber": "INV-TLK-2026-001",
+  "notes": "Tagihan internet Februari 2026",
+  "lines": [
+    {
+      "description": "Internet Dedicated 100 Mbps",
+      "quantity": 1,
+      "unitPrice": 5500000,
+      "taxRate": 11,
+      "expenseAccountCode": "5.1.06"
+    }
+  ]
+}
+
+# Approve
+POST /api/bills/{id}/approve
+
+# Mark paid
+POST /api/bills/{id}/mark-paid
+```
+
+`vendorName` akan otomatis membuat vendor baru jika belum ada di database.
+
+---
+
+## Rekonsiliasi Bank
+
+AI mengimpor mutasi bank, mencocokkan dengan transaksi di buku, dan menyelesaikan rekonsiliasi.
+
+### Alur Kerja
+
+```
+1. Setup parser config (format CSV bank)
+   GET /api/bank-reconciliation/parser-configs
+   POST /api/bank-reconciliation/parser-configs (jika belum ada)
+   |
+2. Import statement bank
+   POST /api/bank-reconciliation/statements/import
+   |
+3. Buat reconciliation session
+   POST /api/bank-reconciliation/reconciliations
+   |
+4. Auto-match (3 pass: exact → fuzzy date → keyword)
+   POST /api/bank-reconciliation/reconciliations/{id}/auto-match
+   |
+5. Manual match untuk item yang tidak ter-match otomatis
+   POST /api/bank-reconciliation/reconciliations/{id}/match
+   |
+6. Tandai item bank-only atau book-only
+   POST /api/bank-reconciliation/reconciliations/{id}/mark-bank-only
+   POST /api/bank-reconciliation/reconciliations/{id}/mark-book-only
+   |
+7. Buat transaksi dari item bank yang belum tercatat
+   POST /api/bank-reconciliation/reconciliations/{id}/create-transaction
+   |
+8. Review summary
+   GET /api/bank-reconciliation/reconciliations/{id}/summary
+   |
+9. Complete reconciliation
+   POST /api/bank-reconciliation/reconciliations/{id}/complete
+```
+
+### Import Statement
+
+```bash
+POST /api/bank-reconciliation/statements/import
+Content-Type: multipart/form-data
+
+# Form fields:
+# - file: CSV file mutasi bank
+# - bankAccountId: UUID akun bank (dari COA)
+# - parserConfigId: UUID parser config
+# - statementDate: tanggal statement (yyyy-MM-dd)
+```
+
+### Auto-Match
+
+```bash
+POST /api/bank-reconciliation/reconciliations/{id}/auto-match
+```
+
+Sistem menjalankan 3 pass:
+1. **Exact match**: Jumlah dan tanggal persis sama
+2. **Fuzzy date**: Jumlah sama, tanggal selisih 1-3 hari
+3. **Keyword**: Deskripsi bank mengandung keyword transaksi
+
+### Manual Match
+
+```bash
+POST /api/bank-reconciliation/reconciliations/{id}/match
+{
+  "bankStatementItemId": "UUID-item-bank",
+  "transactionId": "UUID-transaksi"
+}
+```
+
+### Buat Transaksi dari Item Bank
+
+Untuk mutasi bank yang belum ada transaksinya di buku:
+
+```bash
+POST /api/bank-reconciliation/reconciliations/{id}/create-transaction
+{
+  "bankStatementItemId": "UUID-item-bank",
+  "templateId": "UUID-template",
+  "description": "Deskripsi transaksi"
+}
+```
+
+### Outstanding Items
+
+```bash
+# Item yang belum ter-match
+GET /api/bank-reconciliation/reconciliations/{id}/unmatched-book
+
+# Outstanding items (bank vs book)
+GET /api/bank-reconciliation/reconciliations/{id}/outstanding
+```
+
+---
+
+## Laporan Keuangan dan Analisis
+
+AI membaca laporan keuangan terstruktur via `/api/analysis/*`, menganalisis data, dan mempublikasikan insight kembali ke aplikasi.
+
+### Endpoint Laporan
 
 | Endpoint | Deskripsi | Parameter |
 |----------|-----------|-----------|
+| `GET /api/analysis/company` | Konfigurasi perusahaan (industry, currency, fiscal year) | -- |
 | `GET /api/analysis/snapshot` | KPI bulanan (revenue, expense, profit, cash) | `month` (yyyy-MM) |
 | `GET /api/analysis/trial-balance` | Neraca saldo | `asOfDate` (yyyy-MM-dd) |
 | `GET /api/analysis/income-statement` | Laporan laba rugi | `startDate`, `endDate` |
@@ -563,11 +1035,13 @@ Selain mencatat transaksi, AI assistant juga dapat **menganalisis data keuangan*
 | `GET /api/analysis/tax-summary` | Ringkasan pajak (PPN, PPh) | `startDate`, `endDate` |
 | `GET /api/analysis/receivables` | Piutang usaha | `asOfDate` |
 | `GET /api/analysis/payables` | Hutang usaha | `asOfDate` |
-| `GET /api/analysis/accounts` | Daftar akun (COA) | — |
+| `GET /api/analysis/accounts` | Daftar akun (COA) | -- |
 | `GET /api/analysis/accounts/{id}/ledger` | Buku besar per akun (running balance) | `startDate`, `endDate` |
-| `GET /api/analysis/drafts` | Draft transaksi pending | — |
+| `GET /api/analysis/drafts` | Draft transaksi pending | -- |
+| `GET /api/analysis/transactions` | List transaksi (filter: status, category, date, search) | multiple |
+| `GET /api/analysis/transactions/{id}` | Detail transaksi dengan jurnal entries | -- |
 
-Semua parameter **wajib** (tidak ada nilai default). Request tanpa parameter yang diperlukan akan mengembalikan HTTP 400.
+Semua parameter **wajib** (tidak ada nilai default). Request tanpa parameter mengembalikan HTTP 400.
 
 ### Format Response
 
@@ -589,7 +1063,7 @@ Semua endpoint mengembalikan format `AnalysisResponse` yang konsisten:
 }
 ```
 
-Field `metadata` memberikan konteks yang membantu AI memahami data (mata uang, basis akuntansi, penjelasan arti debit/credit, dll).
+Field `metadata` memberikan konteks yang membantu AI memahami data (mata uang, basis akuntansi, penjelasan arti debit/credit).
 
 ### Contoh: KPI Snapshot
 
@@ -598,12 +1072,9 @@ GET /api/analysis/snapshot?month=2026-01
 Authorization: Bearer {accessToken}
 ```
 
-Response:
 ```json
 {
   "reportType": "snapshot",
-  "generatedAt": "2026-02-17T14:30:00",
-  "parameters": { "month": "2026-01" },
   "data": {
     "month": "2026-01",
     "revenue": 50000000,
@@ -611,9 +1082,7 @@ Response:
     "expense": 35000000,
     "expenseChange": -3.2,
     "netProfit": 15000000,
-    "profitChange": 8.7,
     "profitMargin": 30.0,
-    "marginChange": 2.1,
     "cashBalance": 125000000,
     "receivablesBalance": 20000000,
     "payablesBalance": 15000000,
@@ -622,171 +1091,21 @@ Response:
       { "accountName": "Kas", "balance": 25000000 },
       { "accountName": "Bank BCA", "balance": 100000000 }
     ]
-  },
-  "metadata": {
-    "currency": "IDR",
-    "accountingBasis": "accrual",
-    "description": "Financial KPI snapshot for 2026-01. Change percentages are vs previous month."
   }
 }
 ```
 
-### Contoh: Neraca Saldo
+### Publikasi Laporan Analisis
+
+Setelah AI menganalisis data, hasilnya dipublikasikan kembali ke aplikasi agar tim dapat membacanya di web UI (menu **Laporan** > **Analisis AI**).
 
 ```bash
-GET /api/analysis/trial-balance?asOfDate=2026-01-31
+POST /api/analysis/reports
 Authorization: Bearer {accessToken}
+Content-Type: application/json
 ```
 
-Response (ringkasan):
-```json
-{
-  "reportType": "trial-balance",
-  "data": {
-    "items": [
-      {
-        "accountCode": "1.1.01",
-        "accountName": "Kas",
-        "accountType": "ASSET",
-        "normalBalance": "DEBIT",
-        "debitBalance": 25000000,
-        "creditBalance": 0
-      },
-      {
-        "accountCode": "4.1.01",
-        "accountName": "Pendapatan Jasa",
-        "accountType": "REVENUE",
-        "normalBalance": "CREDIT",
-        "debitBalance": 0,
-        "creditBalance": 50000000
-      }
-    ],
-    "totalDebit": 85000000,
-    "totalCredit": 85000000
-  }
-}
-```
-
-### Contoh: Draft Transaksi Pending
-
-```bash
-GET /api/analysis/drafts
-Authorization: Bearer {accessToken}
-```
-
-Response:
-```json
-{
-  "reportType": "drafts",
-  "data": {
-    "items": [
-      {
-        "id": "a1b2c3d4-...",
-        "status": "PENDING",
-        "merchantName": "Starbucks Grand Indonesia",
-        "amount": 85000,
-        "currency": "IDR",
-        "transactionDate": "2026-02-12",
-        "source": "API",
-        "apiSource": "claude-code",
-        "overallConfidence": 0.95,
-        "suggestedTemplateName": "Konsumsi Karyawan",
-        "createdBy": "admin",
-        "createdAt": "2026-02-12T14:30:00"
-      }
-    ],
-    "pendingCount": 1
-  }
-}
-```
-
-AI dapat menggunakan data ini untuk merekomendasikan approval draft dengan confidence tinggi, atau menandai draft yang perlu review manual.
-
-### Contoh Interaksi Analisis
-
-**User:**
-```
-Bagaimana kondisi keuangan bulan Januari?
-```
-
-**AI:**
-```
-Berdasarkan data keuangan Januari 2026:
-
-Revenue:     Rp 50.000.000 (+12.5% vs Desember)
-Expense:     Rp 35.000.000 (-3.2% vs Desember)
-Net Profit:  Rp 15.000.000 (+8.7%)
-Margin:      30.0%
-
-Kas & Bank:
-  - Kas:      Rp 25.000.000
-  - Bank BCA: Rp 100.000.000
-
-Piutang:     Rp 20.000.000
-Hutang:      Rp 15.000.000
-
-Bulan ini cukup baik — revenue naik, expense turun, dan
-profit margin meningkat 2.1 poin.
-```
-
-**User:**
-```
-Ada pajak yang perlu dibayar?
-```
-
-**AI:**
-```
-Berdasarkan ringkasan pajak Januari 2026:
-
-PPN Keluaran:  Rp 5.000.000
-PPN Masukan:   Rp 2.000.000
-PPN Kurang Bayar: Rp 3.000.000
-
-PPh 23:        Rp 1.500.000 (sudah dipotong)
-PPh 21:        Rp 2.800.000 (gaji karyawan)
-
-Total kewajiban pajak bulan ini: Rp 7.300.000
-Batas setor PPN: 31 Februari 2026
-```
-
-### Otorisasi Scope
-
-Token yang diterbitkan melalui Device Flow secara otomatis memiliki scope berikut:
-- `drafts:create` — membuat dan mengedit draft transaksi
-- `drafts:approve` — approve/reject draft
-- `drafts:read` — membaca draft
-- `analysis:read` — membaca laporan keuangan
-- `analysis:write` — mempublikasikan laporan analisis
-- `transactions:post` — posting, koreksi, dan hapus transaksi DRAFT
-- `data:import` — import data dari file ZIP
-- `bills:read` — membaca vendor bills
-- `bills:create` — membuat vendor bills
-- `bills:approve` — approve vendor bills
-
-Tanpa scope yang sesuai, request akan ditolak dengan HTTP 403.
-
----
-
-## Publikasi Laporan Analisis
-
-Setelah AI membaca data keuangan via endpoint `/api/analysis/*`, AI dapat menganalisis data tersebut dan mempublikasikan hasilnya kembali ke aplikasi. Laporan yang dipublikasikan langsung tersedia di web UI sehingga seluruh tim (akuntan, pemilik, manajer) dapat membacanya.
-
-### Konfigurasi Industri
-
-Sebelum AI melakukan analisis, pastikan industri perusahaan sudah diatur di **Pengaturan** > **Perusahaan** > **Industri**. AI membaca konfigurasi ini via `GET /api/analysis/company` untuk menentukan metrik dan analisis yang relevan.
-
-Industri yang didukung:
-
-| Kode | Nama | Fokus Analisis |
-|------|------|----------------|
-| `it-service` | Jasa IT & Konsultasi | Utilisasi, DSO, margin proyek, konsentrasi klien |
-| `online-seller` | Toko Online / E-Commerce | Margin per channel, inventory turnover, fee marketplace, cash conversion cycle |
-| `coffee-shop` | Kedai Kopi / F&B | Food cost %, labor cost %, prime cost, waste %, BOM costing |
-| `campus` | Kampus / Pendidikan | Kolektibilitas SPP, rasio biaya akademik, beasiswa, deferred revenue |
-
-### Struktur Laporan
-
-Laporan analisis terdiri dari 5 bagian terstruktur:
+Laporan terdiri dari 5 bagian terstruktur:
 
 | Bagian | Deskripsi |
 |--------|-----------|
@@ -796,86 +1115,27 @@ Laporan analisis terdiri dari 5 bagian terstruktur:
 | **Rekomendasi** | Langkah-langkah yang disarankan, dengan prioritas dan dampak |
 | **Penilaian Risiko** | Risiko yang teridentifikasi beserta mitigasi |
 
-### API Publikasi
+Sebelum analisis, AI membaca konfigurasi industri via `GET /api/analysis/company` untuk menentukan metrik yang relevan.
 
-```bash
-POST /api/analysis/reports
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
+### Analisis per Industri
 
-Field `industry` diisi sesuai konfigurasi perusahaan. Field `reportType` diisi sesuai jenis analisis per industri (lihat tabel di bawah).
+#### Jasa IT & Konsultasi (`it-service`)
 
-### Membaca Konfigurasi Perusahaan
-
-```bash
-GET /api/analysis/company
-Authorization: Bearer {accessToken}
-```
-
-Response berisi `industry`, `currencyCode`, `fiscalYearStartMonth`, dan `isPkp` — informasi yang AI butuhkan untuk memilih metrik yang tepat.
-
-### Daftar Laporan via API
-
-```bash
-GET /api/analysis/reports
-Authorization: Bearer {accessToken}
-```
-
-Mengembalikan semua laporan yang sudah dipublikasikan, terbaru lebih dulu.
-
----
-
-### Analisis per Industri: Jasa IT & Konsultasi (`it-service`)
-
-#### Tipe Laporan
-
-| reportType | Kegunaan | Frekuensi |
-|------------|----------|-----------|
-| `utilization-review` | Review utilisasi billable konsultan | Bulanan |
-| `project-profitability` | Analisis margin per proyek | Per proyek / bulanan |
-| `receivables-aging` | Aging piutang & DSO analysis | Bulanan |
-| `client-concentration` | Analisis konsentrasi pendapatan per klien | Kuartalan |
-| `tax-withholding-recon` | Rekonsiliasi Bukti Potong PPh 23 | Bulanan |
-
-#### Metrik Utama
+**Tipe laporan:** `utilization-review`, `project-profitability`, `receivables-aging`, `client-concentration`, `tax-withholding-recon`
 
 | Metrik | Formula | Benchmark |
 |--------|---------|-----------|
-| Utilisasi Billable | Jam billable / Total jam tersedia | 70-80% (optimal 75%) |
+| Utilisasi Billable | Jam billable / Total jam tersedia | 70-80% |
 | DSO (Days Sales Outstanding) | (Piutang / Pendapatan) x Hari | < 45 hari |
 | Rasio Biaya Tenaga Kerja | Total gaji / Pendapatan | 55-65% |
-| Revenue per Konsultan | Pendapatan / Jumlah konsultan | Track trend |
 | Margin Proyek | (Revenue proyek - Biaya langsung) / Revenue proyek | > 15% sehat, > 25% kuat |
 | Konsentrasi Klien Top-3 | Revenue 3 klien terbesar / Total revenue | < 60% sehat |
-| Realization Rate | Revenue terkumpul / (Jam billable x Tarif standar) | > 80% |
 
-#### Kategori Temuan
+Risiko: konsentrasi klien, bench time, DSO creep, Bukti Potong PPh 23 hilang, key-person dependency.
 
-`utilisasi`, `piutang`, `profitabilitas-proyek`, `klien`, `pajak`, `bench-time`
+#### Toko Online / E-Commerce (`online-seller`)
 
-#### Risiko Spesifik
-- Konsentrasi klien (1 klien > 20% revenue)
-- Bench time (konsultan idle = pure cost)
-- DSO creep (klien korporat bayar Net-60 sampai Net-90)
-- Bukti Potong PPh 23 yang hilang (kehilangan kredit pajak 2%)
-- Key-person dependency (revenue bergantung pada beberapa senior)
-
----
-
-### Analisis per Industri: Toko Online / E-Commerce (`online-seller`)
-
-#### Tipe Laporan
-
-| reportType | Kegunaan | Frekuensi |
-|------------|----------|-----------|
-| `marketplace-profitability` | P&L per marketplace (Tokopedia, Shopee, dll) | Bulanan |
-| `inventory-health` | Turnover, dead stock, aging persediaan | Bulanan |
-| `cash-conversion-cycle` | Analisis siklus konversi kas | Bulanan |
-| `channel-comparison` | Perbandingan profitabilitas antar channel | Kuartalan |
-| `shipping-cost-analysis` | Analisis biaya pengiriman vs pendapatan | Bulanan |
-
-#### Metrik Utama
+**Tipe laporan:** `marketplace-profitability`, `inventory-health`, `cash-conversion-cycle`, `channel-comparison`, `shipping-cost-analysis`
 
 | Metrik | Formula | Benchmark |
 |--------|---------|-----------|
@@ -883,432 +1143,253 @@ Mengembalikan semua laporan yang sudah dipublikasikan, terbaru lebih dulu.
 | Inventory Turnover | HPP / Rata-rata persediaan | 4-8x/tahun |
 | Dead Stock Ratio | Nilai stok mati / Total nilai persediaan | < 10% |
 | Fee Marketplace Ratio | Total fee marketplace / Revenue | < 12% |
-| Shipping Cost Ratio | Biaya kirim / Revenue | < 10% |
-| Return Rate | Jumlah retur / Jumlah order | < 10% |
 | Cash Conversion Cycle | DIO + DSO - DPO | < 60 hari |
-| ROAS (Return on Ad Spend) | Revenue dari iklan / Belanja iklan | > 3:1 |
 
-#### Kategori Temuan
+Risiko: kenaikan fee marketplace, dead stock, cash conversion cycle panjang, ketergantungan satu marketplace.
 
-`margin`, `persediaan`, `arus-kas`, `marketplace`, `retur`, `pengiriman`, `iklan`
+#### Kedai Kopi / F&B (`coffee-shop`)
 
-#### Risiko Spesifik
-- Kenaikan fee marketplace (platform menaikkan komisi secara berkala)
-- Dead stock (modal terjebak di persediaan tidak laku > 180 hari)
-- Cash conversion cycle panjang (bayar supplier duluan, pencairan marketplace 7-21 hari)
-- Ketergantungan pada satu marketplace
-- Subsidi ongkir menggerus margin pada produk AOV rendah
-
----
-
-### Analisis per Industri: Kedai Kopi / F&B (`coffee-shop`)
-
-#### Tipe Laporan
-
-| reportType | Kegunaan | Frekuensi |
-|------------|----------|-----------|
-| `food-cost-review` | Analisis food cost % dan variance resep | Bulanan |
-| `labor-efficiency` | Rasio biaya tenaga kerja dan produktivitas per shift | Bulanan |
-| `menu-engineering` | Profitabilitas dan popularitas per menu item | Kuartalan |
-| `production-cost` | Analisis biaya produksi BOM vs harga jual | Bulanan |
-| `daily-sales-analysis` | Analisis penjualan harian, peak hours, average check | Mingguan |
-
-#### Metrik Utama
+**Tipe laporan:** `food-cost-review`, `labor-efficiency`, `menu-engineering`, `production-cost`, `daily-sales-analysis`
 
 | Metrik | Formula | Benchmark |
 |--------|---------|-----------|
 | Food Cost % | HPP / Revenue | 20-30% |
 | Labor Cost % | Total biaya tenaga kerja / Revenue | 25-30% |
 | Prime Cost % | (HPP + Biaya tenaga kerja) / Revenue | < 60% |
-| Gross Margin | (Revenue - HPP) / Revenue | 70-80% |
 | Waste % | Nilai bahan terbuang / Total HPP | < 2-4% |
-| Average Transaction Value | Revenue / Jumlah transaksi | Track trend |
-| Inventory Turnover (perishable) | HPP perishable / Rata-rata stok perishable | > 4x/bulan |
 | Variance Resep | (HPP aktual - HPP teoritis) / HPP teoritis | < 2% |
 
-#### Kategori Temuan
+Risiko: spoilage bahan perishable, over-portioning, kenaikan harga komoditas, prime cost > 65%.
 
-`biaya-bahan`, `tenaga-kerja`, `produksi`, `penjualan`, `persediaan`, `waste`
+#### Kampus / Pendidikan (`campus`)
 
-#### Risiko Spesifik
-- Spoilage bahan perishable (susu, roti — shelf life pendek)
-- Over-portioning (resep tidak terstandar, HPP aktual > teoritis)
-- Kenaikan harga komoditas (kopi arabica, butter volatil)
-- Prime cost > 65% (biaya bahan + tenaga kerja melampaui batas sehat)
-- Ketergantungan lokasi (revenue sangat terkait foot traffic)
-
----
-
-### Analisis per Industri: Kampus / Pendidikan (`campus`)
-
-#### Tipe Laporan
-
-| reportType | Kegunaan | Frekuensi |
-|------------|----------|-----------|
-| `tuition-collection` | Analisis kolektibilitas SPP per angkatan | Per semester |
-| `budget-realization` | Realisasi RKAT vs anggaran | Per semester |
-| `scholarship-impact` | Dampak beasiswa terhadap net tuition revenue | Per semester |
-| `faculty-cost-analysis` | Analisis biaya dosen tetap vs tidak tetap | Per semester |
-| `enrollment-forecast` | Proyeksi pendapatan berdasarkan tren pendaftaran | Tahunan |
-
-#### Metrik Utama
+**Tipe laporan:** `tuition-collection`, `budget-realization`, `scholarship-impact`, `faculty-cost-analysis`, `enrollment-forecast`
 
 | Metrik | Formula | Benchmark |
 |--------|---------|-----------|
 | SPP Collection Rate | SPP terkumpul / SPP tertagih | > 90% |
-| Tuition Dependency Ratio | Pendapatan SPP / Total pendapatan | < 85% (semakin rendah semakin sehat) |
+| Tuition Dependency Ratio | Pendapatan SPP / Total pendapatan | < 85% |
 | Operating Margin | (Total pendapatan - Total beban) / Total pendapatan | > 5% |
-| Biaya per Mahasiswa | Total beban operasional / Jumlah mahasiswa | Track trend |
 | Days Cash on Hand | Kas / (Total beban / 365) | > 90 hari |
-| Rasio Biaya Akademik | Beban akademik / Total beban operasional | 30-40% |
-| Rasio Biaya Administratif | Beban administratif / Total beban operasional | < 30% |
-| Scholarship Expense Ratio | Total beban beasiswa / Gross SPP | Track (jaga agar tidak > 35%) |
-| Piutang SPP > 90 Hari | Piutang SPP aging > 90 hari / Total piutang SPP | < 5% |
+| Piutang SPP > 90 Hari | Piutang aging > 90 hari / Total piutang SPP | < 5% |
 
-#### Kategori Temuan
+Risiko: penurunan mahasiswa baru, ketergantungan SPP > 90%, cash flow musiman, piutang SPP tidak tertagih.
 
-`penerimaan-spp`, `beasiswa`, `biaya-akademik`, `biaya-administratif`, `aset-tetap`, `tren-pendaftaran`
+### Format Field Laporan Analisis
 
-#### Risiko Spesifik
-- Penurunan jumlah mahasiswa baru (dampak langsung ke uang pangkal dan pipeline SPP)
-- Ketergantungan tinggi pada SPP (> 90%) tanpa diversifikasi pendapatan
-- Cash flow musiman (penerimaan terkonsentrasi di awal semester, beban tersebar sepanjang tahun)
-- Deferred maintenance gedung dan laboratorium (tropical climate mempercepat deteriorasi)
-- Piutang SPP yang tidak tertagih dari mahasiswa non-aktif
-
----
-
-### Format Field API
-
-#### Indikator Utama (metrics)
+**Indikator Utama (metrics):**
 
 | Field | Wajib | Deskripsi |
 |-------|-------|-----------|
 | `name` | Ya | Nama metrik sesuai industri |
 | `value` | Ya | Nilai saat ini |
 | `previousValue` | Tidak | Nilai periode sebelumnya |
-| `change` | Tidak | Perubahan (contoh: "+12.5%", "+4pp", "+14 hari") |
-| `status` | Tidak | `positive` (hijau), `negative` (merah), `warning` (kuning), `neutral` (abu-abu) |
+| `change` | Tidak | Perubahan (contoh: "+12.5%", "+4pp") |
+| `status` | Tidak | `positive` (hijau), `negative` (merah), `warning` (kuning), `neutral` |
 
-#### Temuan (findings)
+**Temuan (findings):**
 
 | Field | Wajib | Deskripsi |
 |-------|-------|-----------|
-| `category` | Ya | Kategori sesuai industri (lihat tabel per industri di atas) |
-| `severity` | Ya | `info` (biru), `warning` (kuning), `critical` (merah) |
+| `category` | Ya | Kategori sesuai industri |
+| `severity` | Ya | `info`, `warning`, `critical` |
 | `description` | Ya | Deskripsi temuan |
 
-#### Rekomendasi (recommendations)
+**Rekomendasi (recommendations):**
 
 | Field | Wajib | Deskripsi |
 |-------|-------|-----------|
-| `priority` | Ya | `high` (merah), `medium` (kuning), `low` (abu-abu) |
+| `priority` | Ya | `high`, `medium`, `low` |
 | `description` | Ya | Deskripsi rekomendasi |
 | `impact` | Tidak | Dampak yang diharapkan |
 
-#### Risiko (risks)
+**Risiko (risks):**
 
 | Field | Wajib | Deskripsi |
 |-------|-------|-----------|
-| `severity` | Ya | `high` (merah), `medium` (kuning), `low` (abu-abu) |
+| `severity` | Ya | `high`, `medium`, `low` |
 | `description` | Ya | Deskripsi risiko |
 | `mitigation` | Tidak | Langkah mitigasi |
 
 ### Melihat Laporan di Web UI
 
-Laporan yang sudah dipublikasikan dapat dilihat di menu **Laporan** > **Analisis AI**.
+Laporan yang sudah dipublikasikan tersedia di menu **Laporan** > **Analisis AI**.
 
-#### Halaman Daftar Laporan
+![Daftar Laporan Analisis](screenshots/analysis-reports/list.png)
 
-Halaman daftar menampilkan semua laporan terbaru dengan:
-- **Badge industri** (Jasa IT, Toko Online, Kedai Kopi, Kampus) dengan warna berbeda per industri
-- **Tipe laporan** dan **judul**
-- **Ringkasan eksekutif** (2 baris pertama)
-- **Periode**, **sumber AI**, dan **jumlah metrik/temuan**
+![Detail Laporan - Header dan Metrik](screenshots/analysis-reports/detail-top.png)
 
-#### Halaman Detail Laporan
+![Detail Laporan - Temuan dan Rekomendasi](screenshots/analysis-reports/detail-bottom.png)
 
-Klik laporan untuk melihat detail lengkap. Setiap industri menampilkan metrik KPI yang berbeda sesuai karakteristik bisnisnya.
-
-**Bagian atas:** Badge industri, tipe laporan, header, ringkasan eksekutif, dan grid indikator utama.
-
-**Bagian bawah:** Tabel temuan dengan severity badge, daftar rekomendasi yang diurutkan berdasarkan prioritas, dan penilaian risiko dengan langkah mitigasi.
-
-#### Menghapus Laporan
-
-Klik tombol **Hapus** di halaman detail untuk menghapus laporan (soft delete). Laporan yang dihapus tidak akan muncul di daftar.
-
-#### Contoh Laporan per Industri
-
-##### Jasa IT & Konsultasi
-
-Metrik utama:
-- Pendapatan Bulanan
-- Beban Operasional
-- Laba Bersih
-- Margin Laba
-- Saldo Kas
-- Rasio Beban/Pendapatan
-
-![Daftar Laporan - Jasa IT](screenshots/analysis-reports/list.png)
-
-![Detail Laporan - Jasa IT (Header dan Metrik)](screenshots/analysis-reports/detail-top.png)
-
-![Detail Laporan - Jasa IT (Temuan dan Rekomendasi)](screenshots/analysis-reports/detail-bottom.png)
-
----
-
-##### Toko Online / E-Commerce
-
-Metrik utama:
-- Penjualan Bersih
-- HPP (Harga Pokok)
-- Laba Kotor
-- Gross Margin
-- Biaya Marketplace
-- Biaya Pengiriman
-
-![Daftar Laporan - Toko Online](screenshots/analysis-reports/seller-list.png)
-
-![Detail Laporan - Toko Online](screenshots/analysis-reports/seller-detail.png)
-
----
-
-##### Kedai Kopi / F&B
-
-Metrik utama:
-- Pendapatan
-- Food Cost %
-- Labor Cost %
-- Prime Cost %
-- Laba Bersih
-- Net Margin
-
-![Daftar Laporan - Kedai Kopi](screenshots/analysis-reports/coffee-list.png)
-
-![Detail Laporan - Kedai Kopi](screenshots/analysis-reports/coffee-detail.png)
-
----
-
-##### Kampus / Pendidikan
-
-Metrik utama:
-- Pendapatan Total
-- Pendapatan SPP
-- Biaya Dosen & Akademik
-- Rasio Beasiswa
-- Surplus Operasional
-- Margin Operasional
-
-![Daftar Laporan - Kampus](screenshots/analysis-reports/campus-list.png)
-
-![Detail Laporan - Kampus](screenshots/analysis-reports/campus-detail.png)
-
-### Contoh Alur Lengkap
+### Alur Lengkap
 
 ```
 1. AI membaca data keuangan
    GET /api/analysis/snapshot?month=2026-01
    GET /api/analysis/income-statement?startDate=2026-01-01&endDate=2026-01-31
    GET /api/analysis/receivables?asOfDate=2026-01-31
-   ↓
+   |
 2. AI menganalisis data dan membuat laporan terstruktur
-   ↓
+   |
 3. AI mempublikasikan laporan
    POST /api/analysis/reports
-   ↓
+   |
 4. Tim membuka menu Laporan > Analisis AI di web browser
-   ↓
+   |
 5. Akuntan membaca temuan, rekomendasi, dan risiko
-   ↓
+   |
 6. Tindak lanjut: buat jurnal penyesuaian, tagih piutang, dll.
 ```
 
 ---
 
-## Inisialisasi Data Klien Baru
+## Perpajakan
 
-Untuk onboarding klien baru, AI membaca laporan keuangan klien (XLS/PDF neraca, laba rugi), mengekstrak struktur Chart of Accounts dan template jurnal, lalu menginisialisasi aplikasi secara programatis via `POST /api/data-import`.
+AI mengelola pelaporan pajak -- dari pengisian detail pajak per transaksi hingga export data untuk e-Faktur, e-Bupot, dan SPT.
 
-### Alur Kerja
-
-```
-1. AI menerima file XLS/PDF laporan keuangan klien
-   ↓
-2. AI mengekstrak struktur COA, template jurnal, dan data awal
-   ↓
-3. AI menghasilkan file CSV sesuai format yang diharapkan
-   ↓
-4. AI membuat ZIP dari file-file CSV tersebut
-   ↓
-5. AI mengirim ZIP ke POST /api/data-import
-   ↓
-6. Aplikasi memproses ZIP: truncate tabel yang ada data CSV-nya, lalu import
-   ↓
-7. Klien baru siap menggunakan aplikasi dengan COA dan template yang sesuai
-```
-
-### Format CSV
-
-ZIP berisi file CSV dengan nama berurut (dependency order). File yang paling umum untuk onboarding klien baru:
-
-**`01_company_config.csv`** — Konfigurasi perusahaan (1 baris data):
+### Alur Kerja Pajak Bulanan
 
 ```
-company_name,company_address,company_phone,company_email,tax_id,npwp,nitku,fiscal_year_start_month,currency_code,signing_officer_name,signing_officer_title,company_logo_path,established_date,is_pkp,pkp_since,industry
+1. Transaksi harian sudah ter-posting dengan template yang benar
+   (template PPN otomatis menghitung PPN 11%)
+   |
+2. AI mengisi detail pajak per transaksi
+   POST /api/transactions/{id}/tax-details
+   |
+3. AI upload dokumen pendukung (faktur, bukti potong)
+   POST /api/transactions/{id}/documents
+   |
+4. Akhir bulan: AI export data pajak
+   GET /api/tax-export/efaktur-keluaran?startMonth=2026-01&endMonth=2026-01&format=json
+   GET /api/tax-export/efaktur-masukan?startMonth=2026-01&endMonth=2026-01&format=json
+   GET /api/tax-export/bupot-unifikasi?startMonth=2026-01&endMonth=2026-01&format=json
+   |
+5. AI review ringkasan
+   GET /api/tax-export/ppn-detail?startMonth=2026-01&endMonth=2026-01
+   GET /api/tax-export/pph23-detail?startMonth=2026-01&endMonth=2026-01
+   |
+6. AI generate data SPT PPh Badan (tahunan)
+   GET /api/tax-export/pph-badan?year=2025
+   GET /api/tax-export/rekonsiliasi-fiskal?year=2025
 ```
 
-**`02_chart_of_accounts.csv`** — Daftar akun:
+### Detail Pajak per Transaksi
 
-```
-account_code,account_name,account_type,parent_code,normal_balance,active,is_permanent
-```
-
-- `account_type`: `ASSET`, `LIABILITY`, `EQUITY`, `REVENUE`, `EXPENSE`
-- `normal_balance`: `DEBIT` atau `CREDIT`
-- `parent_code`: kosong jika akun top-level, isi kode parent jika sub-akun
-
-**`04_journal_templates.csv`** — Template jurnal:
-
-```
-template_name,category,cash_flow_category,template_type,description,is_system,active,version,usage_count,last_used_at,semantic_description,keywords,example_merchants,typical_amount_min,typical_amount_max,merchant_patterns
-```
-
-- `category`: `REVENUE`, `EXPENSE`, `TRANSFER`, `ADJUSTMENT`, `PAYROLL`, `TAX`, `RECEIVABLE`, `PAYABLE`, `ASSET_PURCHASE`, `ASSET_DEPRECIATION`
-- `cash_flow_category`: `OPERATING`, `INVESTING`, `FINANCING`
-- `template_type`: `SIMPLE`, `VARIABLE`, `SPLIT`, `MULTI_LINE`
-- `keywords`, `example_merchants`, `merchant_patterns`: nilai dipisahkan dengan `|` (pipe)
-
-**`05_journal_template_lines.csv`** — Baris template jurnal:
-
-```
-template_name,line_order,account_code,account_hint,position,formula,description
-```
-
-- `position`: `DEBIT` atau `CREDIT`
-- `formula`: `AMOUNT` (nilai penuh), `AMOUNT * 0.11` (PPN 11%), dsb.
-
-### Contoh Penggunaan API
+Setiap transaksi PPN/PPh perlu dilengkapi detail pajak (nomor faktur, NPWP lawan transaksi, dll):
 
 ```bash
-curl -X POST https://akunting.example.com/api/data-import \
-  -H "Authorization: Bearer {accessToken}" \
-  -F "file=@seed-data.zip"
-```
+# List tax details
+GET /api/transactions/{id}/tax-details
 
-Response (HTTP 201):
-
-```json
+# Tambah detail
+POST /api/transactions/{id}/tax-details
 {
-  "totalRecords": 45,
-  "documentCount": 0,
-  "durationMs": 1234
+  "taxType": "PPN_KELUARAN",
+  "taxNumber": "010.000-26.00000001",
+  "counterpartyNpwp": "01.234.567.8-901.000",
+  "counterpartyName": "PT Klien ABC",
+  "taxBase": 10000000,
+  "taxAmount": 1100000,
+  "taxDate": "2026-01-15"
 }
+
+# Update
+PUT /api/transactions/{id}/tax-details/{detailId}
+
+# Hapus
+DELETE /api/transactions/{id}/tax-details/{detailId}
+
+# Bulk operations
+POST /api/tax-details/bulk
 ```
 
-### Referensi
+### Dokumen Pendukung
 
-- Lihat direktori `industry-seed/` di source code untuk contoh lengkap seed data per industri (it-service, online-seller, coffee-shop)
-- Import mengganti (truncate) data pada tabel yang memiliki CSV di dalam ZIP. Tabel tanpa CSV di ZIP tidak terpengaruh
-- File CSV boleh hanya berisi header (tanpa data) — tabel tersebut akan dilewati
+```bash
+# Upload dokumen
+POST /api/transactions/{id}/documents
+Content-Type: multipart/form-data
+# Form field: file (PDF, image)
 
----
+# List dokumen
+GET /api/transactions/{id}/documents
 
-## Contoh Interaksi dengan AI
+# Download
+GET /api/transactions/{id}/documents/{docId}
 
-### Skenario 1: Struk Kopi Starbucks
-
-**User:**
-```
-[Kirim foto struk Starbucks]
-```
-
-**AI:**
-```
-📄 Saya menganalisis struk:
-   • Merchant: Starbucks Grand Indonesia
-   • Jumlah: Rp 85.000
-   • Tanggal: 12 Feb 2026
-   • Item: Caffe Latte Grande, Blueberry Muffin
-
-   Template yang cocok: "Konsumsi Karyawan" (confidence: 0.95)
-
-   Posting transaksi ini?
-   ✓ Ya
-   ✏️ Edit dulu
-   🔄 Pilih template lain
-   ✗ Batal
+# Hapus
+DELETE /api/transactions/{id}/documents/{docId}
 ```
 
-**User:**
-```
-Ya
+### Export Pajak
+
+Semua endpoint export mendukung `format=json` (untuk AI) dan `format=excel` (untuk upload ke DJP):
+
+```bash
+# e-Faktur Keluaran (PPN yang dipungut)
+GET /api/tax-export/efaktur-keluaran?startMonth=2026-01&endMonth=2026-01&format=json
+
+# e-Faktur Masukan (PPN yang dibayar)
+GET /api/tax-export/efaktur-masukan?startMonth=2026-01&endMonth=2026-01&format=json
+
+# Bukti Potong Unifikasi (PPh 23/26)
+GET /api/tax-export/bupot-unifikasi?startMonth=2026-01&endMonth=2026-01&format=json
+
+# Detail PPN (ringkasan Keluaran vs Masukan)
+GET /api/tax-export/ppn-detail?startMonth=2026-01&endMonth=2026-12
+
+# Detail PPh 23 (ringkasan potongan)
+GET /api/tax-export/pph23-detail?startMonth=2026-01&endMonth=2026-12
 ```
 
-**AI:**
-```
-✓ Transaksi berhasil diposting!
-  Nomor: TRX-2026-0001
-  Status: POSTED
+### Koreksi Fiskal (SPT PPh Badan)
 
-  Jurnal:
-  [DEBIT]  Beban Konsumsi Karyawan: Rp 85.000
-  [CREDIT] Kas: Rp 85.000
-```
+Untuk penyusunan SPT PPh Badan tahunan, AI mengelola koreksi fiskal:
 
-### Skenario 2: Text Input Listrik
+```bash
+# List koreksi fiskal per tahun
+GET /api/fiscal-adjustments?year=2025
 
-**User:**
-```
-Bayar listrik PLN 350 ribu
-```
+# Buat koreksi
+POST /api/fiscal-adjustments
+{
+  "year": 2025,
+  "category": "ENTERTAINMENT",
+  "direction": "POSITIVE",
+  "amount": 5000000,
+  "description": "Biaya entertainment tanpa daftar nominatif",
+  "notes": "Pasal 6 ayat 1 huruf a UU PPh"
+}
 
-**AI:**
-```
-📄 Saya memahami:
-   • Merchant: PLN
-   • Jumlah: Rp 350.000
-   • Kategori: Utilities
+# Update
+PUT /api/fiscal-adjustments/{id}
 
-   Template yang cocok: "Bayar Beban Listrik"
-
-   Posting?
+# Hapus
+DELETE /api/fiscal-adjustments/{id}
 ```
 
-**User:**
-```
-Ya, tapi edit deskripsi dulu
+### Rekonsiliasi Fiskal dan PPh Badan
+
+```bash
+# Rekonsiliasi fiskal (laba komersial → laba fiskal)
+GET /api/tax-export/rekonsiliasi-fiskal?year=2025
+# → Laba komersial, koreksi positif, koreksi negatif, laba fiskal
+
+# Perhitungan PPh Badan
+GET /api/tax-export/pph-badan?year=2025
+# → PKP, tarif, PPh terutang, kredit pajak, kurang/lebih bayar
 ```
 
-**AI:**
-```
-Deskripsi apa yang Anda inginkan?
-```
+### PPh 21 Karyawan
 
-**User:**
-```
-Listrik bulan Januari 2026
-```
+Data PPh 21 tersedia via Payroll API (lihat bagian Penggajian):
 
-**AI:**
-```
-✓ Siap posting:
-  • Merchant: PLN
-  • Jumlah: Rp 350.000
-  • Deskripsi: "Listrik bulan Januari 2026"
-  • Template: Bayar Beban Listrik
+```bash
+# 1721-A1 per karyawan
+GET /api/payroll/employees/{id}/1721-a1?year=2026
 
-  Posting sekarang? (ya/tidak)
-```
-
-**User:**
-```
-ya
-```
-
-**AI:**
-```
-✓ Posted TRX-2026-0002
+# Summary PPh 21 seluruh karyawan
+GET /api/payroll/pph21/summary?year=2026
 ```
 
 ---
@@ -1326,13 +1407,13 @@ Semua API call tercatat di audit log dengan detail:
 
 ### Token Management (Self-Service)
 
-Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman **Perangkat API**.
+Setiap user dapat melihat dan mencabut device token miliknya di halaman **Perangkat API**.
 
-**Lokasi:** Sidebar → Master Data → **Perangkat API**, atau langsung buka `/settings/devices`
+**Lokasi:** Sidebar > Master Data > **Perangkat API**, atau langsung buka `/settings/devices`
 
 ![Halaman Perangkat API](screenshots/settings/devices.png)
 
-**Informasi yang ditampilkan per token:**
+**Informasi per token:**
 
 | Kolom | Deskripsi |
 |-------|-----------|
@@ -1341,10 +1422,10 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | Scope | Hak akses token (contoh: `drafts:create,analysis:read`) |
 | Status | Aktif (hijau) atau Kedaluwarsa (abu-abu) |
 | Dibuat | Waktu token diterbitkan |
-| Terakhir Digunakan | Waktu terakhir token digunakan untuk API call |
+| Terakhir Digunakan | Waktu terakhir token digunakan |
 | IP Terakhir | IP address terakhir yang menggunakan token |
 
-**Aksi yang tersedia:**
+**Aksi:**
 - **Cabut** (per token): Mencabut satu token tertentu
 - **Cabut Semua**: Mencabut semua token aktif sekaligus
 
@@ -1356,35 +1437,33 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 
 ## API Reference
 
-### Endpoint Summary
-
-**Discovery (public, tanpa autentikasi):**
+### Discovery (public, tanpa autentikasi)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/v3/api-docs` | OpenAPI spec — seluruh endpoint, schema, x- extensions (workflow, scope, CSV specs) |
-| GET | `/swagger-ui.html` | Swagger UI — eksplorasi API interaktif |
+| GET | `/v3/api-docs` | OpenAPI spec -- seluruh endpoint, schema, x- extensions |
+| GET | `/swagger-ui.html` | Swagger UI -- eksplorasi API interaktif |
 
-**Autentikasi (public):**
+### Autentikasi (public)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/device/code` | Request device code |
 | POST | `/api/device/token` | Poll for access token |
 
-**Draft Transaksi (scope: `drafts:*`, `transactions:post`):**
+### Draft Transaksi (scope: `drafts:*`, `transactions:post`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| POST | `/api/drafts` | Buat DRAFT transaction langsung dengan template + overrides |
+| POST | `/api/drafts` | Buat DRAFT transaction dengan template + overrides |
 | POST | `/api/drafts/from-receipt` | Buat draft dari struk |
 | POST | `/api/drafts/from-text` | Buat draft dari teks |
 | GET | `/api/drafts/{id}` | Get draft by ID |
 | PATCH | `/api/drafts/{id}` | Koreksi draft PENDING |
-| POST | `/api/drafts/{id}/approve` | Approve draft (response menyertakan `transactionId`) |
+| POST | `/api/drafts/{id}/approve` | Approve draft |
 | POST | `/api/drafts/{id}/reject` | Reject draft |
 
-**Template (scope: `drafts:read`, `drafts:create`):**
+### Template (scope: `drafts:read`, `drafts:create`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
@@ -1394,23 +1473,23 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | PUT | `/api/templates/{id}` | Update template |
 | DELETE | `/api/templates/{id}` | Hapus template (soft delete) |
 
-**Transaksi (scope: `transactions:post`):**
+### Transaksi (scope: `transactions:post`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/transactions` | Post transaction langsung |
-| PUT | `/api/transactions/{id}` | Koreksi transaksi DRAFT (termasuk accountSlots) |
+| PUT | `/api/transactions/{id}` | Koreksi transaksi DRAFT |
 | DELETE | `/api/transactions/{id}` | Hapus transaksi DRAFT |
 | POST | `/api/transactions/{id}/post` | Post satu transaksi DRAFT |
-| POST | `/api/transactions/{id}/void` | Void transaksi POSTED (buat reversing entries) |
-| GET | `/api/transactions/{id}/journal-preview` | Preview jurnal entries sebelum posting |
+| POST | `/api/transactions/{id}/void` | Void transaksi POSTED |
+| GET | `/api/transactions/{id}/journal-preview` | Preview jurnal entries |
 | POST | `/api/transactions/bulk-post` | Batch post transaksi DRAFT |
 
-**Analisis Keuangan (scope: `analysis:read`):**
+### Analisis Keuangan (scope: `analysis:read`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/api/analysis/company` | Konfigurasi perusahaan (industry, currency, fiscal year) |
+| GET | `/api/analysis/company` | Konfigurasi perusahaan |
 | GET | `/api/analysis/snapshot` | KPI bulanan |
 | GET | `/api/analysis/trial-balance` | Neraca saldo |
 | GET | `/api/analysis/income-statement` | Laporan laba rugi |
@@ -1420,19 +1499,52 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | GET | `/api/analysis/receivables` | Piutang usaha |
 | GET | `/api/analysis/payables` | Hutang usaha |
 | GET | `/api/analysis/accounts` | Daftar akun (COA) |
-| GET | `/api/analysis/accounts/{id}/ledger` | Buku besar per akun (running balance) |
+| GET | `/api/analysis/accounts/{id}/ledger` | Buku besar per akun |
 | GET | `/api/analysis/drafts` | Draft transaksi pending |
-| GET | `/api/analysis/transactions` | List transaksi dengan filter (status, category, date range, search) |
-| GET | `/api/analysis/transactions/{id}` | Detail transaksi dengan jurnal entries |
+| GET | `/api/analysis/transactions` | List transaksi dengan filter |
+| GET | `/api/analysis/transactions/{id}` | Detail transaksi + jurnal entries |
 | GET | `/api/analysis/reports` | Daftar laporan analisis |
 
-**Publikasi Laporan Analisis (scope: `analysis:write`):**
+### Publikasi Laporan Analisis (scope: `analysis:write`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST | `/api/analysis/reports` | Publikasi laporan analisis terstruktur |
 
-**Komponen Gaji (scope: `tax-export:read`):**
+### Tagihan Vendor (scope: `bills:*`)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/bills` | List bills dengan filter |
+| GET | `/api/bills/{id}` | Detail bill |
+| POST | `/api/bills` | Buat bill baru |
+| POST | `/api/bills/{id}/approve` | Approve bill |
+| POST | `/api/bills/{id}/mark-paid` | Mark bill as paid |
+
+### Rekonsiliasi Bank (scope: `bank-recon:*`)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/bank-reconciliation/parser-configs` | List parser configs |
+| POST | `/api/bank-reconciliation/parser-configs` | Buat parser config |
+| POST | `/api/bank-reconciliation/statements/import` | Import statement CSV |
+| GET | `/api/bank-reconciliation/statements/{id}` | Detail statement |
+| GET | `/api/bank-reconciliation/statements/{id}/items` | Items statement |
+| POST | `/api/bank-reconciliation/reconciliations` | Buat reconciliation session |
+| GET | `/api/bank-reconciliation/reconciliations/{id}` | Detail reconciliation |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/auto-match` | Auto-match 3 pass |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/match` | Manual match |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/mark-bank-only` | Mark bank-only |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/mark-book-only` | Mark book-only |
+| DELETE | `/api/bank-reconciliation/reconciliations/{id}/items/{itemId}` | Remove match |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/create-transaction` | Create from bank item |
+| POST | `/api/bank-reconciliation/reconciliations/{id}/complete` | Complete reconciliation |
+| GET | `/api/bank-reconciliation/reconciliations/{id}/unmatched-book` | Unmatched book items |
+| GET | `/api/bank-reconciliation/reconciliations/{id}/summary` | Reconciliation summary |
+| GET | `/api/bank-reconciliation/reconciliations/{id}/statement` | Statement data |
+| GET | `/api/bank-reconciliation/reconciliations/{id}/outstanding` | Outstanding items |
+
+### Komponen Gaji (scope: `tax-export:read`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
@@ -1441,32 +1553,64 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | PUT | `/api/salary-components/{id}` | Update komponen gaji |
 | DELETE | `/api/salary-components/{id}` | Nonaktifkan komponen gaji |
 
-**Karyawan (scope: `tax-export:read`):**
+### Karyawan (scope: `tax-export:read`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/api/employees` | Daftar karyawan (filter: active, status) |
+| GET | `/api/employees` | Daftar karyawan |
 | POST | `/api/employees` | Buat karyawan |
 | GET | `/api/employees/{id}` | Detail karyawan + komponen gaji |
 | PUT | `/api/employees/{id}` | Update data karyawan |
 | POST | `/api/employees/{id}/salary-components` | Assign komponen gaji |
 | PUT | `/api/employees/{id}/salary-components/{componentId}` | Update assignment |
 
-**Payroll (scope: `tax-export:read`):**
+### Payroll (scope: `tax-export:read`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/api/payroll` | Daftar payroll run (filter: year, status) |
+| GET | `/api/payroll` | Daftar payroll run |
 | POST | `/api/payroll` | Buat payroll run (DRAFT) |
 | GET | `/api/payroll/{id}` | Detail payroll + semua detail karyawan |
-| POST | `/api/payroll/{id}/calculate` | Hitung PPh 21, set CALCULATED |
+| POST | `/api/payroll/{id}/calculate` | Hitung PPh 21 |
 | POST | `/api/payroll/{id}/approve` | Set APPROVED |
 | POST | `/api/payroll/{id}/post` | Posting ke jurnal |
 | DELETE | `/api/payroll/{id}` | Hapus payroll DRAFT |
 | GET | `/api/payroll/employees/{id}/1721-a1?year=YYYY` | Data 1721-A1 per karyawan |
-| GET | `/api/payroll/pph21/summary?year=YYYY` | Ringkasan PPh 21 seluruh karyawan |
+| GET | `/api/payroll/pph21/summary?year=YYYY` | Ringkasan PPh 21 |
 
-**Koreksi Fiskal (scope: `tax-export:read`):**
+### Detail Pajak (scope: `tax-export:read`)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/transactions/{id}/tax-details` | List tax details per transaksi |
+| GET | `/api/transactions/{id}/tax-details/{detailId}` | Detail satu tax detail |
+| POST | `/api/transactions/{id}/tax-details` | Tambah tax detail |
+| PUT | `/api/transactions/{id}/tax-details/{detailId}` | Update tax detail |
+| DELETE | `/api/transactions/{id}/tax-details/{detailId}` | Hapus tax detail |
+| POST | `/api/tax-details/bulk` | Bulk operations |
+
+### Dokumen (scope: `tax-export:read`)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/transactions/{id}/documents` | Upload dokumen |
+| GET | `/api/transactions/{id}/documents` | List dokumen |
+| GET | `/api/transactions/{id}/documents/{docId}` | Download dokumen |
+| DELETE | `/api/transactions/{id}/documents/{docId}` | Hapus dokumen |
+
+### Export Pajak (scope: `tax-export:read`)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/tax-export/efaktur-keluaran` | Export e-Faktur Keluaran |
+| GET | `/api/tax-export/efaktur-masukan` | Export e-Faktur Masukan |
+| GET | `/api/tax-export/bupot-unifikasi` | Export Bukti Potong Unifikasi |
+| GET | `/api/tax-export/ppn-detail` | Detail PPN (Keluaran vs Masukan) |
+| GET | `/api/tax-export/pph23-detail` | Detail PPh 23 |
+| GET | `/api/tax-export/rekonsiliasi-fiskal` | Rekonsiliasi fiskal |
+| GET | `/api/tax-export/pph-badan` | Perhitungan PPh Badan |
+
+### Koreksi Fiskal (scope: `tax-export:read`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
@@ -1475,17 +1619,17 @@ Setiap user dapat melihat dan mencabut device token miliknya sendiri di halaman 
 | PUT | `/api/fiscal-adjustments/{id}` | Update koreksi fiskal |
 | DELETE | `/api/fiscal-adjustments/{id}` | Hapus koreksi fiskal |
 
-**Manajemen Data (scope: `data:import`):**
+### Manajemen Data (scope: `data:import`)
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| POST | `/api/data-import` | Import data dari file ZIP (COA, template, transaksi) |
+| POST | `/api/data-import` | Import data dari file ZIP |
 
 ### Authentication
 
 Endpoint yang **tidak** memerlukan autentikasi:
-- `GET /v3/api-docs` (OpenAPI spec)
-- `GET /swagger-ui.html` (Swagger UI)
+- `GET /v3/api-docs`
+- `GET /swagger-ui.html`
 - `POST /api/device/code`
 - `POST /api/device/token`
 
@@ -1504,12 +1648,12 @@ Authorization: Bearer {accessToken}
 
 | Code | Error | Deskripsi |
 |------|-------|-----------|
-| 400 | `MISSING_PARAMETER` | Parameter wajib tidak dikirim (contoh: `asOfDate`) |
-| 400 | `INVALID_REQUEST` | Request tidak valid (field required kosong, dll) |
+| 400 | `MISSING_PARAMETER` | Parameter wajib tidak dikirim |
+| 400 | `INVALID_REQUEST` | Request tidak valid |
 | 401 | `unauthorized` | Token tidak valid atau expired |
-| 403 | — | Scope tidak memadai (contoh: token tanpa `analysis:read`) |
-| 404 | `NOT_FOUND` | Template/resource tidak ditemukan |
-| 409 | `CONFLICT` | State conflict (contoh: transaksi sudah POSTED, tidak bisa dihapus) |
+| 403 | -- | Scope tidak memadai |
+| 404 | `NOT_FOUND` | Resource tidak ditemukan |
+| 409 | `CONFLICT` | State conflict (contoh: transaksi sudah POSTED) |
 | 429 | `RATE_LIMIT_EXCEEDED` | Terlalu banyak request |
 | 500 | `INTERNAL_ERROR` | Server error |
 
@@ -1527,29 +1671,31 @@ Ya. Autentikasi menggunakan OAuth 2.0 Device Flow yang merupakan standard indust
 ### AI mana yang didukung?
 
 API ini generik dan dapat digunakan oleh AI assistant apapun yang mendukung HTTP API:
-- ✅ Claude Code
-- ✅ Gemini CLI
-- ✅ ChatGPT dengan plugin
-- ✅ Custom script (curl, Python, dll)
+- Claude Code
+- Gemini CLI
+- ChatGPT dengan plugin
+- Custom script (curl, Python, dll)
 
 ### Bagaimana jika AI salah pilih template?
 
-Anda bisa:
-1. **Koreksi draft**: AI menggunakan `PATCH /api/drafts/{id}` untuk memperbaiki draft sebelum approve
-2. **Koreksi transaksi DRAFT**: AI menggunakan `PUT /api/transactions/{id}` untuk reklasifikasi template sebelum posting
-3. **Hapus dan buat ulang**: AI menggunakan `DELETE /api/transactions/{id}` lalu buat transaksi baru
-4. **Void transaksi POSTED**: AI menggunakan `POST /api/transactions/{id}/void` untuk membatalkan transaksi yang sudah posted (reversing entries dibuat otomatis)
-5. **Edit di web**: Setelah posted, edit transaksi di web UI
-
-### Apakah bisa batch import banyak transaksi?
-
-Saat ini belum. Fitur batch import via CSV/Excel akan ditambahkan di versi berikutnya.
+1. **Koreksi draft**: `PATCH /api/drafts/{id}` sebelum approve
+2. **Koreksi transaksi DRAFT**: `PUT /api/transactions/{id}` sebelum posting
+3. **Hapus dan buat ulang**: `DELETE /api/transactions/{id}` lalu buat baru
+4. **Void transaksi POSTED**: `POST /api/transactions/{id}/void` (reversing entries otomatis)
+5. **Edit di web**: Setelah posted, edit di web UI
 
 ### Bagaimana cara menambah metadata ke template?
 
-Administrator dapat menambah metadata via:
-1. **Web UI**: Buka template > Edit > buka bagian **Metadata AI** > isi field yang diperlukan > Simpan. Lihat [Referensi Template](12-lampiran-template.md#metadata-ai-pada-template) untuk detail field.
-2. **API**: PUT /api/templates/{id}
+1. **Web UI**: Buka template > Edit > bagian **Metadata AI** > isi field > Simpan. Lihat [Referensi Template](12-lampiran-template.md#metadata-ai-pada-template) untuk detail field.
+2. **API**: `PUT /api/templates/{id}`
+
+### Apakah AI bisa deploy aplikasi dari nol?
+
+Ya. Berikan AI akses SSH ke VPS kosong dan arahkan ke repository GitHub. AI akan menjalankan Ansible playbook untuk instalasi lengkap (Java, PostgreSQL, Nginx, SSL, aplikasi). Lihat bagian "Instalasi dan Deploy".
+
+### Apakah AI bisa migrasi data dari Excel?
+
+Ya. Berikan AI file Excel (buku besar, neraca, data transaksi). AI akan menganalisis struktur akun, merancang COA dan template jurnal, generate file CSV, lalu import ke aplikasi. Lihat bagian "Analisis Data Existing" dan "Inisialisasi Data".
 
 ---
 
@@ -1569,8 +1715,8 @@ Administrator dapat menambah metadata via:
 **Penyebab**: Template ID tidak valid
 
 **Solusi**:
-1. Refresh template list: GET /api/templates
-2. Pastikan template ID yang dipilih ada di list
+1. Refresh template list: `GET /api/templates`
+2. Pastikan template ID ada di list
 3. Jangan hardcode template ID, selalu fetch dari API
 
 ### AI matching template yang salah
@@ -1586,7 +1732,7 @@ Administrator dapat menambah metadata via:
 ### Transaction failed to post
 
 **Penyebab**:
-- Template tidak balanced (debit ≠ credit)
+- Template tidak balanced (debit != credit)
 - Account tidak valid
 - Tanggal transaksi invalid
 
@@ -1595,29 +1741,26 @@ Administrator dapat menambah metadata via:
 2. Cek account mapping
 3. Pastikan tanggal tidak di masa depan
 
----
+### Data import gagal
 
-## Lihat Juga
+**Penyebab**: Format CSV tidak sesuai
 
-- [Setup Awal](01-setup-awal.md) - Setup aplikasi pertama kali
-- [Tutorial Akuntansi](02-tutorial-akuntansi.md) - Dasar-dasar akuntansi
-- [Rekonsiliasi Bank](14-rekonsiliasi-bank.md) - Bank reconciliation (data tersedia via `/api/analysis`)
-- [API Documentation](../ai-transaction-api-v2.md) - Technical API reference
+**Solusi**:
+1. Cek nama file CSV (harus berurut: `01_company_config.csv`, `02_chart_of_accounts.csv`, dst)
+2. Cek header CSV (harus persis sesuai format yang didokumentasikan)
+3. Cek dependency order (template lines membutuhkan template dan COA sudah ter-import)
+4. Lihat contoh di `industry-seed/` untuk referensi format
 
----
+### Ansible deploy gagal
 
-## Pengembangan Selanjutnya
+**Penyebab**: Konfigurasi server atau inventory tidak benar
 
-Fitur yang akan ditambahkan:
-
-- [ ] Batch transaction import (CSV/Excel)
-- [x] Template metadata management UI
-- [ ] Webhook notifications (transaksi berhasil/gagal)
-- [ ] AI confidence feedback loop
-- [ ] Multi-currency support dengan auto-conversion
-- [ ] PDF invoice parsing
-- [ ] Template suggestion improvement (machine learning)
+**Solusi**:
+1. Verifikasi SSH access: `ssh user@server 'echo ok'`
+2. Pastikan server memenuhi prasyarat (Ubuntu 22.04+, 2GB RAM)
+3. Cek Ansible inventory file (IP, user, variables)
+4. Jika Flyway migration gagal, cek log: `sudo journalctl -u aplikasi-akunting`
 
 ---
 
-> **Info**: Dokumentasi ini ditulis berdasarkan test scenario yang sebenarnya. Semua screenshot dan JSON response diambil dari functional test yang berjalan pada aplikasi versi 2026.01-SNAPSHOT.
+> **Info**: Dokumentasi ini ditulis berdasarkan test scenario yang sebenarnya. Semua screenshot dan JSON response diambil dari functional test yang berjalan pada aplikasi.

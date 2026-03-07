@@ -29,6 +29,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - **Phase 14:** ✅ Complete (Fiscal Adjustments API)
 - **Phase 15:** ✅ Complete (Payroll API + PPh 21)
 - **Bug Fixes:** ✅ Complete (BUG-001 PPN rounding, BUG-002 PUT broken DRAFTs, BUG-003 PUT overrides 409, BUG-004 empty journalEntries)
+- **Phase 16:** ✅ Complete (User Manual Revamp — AI-Operated Lifecycle)
 - See `docs/06-implementation-plan.md` for full plan
 
 ## Key Files
@@ -116,7 +117,7 @@ User → Controller (MVC) → Service → Repository → PostgreSQL
 
 ## Current Focus
 
-Phases 0-13 complete. Phase 14 (WhatsApp Notifications) not started.
+Phases 0-16 complete.
 
 User Manual (15-section structure, published at artivisi.com/aplikasi-akunting/):
 - 01-setup-awal.md through 15-peringatan.md
