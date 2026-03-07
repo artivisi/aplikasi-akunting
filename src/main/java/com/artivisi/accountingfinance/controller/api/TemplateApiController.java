@@ -129,11 +129,11 @@ public class TemplateApiController {
         template.setTemplateType(request.templateType() != null ? request.templateType() : TemplateType.SIMPLE);
         template.setDescription(request.description());
         template.setSemanticDescription(request.semanticDescription());
-        template.setKeywords(request.keywords());
-        template.setExampleMerchants(request.exampleMerchants());
+        template.setKeywords(request.keywords() != null ? request.keywords().toArray(String[]::new) : null);
+        template.setExampleMerchants(request.exampleMerchants() != null ? request.exampleMerchants().toArray(String[]::new) : null);
         template.setTypicalAmountMin(request.typicalAmountMin());
         template.setTypicalAmountMax(request.typicalAmountMax());
-        template.setMerchantPatterns(request.merchantPatterns());
+        template.setMerchantPatterns(request.merchantPatterns() != null ? request.merchantPatterns().toArray(String[]::new) : null);
         return template;
     }
 

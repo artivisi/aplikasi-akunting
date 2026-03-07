@@ -31,15 +31,15 @@ public record CreateTemplateRequest(
 
         String semanticDescription,
 
-        String[] keywords,
+        List<String> keywords,
 
-        String[] exampleMerchants,
+        List<String> exampleMerchants,
 
         BigDecimal typicalAmountMin,
 
         BigDecimal typicalAmountMax,
 
-        String[] merchantPatterns,
+        List<String> merchantPatterns,
 
         @NotNull(message = "Lines are required")
         @Size(min = 2, message = "Template must have at least 2 lines")

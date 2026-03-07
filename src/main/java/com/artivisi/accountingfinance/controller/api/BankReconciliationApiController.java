@@ -7,6 +7,7 @@ import com.artivisi.accountingfinance.entity.BankStatementParserConfig;
 import com.artivisi.accountingfinance.entity.ReconciliationItem;
 import com.artivisi.accountingfinance.entity.Transaction;
 import com.artivisi.accountingfinance.enums.AuditEventType;
+import com.artivisi.accountingfinance.enums.BankStatementParserType;
 import com.artivisi.accountingfinance.enums.StatementItemMatchStatus;
 import com.artivisi.accountingfinance.repository.BankStatementItemRepository;
 import com.artivisi.accountingfinance.service.BankReconciliationReportService;
@@ -15,7 +16,10 @@ import com.artivisi.accountingfinance.service.BankStatementImportService;
 import com.artivisi.accountingfinance.service.BankStatementParserConfigService;
 import com.artivisi.accountingfinance.service.SecurityAuditService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -64,7 +68,23 @@ public class BankReconciliationApiController {
     }
 
     @PostMapping("/parser-configs")
-    public ResponseEntity<ParserConfigDto> createParserConfig(@Valid @RequestBody BankStatementParserConfig config) {
+    public ResponseEntity<ParserConfigDto> createParserConfig(@Valid @RequestBody CreateParserConfigRequest request) {
+        BankStatementParserConfig config = new BankStatementParserConfig();
+        config.setBankType(request.bankType());
+        config.setConfigName(request.configName());
+        config.setDescription(request.description());
+        config.setDateColumn(request.dateColumn());
+        config.setDescriptionColumn(request.descriptionColumn());
+        config.setDebitColumn(request.debitColumn());
+        config.setCreditColumn(request.creditColumn());
+        config.setBalanceColumn(request.balanceColumn());
+        config.setDateFormat(request.dateFormat());
+        if (request.delimiter() != null) config.setDelimiter(request.delimiter());
+        if (request.skipHeaderRows() != null) config.setSkipHeaderRows(request.skipHeaderRows());
+        if (request.encoding() != null) config.setEncoding(request.encoding());
+        if (request.decimalSeparator() != null) config.setDecimalSeparator(request.decimalSeparator());
+        if (request.thousandSeparator() != null) config.setThousandSeparator(request.thousandSeparator());
+
         BankStatementParserConfig saved = parserConfigService.create(config);
         securityAuditService.log(AuditEventType.API_CALL, "API: Parser config created: " + saved.getConfigName());
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -222,6 +242,22 @@ public class BankReconciliationApiController {
                             Integer unmatchedBankCount, Integer unmatchedBookCount) {}
     record UnmatchedBookTxnDto(UUID id, LocalDate transactionDate, String description, BigDecimal amount) {}
 
+    record CreateParserConfigRequest(
+            @NotNull BankStatementParserType bankType,
+            @NotBlank @Size(max = 100) String configName,
+            @Size(max = 500) String description,
+            @NotNull @Min(0) Integer dateColumn,
+            @NotNull @Min(0) Integer descriptionColumn,
+            @Min(0) Integer debitColumn,
+            @Min(0) Integer creditColumn,
+            @Min(0) Integer balanceColumn,
+            @NotBlank @Size(max = 50) String dateFormat,
+            @Size(max = 5) String delimiter,
+            @Min(0) Integer skipHeaderRows,
+            @Size(max = 20) String encoding,
+            @Size(max = 5) String decimalSeparator,
+            @Size(max = 5) String thousandSeparator
+    ) {}
     record CreateReconciliationRequest(@NotNull UUID bankStatementId, String notes) {}
     record ManualMatchRequest(@NotNull UUID statementItemId, @NotNull UUID transactionId) {}
     record MarkBankOnlyRequest(@NotNull UUID statementItemId, String notes) {}
