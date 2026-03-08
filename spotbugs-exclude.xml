@@ -191,6 +191,28 @@ Each exclusion must have a justification comment explaining the mitigation.
     </Match>
 
     <!--
+    BEAN_PROPERTY_INJECTION - BeanUtils.copyProperties() in controller form DTO mapping
+
+    FindSecBugs flags BeanUtils.copyProperties() as bean property injection because
+    it can set arbitrary bean properties. This is a false positive in our case because:
+
+    1. Both source and target types are controlled: form DTOs (inner static classes) ↔ JPA entities
+    2. Form DTOs have explicit field declarations with validation annotations — no wildcard binding
+    3. BeanUtils.copyProperties() copies between known types, not from user-supplied property names
+    4. The actual mass assignment vulnerability (S4684) was the original problem — using JPA entities
+       directly as @ModelAttribute. Form DTOs with BeanUtils is the standard mitigation pattern.
+    5. Spring's BeanUtils only copies matching property names between declared fields
+
+    Excluded at package level since all MVC controllers use this pattern for toEntity()/toForm().
+    -->
+    <Match>
+        <Bug pattern="BEAN_PROPERTY_INJECTION"/>
+        <Or>
+            <Class name="~.*\.controller\..*"/>
+        </Or>
+    </Match>
+
+    <!--
     EI_EXPOSE_REP / EI_EXPOSE_REP2 - Spring Dependency Injection False Positives
 
     SpotBugs flags Spring DI constructor injection as "exposing internal representation":
