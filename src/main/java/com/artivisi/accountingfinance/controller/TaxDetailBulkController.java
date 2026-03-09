@@ -37,6 +37,7 @@ import static com.artivisi.accountingfinance.controller.ViewConstants.ATTR_CURRE
 public class TaxDetailBulkController {
 
     private static final String PAGE_TAX_DETAIL_BULK = "tax-detail-bulk";
+    private static final String PREFIX_TAX_TYPE = "taxType_";
 
     private final TransactionService transactionService;
     private final TaxTransactionDetailService taxDetailService;
@@ -105,12 +106,12 @@ public class TaxDetailBulkController {
 
         // Extract transaction IDs from form params: taxType_<transactionId>, fakturNumber_<transactionId>, etc.
         Set<String> transactionIds = params.keySet().stream()
-                .filter(k -> k.startsWith("taxType_"))
-                .map(k -> k.substring("taxType_".length()))
+                .filter(k -> k.startsWith(PREFIX_TAX_TYPE))
+                .map(k -> k.substring(PREFIX_TAX_TYPE.length()))
                 .collect(Collectors.toSet());
 
         for (String txIdStr : transactionIds) {
-            String taxTypeStr = params.get("taxType_" + txIdStr);
+            String taxTypeStr = params.get(PREFIX_TAX_TYPE + txIdStr);
             if (taxTypeStr == null || taxTypeStr.isBlank()) {
                 continue;
             }

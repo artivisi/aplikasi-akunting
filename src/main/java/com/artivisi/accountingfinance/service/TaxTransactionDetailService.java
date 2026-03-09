@@ -9,8 +9,8 @@ import com.artivisi.accountingfinance.enums.TemplateCategory;
 import com.artivisi.accountingfinance.repository.TaxTransactionDetailRepository;
 import com.artivisi.accountingfinance.repository.TransactionRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,6 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TaxTransactionDetailService {
 
@@ -40,6 +39,16 @@ public class TaxTransactionDetailService {
 
     private final TaxTransactionDetailRepository taxDetailRepository;
     private final TransactionRepository transactionRepository;
+    private final TaxTransactionDetailService self;
+
+    public TaxTransactionDetailService(
+            TaxTransactionDetailRepository taxDetailRepository,
+            TransactionRepository transactionRepository,
+            @Lazy TaxTransactionDetailService self) {
+        this.taxDetailRepository = taxDetailRepository;
+        this.transactionRepository = transactionRepository;
+        this.self = self;
+    }
 
     public List<TaxTransactionDetail> findByTransactionId(UUID transactionId) {
         return taxDetailRepository.findAllByTransactionIdOrderByTaxTypeAsc(transactionId);
@@ -135,7 +144,7 @@ public class TaxTransactionDetailService {
             detail.setCounterpartyName(suggestion.name());
             detail.setCounterpartyAddress(suggestion.address());
 
-            save(transaction.getId(), detail);
+            self.save(transaction.getId(), detail);
             count++;
         }
 

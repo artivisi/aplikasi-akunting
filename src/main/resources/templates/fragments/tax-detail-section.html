@@ -159,8 +159,8 @@
 
         <!-- Tax Type Selection -->
         <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pajak <span class="text-red-500">*</span></label>
-            <select name="taxType" x-model="taxType" data-testid="tax-type-select"
+            <label for="taxType" class="block text-sm font-medium text-gray-700 mb-1">Jenis Pajak <span class="text-red-500">*</span></label>
+            <select id="taxType" name="taxType" x-model="taxType" data-testid="tax-type-select"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500" required>
                 <option value="">-- Pilih Jenis Pajak --</option>
                 <th:block th:each="tt : ${taxTypes}">
@@ -175,21 +175,21 @@
             <h4 class="text-xs font-semibold text-green-800 uppercase tracking-wider">Data e-Faktur</h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">No. Faktur</label>
-                    <input type="text" name="fakturNumber" data-testid="faktur-number"
+                    <label for="fakturNumber" class="block text-xs font-medium text-gray-700 mb-1">No. Faktur</label>
+                    <input type="text" id="fakturNumber" name="fakturNumber" data-testid="faktur-number"
                            th:value="${detail.fakturNumber}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="010.000-25.00000001" maxlength="20">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Faktur</label>
-                    <input type="date" name="fakturDate" data-testid="faktur-date"
+                    <label for="fakturDate" class="block text-xs font-medium text-gray-700 mb-1">Tanggal Faktur</label>
+                    <input type="date" id="fakturDate" name="fakturDate" data-testid="faktur-date"
                            th:value="${detail.fakturDate}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Kode Transaksi</label>
-                    <select name="transactionCode" data-testid="transaction-code"
+                    <label for="transactionCode" class="block text-xs font-medium text-gray-700 mb-1">Kode Transaksi</label>
+                    <select id="transactionCode" name="transactionCode" data-testid="transaction-code"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500">
                         <option value="">-- Pilih --</option>
                         <option value="01" th:selected="${detail.transactionCode == '01'}" th:text="'01 - Kepada Pihak Bukan Pemungut PPN'">01</option>
@@ -203,22 +203,22 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">DPP <span class="text-red-500">*</span></label>
-                    <input type="number" name="dpp" step="0.01" data-testid="dpp"
+                    <label for="dpp" class="block text-xs font-medium text-gray-700 mb-1">DPP <span class="text-red-500">*</span></label>
+                    <input type="number" id="dpp" name="dpp" step="0.01" data-testid="dpp"
                            th:value="${detail.dpp != null ? detail.dpp : (suggestions != null and !suggestions.isEmpty() and suggestions[0].dpp != null) ? suggestions[0].dpp : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">PPN <span class="text-red-500">*</span></label>
-                    <input type="number" name="ppn" step="0.01" data-testid="ppn"
+                    <label for="ppn" class="block text-xs font-medium text-gray-700 mb-1">PPN <span class="text-red-500">*</span></label>
+                    <input type="number" id="ppn" name="ppn" step="0.01" data-testid="ppn"
                            th:value="${detail.ppn != null ? detail.ppn : (suggestions != null and !suggestions.isEmpty() and suggestions[0].ppn != null) ? suggestions[0].ppn : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">PPnBM</label>
-                    <input type="number" name="ppnbm" step="0.01" data-testid="ppnbm"
+                    <label for="ppnbm" class="block text-xs font-medium text-gray-700 mb-1">PPnBM</label>
+                    <input type="number" id="ppnbm" name="ppnbm" step="0.01" data-testid="ppnbm"
                            th:value="${detail.ppnbm != null and detail.ppnbm > 0 ? detail.ppnbm : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0">
@@ -231,15 +231,15 @@
             <h4 class="text-xs font-semibold text-blue-800 uppercase tracking-wider">Data e-Bupot</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">No. Bukti Potong</label>
-                    <input type="text" name="bupotNumber" data-testid="bupot-number"
+                    <label for="bupotNumber" class="block text-xs font-medium text-gray-700 mb-1">No. Bukti Potong</label>
+                    <input type="text" id="bupotNumber" name="bupotNumber" data-testid="bupot-number"
                            th:value="${detail.bupotNumber}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="BP-0001" maxlength="30">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Kode Objek Pajak</label>
-                    <input type="text" name="taxObjectCode" data-testid="tax-object-code"
+                    <label for="taxObjectCode" class="block text-xs font-medium text-gray-700 mb-1">Kode Objek Pajak</label>
+                    <input type="text" id="taxObjectCode" name="taxObjectCode" data-testid="tax-object-code"
                            th:value="${detail.taxObjectCode}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="24-104-01" maxlength="20">
@@ -247,22 +247,22 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Jumlah Bruto <span class="text-red-500">*</span></label>
-                    <input type="number" name="grossAmount" step="0.01" data-testid="gross-amount"
+                    <label for="grossAmount" class="block text-xs font-medium text-gray-700 mb-1">Jumlah Bruto <span class="text-red-500">*</span></label>
+                    <input type="number" id="grossAmount" name="grossAmount" step="0.01" data-testid="gross-amount"
                            th:value="${detail.grossAmount != null ? detail.grossAmount : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].grossAmount : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tarif (%) <span class="text-red-500">*</span></label>
-                    <input type="number" name="taxRate" step="0.01" data-testid="tax-rate"
+                    <label for="taxRate" class="block text-xs font-medium text-gray-700 mb-1">Tarif (%) <span class="text-red-500">*</span></label>
+                    <input type="number" id="taxRate" name="taxRate" step="0.01" data-testid="tax-rate"
                            th:value="${detail.taxRate != null ? detail.taxRate : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].taxRate : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="2.00">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Jumlah Pajak <span class="text-red-500">*</span></label>
-                    <input type="number" name="taxAmount" step="0.01" data-testid="tax-amount"
+                    <label for="taxAmount" class="block text-xs font-medium text-gray-700 mb-1">Jumlah Pajak <span class="text-red-500">*</span></label>
+                    <input type="number" id="taxAmount" name="taxAmount" step="0.01" data-testid="tax-amount"
                            th:value="${detail.taxAmount != null ? detail.taxAmount : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].taxAmount : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0">
@@ -275,15 +275,15 @@
             <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Lawan Transaksi</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-                    <input type="text" name="counterpartyName" data-testid="counterparty-name"
+                    <label for="counterpartyName" class="block text-xs font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
+                    <input type="text" id="counterpartyName" name="counterpartyName" data-testid="counterparty-name"
                            th:value="${detail.counterpartyName != null ? detail.counterpartyName : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].name : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="Nama lawan transaksi" required maxlength="255">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tipe Identitas</label>
-                    <select name="counterpartyIdType" x-model="idType" data-testid="counterparty-id-type"
+                    <label for="counterpartyIdType" class="block text-xs font-medium text-gray-700 mb-1">Tipe Identitas</label>
+                    <select id="counterpartyIdType" name="counterpartyIdType" x-model="idType" data-testid="counterparty-id-type"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500">
                         <option value="TIN" th:selected="${detail.counterpartyIdType == null or detail.counterpartyIdType == 'TIN'}">TIN (NPWP)</option>
                         <option value="NIK" th:selected="${detail.counterpartyIdType == 'NIK'}">NIK</option>
@@ -292,30 +292,30 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div x-show="isTin">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">NPWP</label>
-                    <input type="text" name="counterpartyNpwp" data-testid="counterparty-npwp"
+                    <label for="counterpartyNpwp" class="block text-xs font-medium text-gray-700 mb-1">NPWP</label>
+                    <input type="text" id="counterpartyNpwp" name="counterpartyNpwp" data-testid="counterparty-npwp"
                            th:value="${detail.counterpartyNpwp != null ? detail.counterpartyNpwp : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].npwp : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="01.234.567.8-901.000" maxlength="20">
                 </div>
                 <div x-show="isNik">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">NIK</label>
-                    <input type="text" name="counterpartyNik" data-testid="counterparty-nik"
+                    <label for="counterpartyNik" class="block text-xs font-medium text-gray-700 mb-1">NIK</label>
+                    <input type="text" id="counterpartyNik" name="counterpartyNik" data-testid="counterparty-nik"
                            th:value="${detail.counterpartyNik != null ? detail.counterpartyNik : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].nik : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="1234567890123456" maxlength="16">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">NITKU</label>
-                    <input type="text" name="counterpartyNitku" data-testid="counterparty-nitku"
+                    <label for="counterpartyNitku" class="block text-xs font-medium text-gray-700 mb-1">NITKU</label>
+                    <input type="text" id="counterpartyNitku" name="counterpartyNitku" data-testid="counterparty-nitku"
                            th:value="${detail.counterpartyNitku != null ? detail.counterpartyNitku : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].nitku : ''}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                            placeholder="0000000000000000000001" maxlength="22">
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Alamat</label>
-                <input type="text" name="counterpartyAddress" data-testid="counterparty-address"
+                <label for="counterpartyAddress" class="block text-xs font-medium text-gray-700 mb-1">Alamat</label>
+                <input type="text" id="counterpartyAddress" name="counterpartyAddress" data-testid="counterparty-address"
                        th:value="${detail.counterpartyAddress != null ? detail.counterpartyAddress : (suggestions != null and !suggestions.isEmpty()) ? suggestions[0].address : ''}"
                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
                        placeholder="Alamat lawan transaksi">

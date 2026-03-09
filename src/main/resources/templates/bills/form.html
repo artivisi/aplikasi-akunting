@@ -88,33 +88,33 @@
                         <template x-for="(line, index) in lines" :key="index">
                             <div class="grid grid-cols-12 gap-2 items-start p-3 bg-gray-50 rounded-lg">
                                 <div class="col-span-4">
-                                    <label class="block text-xs text-gray-500 mb-1">Deskripsi *</label>
-                                    <input type="text" :name="'lineDescription'" x-model="line.description"
+                                    <label :for="'bill-lineDescription-' + index" class="block text-xs text-gray-500 mb-1">Deskripsi *</label>
+                                    <input type="text" :id="'bill-lineDescription-' + index" :name="'lineDescription'" x-model="line.description"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" required>
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 mb-1">Akun Beban</label>
-                                    <select :name="'lineExpenseAccountId'" x-model="line.expenseAccountId"
+                                    <label :for="'bill-lineExpenseAccountId-' + index" class="block text-xs text-gray-500 mb-1">Akun Beban</label>
+                                    <select :id="'bill-lineExpenseAccountId-' + index" :name="'lineExpenseAccountId'" x-model="line.expenseAccountId"
                                             class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
                                         <option value="">--</option>
                                         <option th:each="a : ${expenseAccounts}" th:value="${a.id}" th:text="${a.accountCode + ' - ' + a.accountName}">Account</option>
                                     </select>
                                 </div>
                                 <div class="col-span-1">
-                                    <label class="block text-xs text-gray-500 mb-1">Qty</label>
-                                    <input type="number" :name="'lineQuantity'" x-model="line.quantity"
+                                    <label :for="'bill-lineQuantity-' + index" class="block text-xs text-gray-500 mb-1">Qty</label>
+                                    <input type="number" :id="'bill-lineQuantity-' + index" :name="'lineQuantity'" x-model="line.quantity"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="0.01" min="0">
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 mb-1">Harga Satuan</label>
-                                    <input type="number" :name="'lineUnitPrice'" x-model="line.unitPrice"
+                                    <label :for="'bill-lineUnitPrice-' + index" class="block text-xs text-gray-500 mb-1">Harga Satuan</label>
+                                    <input type="number" :id="'bill-lineUnitPrice-' + index" :name="'lineUnitPrice'" x-model="line.unitPrice"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="1" min="0">
                                 </div>
                                 <div class="col-span-1">
-                                    <label class="block text-xs text-gray-500 mb-1">PPN %</label>
-                                    <input type="number" :name="'lineTaxRate'" x-model="line.taxRate"
+                                    <label :for="'bill-lineTaxRate-' + index" class="block text-xs text-gray-500 mb-1">PPN %</label>
+                                    <input type="number" :id="'bill-lineTaxRate-' + index" :name="'lineTaxRate'" x-model="line.taxRate"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="0.01" min="0">
                                 </div>

@@ -48,6 +48,7 @@ import java.util.UUID;
 public class DraftTransactionApiController {
 
     private static final String ATTR_SOURCE = "source";
+    private static final String ATTR_AMOUNT = "amount";
 
     private final TransactionApiService transactionApiService;
     private final JournalTemplateService journalTemplateService;
@@ -67,7 +68,7 @@ public class DraftTransactionApiController {
         auditApiCall(Map.of(
                 "action", "create-draft",
                 "templateId", request.templateId().toString(),
-                "amount", request.amount().toString(),
+                ATTR_AMOUNT, request.amount().toString(),
                 ATTR_SOURCE, "api"
         ));
 
@@ -86,7 +87,7 @@ public class DraftTransactionApiController {
 
         auditApiCall(Map.of(
                 "merchant", request.merchant(),
-                "amount", request.amount().toString(),
+                ATTR_AMOUNT, request.amount().toString(),
                 ATTR_SOURCE, request.source(),
                 "confidence", request.confidence().toString()
         ));
@@ -106,7 +107,7 @@ public class DraftTransactionApiController {
 
         auditApiCall(Map.of(
                 "merchant", request.merchant(),
-                "amount", request.amount().toString(),
+                ATTR_AMOUNT, request.amount().toString(),
                 ATTR_SOURCE, request.source(),
                 "confidence", request.confidence().toString()
         ));

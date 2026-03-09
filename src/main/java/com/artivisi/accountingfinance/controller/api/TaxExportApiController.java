@@ -49,6 +49,14 @@ public class TaxExportApiController {
 
     private static final String XLSX_CONTENT_TYPE =
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private static final String PARAM_START_MONTH = "startMonth";
+    private static final String PARAM_END_MONTH = "endMonth";
+    private static final String FILE_EXT_XLSX = ".xlsx";
+    private static final String PARAM_START_DATE = "startDate";
+    private static final String PARAM_END_DATE = "endDate";
+    private static final String FORMAT_EXCEL = "excel";
+    private static final String META_DESCRIPTION = "description";
+    private static final String META_CURRENCY = "currency";
 
     private final CoretaxExportService coretaxExportService;
     private final TaxReportDetailService taxReportDetailService;
@@ -67,11 +75,11 @@ public class TaxExportApiController {
 
         byte[] excel = coretaxExportService.exportEFakturKeluaran(range[0], range[1]);
 
-        auditAccess("efaktur-keluaran", Map.of("startMonth", startMonth, "endMonth", endMonth));
+        auditAccess("efaktur-keluaran", Map.of(PARAM_START_MONTH, startMonth, PARAM_END_MONTH, endMonth));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=efaktur-keluaran-" + startMonth + "-" + endMonth + ".xlsx")
+                        "attachment; filename=efaktur-keluaran-" + startMonth + "-" + endMonth + FILE_EXT_XLSX)
                 .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                 .body(excel);
     }
@@ -86,11 +94,11 @@ public class TaxExportApiController {
 
         byte[] excel = coretaxExportService.exportEFakturMasukan(range[0], range[1]);
 
-        auditAccess("efaktur-masukan", Map.of("startMonth", startMonth, "endMonth", endMonth));
+        auditAccess("efaktur-masukan", Map.of(PARAM_START_MONTH, startMonth, PARAM_END_MONTH, endMonth));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=efaktur-masukan-" + startMonth + "-" + endMonth + ".xlsx")
+                        "attachment; filename=efaktur-masukan-" + startMonth + "-" + endMonth + FILE_EXT_XLSX)
                 .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                 .body(excel);
     }
@@ -105,11 +113,11 @@ public class TaxExportApiController {
 
         byte[] excel = coretaxExportService.exportBupotUnifikasi(range[0], range[1]);
 
-        auditAccess("bupot-unifikasi", Map.of("startMonth", startMonth, "endMonth", endMonth));
+        auditAccess("bupot-unifikasi", Map.of(PARAM_START_MONTH, startMonth, PARAM_END_MONTH, endMonth));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=bupot-unifikasi-" + startMonth + "-" + endMonth + ".xlsx")
+                        "attachment; filename=bupot-unifikasi-" + startMonth + "-" + endMonth + FILE_EXT_XLSX)
                 .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                 .body(excel);
     }
@@ -124,7 +132,7 @@ public class TaxExportApiController {
             content = @Content(schema = @Schema(implementation = PPNDetailData.class)))
     @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
             content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-    public ResponseEntity<?> getPpnDetail(
+    public ResponseEntity<Object> getPpnDetail(
             @RequestParam String startDate,
             @RequestParam String endDate,
             @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
@@ -134,13 +142,13 @@ public class TaxExportApiController {
 
         PPNDetailReport report = taxReportDetailService.generatePPNDetailReport(start, end);
 
-        auditAccess("ppn-detail", Map.of("startDate", startDate, "endDate", endDate));
+        auditAccess("ppn-detail", Map.of(PARAM_START_DATE, startDate, PARAM_END_DATE, endDate));
 
-        if ("excel".equals(format)) {
+        if (FORMAT_EXCEL.equals(format)) {
             byte[] excel = reportExportService.exportPpnDetailToExcel(report);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=ppn-detail-" + startDate + "-" + endDate + ".xlsx")
+                            "attachment; filename=ppn-detail-" + startDate + "-" + endDate + FILE_EXT_XLSX)
                     .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                     .body(excel);
         }
@@ -149,10 +157,10 @@ public class TaxExportApiController {
 
         return ResponseEntity.ok(new AnalysisResponse<>(
                 "ppn-detail", LocalDateTime.now(),
-                Map.of("startDate", startDate, "endDate", endDate),
+                Map.of(PARAM_START_DATE, startDate, PARAM_END_DATE, endDate),
                 data,
-                Map.of("description", "PPN detail report with Faktur Keluaran and Masukan breakdown",
-                        "currency", "IDR")));
+                Map.of(META_DESCRIPTION, "PPN detail report with Faktur Keluaran and Masukan breakdown",
+                        META_CURRENCY, "IDR")));
     }
 
     @GetMapping("/pph23-detail")
@@ -163,7 +171,7 @@ public class TaxExportApiController {
             content = @Content(schema = @Schema(implementation = PPh23DetailData.class)))
     @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
             content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-    public ResponseEntity<?> getPph23Detail(
+    public ResponseEntity<Object> getPph23Detail(
             @RequestParam String startDate,
             @RequestParam String endDate,
             @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
@@ -173,13 +181,13 @@ public class TaxExportApiController {
 
         PPh23DetailReport report = taxReportDetailService.generatePPh23DetailReport(start, end);
 
-        auditAccess("pph23-detail", Map.of("startDate", startDate, "endDate", endDate));
+        auditAccess("pph23-detail", Map.of(PARAM_START_DATE, startDate, PARAM_END_DATE, endDate));
 
-        if ("excel".equals(format)) {
+        if (FORMAT_EXCEL.equals(format)) {
             byte[] excel = reportExportService.exportPph23DetailToExcel(report);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=pph23-detail-" + startDate + "-" + endDate + ".xlsx")
+                            "attachment; filename=pph23-detail-" + startDate + "-" + endDate + FILE_EXT_XLSX)
                     .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                     .body(excel);
         }
@@ -188,10 +196,10 @@ public class TaxExportApiController {
 
         return ResponseEntity.ok(new AnalysisResponse<>(
                 "pph23-detail", LocalDateTime.now(),
-                Map.of("startDate", startDate, "endDate", endDate),
+                Map.of(PARAM_START_DATE, startDate, PARAM_END_DATE, endDate),
                 data,
-                Map.of("description", "PPh 23 withholding tax detail report",
-                        "currency", "IDR")));
+                Map.of(META_DESCRIPTION, "PPh 23 withholding tax detail report",
+                        META_CURRENCY, "IDR")));
     }
 
     @GetMapping("/rekonsiliasi-fiskal")
@@ -202,7 +210,7 @@ public class TaxExportApiController {
             content = @Content(schema = @Schema(implementation = RekonsiliasiFiskalData.class)))
     @ApiResponse(responseCode = "200", description = "Excel download (when format=excel)",
             content = @Content(mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-    public ResponseEntity<?> getRekonsiliasiFiskal(
+    public ResponseEntity<Object> getRekonsiliasiFiskal(
             @RequestParam int year,
             @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format) {
 
@@ -210,11 +218,11 @@ public class TaxExportApiController {
 
         auditAccess("rekonsiliasi-fiskal", Map.of("year", String.valueOf(year)));
 
-        if ("excel".equals(format)) {
+        if (FORMAT_EXCEL.equals(format)) {
             byte[] excel = reportExportService.exportRekonsiliasiFiskalToExcel(report);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=rekonsiliasi-fiskal-" + year + ".xlsx")
+                            "attachment; filename=rekonsiliasi-fiskal-" + year + FILE_EXT_XLSX)
                     .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
                     .body(excel);
         }
@@ -225,8 +233,8 @@ public class TaxExportApiController {
                 "rekonsiliasi-fiskal", LocalDateTime.now(),
                 Map.of("year", String.valueOf(year)),
                 data,
-                Map.of("description", "Fiscal reconciliation: commercial income → taxable income (PKP)",
-                        "currency", "IDR")));
+                Map.of(META_DESCRIPTION, "Fiscal reconciliation: commercial income \u2192 taxable income (PKP)",
+                        META_CURRENCY, "IDR")));
     }
 
     @GetMapping("/pph-badan")
@@ -249,8 +257,8 @@ public class TaxExportApiController {
                 "pph-badan", LocalDateTime.now(),
                 Map.of("year", String.valueOf(year)),
                 data,
-                Map.of("description", "PPh Badan corporate income tax calculation with Pasal 31E facility",
-                        "currency", "IDR")));
+                Map.of(META_DESCRIPTION, "PPh Badan corporate income tax calculation with Pasal 31E facility",
+                        META_CURRENCY, "IDR")));
     }
 
     // ==================== PARSING HELPERS ====================

@@ -50,6 +50,7 @@ public class ReportController {
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final String ATTR_AS_OF_DATE = "asOfDate";
     private static final String ATTR_COMPANY = "company";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String FILE_EXT_XLSX = ".xlsx";
 
     private final ReportService reportService;
@@ -662,7 +663,7 @@ public class ReportController {
         adjustment.setNotes(notes);
 
         taxReportDetailService.saveAdjustment(adjustment);
-        redirectAttributes.addFlashAttribute("successMessage", "Koreksi fiskal berhasil ditambahkan");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Koreksi fiskal berhasil ditambahkan");
         return "redirect:/reports/rekonsiliasi-fiskal?year=" + year;
     }
 
@@ -672,7 +673,7 @@ public class ReportController {
             @RequestParam int year,
             RedirectAttributes redirectAttributes) {
         taxReportDetailService.deleteAdjustment(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Koreksi fiskal berhasil dihapus");
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Koreksi fiskal berhasil dihapus");
         return "redirect:/reports/rekonsiliasi-fiskal?year=" + year;
     }
 
@@ -890,7 +891,7 @@ public class ReportController {
             RedirectAttributes redirectAttributes) {
         try {
             var entries = fiscalYearClosingService.executeClosing(year);
-            redirectAttributes.addFlashAttribute("successMessage",
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE,
                     "Jurnal penutup berhasil dibuat: " + entries.size() + " jurnal");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -905,7 +906,7 @@ public class ReportController {
             RedirectAttributes redirectAttributes) {
         try {
             int count = fiscalYearClosingService.reverseClosing(year, reason);
-            redirectAttributes.addFlashAttribute("successMessage",
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE,
                     "Jurnal penutup berhasil dibatalkan: " + count + " jurnal");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

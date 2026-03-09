@@ -107,17 +107,6 @@ public class BillController {
         return entity;
     }
 
-    private BillForm toForm(Bill entity) {
-        BillForm form = new BillForm();
-        BeanUtils.copyProperties(entity, form, "vendor");
-        if (entity.getVendor() != null) {
-            EntityRef vendorRef = new EntityRef();
-            vendorRef.setId(entity.getVendor().getId());
-            form.setVendor(vendorRef);
-        }
-        return form;
-    }
-
     @GetMapping
     public String list(
             @RequestParam(required = false) BillStatus status,

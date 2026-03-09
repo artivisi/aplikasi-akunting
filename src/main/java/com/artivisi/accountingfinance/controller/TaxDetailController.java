@@ -29,6 +29,13 @@ import java.util.UUID;
 public class TaxDetailController {
 
     private static final String FRAGMENT_PREFIX = "fragments/tax-detail-section :: ";
+    private static final String ATTR_TAX_DETAILS = "taxDetails";
+    private static final String ATTR_TRANSACTION_ID = "transactionId";
+    private static final String ATTR_TAX_DETAIL_SECTION = "taxDetailSection";
+    private static final String ATTR_TAX_TYPES = "taxTypes";
+    private static final String ATTR_DETAIL = "detail";
+    private static final String ATTR_TAX_DETAIL_FORM = "taxDetailForm";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
 
     private final TaxTransactionDetailService taxDetailService;
     private final TransactionService transactionService;
@@ -36,9 +43,9 @@ public class TaxDetailController {
     @GetMapping
     public String list(@PathVariable UUID transactionId, Model model) {
         List<TaxTransactionDetail> details = taxDetailService.findByTransactionId(transactionId);
-        model.addAttribute("taxDetails", details);
-        model.addAttribute("transactionId", transactionId);
-        return FRAGMENT_PREFIX + "taxDetailSection";
+        model.addAttribute(ATTR_TAX_DETAILS, details);
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_SECTION;
     }
 
     @GetMapping("/form")
@@ -47,11 +54,11 @@ public class TaxDetailController {
         List<TaxTransactionDetailService.TaxDetailSuggestion> suggestions =
                 taxDetailService.suggestFromTransaction(transaction);
 
-        model.addAttribute("transactionId", transactionId);
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
         model.addAttribute("suggestions", suggestions);
-        model.addAttribute("taxTypes", TaxType.values());
-        model.addAttribute("detail", new TaxTransactionDetail());
-        return FRAGMENT_PREFIX + "taxDetailForm";
+        model.addAttribute(ATTR_TAX_TYPES, TaxType.values());
+        model.addAttribute(ATTR_DETAIL, new TaxTransactionDetail());
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_FORM;
     }
 
     @GetMapping("/{detailId}/edit")
@@ -59,11 +66,11 @@ public class TaxDetailController {
                                @PathVariable UUID detailId,
                                Model model) {
         TaxTransactionDetail detail = taxDetailService.findById(detailId);
-        model.addAttribute("transactionId", transactionId);
-        model.addAttribute("detail", detail);
-        model.addAttribute("taxTypes", TaxType.values());
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        model.addAttribute(ATTR_DETAIL, detail);
+        model.addAttribute(ATTR_TAX_TYPES, TaxType.values());
         model.addAttribute("isEdit", true);
-        return FRAGMENT_PREFIX + "taxDetailForm";
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_FORM;
     }
 
     @PostMapping
@@ -96,17 +103,17 @@ public class TaxDetailController {
             taxDetailService.save(transactionId, detail);
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("transactionId", transactionId);
-            model.addAttribute("taxTypes", TaxType.values());
-            model.addAttribute("detail", detail);
-            return FRAGMENT_PREFIX + "taxDetailForm";
+            model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+            model.addAttribute(ATTR_TAX_TYPES, TaxType.values());
+            model.addAttribute(ATTR_DETAIL, detail);
+            return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_FORM;
         }
 
         List<TaxTransactionDetail> details = taxDetailService.findByTransactionId(transactionId);
-        model.addAttribute("taxDetails", details);
-        model.addAttribute("transactionId", transactionId);
-        model.addAttribute("successMessage", "Detail pajak berhasil disimpan");
-        return FRAGMENT_PREFIX + "taxDetailSection";
+        model.addAttribute(ATTR_TAX_DETAILS, details);
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        model.addAttribute(ATTR_SUCCESS_MESSAGE, "Detail pajak berhasil disimpan");
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_SECTION;
     }
 
     @PostMapping("/{detailId}")
@@ -140,18 +147,18 @@ public class TaxDetailController {
             taxDetailService.update(detailId, detail);
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("transactionId", transactionId);
-            model.addAttribute("taxTypes", TaxType.values());
-            model.addAttribute("detail", detail);
+            model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+            model.addAttribute(ATTR_TAX_TYPES, TaxType.values());
+            model.addAttribute(ATTR_DETAIL, detail);
             model.addAttribute("isEdit", true);
-            return FRAGMENT_PREFIX + "taxDetailForm";
+            return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_FORM;
         }
 
         List<TaxTransactionDetail> details = taxDetailService.findByTransactionId(transactionId);
-        model.addAttribute("taxDetails", details);
-        model.addAttribute("transactionId", transactionId);
-        model.addAttribute("successMessage", "Detail pajak berhasil diperbarui");
-        return FRAGMENT_PREFIX + "taxDetailSection";
+        model.addAttribute(ATTR_TAX_DETAILS, details);
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        model.addAttribute(ATTR_SUCCESS_MESSAGE, "Detail pajak berhasil diperbarui");
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_SECTION;
     }
 
     @DeleteMapping("/{detailId}")
@@ -161,10 +168,10 @@ public class TaxDetailController {
         taxDetailService.delete(detailId);
 
         List<TaxTransactionDetail> details = taxDetailService.findByTransactionId(transactionId);
-        model.addAttribute("taxDetails", details);
-        model.addAttribute("transactionId", transactionId);
-        model.addAttribute("successMessage", "Detail pajak berhasil dihapus");
-        return FRAGMENT_PREFIX + "taxDetailSection";
+        model.addAttribute(ATTR_TAX_DETAILS, details);
+        model.addAttribute(ATTR_TRANSACTION_ID, transactionId);
+        model.addAttribute(ATTR_SUCCESS_MESSAGE, "Detail pajak berhasil dihapus");
+        return FRAGMENT_PREFIX + ATTR_TAX_DETAIL_SECTION;
     }
 
     private TaxTransactionDetail buildDetail(TaxType taxType, String fakturNumber, LocalDate fakturDate,

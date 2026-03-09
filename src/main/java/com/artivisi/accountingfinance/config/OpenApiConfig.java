@@ -22,6 +22,8 @@ import java.util.Map;
 @Slf4j
 public class OpenApiConfig {
 
+    private static final String SECURITY_SCHEME_BEARER = "bearer";
+
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
@@ -34,14 +36,14 @@ public class OpenApiConfig {
                         .license(new License()
                                 .name("Apache License, Version 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0")))
-                .schemaRequirement("bearer", new SecurityScheme()
+                .schemaRequirement(SECURITY_SCHEME_BEARER, new SecurityScheme()
                         .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
+                        .scheme(SECURITY_SCHEME_BEARER)
                         .bearerFormat("opaque")
                         .description("OAuth 2.0 Device Flow token. "
                                 + "Obtain via POST /api/device/code + POST /api/device/token. "
                                 + "Token expires in 30 days."))
-                .addSecurityItem(new SecurityRequirement().addList("bearer"));
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_BEARER));
     }
 
     @Bean

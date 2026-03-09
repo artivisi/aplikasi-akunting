@@ -874,7 +874,7 @@ class DraftAndTransactionCorrectionApiTest extends PlaywrightTestBase {
                 .isTrue();
 
         JsonNode txList = objectMapper.readTree(txListResponse.text());
-        // Response is wrapped: { "data": { "transactions": [...] } }
+        // Extract transactions array from the wrapped response structure
         JsonNode transactions = txList.get("data").get("transactions");
         assertThat(transactions.isArray()).isTrue();
         assertThat(transactions.size()).isGreaterThan(0);

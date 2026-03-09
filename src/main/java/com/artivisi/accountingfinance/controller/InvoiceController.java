@@ -115,22 +115,6 @@ public class InvoiceController {
         return entity;
     }
 
-    private InvoiceForm toForm(Invoice entity) {
-        InvoiceForm form = new InvoiceForm();
-        BeanUtils.copyProperties(entity, form, "client", "project");
-        if (entity.getClient() != null) {
-            EntityRef clientRef = new EntityRef();
-            clientRef.setId(entity.getClient().getId());
-            form.setClient(clientRef);
-        }
-        if (entity.getProject() != null) {
-            EntityRef projectRef = new EntityRef();
-            projectRef.setId(entity.getProject().getId());
-            form.setProject(projectRef);
-        }
-        return form;
-    }
-
     @GetMapping
     public String list(
             @RequestParam(required = false) InvoiceStatus status,

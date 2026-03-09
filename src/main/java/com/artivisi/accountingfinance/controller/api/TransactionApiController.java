@@ -48,6 +48,8 @@ import java.util.UUID;
 public class TransactionApiController {
 
     private static final String KEY_SOURCE = "source";
+    private static final String KEY_ACTION = "action";
+    private static final String KEY_TRANSACTION_ID = "transactionId";
 
     private final TransactionApiService transactionApiService;
     private final TransactionService transactionService;
@@ -91,8 +93,8 @@ public class TransactionApiController {
         log.info("API: Update transaction id={}, user={}", id, username);
 
         auditApiCall(Map.of(
-                "action", "update",
-                "transactionId", id.toString(),
+                KEY_ACTION, "update",
+                KEY_TRANSACTION_ID, id.toString(),
                 KEY_SOURCE, "api"
         ));
 
@@ -112,8 +114,8 @@ public class TransactionApiController {
         log.info("API: Delete transaction id={}, user={}", id, username);
 
         auditApiCall(Map.of(
-                "action", "delete",
-                "transactionId", id.toString(),
+                KEY_ACTION, "delete",
+                KEY_TRANSACTION_ID, id.toString(),
                 KEY_SOURCE, "api"
         ));
 
@@ -135,8 +137,8 @@ public class TransactionApiController {
         Transaction posted = transactionService.post(id, username);
 
         auditApiCall(Map.of(
-                "action", "post",
-                "transactionId", id.toString(),
+                KEY_ACTION, "post",
+                KEY_TRANSACTION_ID, id.toString(),
                 KEY_SOURCE, "api"
         ));
 
@@ -159,8 +161,8 @@ public class TransactionApiController {
         Transaction voided = transactionService.voidTransaction(id, request.reason(), request.notes(), username);
 
         auditApiCall(Map.of(
-                "action", "void",
-                "transactionId", id.toString(),
+                KEY_ACTION, "void",
+                KEY_TRANSACTION_ID, id.toString(),
                 "reason", request.reason().name(),
                 KEY_SOURCE, "api"
         ));
@@ -224,7 +226,7 @@ public class TransactionApiController {
         }
 
         auditApiCall(Map.of(
-                "action", "bulk-post",
+                KEY_ACTION, "bulk-post",
                 "count", String.valueOf(request.transactionIds().size()),
                 "success", String.valueOf(successCount),
                 "failure", String.valueOf(failureCount),

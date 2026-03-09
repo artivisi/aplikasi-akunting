@@ -100,25 +100,25 @@
                         <template x-for="(line, index) in lines" :key="index">
                             <div class="grid grid-cols-12 gap-2 items-start p-3 bg-gray-50 rounded-lg">
                                 <div class="col-span-5">
-                                    <label class="block text-xs text-gray-500 mb-1">Deskripsi *</label>
-                                    <input type="text" :name="'lineDescription'" x-model="line.description"
+                                    <label :for="'inv-lineDescription-' + index" class="block text-xs text-gray-500 mb-1">Deskripsi *</label>
+                                    <input type="text" :id="'inv-lineDescription-' + index" :name="'lineDescription'" x-model="line.description"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" required>
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 mb-1">Qty</label>
-                                    <input type="number" :name="'lineQuantity'" x-model="line.quantity"
+                                    <label :for="'inv-lineQuantity-' + index" class="block text-xs text-gray-500 mb-1">Qty</label>
+                                    <input type="number" :id="'inv-lineQuantity-' + index" :name="'lineQuantity'" x-model="line.quantity"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="0.01" min="0">
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 mb-1">Harga Satuan</label>
-                                    <input type="number" :name="'lineUnitPrice'" x-model="line.unitPrice"
+                                    <label :for="'inv-lineUnitPrice-' + index" class="block text-xs text-gray-500 mb-1">Harga Satuan</label>
+                                    <input type="number" :id="'inv-lineUnitPrice-' + index" :name="'lineUnitPrice'" x-model="line.unitPrice"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="1" min="0">
                                 </div>
                                 <div class="col-span-1">
-                                    <label class="block text-xs text-gray-500 mb-1">PPN %</label>
-                                    <input type="number" :name="'lineTaxRate'" x-model="line.taxRate"
+                                    <label :for="'inv-lineTaxRate-' + index" class="block text-xs text-gray-500 mb-1">PPN %</label>
+                                    <input type="number" :id="'inv-lineTaxRate-' + index" :name="'lineTaxRate'" x-model="line.taxRate"
                                            @input="calcLine(line)"
                                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm" step="0.01" min="0">
                                 </div>

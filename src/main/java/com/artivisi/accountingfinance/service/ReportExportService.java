@@ -62,6 +62,14 @@ public class ReportExportService {
     private static final String DATE_PATTERN_DMY = "dd/MM/yyyy";
     private static final String LABEL_PERIODE = "Periode ";
     private static final String LABEL_PER_TANGGAL = "Per tanggal ";
+    private static final String COL_TANGGAL = "Tanggal";
+    private static final String COL_PENDAPATAN = "Pendapatan";
+    private static final String COL_PPN_KELUARAN = "PPN Keluaran";
+    private static final String COL_PPN_MASUKAN = "PPN Masukan";
+    private static final String COL_NO_FAKTUR = "No. Faktur";
+    private static final String COL_LAWAN_TRANSAKSI = "Lawan Transaksi";
+    private static final String COL_LABA_BERSIH_KOMERSIAL = "Laba Bersih Komersial";
+    private static final String COL_KOREKSI_FISKAL_NETO = "Koreksi Fiskal Neto";
     private static final String EXCEL_NUMBER_FORMAT = "#,##0";
     private static final DecimalFormat NUMBER_FORMAT;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.of("id", "ID"));
@@ -832,7 +840,7 @@ public class ReportExportService {
             table.setWidths(new float[]{3, 8, 10, 12, 10, 10, 10, 10, 10});
             table.setSpacingBefore(20);
 
-            addTableHeader(table, "No", "Tanggal", "Kode", COL_NAMA_PRODUK, "Tipe", "Qty", "Harga", COL_NILAI, "Saldo");
+            addTableHeader(table, "No", COL_TANGGAL, "Kode", COL_NAMA_PRODUK, "Tipe", "Qty", "Harga", COL_NILAI, "Saldo");
 
             int no = 1;
             for (InventoryReportService.StockMovementItem item : report.items()) {
@@ -891,7 +899,7 @@ public class ReportExportService {
             Row headerRow = sheet.createRow(rowNum++);
             CellStyle headerStyle = createHeaderStyle(workbook);
             createCell(headerRow, 0, "No", headerStyle);
-            createCell(headerRow, 1, "Tanggal", headerStyle);
+            createCell(headerRow, 1, COL_TANGGAL, headerStyle);
             createCell(headerRow, 2, "Kode", headerStyle);
             createCell(headerRow, 3, COL_NAMA_PRODUK, headerStyle);
             createCell(headerRow, 4, "Tipe", headerStyle);
@@ -1081,7 +1089,7 @@ public class ReportExportService {
             table.setWidths(new float[]{3, 8, 15, 10, 8, 12, 12, 12, 8});
             table.setSpacingBefore(20);
 
-            addTableHeader(table, "No", "Kode", COL_NAMA_PRODUK, COL_KATEGORI, "Qty", "Pendapatan", "HPP", "Margin", "%");
+            addTableHeader(table, "No", "Kode", COL_NAMA_PRODUK, COL_KATEGORI, "Qty", COL_PENDAPATAN, "HPP", "Margin", "%");
 
             int no = 1;
             for (InventoryReportService.ProfitabilityItem item : report.items()) {
@@ -1167,7 +1175,7 @@ public class ReportExportService {
             createCell(headerRow, 2, COL_NAMA_PRODUK, headerStyle);
             createCell(headerRow, 3, COL_KATEGORI, headerStyle);
             createCell(headerRow, 4, "Qty Terjual", headerStyle);
-            createCell(headerRow, 5, "Pendapatan", headerStyle);
+            createCell(headerRow, 5, COL_PENDAPATAN, headerStyle);
             createCell(headerRow, 6, "HPP", headerStyle);
             createCell(headerRow, 7, "Margin", headerStyle);
             createCell(headerRow, 8, "Margin %", headerStyle);
@@ -1225,7 +1233,7 @@ public class ReportExportService {
                     LABEL_PERIODE + report.startDate().format(DATE_FORMAT) + " - " + report.endDate().format(DATE_FORMAT));
 
             // Keluaran section
-            Paragraph keluaranTitle = new Paragraph("PPN Keluaran", getBoldFont());
+            Paragraph keluaranTitle = new Paragraph(COL_PPN_KELUARAN, getBoldFont());
             keluaranTitle.setSpacingBefore(15);
             document.add(keluaranTitle);
 
@@ -1233,7 +1241,7 @@ public class ReportExportService {
             keluaranTable.setWidthPercentage(100);
             keluaranTable.setWidths(new float[]{18, 10, 5, 20, 17, 15, 15});
             keluaranTable.setSpacingBefore(5);
-            addTableHeader(keluaranTable, "No. Faktur", "Tanggal", "Kode", "Lawan Transaksi", "NPWP", "DPP", "PPN");
+            addTableHeader(keluaranTable, COL_NO_FAKTUR, COL_TANGGAL, "Kode", COL_LAWAN_TRANSAKSI, "NPWP", "DPP", "PPN");
 
             for (TaxTransactionDetail item : report.keluaranItems()) {
                 addTableCell(keluaranTable, item.getFakturNumber() != null ? item.getFakturNumber() : "-", Element.ALIGN_LEFT);
@@ -1248,7 +1256,7 @@ public class ReportExportService {
             document.add(keluaranTable);
 
             // Masukan section
-            Paragraph masukanTitle = new Paragraph("PPN Masukan", getBoldFont());
+            Paragraph masukanTitle = new Paragraph(COL_PPN_MASUKAN, getBoldFont());
             masukanTitle.setSpacingBefore(15);
             document.add(masukanTitle);
 
@@ -1256,7 +1264,7 @@ public class ReportExportService {
             masukanTable.setWidthPercentage(100);
             masukanTable.setWidths(new float[]{18, 10, 5, 20, 17, 15, 15});
             masukanTable.setSpacingBefore(5);
-            addTableHeader(masukanTable, "No. Faktur", "Tanggal", "Kode", "Lawan Transaksi", "NPWP", "DPP", "PPN");
+            addTableHeader(masukanTable, COL_NO_FAKTUR, COL_TANGGAL, "Kode", COL_LAWAN_TRANSAKSI, "NPWP", "DPP", "PPN");
 
             for (TaxTransactionDetail item : report.masukanItems()) {
                 addTableCell(masukanTable, item.getFakturNumber() != null ? item.getFakturNumber() : "-", Element.ALIGN_LEFT);
@@ -1295,10 +1303,10 @@ public class ReportExportService {
 
             // Keluaran
             Row keluaranHeader = sheet.createRow(rowNum++);
-            createCell(keluaranHeader, 0, "PPN Keluaran", sectionStyle);
+            createCell(keluaranHeader, 0, COL_PPN_KELUARAN, sectionStyle);
 
             Row kHdr = sheet.createRow(rowNum++);
-            String[] headers = {"No. Faktur", "Tanggal", "Kode", "Lawan Transaksi", "NPWP", "DPP", "PPN"};
+            String[] headers = {COL_NO_FAKTUR, COL_TANGGAL, "Kode", COL_LAWAN_TRANSAKSI, "NPWP", "DPP", "PPN"};
             for (int i = 0; i < headers.length; i++) createCell(kHdr, i, headers[i], headerStyle);
 
             for (TaxTransactionDetail item : report.keluaranItems()) {
@@ -1320,7 +1328,7 @@ public class ReportExportService {
 
             // Masukan
             Row masukanHeader = sheet.createRow(rowNum++);
-            createCell(masukanHeader, 0, "PPN Masukan", sectionStyle);
+            createCell(masukanHeader, 0, COL_PPN_MASUKAN, sectionStyle);
 
             Row mHdr = sheet.createRow(rowNum++);
             for (int i = 0; i < headers.length; i++) createCell(mHdr, i, headers[i], headerStyle);
@@ -1365,7 +1373,7 @@ public class ReportExportService {
             table.setWidthPercentage(100);
             table.setWidths(new float[]{18, 10, 20, 17, 15, 8, 12});
             table.setSpacingBefore(20);
-            addTableHeader(table, "No. Bupot", "Kode Objek", "Lawan Transaksi", "NPWP", "Bruto", "Tarif", "PPh 23");
+            addTableHeader(table, "No. Bupot", "Kode Objek", COL_LAWAN_TRANSAKSI, "NPWP", "Bruto", "Tarif", "PPh 23");
 
             for (TaxTransactionDetail item : report.items()) {
                 addTableCell(table, item.getBupotNumber() != null ? item.getBupotNumber() : "-", Element.ALIGN_LEFT);
@@ -1402,7 +1410,7 @@ public class ReportExportService {
             CellStyle totalStyle = createTotalStyle(workbook);
 
             Row hdr = sheet.createRow(rowNum++);
-            String[] headers = {"No. Bupot", "Kode Objek", "Lawan Transaksi", "NPWP", "Bruto", "Tarif", "PPh 23"};
+            String[] headers = {"No. Bupot", "Kode Objek", COL_LAWAN_TRANSAKSI, "NPWP", "Bruto", "Tarif", "PPh 23"};
             for (int i = 0; i < headers.length; i++) createCell(hdr, i, headers[i], headerStyle);
 
             for (TaxTransactionDetail item : report.items()) {
@@ -1449,12 +1457,12 @@ public class ReportExportService {
             table.setSpacingBefore(20);
             addTableHeader(table, "Komponen", "Faktur Pajak", "Buku Besar", "Selisih");
 
-            addTableCell(table, "PPN Keluaran", Element.ALIGN_LEFT);
+            addTableCell(table, COL_PPN_KELUARAN, Element.ALIGN_LEFT);
             addTableCell(table, formatNumber(report.fakturPpnKeluaran()), Element.ALIGN_RIGHT);
             addTableCell(table, formatNumber(report.ledgerPpnKeluaran()), Element.ALIGN_RIGHT);
             addTableCell(table, formatNumber(report.keluaranDifference()), Element.ALIGN_RIGHT);
 
-            addTableCell(table, "PPN Masukan", Element.ALIGN_LEFT);
+            addTableCell(table, COL_PPN_MASUKAN, Element.ALIGN_LEFT);
             addTableCell(table, formatNumber(report.fakturPpnMasukan()), Element.ALIGN_RIGHT);
             addTableCell(table, formatNumber(report.ledgerPpnMasukan()), Element.ALIGN_RIGHT);
             addTableCell(table, formatNumber(report.masukanDifference()), Element.ALIGN_RIGHT);
@@ -1488,13 +1496,13 @@ public class ReportExportService {
             createCell(hdr, 3, "Selisih", headerStyle);
 
             Row keluaran = sheet.createRow(rowNum++);
-            createCell(keluaran, 0, "PPN Keluaran", textStyle);
+            createCell(keluaran, 0, COL_PPN_KELUARAN, textStyle);
             createNumericCell(keluaran, 1, report.fakturPpnKeluaran(), numberStyle);
             createNumericCell(keluaran, 2, report.ledgerPpnKeluaran(), numberStyle);
             createNumericCell(keluaran, 3, report.keluaranDifference(), numberStyle);
 
             Row masukan = sheet.createRow(rowNum);
-            createCell(masukan, 0, "PPN Masukan", textStyle);
+            createCell(masukan, 0, COL_PPN_MASUKAN, textStyle);
             createNumericCell(masukan, 1, report.fakturPpnMasukan(), numberStyle);
             createNumericCell(masukan, 2, report.ledgerPpnMasukan(), numberStyle);
             createNumericCell(masukan, 3, report.masukanDifference(), numberStyle);
@@ -1528,11 +1536,11 @@ public class ReportExportService {
             plTable.setWidthPercentage(100);
             plTable.setWidths(new float[]{60, 40});
             plTable.setSpacingBefore(5);
-            addTableCell(plTable, "Pendapatan", Element.ALIGN_LEFT);
+            addTableCell(plTable, COL_PENDAPATAN, Element.ALIGN_LEFT);
             addTableCell(plTable, formatNumber(report.incomeStatement().totalRevenue()), Element.ALIGN_RIGHT);
             addTableCell(plTable, "Beban", Element.ALIGN_LEFT);
             addTableCell(plTable, "(" + formatNumber(report.incomeStatement().totalExpense()) + ")", Element.ALIGN_RIGHT);
-            addSubtotalRow(plTable, "Laba Bersih Komersial", formatNumber(report.commercialNetIncome()));
+            addSubtotalRow(plTable, COL_LABA_BERSIH_KOMERSIAL, formatNumber(report.commercialNetIncome()));
             document.add(plTable);
 
             // Section B: Fiscal Adjustments
@@ -1544,7 +1552,7 @@ public class ReportExportService {
             adjTable.setWidthPercentage(100);
             adjTable.setWidths(new float[]{40, 20, 20, 20});
             adjTable.setSpacingBefore(5);
-            addTableHeader(adjTable, "Uraian", "Kategori", "Arah", "Jumlah");
+            addTableHeader(adjTable, "Uraian", COL_KATEGORI, "Arah", "Jumlah");
 
             for (FiscalAdjustment adj : report.adjustments()) {
                 addTableCell(adjTable, adj.getDescription(), Element.ALIGN_LEFT);
@@ -1562,7 +1570,7 @@ public class ReportExportService {
             adjTotalTable.setWidths(new float[]{60, 40});
             addSubtotalRow(adjTotalTable, "Koreksi Positif", formatNumber(report.totalPositiveAdjustment()));
             addSubtotalRow(adjTotalTable, "Koreksi Negatif", "(" + formatNumber(report.totalNegativeAdjustment()) + ")");
-            addSubtotalRow(adjTotalTable, "Koreksi Fiskal Neto", formatNumber(report.netAdjustment()));
+            addSubtotalRow(adjTotalTable, COL_KOREKSI_FISKAL_NETO, formatNumber(report.netAdjustment()));
             document.add(adjTotalTable);
 
             // Section C: PKP & PPh Badan
@@ -1575,9 +1583,9 @@ public class ReportExportService {
             pphTable.setWidths(new float[]{60, 40});
             pphTable.setSpacingBefore(5);
 
-            addTableCell(pphTable, "Laba Bersih Komersial", Element.ALIGN_LEFT);
+            addTableCell(pphTable, COL_LABA_BERSIH_KOMERSIAL, Element.ALIGN_LEFT);
             addTableCell(pphTable, formatNumber(report.commercialNetIncome()), Element.ALIGN_RIGHT);
-            addTableCell(pphTable, "Koreksi Fiskal Neto", Element.ALIGN_LEFT);
+            addTableCell(pphTable, COL_KOREKSI_FISKAL_NETO, Element.ALIGN_LEFT);
             addTableCell(pphTable, formatNumber(report.netAdjustment()), Element.ALIGN_RIGHT);
             addSubtotalRow(pphTable, "Penghasilan Kena Pajak (PKP)", formatNumber(report.pkp()));
 
@@ -1617,7 +1625,7 @@ public class ReportExportService {
             createCell(sA, 0, "A. Laba Rugi Komersial", sectionStyle);
 
             Row rev = sheet.createRow(rowNum++);
-            createCell(rev, 0, "Pendapatan", textStyle);
+            createCell(rev, 0, COL_PENDAPATAN, textStyle);
             createNumericCell(rev, 1, report.incomeStatement().totalRevenue(), numberStyle);
 
             Row exp = sheet.createRow(rowNum++);
@@ -1625,7 +1633,7 @@ public class ReportExportService {
             createNumericCell(exp, 1, report.incomeStatement().totalExpense().negate(), numberStyle);
 
             Row ni = sheet.createRow(rowNum++);
-            createCell(ni, 0, "Laba Bersih Komersial", totalStyle);
+            createCell(ni, 0, COL_LABA_BERSIH_KOMERSIAL, totalStyle);
             createNumericCell(ni, 1, report.commercialNetIncome(), totalStyle);
             rowNum++;
 
@@ -1642,7 +1650,7 @@ public class ReportExportService {
             }
 
             Row adjNet = sheet.createRow(rowNum++);
-            createCell(adjNet, 0, "Koreksi Fiskal Neto", totalStyle);
+            createCell(adjNet, 0, COL_KOREKSI_FISKAL_NETO, totalStyle);
             createNumericCell(adjNet, 1, report.netAdjustment(), totalStyle);
             rowNum++;
 
