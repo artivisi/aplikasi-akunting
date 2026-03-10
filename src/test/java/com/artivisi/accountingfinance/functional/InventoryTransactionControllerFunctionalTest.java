@@ -322,4 +322,116 @@ class InventoryTransactionControllerFunctionalTest extends PlaywrightTestBase {
 
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/inventory\\/stock\\/.*"));
     }
+
+    // ==================== ADDITIONAL COVERAGE TESTS ====================
+
+    @Test
+    @DisplayName("Should filter transactions by transactionType parameter")
+    void shouldFilterTransactionsByTransactionType() {
+        navigateTo("/inventory/transactions?transactionType=PURCHASE");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter transactions by product parameter")
+    void shouldFilterTransactionsByProduct() {
+        var product = productRepository.findAll().stream().findFirst();
+        if (product.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/inventory/transactions?productId=" + product.get().getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter transactions with combined parameters")
+    void shouldFilterTransactionsWithCombinedParameters() {
+        navigateTo("/inventory/transactions?transactionType=PURCHASE&startDate=2024-01-01&endDate=2024-12-31");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should display transaction detail with product info")
+    void shouldDisplayTransactionDetailWithProductInfo() {
+        var transaction = transactionRepository.findAll().stream().findFirst();
+        if (transaction.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/inventory/transactions/" + transaction.get().getId());
+        waitForPageLoad();
+
+        // Transaction detail page should show product info
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+        var pageContent = page.content();
+        org.assertj.core.api.Assertions.assertThat(pageContent)
+            .as("Transaction detail should contain product information")
+            .contains("Produk");
+    }
+
+    @Test
+    @DisplayName("Should filter stock list by category")
+    void shouldFilterStockListByCategory() {
+        navigateTo("/inventory/stock");
+        waitForPageLoad();
+
+        var categorySelect = page.locator("select[name='categoryId']").first();
+        if (categorySelect.isVisible()) {
+            var options = categorySelect.locator("option");
+            if (options.count() > 1) {
+                categorySelect.selectOption(new String[]{options.nth(1).getAttribute("value")});
+
+                var filterBtn = page.locator("form button[type='submit']").first();
+                if (filterBtn.isVisible()) {
+                    filterBtn.click();
+                    waitForPageLoad();
+                }
+            }
+        }
+
+        assertThat(page.locator("body")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should show stock card with FIFO layers")
+    void shouldShowStockCardWithFifoLayers() {
+        var product = productRepository.findAll().stream().findFirst();
+        if (product.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/inventory/stock/" + product.get().getId());
+        waitForPageLoad();
+
+        // Stock card page should show product details
+        var pageContent = page.content();
+        org.assertj.core.api.Assertions.assertThat(pageContent)
+            .as("Stock card should contain product name")
+            .contains(product.get().getName());
+    }
+
+    @Test
+    @DisplayName("Should paginate stock list")
+    void shouldPaginateStockList() {
+        navigateTo("/inventory/stock?page=0&size=5");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should paginate transaction list")
+    void shouldPaginateTransactionList() {
+        navigateTo("/inventory/transactions?page=0&size=5");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
 }

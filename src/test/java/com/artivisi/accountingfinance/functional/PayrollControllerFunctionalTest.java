@@ -795,4 +795,97 @@ class PayrollControllerFunctionalTest extends PlaywrightTestBase {
             .as("Bukti potong PDF export should return success or redirect")
             .isIn(200, 302);
     }
+
+    // ==================== ADDITIONAL COVERAGE TESTS ====================
+
+    @Test
+    @DisplayName("Should show form with validation errors for blank period")
+    void shouldShowFormWithValidationErrorsForBlankPeriod() {
+        navigateTo("/payroll/new");
+        waitForPageLoad();
+
+        // Leave period blank, fill other fields
+        page.locator("input[name='baseSalary']").first().fill("10000000");
+        page.locator("select[name='jkkRiskClass']").first().selectOption("1");
+        page.locator("#btn-submit").click();
+        waitForPageLoad();
+
+        // Should stay on form page due to validation errors
+        assertThat(page.url())
+            .as("Should stay on form when validation fails")
+            .containsAnyOf("/payroll/new", "/payroll");
+    }
+
+    @Test
+    @DisplayName("Should show error for duplicate period")
+    void shouldShowErrorForDuplicatePeriod() {
+        // Create a payroll first
+        String period = YearMonth.now().plusMonths(30).toString();
+        navigateTo("/payroll/new");
+        waitForPageLoad();
+        page.locator("input[name='period']").first().fill(period);
+        page.locator("input[name='baseSalary']").first().fill("10000000");
+        page.locator("select[name='jkkRiskClass']").first().selectOption("1");
+        page.locator("#btn-submit").click();
+        waitForPageLoad();
+
+        // Try creating again with same period
+        navigateTo("/payroll/new");
+        waitForPageLoad();
+        page.locator("input[name='period']").first().fill(period);
+        page.locator("input[name='baseSalary']").first().fill("10000000");
+        page.locator("select[name='jkkRiskClass']").first().selectOption("1");
+        page.locator("#btn-submit").click();
+        waitForPageLoad();
+
+        // Should show duplicate error or stay on form
+        assertThat(page.url())
+            .as("Should stay on form or redirect with error for duplicate period")
+            .containsAnyOf("/payroll/new", "/payroll");
+    }
+
+    @Test
+    @DisplayName("Should display employee details table in payroll detail")
+    void shouldDisplayEmployeeDetailsTableInPayrollDetail() {
+        var payrollRun = payrollRunRepository.findAll().stream().findFirst();
+        if (payrollRun.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/payroll/" + payrollRun.get().getId());
+        waitForPageLoad();
+
+        // Should show employee details section
+        var detailsTable = page.locator("table").first();
+        assertThat(detailsTable.isVisible())
+            .as("Employee details table should be visible")
+            .isTrue();
+    }
+
+    @Test
+    @DisplayName("Should filter bukti potong by previous year")
+    void shouldFilterBuktiPotongByPreviousYear() {
+        int previousYear = java.time.Year.now().getValue() - 1;
+
+        navigateTo("/payroll/bukti-potong?year=" + previousYear);
+        waitForPageLoad();
+
+        assertThat(page.url())
+            .as("Should show bukti potong for previous year")
+            .contains("year=" + previousYear);
+    }
+
+    @Test
+    @DisplayName("Should display risk class options in new form")
+    void shouldDisplayRiskClassOptionsInNewForm() {
+        navigateTo("/payroll/new");
+        waitForPageLoad();
+
+        var riskClassSelect = page.locator("select[name='jkkRiskClass']").first();
+        var options = riskClassSelect.locator("option").all();
+
+        assertThat(options.size())
+            .as("Should have 5 risk class options")
+            .isGreaterThanOrEqualTo(5);
+    }
 }

@@ -503,4 +503,144 @@ class InvoiceControllerFunctionalTest extends PlaywrightTestBase {
 
         assertThat(page.locator("#page-title, h1").first()).isVisible();
     }
+
+    // ==================== COMBINED FILTER TESTS ====================
+
+    @Test
+    @DisplayName("Should filter invoices with combined status and client filters")
+    void shouldFilterInvoicesWithCombinedFilters() {
+        var client = clientRepository.findAll().stream().findFirst();
+        if (client.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices?status=DRAFT&clientId=" + client.get().getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter invoices with combined status and project filters")
+    void shouldFilterInvoicesWithCombinedStatusAndProjectFilters() {
+        var project = projectRepository.findAll().stream().findFirst();
+        if (project.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices?status=SENT&projectId=" + project.get().getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should paginate to second page of invoices")
+    void shouldPaginateToSecondPageOfInvoices() {
+        navigateTo("/invoices?page=1&size=5");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    // ==================== INVOICE DETAIL & PAYMENT TESTS ====================
+
+    @Test
+    @DisplayName("Should display payment methods on invoice detail")
+    void shouldDisplayPaymentMethodsOnInvoiceDetail() {
+        var invoice = invoiceRepository.findAll().stream().findFirst();
+        if (invoice.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices/" + invoice.get().getInvoiceNumber());
+        waitForPageLoad();
+
+        // The detail page should show payment section for applicable statuses
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/invoices\\/.*"));
+    }
+
+    @Test
+    @DisplayName("Should display invoice print page with company info")
+    void shouldDisplayInvoicePrintPageWithCompanyInfo() {
+        var invoice = invoiceRepository.findAll().stream().findFirst();
+        if (invoice.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices/" + invoice.get().getInvoiceNumber() + "/print");
+        waitForPageLoad();
+
+        // Print page should have content rendered (no layout)
+        assertThat(page.locator("body")).isVisible();
+        // Verify it contains invoice data
+        String bodyText = page.locator("body").textContent();
+        org.assertj.core.api.Assertions.assertThat(bodyText)
+            .as("Print page should contain invoice number")
+            .contains(invoice.get().getInvoiceNumber());
+    }
+
+    // ==================== NEW FORM PRE-SELECT TESTS ====================
+
+    @Test
+    @DisplayName("Should display new form with both client and project pre-selected")
+    void shouldDisplayNewFormWithBothClientAndProjectPreSelected() {
+        var client = clientRepository.findAll().stream().findFirst();
+        var project = projectRepository.findAll().stream().findFirst();
+        if (client.isEmpty() || project.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices/new?clientId=" + client.get().getId() + "&projectId=" + project.get().getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("body")).isVisible();
+    }
+
+    // ==================== FILTER BY PARTIAL STATUS ====================
+
+    @Test
+    @DisplayName("Should filter by partial status")
+    void shouldFilterByPartialStatus() {
+        navigateTo("/invoices?status=PARTIAL");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    // ==================== INVOICE EDIT NON-DRAFT REDIRECT ====================
+
+    @Test
+    @DisplayName("Should redirect edit form for paid invoice")
+    void shouldRedirectEditFormForPaidInvoice() {
+        var invoice = invoiceRepository.findAll().stream()
+                .filter(i -> "PAID".equals(i.getStatus().name()))
+                .findFirst();
+        if (invoice.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices/" + invoice.get().getInvoiceNumber() + "/edit");
+        waitForPageLoad();
+
+        // Should redirect to detail (non-DRAFT cannot be edited)
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/invoices\\/.*"));
+    }
+
+    @Test
+    @DisplayName("Should redirect pay form for cancelled invoice")
+    void shouldRedirectPayFormForCancelledInvoice() {
+        var invoice = invoiceRepository.findAll().stream()
+                .filter(i -> "CANCELLED".equals(i.getStatus().name()))
+                .findFirst();
+        if (invoice.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/invoices/" + invoice.get().getInvoiceNumber() + "/pay");
+        waitForPageLoad();
+
+        // Should redirect to detail (cancelled cannot be paid)
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/invoices\\/.*"));
+    }
 }

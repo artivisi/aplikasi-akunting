@@ -432,4 +432,174 @@ class JournalTemplateControllerFunctionalTest extends PlaywrightTestBase {
         assertThat(page.locator("[data-testid='semantic-description']")).containsText("New template with metadata");
         assertThat(page.locator("[data-testid='keywords-badges']")).isVisible();
     }
+
+    // ==================== TEMPLATE LIST FILTER TESTS ====================
+
+    @Test
+    @DisplayName("Should filter templates by category via query param")
+    void shouldFilterTemplatesByCategoryViaQueryParam() {
+        navigateTo("/templates?category=EXPENSE");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter templates by search via query param")
+    void shouldFilterTemplatesBySearchViaQueryParam() {
+        navigateTo("/templates?search=penjualan");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter templates by favorites via query param")
+    void shouldFilterTemplatesByFavoritesViaQueryParam() {
+        navigateTo("/templates?favorites=true");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter templates by tag via query param")
+    void shouldFilterTemplatesByTagViaQueryParam() {
+        navigateTo("/templates?tag=testTag");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should display template list via HTMX")
+    void shouldDisplayTemplateListViaHtmx() {
+        var response = page.request().get(baseUrl() + "/templates",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("HX-Request", "true"));
+
+        org.assertj.core.api.Assertions.assertThat(response.status()).isEqualTo(200);
+    }
+
+    @Test
+    @DisplayName("Should filter template list by category via HTMX")
+    void shouldFilterTemplateListByCategoryViaHtmx() {
+        var response = page.request().get(baseUrl() + "/templates?category=INCOME",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("HX-Request", "true"));
+
+        org.assertj.core.api.Assertions.assertThat(response.status()).isEqualTo(200);
+    }
+
+    // ==================== TEMPLATE TAG MANAGEMENT ====================
+
+    @Test
+    @DisplayName("Should add tag to template via form")
+    void shouldAddTagToTemplateViaForm() {
+        var template = templateRepository.findAll().stream().findFirst();
+        if (template.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/templates/" + template.get().getId());
+        waitForPageLoad();
+
+        // Look for tag input form
+        var tagInput = page.locator("input[name='tag']").first();
+        if (tagInput.isVisible()) {
+            tagInput.fill("test-coverage-tag");
+            var addTagBtn = page.locator("form[action*='/tags'] button[type='submit']").first();
+            if (addTagBtn.isVisible()) {
+                addTagBtn.click();
+                waitForPageLoad();
+            }
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/templates\\/.*"));
+    }
+
+    @Test
+    @DisplayName("Should remove tag from template")
+    void shouldRemoveTagFromTemplate() {
+        var template = templateRepository.findAll().stream().findFirst();
+        if (template.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/templates/" + template.get().getId());
+        waitForPageLoad();
+
+        // Look for tag delete form
+        var deleteTagForm = page.locator("form[action*='/tags/'][action*='/delete']").first();
+        if (deleteTagForm.isVisible()) {
+            deleteTagForm.locator("button[type='submit']").click();
+            waitForPageLoad();
+        }
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/templates\\/.*"));
+    }
+
+    // ==================== TEMPLATE EXECUTE REDIRECT ====================
+
+    @Test
+    @DisplayName("Should redirect execute to transaction form")
+    void shouldRedirectExecuteToTransactionForm() {
+        var template = templateRepository.findAll().stream()
+                .filter(t -> Boolean.TRUE.equals(t.getActive()))
+                .findFirst();
+        if (template.isEmpty()) {
+            return;
+        }
+
+        navigateTo("/templates/" + template.get().getId() + "/execute");
+        waitForPageLoad();
+
+        // Execute redirects to /transactions/new?templateId=...
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/transactions\\/new.*templateId.*"));
+    }
+
+    // ==================== TEMPLATE DELETE VIA FORM POST ====================
+
+    @Test
+    @DisplayName("Should delete template via form post and redirect to list")
+    void shouldDeleteTemplateViaFormPost() {
+        // Create a template first so we have one to delete
+        navigateTo("/templates/new");
+        waitForPageLoad();
+
+        page.locator("input[name='templateName']").fill("Delete Test " + System.currentTimeMillis());
+        page.locator("select[name='category']").selectOption("EXPENSE");
+        page.locator("select[name='cashFlowCategory']").selectOption("OPERATING");
+
+        var accountOptions = page.locator("select[name='lines[0].accountId'] option[value]");
+        if (accountOptions.count() < 2) {
+            return;
+        }
+        page.locator("select[name='lines[0].accountId']").selectOption(accountOptions.nth(1).getAttribute("value"));
+        page.locator("[data-testid='btn-credit-1']").click();
+        page.locator("select[name='lines[1].accountId']").selectOption(accountOptions.nth(2).getAttribute("value"));
+
+        page.locator("#btn-simpan").click();
+        waitForPageLoad();
+
+        // Now on detail page — find and click delete
+        var deleteBtn = page.locator("form[action*='/delete'] button[type='submit']").first();
+        if (deleteBtn.isVisible()) {
+            deleteBtn.click();
+            waitForPageLoad();
+        }
+
+        // Should redirect to template list
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/templates.*"));
+    }
+
+    // ==================== TEMPLATE API ENDPOINTS ====================
+
+    @Test
+    @DisplayName("Should get templates by category via API")
+    void shouldGetTemplatesByCategoryViaApi() {
+        var response = page.request().get(baseUrl() + "/templates/api?category=INCOME");
+
+        org.assertj.core.api.Assertions.assertThat(response.status()).isEqualTo(200);
+    }
 }

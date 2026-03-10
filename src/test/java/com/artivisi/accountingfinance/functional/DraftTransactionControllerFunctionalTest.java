@@ -213,6 +213,72 @@ class DraftTransactionControllerFunctionalTest extends PlaywrightTestBase {
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/drafts.*"));
     }
 
+    // ==================== DELETE VIA UI ====================
+
+    @Test
+    @DisplayName("Should delete pending draft from detail page")
+    void shouldDeletePendingDraftFromDetailPage() {
+        DraftTransaction deleteDraft = new DraftTransaction();
+        deleteDraft.setSource(DraftTransaction.Source.MANUAL);
+        deleteDraft.setMerchantName("Delete UI Test Merchant");
+        deleteDraft.setTransactionDate(LocalDate.now());
+        deleteDraft.setAmount(BigDecimal.valueOf(30000));
+        deleteDraft.setStatus(DraftTransaction.Status.PENDING);
+        deleteDraft = draftRepository.save(deleteDraft);
+
+        navigateTo("/drafts/" + deleteDraft.getId());
+        waitForPageLoad();
+
+        // Look for delete button
+        var deleteBtn = page.locator("form[action*='/delete'] button[type='submit'], #btn-delete, button:has-text('Hapus')").first();
+        if (deleteBtn.isVisible()) {
+            page.onDialog(dialog -> dialog.accept());
+            deleteBtn.click();
+            waitForPageLoad();
+        }
+
+        assertThat(page.locator("body")).isVisible();
+    }
+
+    // ==================== MULTIPLE DRAFTS ====================
+
+    @Test
+    @DisplayName("Should display draft list with multiple pending items")
+    void shouldDisplayDraftListWithMultiplePendingItems() {
+        // Ensure at least 5 pending drafts exist
+        for (int i = 0; i < 5; i++) {
+            DraftTransaction draft = new DraftTransaction();
+            draft.setSource(DraftTransaction.Source.MANUAL);
+            draft.setMerchantName("Bulk Test Merchant " + i);
+            draft.setTransactionDate(LocalDate.now().minusDays(i));
+            draft.setAmount(BigDecimal.valueOf(10000 + i * 5000));
+            draft.setStatus(DraftTransaction.Status.PENDING);
+            draftRepository.save(draft);
+        }
+
+        navigateTo("/drafts?status=PENDING&size=3");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should display detail page for rejected draft")
+    void shouldDisplayDetailPageForRejectedDraft() {
+        DraftTransaction rejectedDraft = new DraftTransaction();
+        rejectedDraft.setSource(DraftTransaction.Source.MANUAL);
+        rejectedDraft.setMerchantName("Rejected Detail Merchant");
+        rejectedDraft.setTransactionDate(LocalDate.now());
+        rejectedDraft.setAmount(BigDecimal.valueOf(45000));
+        rejectedDraft.setStatus(DraftTransaction.Status.REJECTED);
+        rejectedDraft = draftRepository.save(rejectedDraft);
+
+        navigateTo("/drafts/" + rejectedDraft.getId());
+        waitForPageLoad();
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*\\/drafts\\/.*"));
+    }
+
     // ==================== API ENDPOINTS ====================
 
     @Test

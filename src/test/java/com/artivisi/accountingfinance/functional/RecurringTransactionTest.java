@@ -211,6 +211,95 @@ class RecurringTransactionTest extends PlaywrightTestBase {
         assertThat(page.locator("body")).containsText("dihapus");
     }
 
+    @Test
+    @DisplayName("Should filter recurring list by ACTIVE status")
+    void shouldFilterByActiveStatus() {
+        createTestRecurring("Active Filter Test", RecurringFrequency.MONTHLY);
+
+        navigateTo("/recurring?status=ACTIVE");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).containsText("Transaksi Berulang");
+        assertThat(page.locator("[data-testid='recurring-table']")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should filter recurring list by PAUSED status")
+    void shouldFilterByPausedStatus() {
+        RecurringTransaction recurring = createTestRecurring("Paused Filter Test", RecurringFrequency.MONTHLY);
+        recurring.setStatus(RecurringStatus.PAUSED);
+        recurringTransactionRepository.save(recurring);
+
+        navigateTo("/recurring?status=PAUSED");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).containsText("Transaksi Berulang");
+    }
+
+    @Test
+    @DisplayName("Should filter recurring list by COMPLETED status")
+    void shouldFilterByCompletedStatus() {
+        RecurringTransaction recurring = createTestRecurring("Completed Filter Test", RecurringFrequency.MONTHLY);
+        recurring.setStatus(RecurringStatus.COMPLETED);
+        recurring.setNextRunDate(null);
+        recurringTransactionRepository.save(recurring);
+
+        navigateTo("/recurring?status=COMPLETED");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).containsText("Transaksi Berulang");
+    }
+
+    @Test
+    @DisplayName("Should display recurring list with pagination")
+    void shouldDisplayRecurringListWithPagination() {
+        // Create enough items
+        for (int i = 0; i < 3; i++) {
+            createTestRecurring("Pagination Test " + i, RecurringFrequency.MONTHLY);
+        }
+
+        navigateTo("/recurring?page=0&size=2");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).containsText("Transaksi Berulang");
+    }
+
+    @Test
+    @DisplayName("Should show detail page for WEEKLY recurring transaction")
+    void shouldShowDetailForWeeklyRecurring() {
+        RecurringTransaction recurring = createTestRecurringWithFrequency("Weekly Detail Test", RecurringFrequency.WEEKLY, 2);
+
+        navigateTo("/recurring/" + recurring.getId());
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title, h1").first()).containsText("Detail Transaksi Berulang");
+        assertThat(page.locator("[data-testid='recurring-detail']")).isVisible();
+    }
+
+    private RecurringTransaction createTestRecurringWithFrequency(String name, RecurringFrequency frequency, Integer dayOfWeek) {
+        List<JournalTemplate> templates = journalTemplateService.findAll();
+        JournalTemplate template = templates.getFirst();
+
+        RecurringTransaction recurring = new RecurringTransaction();
+        recurring.setName(name);
+        recurring.setJournalTemplate(template);
+        recurring.setAmount(new BigDecimal("5000000"));
+        recurring.setDescription("Test recurring: " + name);
+        recurring.setFrequency(frequency);
+        if (frequency == RecurringFrequency.WEEKLY) {
+            recurring.setDayOfWeek(dayOfWeek);
+        } else {
+            recurring.setDayOfMonth(1);
+        }
+        recurring.setStartDate(LocalDate.now().plusDays(1));
+        recurring.setNextRunDate(LocalDate.now().plusDays(1));
+        recurring.setStatus(RecurringStatus.ACTIVE);
+        recurring.setAutoPost(true);
+        recurring.setCreatedBy("admin");
+
+        return recurringTransactionRepository.save(recurring);
+    }
+
     private RecurringTransaction createTestRecurring(String name, RecurringFrequency frequency) {
         List<JournalTemplate> templates = journalTemplateService.findAll();
         JournalTemplate template = templates.getFirst();

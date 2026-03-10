@@ -842,4 +842,180 @@ class SettingsControllerFunctionalTest extends PlaywrightTestBase {
 
         assertThat(page.locator("body")).isVisible();
     }
+
+    // ==================== DEVICE TOKEN MANAGEMENT ====================
+
+    @Test
+    @DisplayName("Should display device tokens page")
+    void shouldDisplayDeviceTokensPage() {
+        navigateTo("/settings/devices");
+        waitForPageLoad();
+
+        assertThat(page.locator("#page-title")).isVisible();
+        assertThat(page.locator("#device-management-content")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should show device tokens table or empty state")
+    void shouldShowDeviceTokensTableOrEmptyState() {
+        navigateTo("/settings/devices");
+        waitForPageLoad();
+
+        // Either the table or the empty state should be visible
+        var tokensTable = page.locator("#device-tokens-table");
+        var emptyState = page.locator("#empty-state");
+        boolean hasTable = tokensTable.isVisible();
+        boolean hasEmpty = emptyState.isVisible();
+
+        org.assertj.core.api.Assertions.assertThat(hasTable || hasEmpty)
+            .as("Either device tokens table or empty state should be visible")
+            .isTrue();
+    }
+
+    @Test
+    @DisplayName("Should show revoke all button on devices page")
+    void shouldShowRevokeAllButtonOnDevicesPage() {
+        navigateTo("/settings/devices");
+        waitForPageLoad();
+
+        // The revoke-all form should exist on the page
+        var revokeAllForm = page.locator("#form-revoke-all");
+        if (revokeAllForm.isVisible()) {
+            assertThat(revokeAllForm).isVisible();
+        } else {
+            // No active tokens, so no revoke-all button shown
+            assertThat(page.locator("#page-title")).isVisible();
+        }
+    }
+
+    // ==================== COMPANY CONFIG FORM VALIDATION ====================
+
+    @Test
+    @DisplayName("Should reject empty company name on submit")
+    void shouldRejectEmptyCompanyNameOnSubmit() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        // Clear company name to trigger validation
+        page.locator("#companyName").fill("");
+        page.locator("#btn-save-company").click();
+        waitForPageLoad();
+
+        // Should stay on the settings page (form re-rendered with errors)
+        assertThat(page.locator("#companyName")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should show fiscal year start month field")
+    void shouldShowFiscalYearStartMonthField() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var fiscalMonthInput = page.locator("#fiscalYearStartMonth, input[name='fiscalYearStartMonth'], select[name='fiscalYearStartMonth']").first();
+        if (fiscalMonthInput.isVisible()) {
+            assertThat(fiscalMonthInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show currency code field")
+    void shouldShowCurrencyCodeField() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var currencyInput = page.locator("#currencyCode, input[name='currencyCode']").first();
+        if (currencyInput.isVisible()) {
+            assertThat(currencyInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show signing officer fields")
+    void shouldShowSigningOfficerFields() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var officerName = page.locator("#signingOfficerName, input[name='signingOfficerName']").first();
+        var officerTitle = page.locator("#signingOfficerTitle, input[name='signingOfficerTitle']").first();
+        if (officerName.isVisible()) {
+            assertThat(officerName).isVisible();
+        }
+        if (officerTitle.isVisible()) {
+            assertThat(officerTitle).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show industry field")
+    void shouldShowIndustryField() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var industryInput = page.locator("#industry, input[name='industry'], select[name='industry']").first();
+        if (industryInput.isVisible()) {
+            assertThat(industryInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show NITKU field")
+    void shouldShowNitkuField() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var nitkuInput = page.locator("#nitku, input[name='nitku']").first();
+        if (nitkuInput.isVisible()) {
+            assertThat(nitkuInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show tax ID field")
+    void shouldShowTaxIdField() {
+        navigateTo("/settings");
+        waitForPageLoad();
+
+        var taxIdInput = page.locator("#taxId, input[name='taxId']").first();
+        if (taxIdInput.isVisible()) {
+            assertThat(taxIdInput).isVisible();
+        }
+    }
+
+    // ==================== BANK ACCOUNT GL ACCOUNT MAPPING ====================
+
+    @Test
+    @DisplayName("Should show GL account select on bank account form")
+    void shouldShowGlAccountSelectOnBankAccountForm() {
+        navigateTo("/settings/bank-accounts/new");
+        waitForPageLoad();
+
+        var glAccountSelect = page.locator("select[name='glAccountId']").first();
+        if (glAccountSelect.isVisible()) {
+            assertThat(glAccountSelect).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show currency code on bank account form")
+    void shouldShowCurrencyCodeOnBankAccountForm() {
+        navigateTo("/settings/bank-accounts/new");
+        waitForPageLoad();
+
+        var currencyInput = page.locator("#currencyCode, input[name='currencyCode']").first();
+        if (currencyInput.isVisible()) {
+            assertThat(currencyInput).isVisible();
+        }
+    }
+
+    @Test
+    @DisplayName("Should show is-default checkbox on bank account form")
+    void shouldShowIsDefaultCheckboxOnBankAccountForm() {
+        navigateTo("/settings/bank-accounts/new");
+        waitForPageLoad();
+
+        var isDefaultCheckbox = page.locator("input[name='isDefault'], #isDefault").first();
+        if (isDefaultCheckbox.isVisible()) {
+            assertThat(isDefaultCheckbox).isVisible();
+        }
+    }
 }

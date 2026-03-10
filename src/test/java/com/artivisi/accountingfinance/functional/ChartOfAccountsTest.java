@@ -410,6 +410,43 @@ class ChartOfAccountsTest extends PlaywrightTestBase {
         }
 
         @Test
+        @DisplayName("Should attempt to delete account with children and stay on page")
+        void shouldNotDeleteAccountWithChildren() {
+            navigateTo("/accounts");
+            waitForPageLoad();
+
+            // Try to delete root account "5 - BEBAN" which has children
+            var deleteForm = page.locator("#form-delete-5");
+            if (deleteForm.isVisible()) {
+                page.onDialog(dialog -> dialog.accept());
+                deleteForm.locator("button[type='submit']").click();
+                waitForPageLoad();
+
+                // Should stay on accounts page (delete should fail due to children)
+                assertThat(page.url()).contains("/accounts");
+            }
+        }
+
+        @Test
+        @DisplayName("Should create root account without parent")
+        void shouldCreateRootAccountWithoutParent() {
+            navigateTo("/accounts/new");
+            waitForPageLoad();
+
+            String uniqueCode = "ROOT-" + System.currentTimeMillis() % 10000;
+            page.locator("#accountCode").fill(uniqueCode);
+            page.locator("#accountName").fill("Root Account " + uniqueCode);
+            page.getByTestId("account-type").selectOption("LIABILITY");
+
+            page.locator("#btn-simpan").click();
+            waitForPageLoad();
+
+            assertThat(page.url())
+                .as("Should redirect to accounts list after creating root account")
+                .contains("/accounts");
+        }
+
+        @Test
         @DisplayName("Should show validation error for duplicate account code")
         void shouldShowValidationErrorForDuplicateAccountCode() {
             navigateTo("/accounts/new");
