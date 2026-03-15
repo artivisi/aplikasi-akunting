@@ -30,7 +30,7 @@ Indonesian accounting application for small businesses. Spring Boot 4.0 + Thymel
 - **Phase 15:** ✅ Complete (Payroll API + PPh 21)
 - **Bug Fixes:** ✅ Complete (BUG-001 PPN rounding, BUG-002 PUT broken DRAFTs, BUG-003 PUT overrides 409, BUG-004 empty journalEntries)
 - **Phase 16:** ✅ Complete (User Manual Revamp — AI-Operated Lifecycle)
-- **Phase 17:** Planned (SPT Tahunan Badan Data Export — L1 rekonsiliasi fiskal, L4 penghasilan final, L9 penyusutan DJP XML, transkrip 8A, e-Bupot PPh 21 annual, fiscal loss carryforward, SPT checklist dashboard)
+- **Phase 17:** ✅ Complete (SPT Tahunan Badan Data Export — L1 rekonsiliasi fiskal, L4 penghasilan final, L9 penyusutan DJP format, transkrip 8A, e-Bupot PPh 21 annual, fiscal loss carryforward, SPT checklist dashboard)
 - **Phase 18:** Planned (WhatsApp Notifications)
 - See `docs/06-implementation-plan.md` for full plan
 

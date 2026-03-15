@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main :: layout('Checklist SPT Tahunan', ~{::#page-title}, ~{::section}, ~{})}"
+      lang="id">
+<head>
+    <title>Checklist SPT Tahunan</title>
+</head>
+<body>
+    <h1 id="page-title">Checklist SPT Tahunan Badan</h1>
+
+    <section class="h-full flex flex-col overflow-y-auto" data-testid="spt-checklist-page">
+        <div class="max-w-5xl space-y-6">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+                <a th:href="@{/reports}" class="hover:text-primary-600 transition-colors">Laporan</a>
+                <span>/</span>
+                <span class="text-gray-900">Checklist SPT Tahunan</span>
+            </nav>
+
+            <!-- Year Selection -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <form th:action="@{/reports/spt-checklist}" method="get" class="flex items-end gap-4">
+                    <div>
+                        <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Tahun Pajak</label>
+                        <select id="year" name="year"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                            <option th:each="y : ${availableYears}"
+                                    th:value="${y}"
+                                    th:text="${y}"
+                                    th:selected="${y == year}">2025</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Tampilkan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Checklist Status -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4" th:text="|Kesiapan Data SPT Tahunan ${year}|">Kesiapan Data SPT Tahunan 2025</h2>
+
+                <div class="space-y-4">
+                    <!-- 1. Financial Statements -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.hasIncomeStatement()} ? 'bg-green-50' : 'bg-yellow-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.hasIncomeStatement()} ? '&#10004;' : '&#9888;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Laporan Keuangan</p>
+                            <p class="text-sm text-gray-600" th:if="${checklist.hasIncomeStatement()}"
+                               th:text="|Pendapatan: Rp ${#numbers.formatDecimal(checklist.totalRevenue(), 0, 'POINT', 0, 'COMMA')} — Laba Bersih: Rp ${#numbers.formatDecimal(checklist.netIncome(), 0, 'POINT', 0, 'COMMA')}|">
+                            </p>
+                            <p class="text-sm text-yellow-700" th:unless="${checklist.hasIncomeStatement()}">Belum ada transaksi di tahun ini</p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Fiscal Adjustments -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.hasFiscalAdjustments()} ? 'bg-green-50' : 'bg-yellow-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.hasFiscalAdjustments()} ? '&#10004;' : '&#9888;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Koreksi Fiskal</p>
+                            <p class="text-sm text-gray-600" th:if="${checklist.hasFiscalAdjustments()}"
+                               th:text="|${checklist.adjustmentCount()} item koreksi fiskal|"></p>
+                            <p class="text-sm text-yellow-700" th:unless="${checklist.hasFiscalAdjustments()}">Belum ada koreksi fiskal</p>
+                        </div>
+                    </div>
+
+                    <!-- 3. PPh Badan -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.hasPphBadan()} ? 'bg-green-50' : 'bg-red-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.hasPphBadan()} ? '&#10004;' : '&#10008;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">PPh Badan Terutang</p>
+                            <p class="text-sm text-gray-600" th:if="${checklist.hasPphBadan()}"
+                               th:text="|PPh Terutang: Rp ${#numbers.formatDecimal(checklist.pphTerutang(), 0, 'POINT', 0, 'COMMA')} — PPh 29: Rp ${#numbers.formatDecimal(checklist.pph29(), 0, 'POINT', 0, 'COMMA')}|">
+                            </p>
+                            <p class="text-sm text-red-700" th:unless="${checklist.hasPphBadan()}">Gagal menghitung PPh Badan</p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Fiscal Periods -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.allMonthsClosed()} ? 'bg-green-50' : 'bg-yellow-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.allMonthsClosed()} ? '&#10004;' : '&#9888;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Periode Fiskal</p>
+                            <p class="text-sm text-gray-600" th:text="|${checklist.closedMonths()}/12 bulan ditutup|"></p>
+                        </div>
+                    </div>
+
+                    <!-- 5. Fixed Assets -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.hasDepreciation()} ? 'bg-green-50' : 'bg-gray-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.hasDepreciation()} ? '&#10004;' : '&#8212;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Penyusutan Aset Tetap</p>
+                            <p class="text-sm text-gray-600" th:if="${checklist.hasDepreciation()}"
+                               th:text="|${checklist.assetCount()} aset tercatat|"></p>
+                            <p class="text-sm text-gray-500" th:unless="${checklist.hasDepreciation()}">Tidak ada aset tetap</p>
+                        </div>
+                    </div>
+
+                    <!-- 6. Payroll -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.payrollMonths() > 0} ? 'bg-green-50' : 'bg-gray-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.payrollMonths() > 0} ? '&#10004;' : '&#8212;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Payroll & PPh 21</p>
+                            <p class="text-sm text-gray-600" th:if="${checklist.payrollMonths() > 0}"
+                               th:text="|${checklist.payrollMonths()} bulan payroll diproses|"></p>
+                            <p class="text-sm text-gray-500" th:unless="${checklist.payrollMonths() > 0}">Tidak ada data payroll</p>
+                        </div>
+                    </div>
+
+                    <!-- 7. Loss Carryforward -->
+                    <div class="flex items-start p-3 rounded-lg" th:classappend="${checklist.hasActiveLosses()} ? 'bg-blue-50' : 'bg-gray-50'">
+                        <span class="text-xl mr-3" th:text="${checklist.hasActiveLosses()} ? '&#8505;' : '&#8212;'"></span>
+                        <div>
+                            <p class="font-medium text-gray-900">Kompensasi Kerugian</p>
+                            <p class="text-sm text-blue-700" th:if="${checklist.hasActiveLosses()}"
+                               th:text="|Sisa rugi fiskal: Rp ${#numbers.formatDecimal(checklist.activeLossAmount(), 0, 'POINT', 0, 'COMMA')}|"></p>
+                            <p class="text-sm text-gray-500" th:unless="${checklist.hasActiveLosses()}">Tidak ada rugi fiskal yang dapat dikompensasi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Links -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Download Lampiran SPT</h2>
+                <p class="text-sm text-gray-600 mb-4">Download file Excel untuk di-key-in atau diimpor ke Coretax.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- L1 Rekonsiliasi Fiskal -->
+                    <a th:href="|/api/tax-export/spt-tahunan/l1?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-green-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">L1 — Rekonsiliasi Fiskal</p>
+                            <p class="text-sm text-gray-500">P&amp;L komersial, koreksi fiskal, PKP, PPh Badan</p>
+                        </div>
+                    </a>
+
+                    <!-- L4 Penghasilan Final -->
+                    <a th:href="|/api/tax-export/spt-tahunan/l4?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">L4 — Penghasilan Final</p>
+                            <p class="text-sm text-gray-500">PPh 4(2) per kode objek pajak</p>
+                        </div>
+                    </a>
+
+                    <!-- L9 Penyusutan -->
+                    <a th:href="|/api/tax-export/spt-tahunan/l9?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-purple-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">L9 — Penyusutan &amp; Amortisasi</p>
+                            <p class="text-sm text-gray-500">Format DJP Converter (DATA + REF)</p>
+                        </div>
+                    </a>
+
+                    <!-- Transkrip 8A -->
+                    <a th:href="|/api/tax-export/spt-tahunan/transkrip-8a?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-orange-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Transkrip 8A — Laporan Keuangan</p>
+                            <p class="text-sm text-gray-500">Neraca + Laba Rugi (2 sheet)</p>
+                        </div>
+                    </a>
+
+                    <!-- BPA1 e-Bupot PPh 21 -->
+                    <a th:href="|/api/tax-export/ebupot-pph21?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-red-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">BPA1 — e-Bupot PPh 21 (1721-A1)</p>
+                            <p class="text-sm text-gray-500">Format DJP Converter (semua karyawan)</p>
+                        </div>
+                    </a>
+
+                    <!-- Rekonsiliasi Fiskal (existing) -->
+                    <a th:href="|/api/tax-export/rekonsiliasi-fiskal?year=${year}&format=excel|"
+                       class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="bg-gray-100 p-2 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Rekonsiliasi Fiskal (detail)</p>
+                            <p class="text-sm text-gray-500">Format laporan internal</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- API Info -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-sm text-gray-600">
+                    Semua lampiran juga tersedia via API di <code class="bg-gray-200 px-1 rounded">/api/tax-export/spt-tahunan/*</code>.
+                    Tambahkan <code class="bg-gray-200 px-1 rounded">?format=excel</code> untuk file XLSX, atau akses tanpa parameter format untuk JSON.
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

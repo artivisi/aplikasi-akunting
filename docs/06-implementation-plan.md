@@ -28,7 +28,7 @@
 | **14** | Fiscal Adjustments API | ✅ Complete |
 | **15** | Payroll API + PPh 21 | ✅ Complete |
 | **—** | Bug Fixes (BUG-001–004) | ✅ Complete |
-| **17** | SPT Tahunan Badan Data Export | Planned |
+| **17** | SPT Tahunan Badan Data Export | ✅ Complete |
 | **18** | WhatsApp Notifications | Planned |
 | **—** | Future Enhancements | As needed |
 
@@ -1544,53 +1544,56 @@ Update PPN rate description in app and docs to reflect 2025 DPP Nilai Lain regim
 
 ---
 
-## Phase 17: SPT Tahunan Badan Data Export
+## Phase 17: SPT Tahunan Badan Data Export ✅
 
 **Goal:** Generate Coretax-ready data for SPT Tahunan PPh Badan lampiran. The app already has the underlying data (financial statements, fiscal adjustments, PPh calculations, depreciation, payroll); this phase adds structured exports matching Coretax L1–L9 formats so users can key-in or XML-import into Coretax with minimal manual effort.
 
 **Context:** PER-11/PJ/2025 defines 24 lampiran for SPT Tahunan Badan in Coretax. Most are key-in or prepopulated by DJP. Only L9 (Penyusutan) and L10A/L11A have DJP XML import templates. The app targets SMEs — L10 (transfer pricing), L11B/C (foreign debt), L12–L14 (BUT/facilities) are out of scope.
 
-### 17.1 L1 Rekonsiliasi Fiskal — Coretax Format Export
-- [ ] Map app expense accounts to Coretax L1-D (Jasa) account structure
-- [ ] Map fiscal adjustment categories to Coretax koreksi fiskal codes (beda tetap/beda waktu)
-- [ ] `GET /api/tax-export/spt-tahunan/l1?year=YYYY` — JSON with commercial P&L, koreksi fiskal per code, PKP
-- [ ] Excel export matching Coretax L1 key-in layout (account, commercial, koreksi positif, koreksi negatif, fiscal)
-- [ ] Include PPh Badan calculation (Pasal 31E) and kredit pajak summary
+### 17.1 L1 Rekonsiliasi Fiskal — Coretax Format Export ✅
+- [x] Map app expense accounts to Coretax L1 account structure (4.1=operating revenue, 4.2=other income, 5.1=operating expenses, 5.2=other expenses)
+- [x] Map fiscal adjustment categories to Coretax koreksi fiskal codes (PERMANENT/TEMPORARY, POSITIVE/NEGATIVE)
+- [x] `GET /api/tax-export/spt-tahunan/l1?year=YYYY` — JSON with commercial P&L, koreksi fiskal per code, PKP
+- [x] Excel export matching Coretax L1 key-in layout (sections I-VIII: Revenue, COGS, Expenses, Other Income/Expenses, Adjustments, PKP, PPh Badan, Kredit Pajak)
+- [x] Include PPh Badan calculation (Pasal 31E) and kredit pajak summary (PPh 23 + PPh 25)
 
-### 17.2 L4 Penghasilan Final — Summary Export
-- [ ] `GET /api/tax-export/spt-tahunan/l4?year=YYYY` — aggregate PPh Final (4(2)) transactions by tax object code
-- [ ] Columns: tax object code, description, gross amount, tax rate, PPh amount
-- [ ] Excel export for Coretax key-in
+### 17.2 L4 Penghasilan Final — Summary Export ✅
+- [x] `GET /api/tax-export/spt-tahunan/l4?year=YYYY` — aggregate PPh Final (4(2)) transactions by tax object code
+- [x] Columns: tax object code, description, gross amount, tax rate, PPh amount
+- [x] Excel export for Coretax key-in
 
-### 17.3 L9 Penyusutan & Amortisasi — DJP XML Format
-- [ ] `GET /api/tax-export/spt-tahunan/l9?year=YYYY&format=excel` — Excel matching DJP converter template columns
-- [ ] Columns per DJP template: asset name, asset group (I/II/III/IV), acquisition date, acquisition cost, depreciation method, useful life, annual depreciation, accumulated depreciation, book value
-- [ ] Map app `FixedAssetCategory` to fiscal asset groups (Kelompok I–IV, Bangunan Permanen/Non-Permanen)
-- [ ] User downloads Excel → converts to XML via DJP Converter → imports into Coretax
+### 17.3 L9 Penyusutan & Amortisasi — DJP XML Format ✅
+- [x] `GET /api/tax-export/spt-tahunan/l9?year=YYYY&format=excel` — Excel matching DJP converter template columns (DATA + REF sheets)
+- [x] Columns per DJP template: NamaHarta, KelompokHarta, TanggalPerolehan, HargaPerolehan, MetodePenyusutan, MasaManfaat, PenyusutanTahunIni, AkumulasiPenyusutan, NilaiBuku
+- [x] Map useful life to fiscal asset groups (Kelompok I–IV, Bangunan Permanen/Non-Permanen)
+- [x] User downloads Excel → converts to XML via DJP Converter → imports into Coretax
 
-### 17.4 Transkrip Laporan Keuangan (8A) — Structured Export
-- [ ] `GET /api/tax-export/spt-tahunan/transkrip-8a?year=YYYY` — Balance sheet + Income statement in Coretax 8A-Jasa layout
-- [ ] Map COA accounts to Coretax transcript line items (Kas, Piutang Usaha, Aktiva Tetap, etc.)
-- [ ] Excel export with two sheets: Neraca (balance sheet) and Laba Rugi (income statement)
+### 17.4 Transkrip Laporan Keuangan (8A) — Structured Export ✅
+- [x] `GET /api/tax-export/spt-tahunan/transkrip-8a?year=YYYY` — Balance sheet + Income statement in Coretax 8A-Jasa layout
+- [x] Map COA accounts to Coretax transcript line items (per-account breakdown with codes)
+- [x] Excel export with two sheets: Neraca (balance sheet) and Laba Rugi (income statement)
 
-### 17.5 e-Bupot PPh 21 Annual (1721-A1) — DJP XML Format
-- [ ] `GET /api/tax-export/ebupot-pph21?year=YYYY&format=excel` — Excel matching DJP BPA1 converter template
-- [ ] Aggregate per-employee annual: gross income, biaya jabatan, BPJS, netto, PTKP, PKP, PPh 21 terutang, PPh 21 dipotong per month
-- [ ] Columns per DJP template: employee NPWP/NIK, name, PTKP status, gross, deductions, netto, tax
-- [ ] User downloads Excel → converts to XML via DJP Converter → imports into Coretax
+### 17.5 e-Bupot PPh 21 Annual (1721-A1) — DJP XML Format ✅
+- [x] `GET /api/tax-export/ebupot-pph21?year=YYYY&format=excel` — Excel matching DJP BPA1 converter template (DATA + REF sheets)
+- [x] Aggregate per-employee annual: penghasilan bruto, biaya jabatan, BPJS employee, netto, PTKP, PKP, PPh 21 terutang, PPh 21 dipotong, kurang/lebih bayar
+- [x] Columns per DJP template: NPWP, NIK, NamaPegawai, StatusPTKP, MasaKerja, PenghasilanBruto, BiayaJabatan, IuranBPJS, PenghasilanNeto, PTKP, PKP, PPh21Terutang, PPh21Dipotong, PPh21KurangLebihBayar
+- [x] User downloads Excel → converts to XML via DJP Converter → imports into Coretax
 
-### 17.6 Fiscal Loss Carryforward (L7 data)
-- [ ] `FiscalLossCarryforward` entity: origin year, original loss amount, used amount, remaining amount
-- [ ] 5-year expiry rule (UU PPh Pasal 6 ayat 2)
-- [ ] `GET /api/fiscal-adjustments/loss-carryforward?year=YYYY` — list active losses with remaining balances
-- [ ] Integrate into L1 rekonsiliasi fiskal (deduct from PKP before PPh Badan calculation)
-- [ ] Migration: add `fiscal_loss_carryforwards` table to V003
+### 17.6 Fiscal Loss Carryforward (L7 data) ✅
+- [x] `FiscalLossCarryforward` entity: origin year, original amount, used amount, remaining amount, expiry year (origin + 5)
+- [x] 5-year expiry rule (UU PPh Pasal 6 ayat 2) with `isExpired()`, `hasRemaining()`, `use()` methods
+- [x] `GET /api/fiscal-adjustments/loss-carryforward?year=YYYY` — list active losses with remaining balances
+- [x] `POST /api/fiscal-adjustments/loss-carryforward` — create loss entry
+- [x] `DELETE /api/fiscal-adjustments/loss-carryforward/{id}` — delete loss entry
+- [x] Integrated into L1 report: `pkpBeforeLoss`, `lossCarryforwards`, `totalLossCompensation`, `pkp` (after loss)
+- [x] Migration: `fiscal_loss_carryforwards` table added to V003
 
-### 17.7 SPT Filing Checklist Dashboard
-- [ ] Web UI page: SPT Tahunan preparation checklist for a given year
-- [ ] Auto-check: financial statements available, fiscal adjustments entered, PPh Badan calculated, all monthly SPT Masa filed, bank accounts reconciled
-- [ ] Download links for all lampiran exports from one page
-- [ ] Functional tests
+### 17.7 SPT Filing Checklist Dashboard ✅
+- [x] Web UI page `/reports/spt-checklist?year=YYYY` — SPT Tahunan preparation checklist
+- [x] Auto-check 7 items: financial statements, fiscal adjustments, PPh Badan, fiscal periods closed (12/12), depreciation, payroll, loss carryforward
+- [x] Download grid: L1, L4, L9, Transkrip 8A, BPA1, Rekonsiliasi Fiskal — all with direct Excel download links
+- [x] Sidebar link "SPT Tahunan" in Laporan group (desktop + mobile)
+- [x] Functional tests (SptChecklistFunctionalTest — page display, downloads, year selection, navigation, screenshots)
 
 ---
 

@@ -175,6 +175,26 @@
         "GET /api/tax-export/rekonsiliasi-fiskal?year=2025 (fiscal reconciliation)",
         "GET /api/tax-export/pph-badan?year=2025 (PPh Badan calculation)"
       ]
+    },
+    {
+      "name": "SPT Tahunan Badan Data Export",
+      "description": "Export lampiran SPT Tahunan PPh Badan per PER-11/PJ/2025. All endpoints support JSON (default) and Excel (?format=excel) for Coretax DJP Converter import.",
+      "steps": [
+        "GET /api/tax-export/spt-tahunan/l1?year=2025 (L1 Rekonsiliasi Fiskal — P&L, koreksi fiskal, kompensasi rugi, PKP, PPh Badan)",
+        "GET /api/tax-export/spt-tahunan/l4?year=2025 (L4 Penghasilan Final — PPh 4(2) per kode objek pajak)",
+        "GET /api/tax-export/spt-tahunan/l9?year=2025 (L9 Penyusutan & Amortisasi — DJP Converter DATA+REF format)",
+        "GET /api/tax-export/spt-tahunan/transkrip-8a?year=2025 (Transkrip 8A Laporan Keuangan — Neraca + Laba Rugi)",
+        "GET /api/tax-export/ebupot-pph21?year=2025 (BPA1 e-Bupot PPh 21 1721-A1 — DJP Converter format, all employees)"
+      ]
+    },
+    {
+      "name": "Fiscal Loss Carryforward Management",
+      "description": "Track fiscal losses (rugi fiskal) that can be carried forward up to 5 years per UU PPh Pasal 6 ayat 2. Losses are automatically applied FIFO in L1 report.",
+      "steps": [
+        "GET /api/fiscal-adjustments/loss-carryforward?year=2025 (list active loss carryforwards for year)",
+        "POST /api/fiscal-adjustments/loss-carryforward (create: originYear, originalAmount, notes)",
+        "DELETE /api/fiscal-adjustments/loss-carryforward/{id} (remove loss entry)"
+      ]
     }
   ],
   "x-csv-files": [

@@ -134,6 +134,9 @@
                             <a sec:authorize="hasAuthority('TAX_EXPORT')" id="nav-tax-detail-bulk" th:href="@{/transactions/tax-details/bulk}"
                                th:classappend="${#strings.equals(currentPage, 'tax-detail-bulk')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                                class="flex items-center px-3 py-2 rounded-lg transition-colors">Input Detail Pajak</a>
+                            <a sec:authorize="hasAuthority('TAX_REPORT_VIEW')" id="nav-spt-checklist" th:href="@{/reports/spt-checklist}"
+                               th:classappend="${#strings.equals(currentPage, 'spt-checklist')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
+                               class="flex items-center px-3 py-2 rounded-lg transition-colors">SPT Tahunan</a>
                             <a sec:authorize="hasAuthority('REPORT_VIEW')" id="nav-aging-receivables" th:href="@{/reports/aging/receivables}"
                                th:classappend="${#strings.equals(currentPage, 'aging-receivables')} ? 'bg-primary-600' : 'hover:bg-primary-600'"
                                class="flex items-center px-3 py-2 rounded-lg transition-colors">Umur Piutang</a>
@@ -415,6 +418,8 @@
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Export Pajak</a>
                             <a sec:authorize="hasAuthority('TAX_EXPORT')" th:href="@{/transactions/tax-details/bulk}"
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Input Detail Pajak</a>
+                            <a sec:authorize="hasAuthority('TAX_REPORT_VIEW')" th:href="@{/reports/spt-checklist}"
+                               class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">SPT Tahunan</a>
                             <a sec:authorize="hasAuthority('REPORT_VIEW')" th:href="@{/reports/aging/receivables}"
                                class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors">Umur Piutang</a>
                             <a sec:authorize="hasAuthority('REPORT_VIEW')" th:href="@{/reports/aging/payables}"

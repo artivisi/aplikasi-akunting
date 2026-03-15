@@ -1,8 +1,11 @@
 package com.artivisi.accountingfinance.controller.api;
 
 import com.artivisi.accountingfinance.entity.FiscalAdjustment;
+import com.artivisi.accountingfinance.entity.FiscalLossCarryforward;
 import com.artivisi.accountingfinance.enums.FiscalAdjustmentCategory;
 import com.artivisi.accountingfinance.enums.FiscalAdjustmentDirection;
+import com.artivisi.accountingfinance.service.SptTahunanExportService;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.LossCarryforwardReport;
 import com.artivisi.accountingfinance.service.TaxReportDetailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +42,7 @@ import java.util.UUID;
 public class FiscalAdjustmentApiController {
 
     private final TaxReportDetailService taxReportDetailService;
+    private final SptTahunanExportService sptTahunanExportService;
 
     @GetMapping
     @Operation(summary = "List fiscal adjustments by year")
@@ -106,6 +110,45 @@ public class FiscalAdjustmentApiController {
         return ResponseEntity.noContent().build();
     }
 
+    // ==================== LOSS CARRYFORWARD ====================
+
+    @GetMapping("/loss-carryforward")
+    @Operation(summary = "List fiscal loss carryforwards with active balances for a year")
+    @ApiResponse(responseCode = "200", description = "Loss carryforward report")
+    public ResponseEntity<LossCarryforwardReport> getLossCarryforward(@RequestParam int year) {
+        return ResponseEntity.ok(sptTahunanExportService.generateLossCarryforward(year));
+    }
+
+    @PostMapping("/loss-carryforward")
+    @Operation(summary = "Create a fiscal loss carryforward entry")
+    @ApiResponse(responseCode = "201", description = "Loss carryforward created")
+    public ResponseEntity<LossCarryforwardResponse> createLossCarryforward(
+            @Valid @RequestBody LossCarryforwardRequest request) {
+        log.info("API: Create loss carryforward - originYear={}, amount={}", request.originYear(), request.originalAmount());
+
+        FiscalLossCarryforward entity = new FiscalLossCarryforward();
+        entity.setOriginYear(request.originYear());
+        entity.setOriginalAmount(request.originalAmount());
+        entity.setNotes(request.notes());
+
+        FiscalLossCarryforward saved = sptTahunanExportService.saveLossCarryforward(entity);
+
+        log.info("API: Loss carryforward created - id={}", saved.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(LossCarryforwardResponse.from(saved));
+    }
+
+    @DeleteMapping("/loss-carryforward/{id}")
+    @Operation(summary = "Delete a fiscal loss carryforward entry")
+    @ApiResponse(responseCode = "204", description = "Loss carryforward deleted")
+    public ResponseEntity<Void> deleteLossCarryforward(@PathVariable UUID id) {
+        log.info("API: Delete loss carryforward - id={}", id);
+        sptTahunanExportService.deleteLossCarryforward(id);
+        log.info("API: Loss carryforward deleted - id={}", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ==================== HELPERS ====================
+
     private FiscalAdjustment toEntity(FiscalAdjustmentRequest request) {
         FiscalAdjustment entity = new FiscalAdjustment();
         entity.setYear(request.year());
@@ -138,6 +181,39 @@ public class FiscalAdjustmentApiController {
             String accountCode,
             String notes
     ) {}
+
+    public record LossCarryforwardRequest(
+            @NotNull(message = "Tahun asal rugi wajib diisi")
+            Integer originYear,
+
+            @NotNull(message = "Jumlah rugi wajib diisi")
+            @Positive(message = "Jumlah rugi harus positif")
+            BigDecimal originalAmount,
+
+            String notes
+    ) {}
+
+    public record LossCarryforwardResponse(
+            UUID id,
+            int originYear,
+            BigDecimal originalAmount,
+            BigDecimal usedAmount,
+            BigDecimal remainingAmount,
+            int expiryYear,
+            String notes
+    ) {
+        public static LossCarryforwardResponse from(FiscalLossCarryforward entity) {
+            return new LossCarryforwardResponse(
+                    entity.getId(),
+                    entity.getOriginYear(),
+                    entity.getOriginalAmount(),
+                    entity.getUsedAmount(),
+                    entity.getRemainingAmount(),
+                    entity.getExpiryYear(),
+                    entity.getNotes()
+            );
+        }
+    }
 
     public record FiscalAdjustmentResponse(
             UUID id,

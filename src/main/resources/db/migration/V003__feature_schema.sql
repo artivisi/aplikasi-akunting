@@ -446,3 +446,27 @@ CREATE TABLE fiscal_adjustments (
 );
 
 CREATE INDEX idx_fiscal_adjustments_year ON fiscal_adjustments(year);
+
+-- ============================================
+-- Fiscal Loss Carryforward (UU PPh Pasal 6 ayat 2)
+-- Tracks fiscal losses that can be carried forward up to 5 years
+-- ============================================
+
+CREATE TABLE fiscal_loss_carryforwards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    origin_year INTEGER NOT NULL,
+    original_amount DECIMAL(15, 2) NOT NULL,
+    used_amount DECIMAL(15, 2) NOT NULL DEFAULT 0,
+    remaining_amount DECIMAL(15, 2) NOT NULL,
+    expiry_year INTEGER NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_flc_original_positive CHECK (original_amount > 0),
+    CONSTRAINT chk_flc_used_non_negative CHECK (used_amount >= 0),
+    CONSTRAINT chk_flc_remaining_non_negative CHECK (remaining_amount >= 0),
+    CONSTRAINT chk_flc_expiry CHECK (expiry_year = origin_year + 5),
+    CONSTRAINT uq_flc_origin_year UNIQUE (origin_year)
+);
+
+CREATE INDEX idx_flc_expiry_year ON fiscal_loss_carryforwards(expiry_year);

@@ -86,6 +86,9 @@ public final class ViewConstants {
     // Current page values - Tax Details
     public static final String PAGE_TAX_DETAIL_BULK = "tax-detail-bulk";
 
+    // Current page values - SPT Tahunan
+    public static final String PAGE_SPT_CHECKLIST = "spt-checklist";
+
     // Current page values - Bank Reconciliation
     public static final String PAGE_BANK_RECONCILIATION = "bank-reconciliation";
     public static final String PAGE_BANK_RECON_PARSER_CONFIGS = "bank-recon-parser-configs";

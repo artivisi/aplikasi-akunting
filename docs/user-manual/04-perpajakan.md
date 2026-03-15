@@ -329,6 +329,74 @@ Autentikasi: Bearer token dengan scope `tax-export:read`.
 
 ---
 
+## SPT Tahunan Badan
+
+Halaman Checklist SPT Tahunan membantu mempersiapkan data untuk pelaporan SPT Tahunan PPh Badan di Coretax DJP. Halaman ini menampilkan status kesiapan data dan menyediakan download lampiran dalam format Excel.
+
+### Mengakses Checklist SPT Tahunan
+
+Buka menu **Laporan** > **SPT Tahunan** di sidebar.
+
+![Checklist SPT Tahunan](screenshots/spt-checklist/spt-checklist-page.png)
+
+### Checklist Kesiapan Data
+
+Sistem memeriksa 7 komponen data:
+
+| No | Komponen | Status Hijau | Status Kuning/Merah |
+|----|----------|-------------|---------------------|
+| 1 | **Laporan Keuangan** | Ada transaksi pendapatan/beban | Belum ada transaksi |
+| 2 | **Koreksi Fiskal** | Sudah diisi | Belum ada koreksi |
+| 3 | **PPh Badan Terutang** | Berhasil dihitung | Gagal menghitung |
+| 4 | **Periode Fiskal** | 12/12 bulan ditutup | Ada periode belum ditutup |
+| 5 | **Penyusutan Aset Tetap** | Ada aset tercatat | Tidak ada aset |
+| 6 | **Payroll & PPh 21** | Ada data payroll | Tidak ada data |
+| 7 | **Kompensasi Kerugian** | Info rugi fiskal aktif | Tidak ada rugi |
+
+### Download Lampiran SPT
+
+Setelah data siap, download file Excel untuk diimpor ke Coretax via DJP Converter:
+
+![Download Lampiran SPT](screenshots/spt-checklist/spt-checklist-downloads.png)
+
+| Lampiran | Isi | Format |
+|----------|-----|--------|
+| **L1 — Rekonsiliasi Fiskal** | P&L komersial, koreksi fiskal, kompensasi rugi, PKP, PPh Badan | Excel |
+| **L4 — Penghasilan Final** | PPh 4(2) per kode objek pajak | Excel |
+| **L9 — Penyusutan & Amortisasi** | Daftar aset tetap, format DJP Converter (DATA + REF) | Excel |
+| **Transkrip 8A — Laporan Keuangan** | Neraca + Laba Rugi (2 sheet) | Excel |
+| **BPA1 — e-Bupot PPh 21** | 1721-A1 semua karyawan, format DJP Converter | Excel |
+| **Rekonsiliasi Fiskal (detail)** | Format laporan internal | Excel |
+
+### Kompensasi Kerugian Fiskal
+
+Rugi fiskal yang belum habis masa berlakunya (5 tahun per UU PPh Pasal 6 ayat 2) dapat dikompensasi ke tahun pajak berikutnya. Pengelolaan kompensasi kerugian dilakukan via API:
+
+```
+GET    /api/fiscal-adjustments/loss-carryforward?year=2025  — daftar rugi fiskal aktif
+POST   /api/fiscal-adjustments/loss-carryforward             — catat rugi fiskal baru
+DELETE /api/fiscal-adjustments/loss-carryforward/{id}        — hapus entry
+```
+
+Kompensasi kerugian diterapkan otomatis (FIFO berdasarkan tahun asal) pada laporan L1.
+
+### Akses via API
+
+Semua lampiran juga tersedia via API di `/api/tax-export/spt-tahunan/*`:
+
+```
+GET /api/tax-export/spt-tahunan/l1?year=2025              — JSON
+GET /api/tax-export/spt-tahunan/l1?year=2025&format=excel — XLSX
+GET /api/tax-export/spt-tahunan/l4?year=2025
+GET /api/tax-export/spt-tahunan/l9?year=2025
+GET /api/tax-export/spt-tahunan/transkrip-8a?year=2025
+GET /api/tax-export/ebupot-pph21?year=2025
+```
+
+Autentikasi: Bearer token dengan scope `tax-export:read`.
+
+---
+
 ## Tips Kepatuhan
 
 1. **Catat tepat waktu** - Jangan menunda pencatatan transaksi pajak

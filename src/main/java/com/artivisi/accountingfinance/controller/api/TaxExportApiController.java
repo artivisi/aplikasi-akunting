@@ -7,6 +7,12 @@ import com.artivisi.accountingfinance.enums.AuditEventType;
 import com.artivisi.accountingfinance.service.CoretaxExportService;
 import com.artivisi.accountingfinance.service.ReportExportService;
 import com.artivisi.accountingfinance.service.SecurityAuditService;
+import com.artivisi.accountingfinance.service.SptTahunanExportService;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.Bpa1Report;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.L1Report;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.L4Report;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.L9Report;
+import com.artivisi.accountingfinance.service.SptTahunanExportService.Transkrip8AReport;
 import com.artivisi.accountingfinance.service.TaxReportDetailService;
 import com.artivisi.accountingfinance.service.TaxReportDetailService.PPhBadanCalculation;
 import com.artivisi.accountingfinance.service.TaxReportDetailService.PPNDetailReport;
@@ -62,6 +68,7 @@ public class TaxExportApiController {
     private final TaxReportDetailService taxReportDetailService;
     private final ReportExportService reportExportService;
     private final SecurityAuditService securityAuditService;
+    private final SptTahunanExportService sptTahunanExportService;
 
     // ==================== EXCEL EXPORT ENDPOINTS ====================
 
@@ -258,6 +265,153 @@ public class TaxExportApiController {
                 Map.of("year", String.valueOf(year)),
                 data,
                 Map.of(META_DESCRIPTION, "PPh Badan corporate income tax calculation with Pasal 31E facility",
+                        META_CURRENCY, "IDR")));
+    }
+
+    // ==================== SPT TAHUNAN BADAN EXPORTS ====================
+
+    @GetMapping("/spt-tahunan/l1")
+    @Transactional(readOnly = true)
+    @Operation(summary = "L1 Rekonsiliasi Fiskal (JSON or Excel)",
+            description = "Fiscal reconciliation in Coretax L1 layout. Add ?format=excel for XLSX.")
+    public ResponseEntity<Object> getSptL1(
+            @RequestParam int year,
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format)
+            throws IOException {
+
+        L1Report report = sptTahunanExportService.generateL1(year);
+        auditAccess("spt-tahunan-l1", Map.of("year", String.valueOf(year)));
+
+        if (FORMAT_EXCEL.equals(format)) {
+            byte[] excel = coretaxExportService.exportL1ToExcel(report);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=spt-l1-rekonsiliasi-fiskal-" + year + FILE_EXT_XLSX)
+                    .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
+                    .body(excel);
+        }
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "spt-tahunan-l1", LocalDateTime.now(),
+                Map.of("year", String.valueOf(year)),
+                report,
+                Map.of(META_DESCRIPTION, "Lampiran I - Rekonsiliasi Fiskal (Coretax layout)",
+                        META_CURRENCY, "IDR")));
+    }
+
+    @GetMapping("/spt-tahunan/l4")
+    @Transactional(readOnly = true)
+    @Operation(summary = "L4 Penghasilan Final (JSON or Excel)",
+            description = "PPh 4(2) final income summary. Add ?format=excel for XLSX.")
+    public ResponseEntity<Object> getSptL4(
+            @RequestParam int year,
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format)
+            throws IOException {
+
+        L4Report report = sptTahunanExportService.generateL4(year);
+        auditAccess("spt-tahunan-l4", Map.of("year", String.valueOf(year)));
+
+        if (FORMAT_EXCEL.equals(format)) {
+            byte[] excel = coretaxExportService.exportL4ToExcel(report);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=spt-l4-penghasilan-final-" + year + FILE_EXT_XLSX)
+                    .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
+                    .body(excel);
+        }
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "spt-tahunan-l4", LocalDateTime.now(),
+                Map.of("year", String.valueOf(year)),
+                report,
+                Map.of(META_DESCRIPTION, "Lampiran IV - Penghasilan yang Dikenakan PPh Final",
+                        META_CURRENCY, "IDR")));
+    }
+
+    @GetMapping("/spt-tahunan/transkrip-8a")
+    @Transactional(readOnly = true)
+    @Operation(summary = "Transkrip 8A Laporan Keuangan (JSON or Excel)",
+            description = "Balance sheet + income statement in Coretax 8A layout. Add ?format=excel for XLSX.")
+    public ResponseEntity<Object> getSptTranskrip8A(
+            @RequestParam int year,
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format)
+            throws IOException {
+
+        Transkrip8AReport report = sptTahunanExportService.generateTranskrip8A(year);
+        auditAccess("spt-tahunan-transkrip-8a", Map.of("year", String.valueOf(year)));
+
+        if (FORMAT_EXCEL.equals(format)) {
+            byte[] excel = coretaxExportService.exportTranskrip8AToExcel(report);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=spt-transkrip-8a-" + year + FILE_EXT_XLSX)
+                    .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
+                    .body(excel);
+        }
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "spt-tahunan-transkrip-8a", LocalDateTime.now(),
+                Map.of("year", String.valueOf(year)),
+                report,
+                Map.of(META_DESCRIPTION, "Transkrip Kutipan Elemen Laporan Keuangan (8A-Jasa)",
+                        META_CURRENCY, "IDR")));
+    }
+
+    @GetMapping("/spt-tahunan/l9")
+    @Transactional(readOnly = true)
+    @Operation(summary = "L9 Penyusutan & Amortisasi (JSON or Excel)",
+            description = "Fixed asset depreciation in DJP converter format. Add ?format=excel for XLSX.")
+    public ResponseEntity<Object> getSptL9(
+            @RequestParam int year,
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format)
+            throws IOException {
+
+        L9Report report = sptTahunanExportService.generateL9(year);
+        auditAccess("spt-tahunan-l9", Map.of("year", String.valueOf(year)));
+
+        if (FORMAT_EXCEL.equals(format)) {
+            byte[] excel = coretaxExportService.exportL9ToExcel(report);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=spt-l9-penyusutan-" + year + FILE_EXT_XLSX)
+                    .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
+                    .body(excel);
+        }
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "spt-tahunan-l9", LocalDateTime.now(),
+                Map.of("year", String.valueOf(year)),
+                report,
+                Map.of(META_DESCRIPTION, "Lampiran 9 - Daftar Penyusutan & Amortisasi",
+                        META_CURRENCY, "IDR")));
+    }
+
+    @GetMapping("/ebupot-pph21")
+    @Transactional(readOnly = true)
+    @Operation(summary = "e-Bupot PPh 21 Annual / 1721-A1 bulk (JSON or Excel)",
+            description = "Annual PPh 21 reconciliation for all employees. Add ?format=excel for DJP BPA1 converter format.")
+    public ResponseEntity<Object> getEbupotPph21(
+            @RequestParam int year,
+            @Parameter(description = "Set to 'excel' for XLSX download") @RequestParam(required = false) String format)
+            throws IOException {
+
+        Bpa1Report report = sptTahunanExportService.generateBpa1(year);
+        auditAccess("ebupot-pph21", Map.of("year", String.valueOf(year)));
+
+        if (FORMAT_EXCEL.equals(format)) {
+            byte[] excel = coretaxExportService.exportBpa1ToExcel(report);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=ebupot-pph21-1721a1-" + year + FILE_EXT_XLSX)
+                    .contentType(MediaType.parseMediaType(XLSX_CONTENT_TYPE))
+                    .body(excel);
+        }
+
+        return ResponseEntity.ok(new AnalysisResponse<>(
+                "ebupot-pph21", LocalDateTime.now(),
+                Map.of("year", String.valueOf(year)),
+                report,
+                Map.of(META_DESCRIPTION, "e-Bupot PPh 21 Annual (1721-A1) - all employees",
                         META_CURRENCY, "IDR")));
     }
 
