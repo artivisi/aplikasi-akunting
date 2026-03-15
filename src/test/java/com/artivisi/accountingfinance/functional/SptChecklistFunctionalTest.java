@@ -1,6 +1,6 @@
 package com.artivisi.accountingfinance.functional;
 
-import com.artivisi.accountingfinance.functional.service.ServiceTestDataInitializer;
+import com.artivisi.accountingfinance.functional.taxdetail.TaxDetailTestDataInitializer;
 import com.artivisi.accountingfinance.ui.PlaywrightTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Functional tests for SPT Tahunan Badan checklist page.
+ * Uses TaxDetailTestDataInitializer to have transactions with revenue/expense accounts.
  */
 @DisplayName("SPT Tahunan Badan Checklist Tests")
-@Import(ServiceTestDataInitializer.class)
+@Import(TaxDetailTestDataInitializer.class)
 class SptChecklistFunctionalTest extends PlaywrightTestBase {
 
     @BeforeEach
