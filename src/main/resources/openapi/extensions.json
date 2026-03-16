@@ -71,7 +71,7 @@
       "name": "Financial Analysis",
       "steps": [
         "GET /api/analysis/company (determine industry)",
-        "GET /api/analysis/snapshot?month=yyyy-MM",
+        "GET /api/analysis/snapshot?month=yyyy-MM (or month=MM&year=yyyy)",
         "GET /api/analysis/income-statement, balance-sheet, cash-flow, etc.",
         "POST /api/analysis/reports (publish structured analysis)"
       ]

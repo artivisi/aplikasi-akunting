@@ -77,9 +77,10 @@ public class FinancialAnalysisApiController {
 
     @GetMapping("/snapshot")
     public ResponseEntity<AnalysisResponse<SnapshotDto>> getSnapshot(
-            @RequestParam String month) {
+            @RequestParam String month,
+            @RequestParam(required = false) Integer year) {
 
-        YearMonth ym = YearMonth.parse(month);
+        YearMonth ym = parseYearMonth(month, year);
         DashboardService.DashboardKPI kpi = dashboardService.calculateKPIs(ym);
 
         List<CashBankItemDto> cashBankItems = kpi.cashBankItems().stream()
@@ -328,6 +329,17 @@ public class FinancialAnalysisApiController {
                 Map.of(META_CURRENCY, META_CURRENCY_IDR,
                         META_DESCRIPTION, "Accounts payable (Hutang Usaha) as of " + asOfDate
                                 + ". LIABILITY accounts with code prefix 2.1.01.")));
+    }
+
+    /**
+     * Parse month parameter supporting both "YYYY-MM" format and separate month+year params.
+     * Examples: month=2025-12 OR month=12&year=2025
+     */
+    private YearMonth parseYearMonth(String month, Integer year) {
+        if (year != null) {
+            return YearMonth.of(year, Integer.parseInt(month));
+        }
+        return YearMonth.parse(month);
     }
 
     private void auditAccess(String reportType, Map<String, String> params) {
