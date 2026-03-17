@@ -37,8 +37,7 @@ public class PayrollService {
     private static final int DEFAULT_JKK_RISK_CLASS = 1; // IT Services
     private static final String PAYROLL_RUN_NOT_FOUND = "Payroll run tidak ditemukan";
 
-    // Payroll journal template ID (from V004 seed data)
-    private static final UUID PAYROLL_TEMPLATE_ID = UUID.fromString("e0000000-0000-0000-0000-000000000014");
+    private static final String PAYROLL_TEMPLATE_NAME = "Post Gaji Bulanan";
 
     private final PayrollRunRepository payrollRunRepository;
     private final PayrollDetailRepository payrollDetailRepository;
@@ -228,9 +227,9 @@ public class PayrollService {
             throw new IllegalStateException("Payroll harus dalam status APPROVED untuk di-posting");
         }
 
-        // Get payroll template
-        JournalTemplate payrollTemplate = journalTemplateRepository.findById(PAYROLL_TEMPLATE_ID)
-            .orElseThrow(() -> new IllegalStateException("Template Post Gaji Bulanan tidak ditemukan"));
+        // Get payroll template by name (UUID varies between test and production environments)
+        JournalTemplate payrollTemplate = journalTemplateRepository.findByTemplateNameAndIsCurrentVersionTrue(PAYROLL_TEMPLATE_NAME)
+            .orElseThrow(() -> new IllegalStateException("Template '" + PAYROLL_TEMPLATE_NAME + "' tidak ditemukan"));
 
         // Calculate total employee BPJS from details
         List<PayrollDetail> details = payrollDetailRepository.findByPayrollRunIdWithEmployee(payrollRunId);
