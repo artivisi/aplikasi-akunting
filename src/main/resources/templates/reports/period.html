@@ -31,9 +31,9 @@
                                 <option th:value="${year}" th:text="'Tahun ' + ${year}"
                                         th:selected="${selectedPeriod != null and selectedPeriod == '' + year}">Tahun 2025</option>
                                 <option th:each="month : ${#numbers.sequence(1,12)}"
-                                        th:value="|${year}-${#strings.padLeft(month, 2, '0')}|"
+                                        th:value="|${year}-${T(String).format('%02d', month)}|"
                                         th:text="|  ${new String[]{'','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'}[month]} ${year}|"
-                                        th:selected="${selectedPeriod != null and selectedPeriod == (year + '-' + #strings.padLeft(month, 2, '0'))}">
+                                        th:selected="${selectedPeriod != null and selectedPeriod == (year + '-' + T(String).format('%02d', month))}">
                                     Januari 2025
                                 </option>
                             </th:block>
