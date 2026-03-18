@@ -1,10 +1,14 @@
-# Balaka
+<p align="center">
+  <img src="brand/logo-plus-jakarta.svg" alt="Balaka" height="64">
+</p>
 
-[![CI](https://github.com/artivisi/balaka/actions/workflows/ci.yml/badge.svg)](https://github.com/artivisi/balaka/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/artivisi/balaka/graph/badge.svg)](https://codecov.io/gh/artivisi/balaka)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting)
+<p align="center">
+  <a href="https://github.com/artivisi/balaka/actions/workflows/ci.yml"><img src="https://github.com/artivisi/balaka/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/artivisi/balaka"><img src="https://codecov.io/gh/artivisi/balaka/graph/badge.svg" alt="codecov"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting"><img src="https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=alert_status" alt="Quality Gate Status"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting"><img src="https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=security_rating" alt="Security Rating"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=artivisi_aplikasi-akunting"><img src="https://sonarcloud.io/api/project_badges/measure?project=artivisi_aplikasi-akunting&metric=sqale_rating" alt="Maintainability Rating"></a>
+</p>
 
 Accounting application for Indonesian small businesses. Spring Boot 4.0.3 + Thymeleaf + PostgreSQL.
 

@@ -590,9 +590,9 @@ public class UserManualGenerator {
                             extend: {
                                 colors: {
                                     primary: {
-                                        50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
-                                        400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
-                                        800: '#1e40af', 900: '#1e3a8a',
+                                        50: '#eeeef8', 100: '#d5d5ed', 200: '#ababdb', 300: '#8180c9',
+                                        400: '#5756b7', 500: '#3d3ca5', 600: '#2E2D8E', 700: '#262578',
+                                        800: '#1e1d62', 900: '#16164c',
                                     }
                                 }
                             }
@@ -600,7 +600,7 @@ public class UserManualGenerator {
                     }
                 </script>
                 <style>
-                    .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #1e3a8a; }
+                    .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #2E2D8E; }
                     .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
                     .prose h4 { font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; }
                     .prose h5 { font-size: 1rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.25rem; }
@@ -617,7 +617,7 @@ public class UserManualGenerator {
                     .prose pre { background-color: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
                     .prose pre code { background: none; padding: 0; }
                     .prose strong { font-weight: 600; }
-                    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; margin: 1rem 0; color: #4b5563; font-style: italic; }
+                    .prose blockquote { border-left: 4px solid #2E2D8E; padding-left: 1rem; margin: 1rem 0; color: #4b5563; font-style: italic; }
                     .screenshot-container { margin: 1.5rem 0; }
                     @media print {
                         .no-print { display: none !important; }
@@ -631,8 +631,9 @@ public class UserManualGenerator {
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="flex items-center justify-between h-16">
                             <div class="flex items-center">
-                                <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                <svg class="w-8 h-8 mr-3" viewBox="0 0 64 64">
+                                    <rect width="64" height="64" rx="12" fill="white"/>
+                                    <path fill-rule="evenodd" d="M22 9h6v46h-6zM28 9h10a6 6 0 016 6v7a6 6 0 01-6 6h-10zM28 34h12a7 7 0 017 7v7a7 7 0 01-7 7h-12zM10 9h12v7h-12zM10 28h12v6h-12zM10 49h12v6h-12zM32 13h3a5 5 0 015 5v2a5 5 0 01-5 5h-3zM32 38h5a5 5 0 015 5v3a5 5 0 01-5 5h-5z" fill="#2E2D8E"/>
                                 </svg>
                                 <h1 class="text-xl font-bold">Panduan Pengguna - Balaka</h1>
                             </div>
