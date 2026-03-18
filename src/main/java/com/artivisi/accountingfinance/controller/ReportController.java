@@ -168,17 +168,24 @@ public class ReportController {
             LocalDate end;
 
             if (period.length() == 4) {
-                // Yearly: "2025"
+                // Yearly: "2025" — full fiscal year
                 int year = Integer.parseInt(period);
                 start = LocalDate.of(year, 1, 1);
-                end = LocalDate.of(year, 12, 31);
+                LocalDate yearEnd = LocalDate.of(year, 12, 31);
+                LocalDate today = LocalDate.now();
+                // Open/current year: cap at today; closed/past year: Dec 31
+                end = today.isBefore(yearEnd) && today.getYear() == year ? today : yearEnd;
             } else {
                 // Monthly: "2025-01"
                 String[] parts = period.split("-");
                 int year = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
                 start = LocalDate.of(year, month, 1);
-                end = start.withDayOfMonth(start.lengthOfMonth());
+                LocalDate monthEnd = start.withDayOfMonth(start.lengthOfMonth());
+                LocalDate today = LocalDate.now();
+                // Open/current month: cap at today
+                end = today.isBefore(monthEnd) && today.getYear() == year
+                        && today.getMonthValue() == month ? today : monthEnd;
             }
 
             model.addAttribute(ATTR_START_DATE, start);
