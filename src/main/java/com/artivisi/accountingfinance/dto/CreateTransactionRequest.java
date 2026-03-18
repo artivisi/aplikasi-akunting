@@ -51,9 +51,9 @@ public record CreateTransactionRequest(
         Boolean userApproved,
 
         /**
-         * Map of accountHint to accountId.
-         * Used to specify accounts for template lines that have accountHint instead of a fixed account.
-         * Key = accountHint string from template line, Value = accountId UUID.
+         * Specify accounts for template lines that have accountHint instead of a fixed account.
+         * Key = accountHint string (e.g., "BANK") or lineOrder number (e.g., "2").
+         * Value = accountId UUID.
          */
         Map<String, UUID> accountSlots,
 
