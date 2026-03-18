@@ -72,7 +72,8 @@
       "steps": [
         "GET /api/analysis/company (determine industry)",
         "GET /api/analysis/snapshot?month=yyyy-MM (or month=MM&year=yyyy)",
-        "GET /api/analysis/income-statement, balance-sheet, cash-flow, etc.",
+        "GET /api/analysis/income-statement?startDate=&endDate=&excludeClosing=true (optional: exclude closing entries for tax purposes)",
+        "GET /api/analysis/balance-sheet, cash-flow, etc.",
         "POST /api/analysis/reports (publish structured analysis)"
       ]
     },
@@ -184,7 +185,9 @@
         "GET /api/tax-export/spt-tahunan/l4?year=2025 (L4 Penghasilan Final — PPh 4(2) per kode objek pajak)",
         "GET /api/tax-export/spt-tahunan/l9?year=2025 (L9 Penyusutan & Amortisasi — DJP Converter DATA+REF format)",
         "GET /api/tax-export/spt-tahunan/transkrip-8a?year=2025 (Transkrip 8A Laporan Keuangan — Neraca + Laba Rugi)",
-        "GET /api/tax-export/ebupot-pph21?year=2025 (BPA1 e-Bupot PPh 21 1721-A1 — DJP Converter format, all employees)"
+        "GET /api/tax-export/ebupot-pph21?year=2025 (BPA1 e-Bupot PPh 21 1721-A1 — DJP Converter format, all employees)",
+        "GET /api/tax-export/financial-statements/pdf?year=2025 (Combined Neraca + Laba Rugi PDF for Coretax upload)",
+        "GET /api/tax-export/coretax/spt-badan?year=2025 (Coretax-compatible structured JSON — all fields plain numbers for direct entry)"
       ]
     },
     {

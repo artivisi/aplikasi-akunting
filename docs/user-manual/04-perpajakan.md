@@ -367,6 +367,13 @@ Setelah data siap, download file Excel untuk diimpor ke Coretax via DJP Converte
 | **Transkrip 8A — Laporan Keuangan** | Neraca + Laba Rugi (2 sheet) | Excel |
 | **BPA1 — e-Bupot PPh 21** | 1721-A1 semua karyawan, format DJP Converter | Excel |
 | **Rekonsiliasi Fiskal (detail)** | Format laporan internal | Excel |
+| **Laporan Keuangan (PDF)** | Neraca + Laba Rugi gabungan untuk upload Coretax | PDF |
+
+### Catatan Teknis
+
+- **Beban luar usaha (L1):** Semua beban non-operasional (akun 5.2, 5.3, 5.9, dll.) secara otomatis masuk ke bagian "beban luar usaha" pada L1. Sistem menggunakan filter eksklusi (semua yang bukan 5.1) sehingga akun baru yang ditambahkan di masa depan otomatis tercakup.
+- **Penyusutan aset pool (L9):** Jika aset tidak memiliki entri penyusutan individual (misalnya aset pool yang disusutkan di level GL), sistem menghitung dari formula bulanan × jumlah bulan aktif dalam tahun tersebut.
+- **Pembulatan PKP:** PKP dibulatkan ke bawah ke ribuan terdekat sebelum perhitungan PPh Badan, sesuai UU PPh pasal 6 ayat 3. Nilai PKP asli dan PKP pembulatan keduanya ditampilkan di response API.
 
 ### Kompensasi Kerugian Fiskal
 
@@ -392,6 +399,8 @@ GET /api/tax-export/spt-tahunan/l4?year=2025
 GET /api/tax-export/spt-tahunan/l9?year=2025
 GET /api/tax-export/spt-tahunan/transkrip-8a?year=2025
 GET /api/tax-export/ebupot-pph21?year=2025
+GET /api/tax-export/financial-statements/pdf?year=2025    — PDF (Neraca + Laba Rugi)
+GET /api/tax-export/coretax/spt-badan?year=2025           — Coretax-compatible JSON
 ```
 
 **Endpoint konsolidasi** (`/lampiran`) mengembalikan seluruh data lampiran dalam satu response JSON, dengan field number Coretax (8A.I.1, 8A.II.1, dst.) siap untuk key-in ke Coretax DJP. Mencakup:
@@ -400,7 +409,22 @@ GET /api/tax-export/ebupot-pph21?year=2025
 - Lampiran II (rincian beban usaha dan beban luar usaha)
 - Lampiran III (kredit pajak PPh 23 dari bukti potong)
 - Lampiran V (placeholder — data pemegang saham diisi manual)
-- PPh Badan (PKP, PPh terutang, kredit pajak, PPh 29)
+- PPh Badan (PKP, PKP pembulatan, PPh terutang, kredit pajak, PPh 29)
+
+**Endpoint Coretax** (`/coretax/spt-badan`) mengembalikan JSON terstruktur dengan nama field yang cocok dengan form Coretax. Nilai berupa angka biasa (tanpa format ribuan) untuk langsung diketik ke Coretax. Mencakup:
+- `induk`: field utama SPT (peredaran usaha, laba, koreksi fiskal, PKP, PPh)
+- `l1dLabaRugi`: item laba rugi per akun
+- `l1dNeraca`: item neraca per akun
+- `l3KreditPajak`: daftar bukti potong PPh 23 individual
+- `penyusutan`: daftar aset tetap dan penyusutan
+
+**Endpoint PDF** (`/financial-statements/pdf`) menghasilkan file PDF 2 halaman (Neraca + Laba Rugi) dengan header nama perusahaan dan NPWP, siap upload sebagai lampiran laporan keuangan di Coretax.
+
+**Laporan Laba Rugi via Analysis API** juga mendukung parameter `excludeClosing`:
+```
+GET /api/analysis/income-statement?startDate=2025-01-01&endDate=2025-12-31&excludeClosing=true
+```
+Parameter ini mengeluarkan jurnal penutup dari perhitungan, berguna untuk keperluan pajak dan analisis.
 
 Autentikasi: Bearer token dengan scope `tax-export:read`.
 
