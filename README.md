@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brand/b-mark-final.svg" alt="Balaka" height="64">
+  <img src="brand/logo-full.svg" alt="Balaka" height="64">
 </p>
 
 <p align="center">

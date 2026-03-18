@@ -2,118 +2,371 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Balaka — Smoothed B Mark + Plus Jakarta Sans</title>
+<title>Balaka Brand Guidelines</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; margin: 0; padding: 2rem; background: #f5f5f4; }
-  h1 { color: #1e293b; margin-bottom: 0.5rem; }
-  p.sub { color: #64748b; margin-top: 0; font-size: 0.9rem; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; max-width: 1100px; }
-  .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .dark-card { background: #1e293b; border-radius: 12px; padding: 2rem; }
-  .label { color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; font-weight: 600; }
-  .label-dark { color: #94a3b8; }
-  .section { margin-top: 2rem; }
-  .mark { display: block; }
-  .login-sim { background: white; border-radius: 12px; padding: 2rem; text-align: center; max-width: 320px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .login-sim .tagline { color: #94a3b8; font-size: 0.85rem; margin-top: 0.25rem; }
-  .login-sim .field { display: block; width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-  .login-sim .btn { display: block; width: 100%; padding: 0.6rem; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; margin-top: 0.75rem; font-family: inherit; }
+  :root {
+    --brand: #2E2D8E;
+    --brand-light: #4654AC;
+    --brand-dark: #1C1E5D;
+    --accent: #58C034;
+    --slate-900: #1e293b;
+    --slate-600: #475569;
+    --slate-400: #94a3b8;
+    --slate-200: #e2e8f0;
+    --slate-50: #f8fafc;
+    --stone-100: #f5f5f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--stone-100); color: var(--slate-900); line-height: 1.6; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 3rem 2rem; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.25rem; font-weight: 700; color: var(--brand); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--slate-200); }
+  h3 { font-size: 0.875rem; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  p.subtitle { color: var(--slate-600); font-size: 0.95rem; margin-bottom: 2.5rem; }
+
+  .section { margin-bottom: 3rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+  .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .dark-card { background: var(--slate-900); border-radius: 12px; padding: 1.5rem; }
+
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .spec-table td { padding: 0.5rem 0; border-bottom: 1px solid var(--slate-200); }
+  .spec-table td:first-child { color: var(--slate-600); width: 40%; }
+  .spec-table td:last-child { font-weight: 600; }
+  .spec-table tr:last-child td { border-bottom: none; }
+
+  .swatch { width: 100%; height: 80px; border-radius: 8px; margin-bottom: 0.75rem; }
+  .swatch-row { display: flex; gap: 4px; height: 40px; border-radius: 6px; overflow: hidden; margin-top: 0.5rem; }
+  .swatch-row div { flex: 1; }
+  .color-label { font-size: 0.75rem; color: var(--slate-600); }
+  .color-value { font-size: 0.8rem; font-weight: 600; font-family: ui-monospace, monospace; }
+
+  .logo-display { display: flex; align-items: center; justify-content: center; min-height: 120px; }
+  .size-row { display: flex; align-items: end; gap: 2rem; justify-content: center; }
+  .size-item { text-align: center; }
+  .size-label { font-size: 0.7rem; color: var(--slate-400); margin-top: 0.25rem; }
+
+  .dont { border: 2px solid #ef4444; position: relative; }
+  .dont::after { content: "DON'T"; position: absolute; top: 8px; right: 8px; background: #ef4444; color: white; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em; }
+
+  code { background: var(--slate-50); border: 1px solid var(--slate-200); padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.8rem; font-family: ui-monospace, monospace; }
+
+  @media (max-width: 700px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<h1>Balaka — Smoothed B Mark</h1>
-<p class="sub">Potrace-traced from ChatGPT output, smoothed edges. Font: Plus Jakarta Sans 600.</p>
+<div class="container">
 
-<div class="section">
-  <div class="grid">
-    <div class="card">
-      <div class="label">B Mark (light bg)</div>
-      <img src="b-mark-final.svg" width="120" height="120">
-    </div>
-    <div class="dark-card">
-      <div class="label label-dark">B Mark (dark bg) — needs white variant</div>
-      <img src="b-mark-final.svg" width="120" height="120" style="filter: brightness(0) invert(1);">
-    </div>
-    <div class="card">
-      <div class="label">Favicon sizes</div>
-      <div style="display:flex; align-items:center; gap:1.5rem;">
-        <div>
-          <img src="b-mark-final.svg" width="64" height="64">
-          <div style="color:#94a3b8; font-size:0.7rem; text-align:center;">64px</div>
+  <h1>Balaka Brand Guidelines</h1>
+  <p class="subtitle">Aplikasi Akunting untuk UMKM Indonesia</p>
+
+  <!-- ===== LOGO ===== -->
+  <div class="section">
+    <h2>Logo</h2>
+    <p style="font-size:0.9rem; color:var(--slate-600); margin-bottom:1.5rem;">
+      The Balaka logo consists of the <strong>B mark</strong> (a stylized letter B) and the <strong>wordmark</strong> "Balaka" in Plus Jakarta Sans SemiBold.
+      They can be used together (full logo) or the B mark alone (favicon, compact UI).
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Full Logo — Light Background</h3>
+        <div class="logo-display">
+          <img src="logo-full.svg" height="56" alt="Balaka full logo">
         </div>
-        <div>
-          <img src="b-mark-final.svg" width="32" height="32">
-          <div style="color:#94a3b8; font-size:0.7rem; text-align:center;">32px</div>
+      </div>
+      <div class="dark-card">
+        <h3 style="color:var(--slate-400)">Full Logo — Dark Background</h3>
+        <div class="logo-display">
+          <img src="logo-full-dark.svg" height="56" alt="Balaka full logo dark">
         </div>
-        <div>
-          <img src="b-mark-final.svg" width="16" height="16">
-          <div style="color:#94a3b8; font-size:0.7rem; text-align:center;">16px</div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:1.5rem;">
+      <div class="card">
+        <h3>B Mark Only</h3>
+        <div class="logo-display">
+          <img src="b-mark-final.svg" width="80" height="80" alt="Balaka B mark">
+        </div>
+      </div>
+      <div class="card">
+        <h3>Compact (Sidebar)</h3>
+        <div class="logo-display">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <img src="b-mark-final.svg" width="32" height="32" alt="Balaka B mark">
+            <span style="font-size:1.1rem; font-weight:600; color:#2E2D8E;">Balaka</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Favicon Sizes</h3>
+        <div class="logo-display">
+          <div class="size-row">
+            <div class="size-item">
+              <img src="b-mark-final.svg" width="64" height="64" alt="64px">
+              <div class="size-label">64px</div>
+            </div>
+            <div class="size-item">
+              <img src="b-mark-final.svg" width="32" height="32" alt="32px">
+              <div class="size-label">32px</div>
+            </div>
+            <div class="size-item">
+              <img src="b-mark-final.svg" width="16" height="16" alt="16px">
+              <div class="size-label">16px</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="section">
-  <div class="grid">
-    <div class="card">
-      <div class="label">Full logo (mark + text)</div>
-      <div style="display:flex; align-items:center; gap:1rem;">
-        <img src="b-mark-final.svg" width="48" height="48">
-        <span style="font-size:2rem; font-weight:600; color:#2E2D8E; letter-spacing:0.5px;">Balaka</span>
+  <!-- ===== LOGO SPECS ===== -->
+  <div class="section">
+    <h2>Logo Specifications</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>B Mark</h3>
+        <table class="spec-table">
+          <tr><td>Source file</td><td><code>b-mark-final.svg</code></td></tr>
+          <tr><td>SVG viewBox</td><td><code>0 0 318 336</code></td></tr>
+          <tr><td>Aspect ratio</td><td>318 : 336 (0.946 : 1)</td></tr>
+          <tr><td>Fill color</td><td><code>#2E2D8E</code></td></tr>
+          <tr><td>Dark variant</td><td><code>#FFFFFF</code> fill (or CSS <code>filter: brightness(0) invert(1)</code>)</td></tr>
+          <tr><td>Minimum size</td><td>16 &times; 16 px</td></tr>
+        </table>
       </div>
-    </div>
-    <div class="dark-card">
-      <div class="label label-dark">Full logo (dark)</div>
-      <div style="display:flex; align-items:center; gap:1rem;">
-        <img src="b-mark-final.svg" width="48" height="48" style="filter: brightness(0) invert(1);">
-        <span style="font-size:2rem; font-weight:600; color:white; letter-spacing:0.5px;">Balaka</span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="label">Mark only (sidebar size)</div>
-      <div style="display:flex; align-items:center; gap:0.75rem;">
-        <img src="b-mark-final.svg" width="32" height="32">
-        <span style="font-size:1.1rem; font-weight:600; color:#2E2D8E;">Balaka</span>
+      <div class="card">
+        <h3>Wordmark</h3>
+        <table class="spec-table">
+          <tr><td>Text</td><td>Balaka</td></tr>
+          <tr><td>Font</td><td>Plus Jakarta Sans</td></tr>
+          <tr><td>Weight</td><td>600 (SemiBold)</td></tr>
+          <tr><td>Color (light bg)</td><td><code>#2E2D8E</code></td></tr>
+          <tr><td>Color (dark bg)</td><td><code>#FFFFFF</code></td></tr>
+          <tr><td>Letter spacing</td><td>0.5px</td></tr>
+          <tr><td>Mark-to-text gap</td><td>1rem (16px)</td></tr>
+        </table>
       </div>
     </div>
   </div>
-</div>
 
-<div class="section">
-  <div class="label" style="margin-bottom:1rem">Context mock-ups</div>
-  <div style="display:flex; gap:2rem;">
-    <div class="login-sim">
-      <img src="b-mark-final.svg" width="56" height="56" style="margin:0 auto;">
-      <div style="font-size:1.5rem; font-weight:700; color:#2E2D8E; margin-top:0.5rem;">Balaka</div>
-      <div class="tagline">Aplikasi Akunting</div>
-      <input class="field" placeholder="Username">
-      <input class="field" type="password" placeholder="Password">
-      <button class="btn" style="background:#2E2D8E">Login</button>
-    </div>
-    <div style="background:#1e293b; border-radius:12px; padding:1.5rem; width:220px; height:fit-content;">
-      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
-        <img src="b-mark-final.svg" width="32" height="32" style="filter: brightness(0) invert(1);">
-        <span style="font-size:1.1rem; font-weight:600; color:white;">Balaka</span>
+  <!-- ===== CLEAR SPACE & MISUSE ===== -->
+  <div class="section">
+    <h2>Clear Space & Misuse</h2>
+    <p style="font-size:0.9rem; color:var(--slate-600); margin-bottom:1.5rem;">
+      Maintain a minimum clear space around the logo equal to the height of the B mark's upper counter (approximately 25% of the mark height).
+    </p>
+    <div class="grid-3">
+      <div class="card dont">
+        <h3>Stretched</h3>
+        <div class="logo-display">
+          <img src="b-mark-final.svg" width="100" height="60" alt="Don't stretch" style="object-fit:fill;">
+        </div>
       </div>
-      <div style="color:#94a3b8; font-size:0.85rem;">
-        <div style="padding:0.4rem 0; color:white;">Dashboard</div>
-        <div style="padding:0.4rem 0;">Transaksi</div>
-        <div style="padding:0.4rem 0;">Laporan</div>
-        <div style="padding:0.4rem 0;">Master Data</div>
-        <div style="padding:0.4rem 0;">Pengaturan</div>
+      <div class="card dont">
+        <h3>Wrong Color</h3>
+        <div class="logo-display">
+          <img src="b-mark-final.svg" width="60" height="60" alt="Don't recolor" style="filter:hue-rotate(90deg);">
+        </div>
+      </div>
+      <div class="card dont">
+        <h3>Low Contrast</h3>
+        <div class="logo-display" style="background:#3333aa; border-radius:8px;">
+          <img src="b-mark-final.svg" width="60" height="60" alt="Don't use on similar color">
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="section" style="margin-top:3rem; color:#94a3b8; font-size:0.8rem;">
-  <p>Note: Dark variant uses CSS <code>filter: brightness(0) invert(1)</code> as a placeholder. For production, create a proper white SVG variant.</p>
-</div>
+  <!-- ===== COLORS ===== -->
+  <div class="section">
+    <h2>Color Palette</h2>
 
+    <div class="grid-3">
+      <!-- Primary -->
+      <div class="card">
+        <h3>Primary — Balaka Blue</h3>
+        <div class="swatch" style="background:#2E2D8E;"></div>
+        <table class="spec-table">
+          <tr><td>Brand</td><td><code>#2E2D8E</code></td></tr>
+          <tr><td>RGB</td><td>46, 45, 142</td></tr>
+          <tr><td>Usage</td><td>Logo, headings, primary buttons</td></tr>
+        </table>
+        <div class="swatch-row" style="margin-top:1rem;">
+          <div style="background:#eef0fb;" title="50"></div>
+          <div style="background:#dde1f7;" title="100"></div>
+          <div style="background:#bcc3ef;" title="200"></div>
+          <div style="background:#9aa5e7;" title="300"></div>
+          <div style="background:#7987df;" title="400"></div>
+          <div style="background:#5769d7;" title="500"></div>
+          <div style="background:#4654ac;" title="600"></div>
+          <div style="background:#2e3192;" title="700"></div>
+          <div style="background:#252878;" title="800"></div>
+          <div style="background:#1c1e5d;" title="900"></div>
+          <div style="background:#131443;" title="950"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:0.25rem;">
+          <span class="color-label">50</span>
+          <span class="color-label">500</span>
+          <span class="color-label">950</span>
+        </div>
+      </div>
+
+      <!-- Accent -->
+      <div class="card">
+        <h3>Accent — Balaka Green</h3>
+        <div class="swatch" style="background:#58C034;"></div>
+        <table class="spec-table">
+          <tr><td>Accent</td><td><code>#58C034</code></td></tr>
+          <tr><td>RGB</td><td>88, 192, 52</td></tr>
+          <tr><td>Usage</td><td>Success states, profit indicators, CTAs</td></tr>
+        </table>
+        <div class="swatch-row" style="margin-top:1rem;">
+          <div style="background:#f0fbe9;" title="50"></div>
+          <div style="background:#dff6d1;" title="100"></div>
+          <div style="background:#bfeda4;" title="200"></div>
+          <div style="background:#9fe476;" title="300"></div>
+          <div style="background:#7edb48;" title="400"></div>
+          <div style="background:#58c034;" title="500"></div>
+          <div style="background:#47992a;" title="600"></div>
+          <div style="background:#357320;" title="700"></div>
+          <div style="background:#244c15;" title="800"></div>
+          <div style="background:#12260b;" title="900"></div>
+          <div style="background:#091305;" title="950"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:0.25rem;">
+          <span class="color-label">50</span>
+          <span class="color-label">500</span>
+          <span class="color-label">950</span>
+        </div>
+      </div>
+
+      <!-- Neutrals -->
+      <div class="card">
+        <h3>Neutrals — Slate</h3>
+        <div class="swatch" style="background:#1e293b;"></div>
+        <table class="spec-table">
+          <tr><td>Dark</td><td><code>#1E293B</code> (slate-800)</td></tr>
+          <tr><td>Body text</td><td><code>#475569</code> (slate-600)</td></tr>
+          <tr><td>Light bg</td><td><code>#F8FAFC</code> (slate-50)</td></tr>
+          <tr><td>Usage</td><td>Sidebar, text, borders, backgrounds</td></tr>
+        </table>
+        <div class="swatch-row" style="margin-top:1rem;">
+          <div style="background:#f8fafc;" title="50"></div>
+          <div style="background:#f1f5f9;" title="100"></div>
+          <div style="background:#e2e8f0;" title="200"></div>
+          <div style="background:#cbd5e1;" title="300"></div>
+          <div style="background:#94a3b8;" title="400"></div>
+          <div style="background:#64748b;" title="500"></div>
+          <div style="background:#475569;" title="600"></div>
+          <div style="background:#334155;" title="700"></div>
+          <div style="background:#1e293b;" title="800"></div>
+          <div style="background:#0f172a;" title="900"></div>
+          <div style="background:#020617;" title="950"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:0.25rem;">
+          <span class="color-label">50</span>
+          <span class="color-label">500</span>
+          <span class="color-label">950</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TYPOGRAPHY ===== -->
+  <div class="section">
+    <h2>Typography</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Typeface</h3>
+        <table class="spec-table">
+          <tr><td>Primary font</td><td>Plus Jakarta Sans</td></tr>
+          <tr><td>Fallback</td><td><code>system-ui, sans-serif</code></td></tr>
+          <tr><td>Source</td><td>Google Fonts</td></tr>
+          <tr><td>License</td><td>SIL Open Font License 1.1</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Weights in Use</h3>
+        <table class="spec-table">
+          <tr><td style="font-weight:400;">Regular (400)</td><td>Body text, descriptions</td></tr>
+          <tr><td style="font-weight:600;">SemiBold (600)</td><td>Logo wordmark, labels, nav items</td></tr>
+          <tr><td style="font-weight:700;">Bold (700)</td><td>Headings, page titles</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;">
+      <h3>Type Scale (Preview)</h3>
+      <div style="margin-top:0.5rem;">
+        <div style="font-size:2rem; font-weight:700; color:var(--brand); margin-bottom:0.5rem;">Heading 1 — 2rem / Bold</div>
+        <div style="font-size:1.25rem; font-weight:700; color:var(--slate-900); margin-bottom:0.5rem;">Heading 2 — 1.25rem / Bold</div>
+        <div style="font-size:1rem; font-weight:600; color:var(--slate-900); margin-bottom:0.5rem;">Heading 3 — 1rem / SemiBold</div>
+        <div style="font-size:0.875rem; color:var(--slate-600); margin-bottom:0.5rem;">Body — 0.875rem / Regular. Balaka adalah aplikasi akunting untuk UMKM Indonesia.</div>
+        <div style="font-size:0.75rem; color:var(--slate-400);">Caption — 0.75rem / Regular</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONTEXT MOCK-UPS ===== -->
+  <div class="section">
+    <h2>Context Mock-ups</h2>
+    <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+      <!-- Login -->
+      <div style="background:white; border-radius:12px; padding:2rem; text-align:center; width:320px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <img src="b-mark-final.svg" width="56" height="56" style="margin:0 auto;" alt="Balaka">
+        <div style="font-size:1.5rem; font-weight:700; color:#2E2D8E; margin-top:0.5rem;">Balaka</div>
+        <div style="color:var(--slate-400); font-size:0.85rem; margin-top:0.25rem;">Aplikasi Akunting</div>
+        <input style="display:block; width:100%; padding:0.5rem; margin:0.5rem 0; border:1px solid var(--slate-200); border-radius:6px; font-family:inherit; box-sizing:border-box;" placeholder="Username">
+        <input style="display:block; width:100%; padding:0.5rem; margin:0.5rem 0; border:1px solid var(--slate-200); border-radius:6px; font-family:inherit; box-sizing:border-box;" type="password" placeholder="Password">
+        <button style="display:block; width:100%; padding:0.6rem; border:none; border-radius:6px; color:white; font-weight:600; cursor:pointer; margin-top:0.75rem; font-family:inherit; background:#2E2D8E;">Login</button>
+      </div>
+      <!-- Sidebar -->
+      <div style="background:#1e293b; border-radius:12px; padding:1.5rem; width:220px; height:fit-content;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+          <img src="b-mark-final.svg" width="32" height="32" style="filter:brightness(0) invert(1);" alt="Balaka">
+          <span style="font-size:1.1rem; font-weight:600; color:white;">Balaka</span>
+        </div>
+        <div style="color:var(--slate-400); font-size:0.85rem;">
+          <div style="padding:0.4rem 0; color:white;">Dashboard</div>
+          <div style="padding:0.4rem 0;">Transaksi</div>
+          <div style="padding:0.4rem 0;">Laporan</div>
+          <div style="padding:0.4rem 0;">Master Data</div>
+          <div style="padding:0.4rem 0;">Pengaturan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ASSET FILES ===== -->
+  <div class="section">
+    <h2>Asset Files</h2>
+    <div class="card">
+      <table class="spec-table">
+        <tr><td><code>brand/b-mark-final.svg</code></td><td>B mark only — favicon, compact UI (SVG, 1KB)</td></tr>
+        <tr><td><code>brand/logo-full.svg</code></td><td>Full logo — B mark + "Balaka" wordmark, light background</td></tr>
+        <tr><td><code>brand/logo-full-dark.svg</code></td><td>Full logo — white variant for dark backgrounds</td></tr>
+        <tr><td><code>static/favicon.svg</code></td><td>Browser favicon (same B mark, no explicit width/height)</td></tr>
+        <tr><td><code>static/themes/balaka/logo.svg</code></td><td>App header logo (mark + wordmark combined SVG)</td></tr>
+        <tr><td><code>static/themes/balaka/logo-dark.svg</code></td><td>App header logo — white variant for dark sidebar</td></tr>
+        <tr><td><code>static/themes/balaka/theme.css</code></td><td>Theme overrides (colors, footer text)</td></tr>
+        <tr><td><code>brand/preview.html</code></td><td>This document — brand guidelines</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--slate-200); color:var(--slate-400); font-size:0.8rem;">
+    <p>Balaka is an open-source project by Artivisi. Licensed under Apache License 2.0.</p>
+  </div>
+
+</div>
 </body>
 </html>

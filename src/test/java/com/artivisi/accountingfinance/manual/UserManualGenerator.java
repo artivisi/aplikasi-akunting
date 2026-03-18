@@ -631,11 +631,11 @@ public class UserManualGenerator {
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="flex items-center justify-between h-16">
                             <div class="flex items-center">
-                                <svg class="w-8 h-8 mr-3" viewBox="0 0 64 64">
-                                    <rect width="64" height="64" rx="12" fill="white"/>
-                                    <path fill-rule="evenodd" d="M22 9h6v46h-6zM28 9h10a6 6 0 016 6v7a6 6 0 01-6 6h-10zM28 34h12a7 7 0 017 7v7a7 7 0 01-7 7h-12zM10 9h12v7h-12zM10 28h12v6h-12zM10 49h12v6h-12zM32 13h3a5 5 0 015 5v2a5 5 0 01-5 5h-3zM32 38h5a5 5 0 015 5v3a5 5 0 01-5 5h-5z" fill="#2E2D8E"/>
+                                <svg class="h-8 mr-3" viewBox="0 0 720 336">
+                                    <path fill="white" d="M25.5 30.2c-.3.7-.4 26.9-.3 58.3l.3 57h99c109.8 0 102.7.4 117-6.9 11.5-5.9 20.1-14.7 24.3-24.8 3.8-9.1 5.2-15.7 5.2-24.4 0-21.9-12.3-41.6-32-51.3-4.7-2.3-11.6-5.1-15.5-6.3-7-2.2-7.5-2.2-102.3-2.6-77.3-.2-95.3-.1-95.7 1m181.6 29.2c15.8 3.4 23.9 10.5 27.5 24.2 3.4 13.4-5.5 27.6-20 31.8-4.8 1.4-14.4 1.6-80.3 1.4l-74.8-.3-.3-28c-.1-15.4 0-28.5.3-29.2.7-2 138.4-1.8 147.6.1M25.4 162.3c-.2.7-.3 6.5-.2 12.8l.3 11.4 95.5.5c94.5.5 95.6.5 101.1 2.6 9.2 3.6 12.1 5.4 18 11.5 15.3 15.6 18.9 39.7 8.8 57.6-5.2 9.1-15.4 16.3-27.6 19.5-3.7 1-23 1.3-82.8 1.3h-78v-54l83-.5 82.9-.5 1.3-11c.6-6 .9-11.2.7-11.5-.3-.3-46.1-.5-101.7-.5H25.5v107l97.9.3c102.1.2 102.7.2 116.6-3.9 12.9-3.8 25.5-11.3 33.7-20.1 12.2-13.2 19.2-33.4 18-52.7-1.1-17.2-6.5-31.4-16.8-43.9-8.8-10.7-22.1-19.5-34.9-23.1-2.5-.8-5.8-1.8-7.5-2.5-2.1-.8-32.7-1.2-104.8-1.4-84.7-.2-101.8-.1-102.3 1.1"/>
+                                    <text x="350" y="205" font-family="'Plus Jakarta Sans', sans-serif" font-size="140" font-weight="600" fill="white" letter-spacing="1">Balaka</text>
                                 </svg>
-                                <h1 class="text-xl font-bold">Panduan Pengguna - Balaka</h1>
+                                <span class="text-xl font-bold">Panduan Pengguna</span>
                             </div>
                             <div class="flex items-center space-x-4 text-sm">
                                 <span class="hidden sm:inline">{{DATE}}</span>
