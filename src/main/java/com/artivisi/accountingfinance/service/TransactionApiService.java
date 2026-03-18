@@ -376,7 +376,11 @@ public class TransactionApiService {
         Map<UUID, UUID> accountMappings = new HashMap<>();
         for (JournalTemplateLine line : template.getLines()) {
             if (line.getAccountHint() != null) {
+                // Match by accountHint (e.g., "BANK") or by lineOrder (e.g., "2")
                 UUID accountId = accountSlots.get(line.getAccountHint());
+                if (accountId == null) {
+                    accountId = accountSlots.get(String.valueOf(line.getLineOrder()));
+                }
                 if (accountId != null) {
                     accountMappings.put(line.getId(), accountId);
                 }
