@@ -19,8 +19,8 @@ class PeriodReportTest extends PlaywrightTestBase {
     }
 
     @Test
-    @DisplayName("Should display period report page with quick presets")
-    void shouldDisplayPeriodReportPage() {
+    @DisplayName("Should display period selector with quick presets")
+    void shouldDisplayPeriodSelector() {
         navigateTo("/reports/period");
         waitForPageLoad();
 
@@ -28,44 +28,70 @@ class PeriodReportTest extends PlaywrightTestBase {
         assertThat(page.locator("#startDate")).isVisible();
         assertThat(page.locator("#endDate")).isVisible();
         assertThat(page.locator("#btn-generate")).isVisible();
-
-        // Verify quick preset buttons exist for fiscal years
         assertThat(page.locator("button.period-preset:has-text('Tahun')").first()).isVisible();
+        assertThat(page.locator("text=Pilih periode untuk menampilkan laporan keuangan")).isVisible();
     }
 
     @Test
-    @DisplayName("Should generate yearly report with income statement and balance sheet")
-    void shouldGenerateYearlyReport() {
-        navigateTo("/reports/period?startDate=2025-01-01&endDate=2025-12-31");
-        waitForPageLoad();
-
-        assertThat(page.locator("#page-title")).hasText("Laporan Periode");
-        assertThat(page.locator("#startDate")).hasValue("2025-01-01");
-        assertThat(page.locator("#endDate")).hasValue("2025-12-31");
-        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
-    }
-
-    @Test
-    @DisplayName("Should generate monthly report with income statement and balance sheet")
-    void shouldGenerateMonthlyReport() {
-        navigateTo("/reports/period?startDate=2025-01-01&endDate=2025-01-31");
-        waitForPageLoad();
-
-        assertThat(page.locator("#page-title")).hasText("Laporan Periode");
-        assertThat(page.locator("#startDate")).hasValue("2025-01-01");
-        assertThat(page.locator("#endDate")).hasValue("2025-01-31");
-        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
-    }
-
-    @Test
-    @DisplayName("Should show empty state when no period is selected")
-    void shouldShowEmptyStateWhenNoPeriodSelected() {
+    @DisplayName("Should generate yearly report when clicking Tahun preset")
+    void shouldGenerateYearlyReportViaPreset() {
         navigateTo("/reports/period");
         waitForPageLoad();
 
-        assertThat(page.locator("text=Pilih periode untuk menampilkan laporan keuangan")).isVisible();
-        assertThat(page.locator("text=LAPORAN LABA RUGI")).not().isVisible();
+        page.locator("button.period-preset:has-text('Tahun')").first().click();
+        waitForPageLoad();
+
+        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
+        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
+        assertThat(page.locator("#startDate")).not().hasValue("");
+        assertThat(page.locator("#endDate")).not().hasValue("");
+    }
+
+    @Test
+    @DisplayName("Should generate quarterly report when clicking Q1 preset")
+    void shouldGenerateQuarterlyReportViaPreset() {
+        navigateTo("/reports/period");
+        waitForPageLoad();
+
+        page.locator("button.period-preset:has-text('Q1')").first().click();
+        waitForPageLoad();
+
+        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
+        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should expand monthly buttons and generate monthly report")
+    void shouldGenerateMonthlyReportViaPreset() {
+        navigateTo("/reports/period");
+        waitForPageLoad();
+
+        page.locator("button.month-toggle").first().click();
+
+        var janButton = page.locator("button.period-preset:has-text('Jan')").first();
+        assertThat(janButton).isVisible();
+
+        janButton.click();
+        waitForPageLoad();
+
+        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
+        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
+    }
+
+    @Test
+    @DisplayName("Should generate report via manual date input")
+    void shouldGenerateReportViaManualInput() {
+        navigateTo("/reports/period");
+        waitForPageLoad();
+
+        page.locator("#startDate").fill("2025-01-01");
+        page.locator("#endDate").fill("2025-12-31");
+        page.locator("#btn-generate").click();
+        waitForPageLoad();
+
+        assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
+        assertThat(page.locator("text=LAPORAN POSISI KEUANGAN")).isVisible();
+        assertThat(page.locator("#startDate")).hasValue("2025-01-01");
+        assertThat(page.locator("#endDate")).hasValue("2025-12-31");
     }
 }

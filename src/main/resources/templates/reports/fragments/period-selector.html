@@ -28,7 +28,6 @@
                         th:data-start="|${yp.year}-01-01|"
                         th:data-end="|${yp.year}-12-31|"
                         th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         class="period-preset px-2 py-1 text-xs font-medium rounded border border-primary-200 text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors">
                     Tahun
                 </button>
@@ -36,25 +35,21 @@
                 <!-- Quarters -->
                 <button type="button"
                         th:data-start="|${yp.year}-01-01|" th:data-end="|${yp.year}-03-31|" th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         class="period-preset px-2 py-1 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">Q1</button>
                 <button type="button"
                         th:data-start="|${yp.year}-04-01|" th:data-end="|${yp.year}-06-30|" th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         class="period-preset px-2 py-1 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">Q2</button>
                 <button type="button"
                         th:data-start="|${yp.year}-07-01|" th:data-end="|${yp.year}-09-30|" th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         class="period-preset px-2 py-1 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">Q3</button>
                 <button type="button"
                         th:data-start="|${yp.year}-10-01|" th:data-end="|${yp.year}-12-31|" th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         class="period-preset px-2 py-1 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">Q4</button>
 
                 <!-- Monthly toggle -->
                 <button type="button"
-                        th:onclick="|toggleMonths('months-' + ${yp.year})|"
-                        class="px-2 py-1 text-xs rounded border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                        th:data-toggle="|months-${yp.year}|"
+                        class="month-toggle px-2 py-1 text-xs rounded border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                         title="Tampilkan bulan">
                     <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
@@ -67,7 +62,6 @@
                         th:data-start="${mp.startDate}"
                         th:data-end="${mp.endDate}"
                         th:data-mode="${mode}"
-                        onclick="selectPeriod(this)"
                         th:text="${mp.label}"
                         class="period-preset px-2 py-1 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">Jan</button>
             </div>
@@ -107,33 +101,34 @@
         </div>
     </div>
 
-    <!-- Fragment JS (idempotent — safe to include multiple times) -->
+    <!-- Fragment JS — event delegation, no inline handlers -->
     <script th:inline="none" th:attr="nonce=${cspNonce}">
         if (!window._periodSelectorLoaded) {
             window._periodSelectorLoaded = true;
-
-            window.selectPeriod = function(btn) {
-                var start = btn.getAttribute('data-start');
-                var end = btn.getAttribute('data-end');
-                var mode = btn.getAttribute('data-mode');
-
-                // Cap end date to today if in the future
-                var today = new Date().toISOString().split('T')[0];
-                if (end > today) end = today;
-
-                var form = btn.closest('form');
-                if (mode === 'as-of') {
-                    form.querySelector('[name="asOfDate"]').value = end;
-                } else {
-                    form.querySelector('[name="startDate"]').value = start;
-                    form.querySelector('[name="endDate"]').value = end;
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('.period-preset');
+                if (btn) {
+                    var start = btn.getAttribute('data-start');
+                    var end = btn.getAttribute('data-end');
+                    var mode = btn.getAttribute('data-mode');
+                    var today = new Date().toISOString().split('T')[0];
+                    if (end > today) end = today;
+                    var form = btn.closest('form');
+                    if (mode === 'as-of') {
+                        form.querySelector('[name="asOfDate"]').value = end;
+                    } else {
+                        form.querySelector('[name="startDate"]').value = start;
+                        form.querySelector('[name="endDate"]').value = end;
+                    }
+                    form.submit();
+                    return;
                 }
-                form.submit();
-            };
-
-            window.toggleMonths = function(id) {
-                document.getElementById(id).classList.toggle('hidden');
-            };
+                var toggle = e.target.closest('.month-toggle');
+                if (toggle) {
+                    var id = toggle.getAttribute('data-toggle');
+                    document.getElementById(id).classList.toggle('hidden');
+                }
+            });
         }
     </script>
 </div>
