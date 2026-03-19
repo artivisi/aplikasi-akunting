@@ -103,16 +103,16 @@
 
     <!-- Fragment JS — event delegation, no inline handlers -->
     <script th:inline="none" th:attr="nonce=${cspNonce}">
-        if (!window._periodSelectorLoaded) {
-            window._periodSelectorLoaded = true;
+        if (!globalThis._periodSelectorLoaded) {
+            globalThis._periodSelectorLoaded = true;
 
             // Click handler
             document.addEventListener('click', function(e) {
                 var btn = e.target.closest('.period-preset');
                 if (btn) {
-                    var start = btn.getAttribute('data-start');
-                    var end = btn.getAttribute('data-end');
-                    var mode = btn.getAttribute('data-mode');
+                    var start = btn.dataset.start;
+                    var end = btn.dataset.end;
+                    var mode = btn.dataset.mode;
                     var today = new Date().toISOString().split('T')[0];
                     if (end > today) end = today;
                     var form = btn.closest('form');
@@ -127,8 +127,7 @@
                 }
                 var toggle = e.target.closest('.month-toggle');
                 if (toggle) {
-                    var id = toggle.getAttribute('data-toggle');
-                    document.getElementById(id).classList.toggle('hidden');
+                    document.getElementById(toggle.dataset.toggle).classList.toggle('hidden');
                 }
             });
 
@@ -141,19 +140,17 @@
                 var endInput = form.querySelector('[name="endDate"]');
                 var asOfInput = form.querySelector('[name="asOfDate"]');
                 var curStart = startInput ? startInput.value : '';
-                var curEnd = endInput ? endInput.value : (asOfInput ? asOfInput.value : '');
+                var curEnd = endInput ? endInput.value : '';
+                if (!curEnd && asOfInput) curEnd = asOfInput.value;
 
                 if (curStart || curEnd) {
                     form.querySelectorAll('.period-preset').forEach(function(btn) {
-                        var btnStart = btn.getAttribute('data-start');
-                        var btnEnd = btn.getAttribute('data-end');
                         var isActive = asOfInput
-                            ? (btnEnd === curEnd)
-                            : (btnStart === curStart && btnEnd === curEnd);
+                            ? (btn.dataset.end === curEnd)
+                            : (btn.dataset.start === curStart && btn.dataset.end === curEnd);
                         if (isActive) {
                             inactiveClasses.forEach(function(c) { btn.classList.remove(c); });
                             activeClasses.forEach(function(c) { btn.classList.add(c); });
-                            // If this is a monthly button, expand its parent
                             var monthsDiv = btn.closest('[id^="months-"]');
                             if (monthsDiv) monthsDiv.classList.remove('hidden');
                         }

@@ -47,8 +47,8 @@ class PeriodReportTest extends PlaywrightTestBase {
 
         // Revenue: 196,200,000 + 163,500,000 = 359,700,000
         assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=Pendapatan Jasa Konsultasi")).isVisible();
-        assertThat(page.locator("text=Pendapatan Jasa Training")).isVisible();
+        assertThat(page.locator("#period-report-content").getByText("Pendapatan Jasa Konsultasi")).isVisible();
+        assertThat(page.locator("#period-report-content").getByText("Pendapatan Jasa Training")).isVisible();
 
         // Expenses: 3,330,000 + 5,550,000 = 8,880,000
         assertThat(page.locator("text=Total Beban Operasional")).isVisible();
@@ -74,7 +74,7 @@ class PeriodReportTest extends PlaywrightTestBase {
 
         // Q1 2024 has all transactions
         assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=Pendapatan Jasa Konsultasi")).isVisible();
+        assertThat(page.locator("#period-report-content").getByText("Pendapatan Jasa Konsultasi")).isVisible();
         assertThat(page.locator("text=LABA BERSIH")).isVisible();
         assertThat(page.locator("#startDate")).hasValue("2024-01-01");
         assertThat(page.locator("#endDate")).hasValue("2024-03-31");
@@ -98,7 +98,7 @@ class PeriodReportTest extends PlaywrightTestBase {
 
         // Jan 2024: revenue = Konsultasi only (196,200,000), expenses = 8,880,000
         assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=Pendapatan Jasa Konsultasi")).isVisible();
+        assertThat(page.locator("#period-report-content").getByText("Pendapatan Jasa Konsultasi")).isVisible();
         assertThat(page.locator("#startDate")).hasValue("2024-01-01");
         assertThat(page.locator("#endDate")).hasValue("2024-01-31");
     }
@@ -116,7 +116,7 @@ class PeriodReportTest extends PlaywrightTestBase {
 
         // Feb 2024: only Training revenue (163,500,000), no expenses
         assertThat(page.locator("text=LAPORAN LABA RUGI")).isVisible();
-        assertThat(page.locator("text=Pendapatan Jasa Training")).isVisible();
+        assertThat(page.locator("#period-report-content").getByText("Pendapatan Jasa Training")).isVisible();
         assertThat(page.locator("text=Tidak ada beban")).isVisible();
         assertThat(page.locator("#startDate")).hasValue("2024-02-01");
         assertThat(page.locator("#endDate")).hasValue("2024-02-28");
