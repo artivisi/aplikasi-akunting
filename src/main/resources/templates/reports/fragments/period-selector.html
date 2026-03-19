@@ -28,7 +28,7 @@
                         th:data-start="|${yp.year}-01-01|"
                         th:data-end="|${yp.year}-12-31|"
                         th:data-mode="${mode}"
-                        class="period-preset px-2 py-1 text-xs font-medium rounded border border-primary-200 text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors">
+                        class="period-preset px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">
                     Tahun
                 </button>
 
@@ -105,6 +105,8 @@
     <script th:inline="none" th:attr="nonce=${cspNonce}">
         if (!window._periodSelectorLoaded) {
             window._periodSelectorLoaded = true;
+
+            // Click handler
             document.addEventListener('click', function(e) {
                 var btn = e.target.closest('.period-preset');
                 if (btn) {
@@ -129,6 +131,35 @@
                     document.getElementById(id).classList.toggle('hidden');
                 }
             });
+
+            // Highlight active preset on page load
+            var activeClasses = ['border-primary-200', 'text-primary-700', 'bg-primary-50', 'font-medium'];
+            var inactiveClasses = ['border-gray-200', 'text-gray-600'];
+            var form = document.querySelector('form:has(.period-preset)');
+            if (form) {
+                var startInput = form.querySelector('[name="startDate"]');
+                var endInput = form.querySelector('[name="endDate"]');
+                var asOfInput = form.querySelector('[name="asOfDate"]');
+                var curStart = startInput ? startInput.value : '';
+                var curEnd = endInput ? endInput.value : (asOfInput ? asOfInput.value : '');
+
+                if (curStart || curEnd) {
+                    form.querySelectorAll('.period-preset').forEach(function(btn) {
+                        var btnStart = btn.getAttribute('data-start');
+                        var btnEnd = btn.getAttribute('data-end');
+                        var isActive = asOfInput
+                            ? (btnEnd === curEnd)
+                            : (btnStart === curStart && btnEnd === curEnd);
+                        if (isActive) {
+                            inactiveClasses.forEach(function(c) { btn.classList.remove(c); });
+                            activeClasses.forEach(function(c) { btn.classList.add(c); });
+                            // If this is a monthly button, expand its parent
+                            var monthsDiv = btn.closest('[id^="months-"]');
+                            if (monthsDiv) monthsDiv.classList.remove('hidden');
+                        }
+                    });
+                }
+            }
         }
     </script>
 </div>
