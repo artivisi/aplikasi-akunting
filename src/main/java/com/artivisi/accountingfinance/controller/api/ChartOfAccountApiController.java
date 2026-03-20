@@ -3,6 +3,7 @@ package com.artivisi.accountingfinance.controller.api;
 import com.artivisi.accountingfinance.entity.ChartOfAccount;
 import com.artivisi.accountingfinance.enums.AccountType;
 import com.artivisi.accountingfinance.enums.NormalBalance;
+import com.artivisi.accountingfinance.security.LogSanitizer;
 import com.artivisi.accountingfinance.service.ChartOfAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,7 +49,7 @@ public class ChartOfAccountApiController {
             @RequestParam(required = false) AccountType type,
             @RequestParam(required = false) String search,
             Pageable pageable) {
-        log.info("API: List accounts - type={}, search={}", type, search);
+        log.info("API: List accounts - type={}, search={}", type, LogSanitizer.sanitize(search));
 
         Page<ChartOfAccount> page;
         if (search != null && !search.isBlank()) {
@@ -67,7 +68,7 @@ public class ChartOfAccountApiController {
     @ApiResponse(responseCode = "200", description = "Account details")
     @ApiResponse(responseCode = "404", description = "Account not found")
     public ResponseEntity<AccountResponse> getById(@PathVariable UUID id) {
-        log.info("API: Get account - id={}", id);
+        log.info("API: Get account - id={}", LogSanitizer.sanitize(id.toString()));
         ChartOfAccount account = chartOfAccountService.findById(id);
         return ResponseEntity.ok(AccountResponse.from(account));
     }
@@ -78,13 +79,13 @@ public class ChartOfAccountApiController {
     @ApiResponse(responseCode = "201", description = "Account created")
     public ResponseEntity<AccountResponse> create(
             @Valid @RequestBody AccountRequest request) {
-        log.info("API: Create account - code={}", request.accountCode());
+        log.info("API: Create account - code={}", LogSanitizer.sanitize(request.accountCode()));
 
         ChartOfAccount entity = toEntity(request);
         entity.setActive(true);
         ChartOfAccount saved = chartOfAccountService.create(entity);
 
-        log.info("API: Account created - id={}, code={}", saved.getId(), saved.getAccountCode());
+        log.info("API: Account created - id={}, code={}", saved.getId(), LogSanitizer.sanitize(saved.getAccountCode()));
         return ResponseEntity.status(HttpStatus.CREATED).body(AccountResponse.from(saved));
     }
 
@@ -96,12 +97,12 @@ public class ChartOfAccountApiController {
     public ResponseEntity<AccountResponse> update(
             @PathVariable UUID id,
             @Valid @RequestBody AccountRequest request) {
-        log.info("API: Update account - id={}", id);
+        log.info("API: Update account - id={}", LogSanitizer.sanitize(id.toString()));
 
         ChartOfAccount entity = toEntity(request);
         ChartOfAccount saved = chartOfAccountService.update(id, entity);
 
-        log.info("API: Account updated - id={}, code={}", saved.getId(), saved.getAccountCode());
+        log.info("API: Account updated - id={}, code={}", saved.getId(), LogSanitizer.sanitize(saved.getAccountCode()));
         return ResponseEntity.ok(AccountResponse.from(saved));
     }
 
@@ -112,11 +113,11 @@ public class ChartOfAccountApiController {
     @ApiResponse(responseCode = "404", description = "Account not found")
     @ApiResponse(responseCode = "409", description = "Account has children or journal entries")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        log.info("API: Delete account - id={}", id);
+        log.info("API: Delete account - id={}", LogSanitizer.sanitize(id.toString()));
 
         chartOfAccountService.delete(id);
 
-        log.info("API: Account deleted - id={}", id);
+        log.info("API: Account deleted - id={}", LogSanitizer.sanitize(id.toString()));
         return ResponseEntity.noContent().build();
     }
 

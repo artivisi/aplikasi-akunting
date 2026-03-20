@@ -166,6 +166,18 @@ Each exclusion must have a justification comment explaining the mitigation.
         <Bug pattern="CRLF_INJECTION_LOGS"/>
     </Match>
 
+    <!-- ChartOfAccountApiController: All log params sanitized via LogSanitizer.sanitize() -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.controller.api.ChartOfAccountApiController"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!-- ChartOfAccountService: Taint flows through ChartOfAccountApiController log calls + LogSanitizer applied at controller -->
+    <Match>
+        <Class name="com.artivisi.accountingfinance.service.ChartOfAccountService"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
     <!--
     DB_DUPLICATE_BRANCHES - EmployeeApiController.list() intentional fallthrough
 
