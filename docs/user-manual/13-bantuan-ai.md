@@ -690,7 +690,42 @@ Hapus transaksi DRAFT:
 
 Void transaksi POSTED (reversing entries otomatis):
   POST /api/transactions/{id}/void
+
+Purge transaksi VOID (hapus permanen):
+  DELETE /api/transactions/purge-voided
+  DELETE /api/transactions/purge-voided?before=2026-01-01
 ```
+
+**Purge transaksi VOID:**
+
+Menghapus permanen semua transaksi berstatus VOID beserta journal entries-nya. Detail transaksi yang dihapus dikembalikan dalam response sebagai backup.
+
+```bash
+DELETE /api/transactions/purge-voided
+DELETE /api/transactions/purge-voided?before=2026-01-01
+```
+
+```json
+{
+  "purgedTransactions": [
+    {
+      "id": "uuid",
+      "transactionNumber": "TRX-2026-0042",
+      "transactionDate": "2025-12-15",
+      "amount": 500000,
+      "description": "Pembayaran duplikat",
+      "voidReason": "DUPLICATE",
+      "voidedAt": "2026-01-05T10:30:00",
+      "voidedBy": "admin"
+    }
+  ],
+  "purgedCount": 1
+}
+```
+
+Parameter:
+- `before` (opsional): Hanya purge transaksi dengan tanggal sebelum tanggal ini (eksklusif, format `YYYY-MM-DD`)
+- Tanpa parameter: purge semua transaksi VOID
 
 **Koreksi transaksi DRAFT:**
 
@@ -1484,6 +1519,7 @@ Setiap user dapat melihat dan mencabut device token miliknya di halaman **Perang
 | POST | `/api/transactions/{id}/void` | Void transaksi POSTED |
 | GET | `/api/transactions/{id}/journal-preview` | Preview jurnal entries |
 | POST | `/api/transactions/bulk-post` | Batch post transaksi DRAFT |
+| DELETE | `/api/transactions/purge-voided` | Hapus permanen transaksi VOID |
 
 ### Analisis Keuangan (scope: `analysis:read`)
 
