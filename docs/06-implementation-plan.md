@@ -1833,6 +1833,16 @@ Items below are not planned phases. They are implemented only when a concrete cl
 - [ ] Multi-currency support
 - [ ] Materialized account balances (only if report queries exceed 2s — current performance analysis shows this is decades away for typical usage)
 
+### Docker Image (for Sumopod template & container deployment)
+- [ ] Create Dockerfile — multi-stage build or Spring Boot's `spring-boot:build-image` plugin (evaluate both; prefer `build-image` if the generated image meets size/startup requirements, otherwise self-maintained multi-stage)
+- [ ] Multi-stage Dockerfile reference: stage 1 = Maven build (`./mvnw package -DskipTests`), stage 2 = `azul/zulu-openjdk-alpine:25-jre` + JAR copy. No Nginx, no PostgreSQL — external managed DB, platform handles SSL/routing.
+- [ ] Externalize all config via environment variables: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `JAVA_HEAP_MIN`, `JAVA_HEAP_MAX`, `APP_ENCRYPTION_KEY`. Most already work via Spring Boot externalized config — verify and document.
+- [ ] Integrate into release procedure: on tagged release, CI builds and pushes Docker image to registry (Docker Hub `artivisi/balaka:<version>` + `artivisi/balaka:latest`)
+- [ ] Test image locally: `docker run` with external PostgreSQL (via `docker compose` with PG sidecar for local testing)
+- [ ] Implement first-run setup: if no users exist in DB, show setup wizard (create admin user + select industry seed pack) on first access
+- [ ] Target image size: < 300 MB (JRE ~200 MB + JAR ~140 MB, Alpine base)
+- [ ] Minimum resource: 2 GB RAM, 1 vCPU
+
 ### Custom Projects (Per Client Request)
 - [ ] PJAP integration (e-Faktur, e-Bupot)
 - [ ] Digital signature (PSrE)
