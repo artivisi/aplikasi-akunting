@@ -238,8 +238,8 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
             }
         }
 
-        // 5. Generate and post depreciation
-        postDepreciation(month);
+        // 5. Generate depreciation entries (posting is done at the end)
+        generateDepreciation(month);
 
         // 6. Close fiscal period (only for months before March 2026)
         if (month.isBefore(YearMonth.of(2026, 3))) {
@@ -303,23 +303,51 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
             page.locator("#amount").dispatchEvent("input");
         }
 
-        // Auto-select dynamic account mappings (BANK, PENDAPATAN, etc.)
-        // Prefer bank accounts (1.1.02+) over cash (1.1.01) for BANK hints
+        // Auto-select dynamic account mappings based on hint type
         var accountSelects = page.locator("select[id^='accountMapping_']").all();
         for (var select : accountSelects) {
+            String selectId = select.getAttribute("id");
+            var label = page.locator("label[for='" + selectId + "']");
+            String hint = label.count() > 0 ? label.textContent().trim() : "";
+            // Strip trailing asterisk and whitespace from label
+            hint = hint.replaceAll("[*?\\s]+$", "").trim();
+
             var options = select.locator("option").all();
-            String firstValidValue = null;
-            String bankValue = null;
+            String selectedValue = null;
+
             for (var option : options) {
                 String val = option.getAttribute("value");
                 String text = option.textContent();
-                if (val != null && !val.isEmpty()) {
-                    if (firstValidValue == null) firstValidValue = val;
-                    // Prefer 1.1.02 (Bank BCA) over 1.1.01 (Kas)
-                    if (text != null && text.startsWith("1.1.02")) bankValue = val;
+                if (val == null || val.isEmpty() || text == null) continue;
+
+                // Match by hint type
+                if (hint.contains("BANK") && text.startsWith("1.1.02")) {
+                    selectedValue = val; break;
+                } else if (hint.contains("PENDAPATAN") && text.startsWith("4.1.")) {
+                    selectedValue = val; break;
+                } else if (hint.contains("BEBAN") && text.startsWith("5.")) {
+                    selectedValue = val; break;
+                } else if (hint.contains("FIXED_ASSET") && text.startsWith("1.2.")) {
+                    selectedValue = val; break;
+                } else if (hint.contains("DEBIT_ACCOUNT") || hint.contains("CREDIT_ACCOUNT")) {
+                    // Manual journal — skip auto-select
+                    break;
                 }
             }
-            select.selectOption(bankValue != null ? bankValue : firstValidValue);
+
+            // Fallback: if no match found, pick first non-empty option
+            if (selectedValue == null) {
+                for (var option : options) {
+                    String val = option.getAttribute("value");
+                    if (val != null && !val.isEmpty()) {
+                        selectedValue = val; break;
+                    }
+                }
+            }
+
+            if (selectedValue != null) {
+                select.selectOption(selectedValue);
+            }
         }
 
         // Fill description
@@ -415,26 +443,13 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
         return payrollRunRepository.findByPayrollPeriod(period.toString()).orElse(null);
     }
 
-    private void postDepreciation(YearMonth month) {
+    private void generateDepreciation(YearMonth month) {
+        // Generate depreciation entries via form submit (entries stay in PENDING status)
         navigateTo("/assets/depreciation");
         waitForPageLoad();
-
-        // Post all unposted depreciation entries for this month
-        var postButtons = page.locator("form[action*='/post'] button[type='submit']").all();
-        if (postButtons.isEmpty()) {
-            log.debug("No depreciation entries to post for {}", month);
-            return;
-        }
-
-        for (var btn : postButtons) {
-            btn.click();
-            waitForPageLoad();
-            // Re-navigate in case the page refreshed
-            navigateTo("/assets/depreciation");
-            waitForPageLoad();
-        }
-
-        log.debug("Depreciation posted for month: {}", month);
+        page.locator("#period").fill(month.toString());
+        page.locator("form[action*='/depreciation/generate'] button[type='submit']").click();
+        waitForPageLoad();
     }
 
     private void closeFiscalPeriod(YearMonth month) {
