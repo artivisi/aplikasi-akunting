@@ -244,9 +244,10 @@ public class PayrollService {
             throw new IllegalStateException("Payroll harus dalam status APPROVED untuk di-posting");
         }
 
-        // Get payroll template by configured UUID (app.payroll.template-id)
+        // Get payroll template by configured UUID, or fall back to lookup by name
         JournalTemplate payrollTemplate = journalTemplateRepository.findById(payrollTemplateId)
-            .orElseThrow(() -> new IllegalStateException("Template payroll tidak ditemukan (id: " + payrollTemplateId + "). Set app.payroll.template-id di application.properties"));
+            .orElseGet(() -> journalTemplateRepository.findByTemplateNameAndIsCurrentVersionTrue("Post Gaji Bulanan")
+                .orElseThrow(() -> new IllegalStateException("Template payroll tidak ditemukan (id: " + payrollTemplateId + ", name: Post Gaji Bulanan)")));
 
         // Calculate BPJS totals split by Kesehatan vs Ketenagakerjaan from details
         List<PayrollDetail> details = payrollDetailRepository.findByPayrollRunIdWithEmployee(payrollRunId);

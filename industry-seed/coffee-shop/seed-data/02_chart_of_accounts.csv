@@ -61,6 +61,8 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 6.2.08,Beban Kebersihan,EXPENSE,6.2,DEBIT,true,false
 6.2.09,Beban Marketing,EXPENSE,6.2,DEBIT,true,false
 6.2.10,Beban Administrasi Bank,EXPENSE,6.2,DEBIT,true,false
+6.2.11,Beban Potongan Platform,EXPENSE,6.2,DEBIT,true,false
+6.2.12,Beban Operasional Lainnya,EXPENSE,6.2,DEBIT,true,false
 6.3,Beban Penyusutan,EXPENSE,6,DEBIT,true,false
 6.3.01,Beban Penyusutan Peralatan,EXPENSE,6.3,DEBIT,true,false
 6.3.02,Beban Penyusutan Furniture,EXPENSE,6.3,DEBIT,true,false
@@ -71,3 +73,4 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 8.1,Beban Lain-lain,EXPENSE,8,DEBIT,true,false
 8.1.01,Beban Bunga,EXPENSE,8.1,DEBIT,true,false
 8.1.02,Beban Denda,EXPENSE,8.1,DEBIT,true,false
+8.1.03,Beban PPh Final UMKM,EXPENSE,8.1,DEBIT,true,false

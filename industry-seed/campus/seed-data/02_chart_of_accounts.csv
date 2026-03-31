@@ -86,3 +86,4 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 5.4.01,Beban Admin Bank,EXPENSE,5.4,DEBIT,true,false
 5.4.02,Beban Bunga Pinjaman,EXPENSE,5.4,DEBIT,true,false
 5.4.03,Beban Pajak,EXPENSE,5.4,DEBIT,true,false
+5.2.99,Beban Operasional Lainnya,EXPENSE,5.2,DEBIT,true,false

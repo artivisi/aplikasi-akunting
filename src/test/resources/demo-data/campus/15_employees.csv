@@ -1,0 +1,9 @@
+employee_id,name,email,nik_ktp,npwp,ptkp_status,job_title,department,employment_type,hire_date,resign_date,bank_name,bank_account,bpjs_kesehatan_number,bpjs_ketenagakerjaan_number,employment_status,username
+EMP-C001,Prof. Dr. Bambang Hermanto M.Kom,bambang@stmikmerdeka.ac.id,3404010101700001,04.567.890.1-204.000,K_2,Ketua STMIK,Pimpinan,PERMANENT,2005-08-17,,Bank BCA,1234567801,0001234567801,JKN0001234567801,ACTIVE,
+EMP-C002,Dr. Ratna Sari M.Kom,ratna@stmikmerdeka.ac.id,3404010201800002,04.567.890.2-204.000,K_1,Wakil Ketua I (Akademik),Pimpinan,PERMANENT,2006-02-01,,Bank BCA,1234567802,0001234567802,JKN0001234567802,ACTIVE,
+EMP-C003,Ir. Agus Setiawan M.M.,agus@stmikmerdeka.ac.id,3404010301750003,04.567.890.3-204.000,K_0,Wakil Ketua II (Keuangan),Pimpinan,PERMANENT,2007-01-15,,Bank Mandiri,1234567803,0001234567803,JKN0001234567803,ACTIVE,
+EMP-C004,Dwi Prasetyo M.Kom,dwi@stmikmerdeka.ac.id,3404010401850004,04.567.890.4-204.000,TK_0,Dosen Tetap (Informatika),Akademik,PERMANENT,2010-09-01,,Bank BCA,1234567804,0001234567804,JKN0001234567804,ACTIVE,
+EMP-C005,Nurul Hidayah M.Kom,nurul@stmikmerdeka.ac.id,3404010501880005,04.567.890.5-204.000,TK_0,Dosen Tetap (Sistem Informasi),Akademik,PERMANENT,2012-02-01,,Bank BCA,1234567805,0001234567805,JKN0001234567805,ACTIVE,
+EMP-C006,Yanto Susilo,yanto@stmikmerdeka.ac.id,3404010601900006,04.567.890.6-204.000,K_1,Kepala BAK,Administrasi,PERMANENT,2015-03-01,,Bank Mandiri,1234567806,0001234567806,JKN0001234567806,ACTIVE,
+EMP-C007,Lina Marlina,lina@stmikmerdeka.ac.id,3404010701950007,04.567.890.7-204.000,TK_0,Staff Keuangan,Keuangan,PERMANENT,2018-01-15,,Bank BCA,1234567807,0001234567807,JKN0001234567807,ACTIVE,
+EMP-C008,Eko Prasetyo,eko@stmikmerdeka.ac.id,3404010801930008,04.567.890.8-204.000,TK_0,Staff IT,IT,PERMANENT,2019-06-01,,Bank BCA,1234567808,0001234567808,JKN0001234567808,ACTIVE,

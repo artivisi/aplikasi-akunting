@@ -1,0 +1,7 @@
+code,name,contact_person,email,phone,address,npwp,nik,nitku,active,created_at
+TOKPED,Tokopedia,Seller Support,seller@tokopedia.com,021-80647333,"Tokopedia Tower, Jl. Prof. DR. Satrio Kav 11, Jakarta 12950",02.987.654.3-012.000,,0000000000000002,true,2019-03-01 00:00:00
+SHOPEE,Shopee Indonesia,Seller Centre,seller@shopee.co.id,021-39500300,"Pacific Century Place, SCBD Lot 10, Jakarta 12190",02.876.543.2-012.000,,0000000000000003,true,2019-06-01 00:00:00
+LAZADA,Lazada Indonesia,Seller Center,seller@lazada.co.id,021-80600900,"Wisma 77 Tower 2, Jl. Letjen S. Parman Kav 77, Jakarta 11410",02.765.432.1-012.000,,0000000000000004,true,2020-01-15 00:00:00
+TIKTOK,TikTok Shop,Seller Support,seller@tiktok.com,021-50806888,"Revenue Tower, Jl. Jend. Sudirman Kav 52-53, Jakarta 12190",02.654.321.0-012.000,,0000000000000005,true,2022-08-01 00:00:00
+SUPPLIER1,PT Erajaya Swasembada,Ahmad Fauzi,procurement@erajaya.com,021-29670808,"Wisma Erajaya, Jl. Danau Sunter Utara Blok A No. 5, Jakarta 14350",01.345.678.9-012.000,,0000000000000006,true,2019-03-15 00:00:00
+SUPPLIER2,PT Samsung Electronics Indonesia,Dewi Hartono,dealer@samsung.co.id,021-25534500,"Samsung R&D Indonesia, Jl. Jend. Sudirman Kav 52-53, Jakarta 12190",01.456.789.0-012.000,,0000000000000007,true,2019-05-01 00:00:00

@@ -7,7 +7,6 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 1.1.04,Saldo Tokopedia,ASSET,1.1,DEBIT,true,true
 1.1.05,Saldo Shopee,ASSET,1.1,DEBIT,true,true
 1.1.06,Saldo Lazada,ASSET,1.1,DEBIT,true,true
-1.1.07,Saldo Bukalapak,ASSET,1.1,DEBIT,true,true
 1.1.08,Saldo TikTok Shop,ASSET,1.1,DEBIT,true,true
 1.1.10,Piutang Usaha,ASSET,1.1,DEBIT,true,true
 1.1.20,Persediaan Barang Dagangan,ASSET,1.1,DEBIT,true,true
@@ -46,7 +45,6 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 4.1.01,Penjualan Tokopedia,REVENUE,4.1,CREDIT,true,false
 4.1.02,Penjualan Shopee,REVENUE,4.1,CREDIT,true,false
 4.1.03,Penjualan Lazada,REVENUE,4.1,CREDIT,true,false
-4.1.04,Penjualan Bukalapak,REVENUE,4.1,CREDIT,true,false
 4.1.05,Penjualan TikTok Shop,REVENUE,4.1,CREDIT,true,false
 4.1.06,Penjualan Offline/COD,REVENUE,4.1,CREDIT,true,false
 4.1.10,Diskon Penjualan,REVENUE,4.1,DEBIT,true,false
@@ -63,7 +61,6 @@ account_code,account_name,account_type,parent_code,normal_balance,active,is_perm
 5.2.01,Biaya Admin Tokopedia,EXPENSE,5.2,DEBIT,true,false
 5.2.02,Biaya Admin Shopee,EXPENSE,5.2,DEBIT,true,false
 5.2.03,Biaya Admin Lazada,EXPENSE,5.2,DEBIT,true,false
-5.2.04,Biaya Admin Bukalapak,EXPENSE,5.2,DEBIT,true,false
 5.2.05,Biaya Admin TikTok Shop,EXPENSE,5.2,DEBIT,true,false
 5.2.10,Biaya Iklan Marketplace,EXPENSE,5.2,DEBIT,true,false
 5.2.11,Biaya Promo/Voucher,EXPENSE,5.2,DEBIT,true,false

@@ -63,3 +63,19 @@ Setoran Modal Yayasan,1,,BANK,DEBIT,amount,Penerimaan kas/bank
 Setoran Modal Yayasan,2,3.1.01,,CREDIT,amount,Modal Yayasan
 Beban Admin Bank,1,5.4.01,,DEBIT,amount,Beban Admin Bank
 Beban Admin Bank,2,,BANK,CREDIT,amount,Potongan dari bank
+Post Gaji Bulanan,1,5.2.01,,DEBIT,grossSalary,Beban gaji karyawan
+Post Gaji Bulanan,2,5.2.03,,DEBIT,companyBpjsKes,Beban BPJS Kesehatan perusahaan
+Post Gaji Bulanan,3,5.2.03,,DEBIT,companyBpjsTk,Beban BPJS Ketenagakerjaan perusahaan
+Post Gaji Bulanan,4,2.1.11,,CREDIT,netPay,Hutang gaji karyawan
+Post Gaji Bulanan,5,2.1.13,,CREDIT,totalBpjs,Hutang BPJS
+Post Gaji Bulanan,6,2.1.03,,CREDIT,pph21,Hutang PPh 21
+Bayar Hutang Gaji,1,2.1.11,,DEBIT,amount,Hutang gaji karyawan
+Bayar Hutang Gaji,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Bayar Hutang BPJS,1,2.1.13,,DEBIT,amount,Hutang BPJS
+Bayar Hutang BPJS,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Jurnal Manual,1,,Akun Debit,DEBIT,amount,Akun yang didebit
+Jurnal Manual,2,,Akun Kredit,CREDIT,amount,Akun yang dikredit
+Pembelian Aset Tetap,1,,ASET_TETAP,DEBIT,assetCost,Aset tetap yang dibeli
+Pembelian Aset Tetap,2,,BANK,CREDIT,assetCost,Pembayaran dari bank
+Bayar Beban Operasional,1,5.2.99,,DEBIT,amount,Beban operasional lainnya
+Bayar Beban Operasional,2,,BANK,CREDIT,amount,Pembayaran dari bank

@@ -52,6 +52,10 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Demo mode banner -->
+    <div th:if="${demoMode}" class="bg-amber-500 text-amber-900 text-center py-2 text-sm font-medium">
+        Data direset setiap hari pukul 00:00 WIB
+    </div>
     <div class="min-h-screen flex">
         <!-- Sidebar -->
         <aside class="hidden lg:flex lg:flex-shrink-0" aria-label="Sidebar Navigasi">

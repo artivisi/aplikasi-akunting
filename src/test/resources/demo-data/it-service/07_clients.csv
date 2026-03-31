@@ -1,0 +1,6 @@
+code,name,contact_person,email,phone,address,npwp,nik,nitku,active,created_at
+MANDIRI,PT Bank Mandiri (Persero) Tbk,Budi Santoso,procurement@bankmandiri.co.id,021-5245678,"Jl. Jend. Gatot Subroto Kav. 36-38, Jakarta 12190",01.310.523.4-091.000,,0000000000000000,true,2019-01-15 10:00:00
+TELKOM,PT Telkom Indonesia (Persero) Tbk,Dewi Lestari,vendor@telkom.co.id,021-1500007,"Jl. Japati No. 1, Bandung 40133",01.000.013.1-093.000,,0000000000000000,true,2019-03-20 10:00:00
+PLN,PT PLN (Persero),Hendra Wijaya,procurement@pln.co.id,021-7261122,"Jl. Trunojoyo Blok M I/135, Jakarta 12160",01.000.243.5-093.000,,0000000000000000,true,2020-06-10 10:00:00
+GRAB,PT Grab Teknologi Indonesia,Lisa Permata,finance@grab.co.id,021-8064000,"Jl. TB Simatupang No. 18, Jakarta 12520",03.345.678.9-012.000,,0000000000000000,true,2020-09-01 10:00:00
+KOMINFO,Kementerian Komunikasi dan Digital,Andi Prasetyo,pengadaan@kominfo.go.id,021-3846351,"Jl. Medan Merdeka Barat No. 9, Jakarta 10110",00.012.345.6-000.000,,0000000000000000,true,2021-01-05 10:00:00

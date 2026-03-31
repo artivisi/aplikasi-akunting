@@ -8,7 +8,11 @@
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <link rel="stylesheet" th:href="@{${theme.themeCssPath}}">
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- Demo mode banner -->
+    <div th:if="${demoMode}" class="fixed top-0 left-0 right-0 bg-amber-500 text-amber-900 text-center py-2 text-sm font-medium z-50">
+        Data direset setiap hari pukul 00:00 WIB
+    </div>
     <div class="w-full max-w-md">
         <!-- Logo and Title -->
         <div class="text-center mb-8">

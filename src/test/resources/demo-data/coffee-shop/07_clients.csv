@@ -1,0 +1,7 @@
+code,name,contact_person,email,phone,address,npwp,nik,nitku,active,created_at
+GRABFOOD,GrabFood,Partner Support,partner@grab.com,021-80648000,"Grab Tower, Jl. Jend. Sudirman Kav 52-53, Jakarta 12190",02.111.222.3-012.000,,0000000000000010,true,2020-03-01 00:00:00
+GOFOOD,GoFood,Merchant Support,merchant@gojek.com,021-50251000,"Pasaraya Blok M, Jl. Iskandarsyah II No. 7, Jakarta 12160",02.222.333.4-012.000,,0000000000000011,true,2020-04-01 00:00:00
+SHOPEEFOOD,ShopeeFood,Seller Centre,food@shopee.co.id,021-39500300,"Pacific Century Place, SCBD Lot 10, Jakarta 12190",02.333.444.5-012.000,,0000000000000012,true,2021-06-01 00:00:00
+SUPPLIER-KOPI,PT Kopi Nusantara Jaya,Budi Santoso,sales@kopinusantarajaya.com,022-7300-1234,"Jl. Rancabolang No. 12, Bandung 40286",01.555.666.7-423.000,,0000000000000013,true,2020-01-15 00:00:00
+SUPPLIER-SUSU,PT Greenfields Indonesia,Rina Amelia,order@greenfields.co.id,0341-572-888,"Jl. Dermo, Gunung Kawi, Malang 65101",01.666.777.8-653.000,,0000000000000014,true,2020-02-01 00:00:00
+SUPPLIER-CUP,CV Maju Packaging,Heri Gunawan,sales@majupackaging.com,022-6012-3456,"Jl. Soekarno-Hatta No. 590, Bandung 40286",01.777.888.9-423.000,,0000000000000015,true,2020-01-20 00:00:00

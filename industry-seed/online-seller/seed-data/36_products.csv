@@ -1,0 +1,19 @@
+code,name,description,unit,category_code,costing_method,track_inventory,minimum_stock,selling_price,inventory_account_code,cogs_account_code,sales_account_code,active
+PHONE-IP15,iPhone 15 128GB,iPhone 15 128GB garansi resmi iBox,pcs,PHONE,WEIGHTED_AVERAGE,true,3,16500000,1.1.20,5.1.01,4.1.06,true
+PHONE-SS24,Samsung Galaxy S24,Samsung Galaxy S24 8/256GB garansi SEIN,pcs,PHONE,WEIGHTED_AVERAGE,true,3,13500000,1.1.20,5.1.01,4.1.06,true
+PHONE-XI14,Xiaomi 14,Xiaomi 14 12/256GB garansi resmi,pcs,PHONE,WEIGHTED_AVERAGE,true,5,9500000,1.1.20,5.1.01,4.1.06,true
+PHONE-OPPO,OPPO Reno 11,OPPO Reno 11 8/256GB garansi resmi,pcs,PHONE,WEIGHTED_AVERAGE,true,5,6500000,1.1.20,5.1.01,4.1.06,true
+ACC-SP,Screen Protector Tempered Glass,Tempered glass anti gores universal,pcs,ACCESSORY,WEIGHTED_AVERAGE,true,20,75000,1.1.20,5.1.01,4.1.06,true
+ACC-STAND,Phone Stand Holder,Phone stand holder adjustable,pcs,ACCESSORY,WEIGHTED_AVERAGE,true,10,150000,1.1.20,5.1.01,4.1.06,true
+ACC-PB10,Power Bank 10000mAh,Power bank 10000mAh fast charging,pcs,ACCESSORY,WEIGHTED_AVERAGE,true,10,350000,1.1.20,5.1.01,4.1.06,true
+ACC-WC,Wireless Charger 15W,Wireless charger 15W Qi compatible,pcs,ACCESSORY,WEIGHTED_AVERAGE,true,10,250000,1.1.20,5.1.01,4.1.06,true
+CBL-USBC,Kabel USB-C 1M,Kabel data USB-C to USB-C 1 meter,pcs,CABLE,WEIGHTED_AVERAGE,true,30,65000,1.1.20,5.1.01,4.1.06,true
+CBL-FC,Fast Charger 33W,Charger fast charging 33W USB-C,pcs,CABLE,WEIGHTED_AVERAGE,true,15,175000,1.1.20,5.1.01,4.1.06,true
+CBL-CAR,Car Charger Dual Port,Car charger dual USB-A + USB-C,pcs,CABLE,WEIGHTED_AVERAGE,true,10,150000,1.1.20,5.1.01,4.1.06,true
+CBL-MULTI,Kabel Multi 3in1,Kabel charging 3in1 Lightning USB-C Micro,pcs,CABLE,WEIGHTED_AVERAGE,true,20,85000,1.1.20,5.1.01,4.1.06,true
+CASE-IP,Case iPhone 15,Softcase iPhone 15 transparan,pcs,CASE,WEIGHTED_AVERAGE,true,20,85000,1.1.20,5.1.01,4.1.06,true
+CASE-SS,Case Samsung S24,Softcase Samsung Galaxy S24 transparan,pcs,CASE,WEIGHTED_AVERAGE,true,20,85000,1.1.20,5.1.01,4.1.06,true
+CASE-POUCH,Universal Pouch,Pouch HP universal waterproof,pcs,CASE,WEIGHTED_AVERAGE,true,15,120000,1.1.20,5.1.01,4.1.06,true
+AUD-TWS,TWS Earbuds,True wireless stereo earbuds bluetooth 5.3,pcs,AUDIO,WEIGHTED_AVERAGE,true,10,450000,1.1.20,5.1.01,4.1.06,true
+AUD-SPK,Bluetooth Speaker Mini,Bluetooth speaker portable mini,pcs,AUDIO,WEIGHTED_AVERAGE,true,8,350000,1.1.20,5.1.01,4.1.06,true
+AUD-WIRE,Earphone Wired USB-C,Earphone wired USB-C with mic,pcs,AUDIO,WEIGHTED_AVERAGE,true,15,150000,1.1.20,5.1.01,4.1.06,true

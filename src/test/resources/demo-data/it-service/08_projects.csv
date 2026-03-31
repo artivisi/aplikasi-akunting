@@ -1,0 +1,6 @@
+code,name,client_code,status,start_date,end_date,budget_amount,contract_value,description,created_at
+PRJ-MND-01,Core Banking Modernization,MANDIRI,ACTIVE,2024-07-01,2026-06-30,800000000,1200000000,Modernisasi sistem core banking dengan microservices architecture,2024-06-15 10:00:00
+PRJ-TLK-01,Network Monitoring Dashboard,TELKOM,COMPLETED,2024-01-15,2025-06-30,400000000,600000000,Dashboard monitoring jaringan real-time berbasis web,2023-12-20 10:00:00
+PRJ-PLN-01,Smart Meter Data Analytics,PLN,ACTIVE,2025-01-10,2026-12-31,600000000,900000000,Platform analitik data smart meter untuk optimasi distribusi listrik,2024-12-15 10:00:00
+PRJ-GRB-01,Driver Onboarding Platform,GRAB,COMPLETED,2024-03-01,2025-03-31,300000000,500000000,Platform onboarding driver dengan verifikasi dokumen otomatis,2024-02-10 10:00:00
+PRJ-KMF-01,E-Government Portal,KOMINFO,ACTIVE,2025-04-01,2026-09-30,500000000,750000000,Portal layanan publik terintegrasi untuk instansi pemerintah,2025-03-15 10:00:00

@@ -27,3 +27,30 @@ Penyesuaian Persediaan Masuk,1,,PERSEDIAAN,DEBIT,amount,Persediaan bertambah
 Penyesuaian Persediaan Masuk,2,7.1,,CREDIT,amount,Pendapatan lain-lain
 Penyesuaian Persediaan Keluar,1,8.1,,DEBIT,amount,Beban penyesuaian persediaan
 Penyesuaian Persediaan Keluar,2,,PERSEDIAAN,CREDIT,amount,Persediaan berkurang
+Post Gaji Bulanan,1,6.1.01,,DEBIT,grossSalary,Beban gaji karyawan
+Post Gaji Bulanan,2,6.1.04,,DEBIT,companyBpjsKes,BPJS Kesehatan perusahaan
+Post Gaji Bulanan,3,6.1.05,,DEBIT,companyBpjsTk,BPJS Ketenagakerjaan perusahaan
+Post Gaji Bulanan,4,2.1.10,,CREDIT,netPay,Hutang gaji karyawan
+Post Gaji Bulanan,5,2.1.13,,CREDIT,totalBpjs,Hutang BPJS
+Post Gaji Bulanan,6,2.1.14,,CREDIT,pph21,Hutang PPh 21
+Bayar Hutang Gaji,1,2.1.10,,DEBIT,amount,Hutang gaji
+Bayar Hutang Gaji,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Bayar Hutang BPJS,1,2.1.13,,DEBIT,amount,Hutang BPJS
+Bayar Hutang BPJS,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Setor PPh 21,1,2.1.14,,DEBIT,amount,Hutang PPh 21
+Setor PPh 21,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Bayar PPh Final UMKM,1,8.1.03,,DEBIT,amount,Beban PPh Final UMKM
+Bayar PPh Final UMKM,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Beban Admin Bank,1,6.2.10,,DEBIT,amount,Beban admin bank
+Beban Admin Bank,2,,BANK,CREDIT,amount,Potongan dari bank
+Transfer Antar Bank,1,,Bank Tujuan,DEBIT,amount,Bank tujuan
+Transfer Antar Bank,2,,Bank Asal,CREDIT,amount,Bank asal
+Bayar Beban Operasional,1,6.2.12,,DEBIT,amount,Beban operasional lainnya
+Bayar Beban Operasional,2,,BANK,CREDIT,amount,Pembayaran dari bank
+Jurnal Manual,1,,Akun Debit,DEBIT,amount,Akun yang didebit
+Jurnal Manual,2,,Akun Kredit,CREDIT,amount,Akun yang dikredit
+Penjualan Online (GrabFood/GoFood),1,,BANK,DEBIT,grossSales - adminFee,Penerimaan kas (setelah potongan)
+Penjualan Online (GrabFood/GoFood),2,6.2.11,,DEBIT,adminFee,Potongan platform
+Penjualan Online (GrabFood/GoFood),3,4.1.01,,CREDIT,grossSales,Pendapatan penjualan minuman
+Pembelian Aset Tetap,1,,ASET_TETAP,DEBIT,assetCost,Aset tetap yang dibeli
+Pembelian Aset Tetap,2,,BANK,CREDIT,assetCost,Pembayaran dari bank

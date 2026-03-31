@@ -1838,31 +1838,37 @@ Items below are not planned phases. They are implemented only when a concrete cl
 Git-versioned sample data for 4 industry demo instances. Full plan: `aplikasi-akunting-deploy/demo-setup-plan.md`.
 
 **Dataset structure** (`src/test/resources/demo-data/{industry}/`):
-- [ ] Design 4 fictional companies (README.md per industry: name, NPWP, employees, clients, products)
-- [ ] Create `company-config.csv`, `employees.csv`, `clients.csv`, `fiscal-periods.csv` per industry
-- [ ] IT Service: `products.csv` not needed; Online Seller: `products.csv` (10-20 SKUs); Coffee Shop: `products.csv` + `bill-of-materials.csv`; Campus: student/program data
-- [ ] Create 2025 full-year transaction CSVs per industry (Q1-Q4, internally consistent, all POSTED)
-- [ ] Create 2025 invoice CSVs with tax details (e-Faktur, PPh 23 bupot per invoice)
-- [ ] Create 2025 payroll run CSVs (12 months)
-- [ ] Create 2025 fixed asset CSVs (IT, campus) / inventory CSVs (seller) / BOM + production CSVs (coffee shop)
-- [ ] Create 2025 closing entry CSVs (zero out revenue/expense to retained earnings, date 2025-12-31)
-- [ ] Create 2026 Q1 transaction CSVs (mix of POSTED + DRAFT — shows work-in-progress)
-- [ ] Create 2026 Q1 invoices (mix of PAID + UNPAID)
-- [ ] Create 2026 Q1 payroll (Jan-Feb POSTED, Mar DRAFT)
-- [ ] Create 2026 Q1 tax details (Jan-Feb filed, Mar pending)
+- [x] Design 4 fictional companies (README.md per industry: name, NPWP, employees, clients, products)
+- [x] Create `company-config.csv`, `employees.csv`, `clients.csv`, `fiscal-periods.csv` per industry
+- [x] IT Service: `products.csv` not needed; Online Seller: `products.csv` (18 SKUs); Coffee Shop: `products.csv` + `bill-of-materials.csv`; Campus: student/program data
+- [x] Create 2025 full-year transaction CSVs per industry (Q1-Q4, internally consistent, all POSTED)
+- [x] Create 2025 invoice CSVs with tax details (e-Faktur, PPh 23 bupot per invoice)
+- [x] Create 2025 payroll run CSVs (12 months)
+- [x] Create 2025 fixed asset CSVs (IT, coffee shop) / inventory CSVs (seller) / BOM + production CSVs (coffee shop)
+- [x] Create 2025 closing entry CSVs (zero out revenue/expense to retained earnings, date 2025-12-31)
+- [x] Create 2026 Q1 transaction CSVs (mix of POSTED + DRAFT — shows work-in-progress)
+- [x] Create 2026 Q1 invoices (mix of PAID + UNPAID)
+- [x] Create 2026 Q1 payroll (Jan-Feb POSTED, Mar DRAFT)
+- [x] Create 2026 Q1 tax details (Jan-Feb filed, Mar pending)
 
 **Playwright loaders** (`src/test/java/.../functional/demo/`):
-- [ ] `DemoItServiceDataLoader.java` — ordered test: import seed → create employees/clients → load 2025 tx → payroll → invoices → tax details → closing entries → close fiscal periods → load 2026 Q1
-- [ ] `DemoOnlineSellerDataLoader.java` — same pattern + inventory transactions
-- [ ] `DemoCoffeeShopDataLoader.java` — same pattern + BOM + production orders
-- [ ] `DemoCampusDataLoader.java` — same pattern + tuition billing
-- [ ] Loaders use existing `TransactionHelper.executeTransactionsFromCsv()` and `CsvLoader`
-- [ ] Loaders runnable against external instance: `mvn test -Dtest=DemoItServiceDataLoader -Dapp.base-url=https://demo-it.balaka.id`
-- [ ] Validate after loading: trial balance balances, PPN matches invoices, payroll PPh 21 correct, 2025 periods closed
+- [x] `DemoItServiceDataLoader.java` — ordered test: import seed → import demo data → create users → validate dashboard/trial balance/payroll/transactions
+- [x] `DemoOnlineSellerDataLoader.java` — same pattern + inventory validation
+- [x] `DemoCoffeeShopDataLoader.java` — same pattern + BOM + production orders validation
+- [x] `DemoCampusDataLoader.java` — same pattern + tuition billing validation
+- [x] Loaders use `DataImportService` for direct data loading via ZIP import
+- [x] Loaders runnable against external instance via Spring datasource config override
+- [x] Validate after loading: dashboard loads, trial balance loads, payroll data exists, transactions exist
+
+**Seed data updates** (industry-seed/):
+- [x] Coffee Shop: added 11 templates (Post Gaji, Bayar Hutang Gaji/BPJS, Setor PPh 21, PPh Final UMKM, Admin Bank, Transfer, Ops, Jurnal Manual, Online Sales, Aset Tetap) + 3 COA accounts
+- [x] Campus: added 6 templates (Post Gaji, Bayar Hutang Gaji/BPJS, Jurnal Manual, Aset Tetap, Ops) + 1 COA account
+- [x] Online Seller: removed Bukalapak templates/accounts, added Post Gaji + Aset Tetap templates, created 18 products + 5 categories
+- [x] IT Service: fixed depreciation account in asset categories (5.1.11 → 5.1.12)
 
 **Demo banner:**
-- [ ] Add `app.demo-mode` config property (default: false)
-- [ ] When true, show banner on every page: "Data direset setiap hari pukul 00:00 WIB"
+- [x] Add `app.demo-mode` config property (default: false, env: APP_DEMO_MODE)
+- [x] When true, show banner on every page: "Data direset setiap hari pukul 00:00 WIB"
 
 ### Docker Image (for Sumopod template & container deployment)
 - [ ] Create Dockerfile — multi-stage build or Spring Boot's `spring-boot:build-image` plugin (evaluate both; prefer `build-image` if the generated image meets size/startup requirements, otherwise self-maintained multi-stage)

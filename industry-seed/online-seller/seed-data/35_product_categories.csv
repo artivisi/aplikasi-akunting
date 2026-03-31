@@ -1,0 +1,6 @@
+code,name,description,parent_code,active
+PHONE,Smartphone,Smartphone berbagai merek,,true
+ACCESSORY,Aksesoris HP,Aksesoris handphone dan gadget,,true
+CABLE,Kabel & Charger,Kabel data dan charger,,true
+CASE,Case & Pelindung,Case casing dan pelindung layar,,true
+AUDIO,Audio & Earphone,Earphone earbuds dan speaker,,true

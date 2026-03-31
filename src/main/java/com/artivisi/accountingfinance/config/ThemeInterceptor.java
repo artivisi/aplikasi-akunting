@@ -10,9 +10,11 @@ import org.springframework.web.servlet.ModelAndView;
 public class ThemeInterceptor implements HandlerInterceptor {
 
     private final ThemeConfig themeConfig;
+    private final DemoModeConfig demoModeConfig;
 
-    public ThemeInterceptor(ThemeConfig themeConfig) {
+    public ThemeInterceptor(ThemeConfig themeConfig, DemoModeConfig demoModeConfig) {
         this.themeConfig = themeConfig;
+        this.demoModeConfig = demoModeConfig;
     }
 
     @Override
@@ -20,6 +22,7 @@ public class ThemeInterceptor implements HandlerInterceptor {
                           Object handler, ModelAndView modelAndView) {
         if (modelAndView != null) {
             modelAndView.addObject("theme", themeConfig);
+            modelAndView.addObject("demoMode", demoModeConfig.isDemoMode());
         }
     }
 }

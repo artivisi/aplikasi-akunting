@@ -8,9 +8,6 @@ Penjualan Shopee,3,4.1.02,,CREDIT,grossSales,Penjualan Shopee (bruto)
 Penjualan Lazada,1,1.1.06,,DEBIT,grossSales - adminFee,Saldo Lazada (netto)
 Penjualan Lazada,2,5.2.03,,DEBIT,adminFee,Biaya admin Lazada
 Penjualan Lazada,3,4.1.03,,CREDIT,grossSales,Penjualan Lazada (bruto)
-Penjualan Bukalapak,1,1.1.07,,DEBIT,grossSales - adminFee,Saldo Bukalapak (netto)
-Penjualan Bukalapak,2,5.2.04,,DEBIT,adminFee,Biaya admin Bukalapak
-Penjualan Bukalapak,3,4.1.04,,CREDIT,grossSales,Penjualan Bukalapak (bruto)
 Penjualan TikTok Shop,1,1.1.08,,DEBIT,grossSales - adminFee,Saldo TikTok Shop (netto)
 Penjualan TikTok Shop,2,5.2.05,,DEBIT,adminFee,Biaya admin TikTok Shop
 Penjualan TikTok Shop,3,4.1.05,,CREDIT,grossSales,Penjualan TikTok Shop (bruto)
@@ -25,8 +22,6 @@ Withdraw Saldo Shopee,1,,BANK,DEBIT,amount,Bank tujuan
 Withdraw Saldo Shopee,2,1.1.05,,CREDIT,amount,Saldo Shopee
 Withdraw Saldo Lazada,1,,BANK,DEBIT,amount,Bank tujuan
 Withdraw Saldo Lazada,2,1.1.06,,CREDIT,amount,Saldo Lazada
-Withdraw Saldo Bukalapak,1,,BANK,DEBIT,amount,Bank tujuan
-Withdraw Saldo Bukalapak,2,1.1.07,,CREDIT,amount,Saldo Bukalapak
 Withdraw Saldo TikTok Shop,1,,BANK,DEBIT,amount,Bank tujuan
 Withdraw Saldo TikTok Shop,2,1.1.08,,CREDIT,amount,Saldo TikTok Shop
 Retur Penjualan Marketplace,1,4.1.11,,DEBIT,amount,Retur penjualan
@@ -84,5 +79,12 @@ Bayar Hutang BPJS,1,2.1.13,,DEBIT,amount,Hutang BPJS
 Bayar Hutang BPJS,2,,BANK,CREDIT,amount,Pembayaran dari bank
 Cashback dari Marketplace,1,,BANK,DEBIT,amount,Penerimaan kas/bank
 Cashback dari Marketplace,2,4.2.03,,CREDIT,amount,Cashback marketplace
+Post Gaji Bulanan,1,5.4.01,,DEBIT,grossSalary,Beban gaji karyawan
+Post Gaji Bulanan,2,5.4.02,,DEBIT,companyBpjs,Beban BPJS perusahaan
+Post Gaji Bulanan,3,2.1.10,,CREDIT,netPay,Hutang gaji karyawan
+Post Gaji Bulanan,4,2.1.13,,CREDIT,totalBpjs,Hutang BPJS
+Post Gaji Bulanan,5,2.1.20,,CREDIT,pph21,Hutang PPh 21
+Pembelian Aset Tetap,1,,ASET_TETAP,DEBIT,assetCost,Aset tetap yang dibeli
+Pembelian Aset Tetap,2,,BANK,CREDIT,assetCost,Pembayaran dari bank
 Jurnal Manual,1,,Akun Debit,DEBIT,amount,Akun yang didebit
 Jurnal Manual,2,,Akun Kredit,CREDIT,amount,Akun yang dikredit

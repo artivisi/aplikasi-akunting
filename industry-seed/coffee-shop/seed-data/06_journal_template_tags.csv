@@ -7,3 +7,12 @@ Penjualan Tunai + COGS,PENJUALAN
 Bayar Gaji,GAJI
 Bayar Sewa,BEBAN
 Bayar Listrik,BEBAN
+Post Gaji Bulanan,GAJI
+Bayar Hutang Gaji,GAJI
+Bayar Hutang BPJS,GAJI
+Setor PPh 21,PAJAK
+Bayar PPh Final UMKM,PAJAK
+Beban Admin Bank,BEBAN
+Bayar Beban Operasional,BEBAN
+Penjualan Online (GrabFood/GoFood),PENJUALAN
+Pembelian Aset Tetap,ASET

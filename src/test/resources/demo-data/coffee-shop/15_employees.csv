@@ -1,0 +1,7 @@
+employee_id,name,email,nik_ktp,npwp,ptkp_status,job_title,department,employment_type,hire_date,resign_date,bank_name,bank_account,bpjs_kesehatan_number,bpjs_ketenagakerjaan_number,employment_status,username
+EMP-K001,Reza Mahendra,reza@kedaikopinusantara.com,3273010101900001,01.234.567.8-203.000,K_1,Owner/Manager,Manajemen,PERMANENT,2020-01-10,,BCA,1234567890,0001234567890,10001234567890,ACTIVE,
+EMP-K002,Anisa Putri,anisa@kedaikopinusantara.com,3273020202950002,,TK_0,Head Barista,Operasional,PERMANENT,2020-02-01,,BCA,1234567891,0001234567891,10001234567891,ACTIVE,
+EMP-K003,Dedi Kurniawan,dedi@kedaikopinusantara.com,3273030303960003,,TK_0,Barista,Operasional,PERMANENT,2020-06-01,,BRI,2345678901,0001234567892,10001234567892,ACTIVE,
+EMP-K004,Fitri Handayani,fitri@kedaikopinusantara.com,3273040404970004,,TK_0,Barista,Operasional,PERMANENT,2021-03-15,,BRI,2345678902,0001234567893,10001234567893,ACTIVE,
+EMP-K005,Agung Prasetyo,agung@kedaikopinusantara.com,3273050505980005,,K_0,Kitchen Staff,Dapur,PERMANENT,2020-03-01,,Mandiri,3456789012,0001234567894,10001234567894,ACTIVE,
+EMP-K006,Sinta Dewi,sinta@kedaikopinusantara.com,3273060606990006,,TK_0,Kasir/Admin,Administrasi,PERMANENT,2020-04-01,,Mandiri,3456789013,0001234567895,10001234567895,ACTIVE,
