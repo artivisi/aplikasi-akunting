@@ -53,6 +53,7 @@ class DemoVerificationTest extends DemoDataLoaderBase {
     @Autowired private ReportService reportService;
     @Autowired private FiscalYearClosingService fiscalYearClosingService;
     @Autowired private TaxTransactionDetailRepository taxTransactionDetailRepository;
+    @Autowired private com.artivisi.accountingfinance.service.SptTahunanExportService sptTahunanExportService;
 
     private static final NumberFormat IDR = NumberFormat.getNumberInstance(new Locale("id", "ID"));
 
@@ -512,37 +513,62 @@ class DemoVerificationTest extends DemoDataLoaderBase {
         log.info("Note: PPN/PPh 23 auto-populate requires transactions linked to clients");
     }
 
-    @Test @Order(13) @DisplayName("12. Verify Coretax SPT Lampiran via API")
+    @Test @Order(13) @DisplayName("12. Verify Coretax SPT Lampiran")
     void verifyCoretaxLampiran() {
-        loginAsAdmin();
+        entityManager.clear();
         log.info("========== CORETAX SPT LAMPIRAN EXPORT ==========");
 
-        // Check SPT checklist page loads
-        navigateTo("/reports/spt-tahunan");
-        waitForPageLoad();
-        String pageContent = page.content();
-        log.info("SPT Checklist page loaded");
+        // Generate consolidated lampiran via service (before closing, using excludeClosing)
+        var lampiran = sptTahunanExportService.generateConsolidatedLampiran(2025);
 
-        // Check key data indicators
-        boolean hasLaporanKeuangan = pageContent.contains("Laporan Keuangan");
-        boolean hasPenyusutan = pageContent.contains("Penyusutan");
-        boolean hasPayroll = pageContent.contains("Payroll") || pageContent.contains("PPh 21");
-        log.info("  Laporan Keuangan: {}", hasLaporanKeuangan);
-        log.info("  Penyusutan Aset: {}", hasPenyusutan);
-        log.info("  Payroll/PPh 21: {}", hasPayroll);
+        // Taxpayer info
+        log.info("Taxpayer: {} (NPWP: {})", lampiran.taxpayer().name(), lampiran.taxpayer().npwp());
 
-        // Test Coretax lampiran API endpoint
-        navigateTo("/api/tax-export/spt-tahunan/lampiran?year=2025");
-        waitForPageLoad();
-        String apiResponse = page.locator("body").textContent();
-        log.info("Lampiran API response length: {} chars", apiResponse.length());
+        // Transkrip 8A — Balance Sheet + P&L
+        log.info("Transkrip 8A:");
+        log.info("  Neraca Aktiva items: {}", lampiran.transkrip8A().neracaAktiva().size());
+        log.info("  Neraca Pasiva items: {}", lampiran.transkrip8A().neracaPasiva().size());
+        log.info("  Total Aktiva: {}", fmt(lampiran.transkrip8A().totalAktiva()));
+        log.info("  Total Pasiva: {}", fmt(lampiran.transkrip8A().totalPasiva()));
+        log.info("  Pendapatan Usaha: {}", fmt(lampiran.transkrip8A().labaRugi().pendapatanUsaha()));
+        assertThat(lampiran.transkrip8A().neracaAktiva()).as("Transkrip 8A should have aktiva items").isNotEmpty();
+        assertThat(lampiran.transkrip8A().totalAktiva())
+                .as("Total Aktiva should equal Total Pasiva")
+                .isEqualByComparingTo(lampiran.transkrip8A().totalPasiva());
 
-        boolean hasTranskrip8A = apiResponse.contains("transkrip8A") || apiResponse.contains("8A");
-        boolean hasLampiranI = apiResponse.contains("lampiranI") || apiResponse.contains("rekonsiliasiFiskal");
-        log.info("  Contains Transkrip 8A: {}", hasTranskrip8A);
-        log.info("  Contains Lampiran I: {}", hasLampiranI);
+        // Lampiran I — Rekonsiliasi Fiskal
+        log.info("Lampiran I (Rekonsiliasi Fiskal):");
+        log.info("  Pendapatan Neto: {}", fmt(lampiran.lampiranI().pendapatanNeto()));
+        log.info("  Koreksi Positif: {} ({} items)", fmt(lampiran.lampiranI().totalKoreksiPositif()),
+                lampiran.lampiranI().koreksiPositif().size());
+        log.info("  Koreksi Negatif: {} ({} items)", fmt(lampiran.lampiranI().totalKoreksiNegatif()),
+                lampiran.lampiranI().koreksiNegatif().size());
+        log.info("  PKP: {}", fmt(lampiran.lampiranI().penghasilanKenaPajak()));
+        for (var adj : lampiran.lampiranI().koreksiPositif()) {
+            log.info("    (+) {} [{}]: {}", adj.description(), adj.pasal(), fmt(adj.amount()));
+        }
 
-        assertThat(apiResponse.length()).as("Lampiran API should return data").isGreaterThan(100);
+        // Lampiran II — Expense Breakdown
+        log.info("Lampiran II (Rincian Beban):");
+        log.info("  Beban Usaha: {} items, total {}", lampiran.lampiranII().bebanUsaha().size(),
+                fmt(lampiran.lampiranII().totalBebanUsaha()));
+        log.info("  Beban Luar Usaha: {} items, total {}", lampiran.lampiranII().bebanLuarUsaha().size(),
+                fmt(lampiran.lampiranII().totalBebanLuarUsaha()));
+
+        // Lampiran III — Kredit Pajak PPh 23
+        log.info("Lampiran III (Kredit Pajak PPh 23):");
+        log.info("  Bukti potong PPh 23: {} entries", lampiran.lampiranIII().kreditPPh23().size());
+        log.info("  Total kredit PPh 23: {}", fmt(lampiran.lampiranIII().totalKreditPPh23()));
+
+        // PPh Badan
+        log.info("PPh Badan:");
+        log.info("  PKP: {}", fmt(lampiran.pphBadan().penghasilanKenaPajak()));
+        log.info("  PPh Terutang: {}", fmt(lampiran.pphBadan().pphTerutang()));
+        log.info("  Kredit Pajak: {}", fmt(lampiran.pphBadan().kreditPajak()));
+        log.info("  PPh 29 (Kurang Bayar): {}", fmt(lampiran.pphBadan().pph29KurangBayar()));
+
+        assertThat(lampiran.pphBadan().penghasilanKenaPajak()).as("PKP should be positive").isGreaterThan(BigDecimal.ZERO);
+        assertThat(lampiran.pphBadan().pphTerutang()).as("PPh terutang should be positive").isGreaterThan(BigDecimal.ZERO);
     }
 
     private String fmt(BigDecimal amount) {

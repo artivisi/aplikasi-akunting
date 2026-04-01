@@ -197,6 +197,9 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
             completeMonth(currentMonth, "POST");
         }
 
+        // Create fiscal adjustments for the year (typical koreksi fiskal)
+        createFiscalAdjustments(2025);
+
         log.info("Executed {} transactions via Playwright", txCount);
 
         // Log transaction status summary
@@ -404,7 +407,7 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
 
         // Select project
         if (action.project != null && !action.project.isEmpty()) {
-            var projectSelect = page.locator("#idProject");
+            var projectSelect = page.locator("#project");
             // Find option containing the project code
             var options = projectSelect.locator("option").all();
             for (var option : options) {
@@ -800,6 +803,46 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
                     });
         }
         return baos.toByteArray();
+    }
+
+    /**
+     * Create typical fiscal adjustments for the year via the Rekonsiliasi Fiskal page.
+     * Override fiscalAdjustments() in subclass to customize.
+     */
+    protected record FiscalAdj(String description, String category, String direction, long amount, String accountCode, String notes) {}
+
+    protected List<FiscalAdj> fiscalAdjustments() {
+        return List.of(
+                // Beda Tetap - Positif: entertainment/jamuan tidak ada daftar nominatif
+                new FiscalAdj("Beban entertainment tanpa daftar nominatif", "PERMANENT", "POSITIVE",
+                        5000000, "5.1.99", "Pasal 6 ayat 1 huruf a — jamuan tanpa daftar nominatif"),
+                // Beda Tetap - Positif: sumbangan/donasi non-deductible
+                new FiscalAdj("Sumbangan non-deductible", "PERMANENT", "POSITIVE",
+                        2000000, "5.1.99", "Pasal 9 ayat 1 huruf g — sumbangan"),
+                // Beda Waktu - Positif: penyusutan komersial > fiskal
+                new FiscalAdj("Selisih penyusutan komersial vs fiskal", "TEMPORARY", "POSITIVE",
+                        3000000, "5.1.12", "Penyusutan komersial 48 bulan, fiskal sesuai kelompok")
+        );
+    }
+
+    private void createFiscalAdjustments(int year) {
+        var adjustments = fiscalAdjustments();
+        if (adjustments.isEmpty()) return;
+
+        for (var adj : adjustments) {
+            navigateTo("/reports/rekonsiliasi-fiskal?year=" + year);
+            waitForPageLoad();
+
+            page.locator("#adj-description").fill(adj.description());
+            page.locator("#adj-category").selectOption(adj.category());
+            page.locator("#adj-direction").selectOption(adj.direction());
+            page.locator("#adj-amount").fill(String.valueOf(adj.amount()));
+
+            page.locator("#btn-add-adjustment").click();
+            waitForPageLoad();
+        }
+
+        log.info("Created {} fiscal adjustments for year {}", adjustments.size(), year);
     }
 
     private String getIndonesianMonthName(int month) {
