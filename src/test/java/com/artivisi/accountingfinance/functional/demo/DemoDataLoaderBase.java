@@ -373,16 +373,16 @@ public abstract class DemoDataLoaderBase extends PlaywrightTestBase {
 
                 // Match by hint type, skip already-used values
                 // Prefer Bank BCA (1.1.02) first, then Kas/Mandiri
-                if (hint.contains("BANK") && !usedValues.contains(val)) {
+                if (hint.toUpperCase().contains("BANK") && !usedValues.contains(val)) {
                     if (text.startsWith("1.1.02")) { selectedValue = val; break; }
                     else if (text.startsWith("1.1.0") && selectedValue == null) { selectedValue = val; }
-                } else if (hint.contains("PENDAPATAN") && text.startsWith("4.1.")) {
+                } else if (hint.toUpperCase().contains("PENDAPATAN") && text.startsWith("4.1.")) {
                     selectedValue = val; break;
-                } else if (hint.contains("BEBAN") && text.startsWith("5.")) {
+                } else if (hint.toUpperCase().contains("BEBAN") && text.startsWith("5.")) {
                     selectedValue = val; break;
-                } else if ((hint.contains("FIXED_ASSET") || hint.contains("ASET_TETAP")) && text.startsWith("1.2.")) {
+                } else if ((hint.toUpperCase().contains("FIXED") || hint.toUpperCase().contains("ASET")) && text.startsWith("1.2.")) {
                     selectedValue = val; break;
-                } else if (hint.contains("DEBIT_ACCOUNT") || hint.contains("CREDIT_ACCOUNT")) {
+                } else if (hint.toUpperCase().contains("DEBIT") || hint.toUpperCase().contains("CREDIT")) {
                     // Manual journal — skip auto-select
                     break;
                 }
