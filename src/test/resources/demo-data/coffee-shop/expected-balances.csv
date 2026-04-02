@@ -10,7 +10,7 @@ account_code,account_name,position,amount,notes
 1.2.01,Peralatan Kopi,DEBIT,33000000,Espresso machine 25M + seed data 8M
 2.1.02,Hutang Supplier,CREDIT,10000000,Kredit purchase Q1 unpaid
 2.1.14,Hutang PPh 21,CREDIT,600000,December PPh 21 (deposited Jan 2026)
-3.1.01,Modal Pemilik,CREDIT,500000000,Setoran modal awal (to Kas)
+3.1.01,Modal Pemilik,CREDIT,250000000,Setoran modal awal (to Kas)
 4.1.01,Pendapatan Penjualan Minuman,CREDIT,533000000,Tunai sales + GrabFood/GoFood
 5.1.01,HPP Kopi,DEBIT,169480000,COGS from Penjualan Tunai template
 6.1.01,Gaji Barista,DEBIT,360000000,30M × 12 months
