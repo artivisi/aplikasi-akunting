@@ -152,7 +152,7 @@ Buka menu **Pengguna** di sidebar.
 
 Di halaman detail pengguna, terdapat bagian **Sesi Perangkat Aktif** yang menampilkan daftar perangkat yang terhubung melalui OAuth Device Flow (misalnya Claude Code, Docker Desktop).
 
-![Sesi Perangkat](screenshots/users/device-sessions.png)
+![Sesi Perangkat](screenshots/settings/devices.png)
 
 Informasi yang ditampilkan:
 - **Perangkat** — nama perangkat yang didaftarkan
