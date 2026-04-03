@@ -375,7 +375,9 @@ public class UserManualGenerator {
     }
 
     /**
-     * Generates the complete user manual
+     * Generates multi-page user manual:
+     * - index.html: landing page with links to each guide
+     * - {group-id}.html: one page per SectionGroup with sidebar + content
      */
     public void generate() throws IOException {
         // Create output directories
@@ -388,12 +390,235 @@ public class UserManualGenerator {
             copyScreenshotsRecursively(screenshotsDir, outputScreenshotsDir);
         }
 
-        // Generate HTML
-        String html = generateHtml();
-        Path indexPath = outputDir.resolve("index.html");
-        Files.writeString(indexPath, html, StandardCharsets.UTF_8);
+        List<SectionGroup> groups = getSectionGroups();
 
-        System.out.println("User manual generated: " + indexPath);
+        // Generate landing page (index.html)
+        String landingHtml = generateLandingPage(groups);
+        Files.writeString(outputDir.resolve("index.html"), landingHtml, StandardCharsets.UTF_8);
+        System.out.println("Generated: index.html");
+
+        // Generate one page per SectionGroup
+        for (SectionGroup group : groups) {
+            // Skip the landing page group itself
+            if ("beranda".equals(group.id())) continue;
+
+            String pageHtml = generateGroupPage(group, groups);
+            Path pagePath = outputDir.resolve(group.id() + ".html");
+            Files.writeString(pagePath, pageHtml, StandardCharsets.UTF_8);
+            System.out.println("Generated: " + group.id() + ".html");
+        }
+
+        // Also generate the legacy single-page version for backward compatibility
+        String singlePageHtml = generateHtml();
+        Files.writeString(outputDir.resolve("all.html"), singlePageHtml, StandardCharsets.UTF_8);
+        System.out.println("Generated: all.html (legacy single-page)");
+    }
+
+    /**
+     * Generate landing page with cards linking to each guide.
+     */
+    private String generateLandingPage(List<SectionGroup> groups) throws IOException {
+        // Read and render the index.md content
+        String indexMarkdown = readMarkdownFile("index.md");
+        String indexContent = convertMarkdownToHtml(indexMarkdown);
+
+        // Build navigation cards
+        StringBuilder cardsHtml = new StringBuilder();
+        for (SectionGroup group : groups) {
+            if ("beranda".equals(group.id())) continue;
+            int sectionCount = group.sections().size();
+            cardsHtml.append(String.format("""
+                <a href="%s.html" class="block bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-primary-300 transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="%s"/>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-gray-900">%s</h3>
+                    </div>
+                    <p class="text-sm text-gray-500">%d bagian</p>
+                </a>
+                """, group.id(), group.icon(), group.title(), sectionCount));
+        }
+
+        return wrapInHtmlPage("Dokumentasi Balaka", String.format("""
+            <div class="max-w-5xl mx-auto px-6 py-12">
+                <div class="prose max-w-none mb-12">
+                    %s
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    %s
+                </div>
+            </div>
+            """, indexContent, cardsHtml), null);
+    }
+
+    /**
+     * Generate a single guide page with sidebar navigation and all sections.
+     */
+    private String generateGroupPage(SectionGroup group, List<SectionGroup> allGroups) throws IOException {
+        StringBuilder tocHtml = new StringBuilder();
+        StringBuilder sectionsHtml = new StringBuilder();
+
+        int sectionIndex = 0;
+        for (Section section : group.sections()) {
+            sectionIndex++;
+
+            // TOC entry
+            tocHtml.append(String.format("""
+                <li>
+                    <a href="#%s" class="flex items-center text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">
+                        <span class="w-5 h-5 flex items-center justify-center text-xs text-gray-400 mr-2">%d</span>
+                        <span class="truncate">%s</span>
+                    </a>
+                </li>
+                """, section.id(), sectionIndex, section.title()));
+
+            // Section content
+            String fullMarkdown = readMarkdownFile(section.markdownFile());
+            Set<String> siblingTitles = new HashSet<>();
+            for (Section s : group.sections()) {
+                if (s.markdownFile().equals(section.markdownFile()) && !s.title().equals(section.title())) {
+                    siblingTitles.add(s.title());
+                }
+            }
+            String sectionContent = extractSectionContent(fullMarkdown, section.title(), siblingTitles);
+            String contentHtml = convertMarkdownToHtml(sectionContent);
+            String screenshotsHtml = buildScreenshotsHtml(section.screenshots());
+
+            sectionsHtml.append(String.format("""
+                <section id="%s" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8 overflow-hidden">
+                    <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white">%s</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="prose max-w-none">
+                            %s
+                        </div>
+                        %s
+                    </div>
+                </section>
+                """, section.id(), section.title(), contentHtml, screenshotsHtml));
+        }
+
+        // Build sidebar with links to other guides
+        StringBuilder navHtml = new StringBuilder();
+        navHtml.append("""
+            <li class="mb-2">
+                <a href="index.html" class="flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 px-3 py-2 rounded-lg transition-colors">
+                    ← Kembali ke Beranda
+                </a>
+            </li>
+            <li class="mb-3">
+                <div class="text-xs font-semibold text-primary-600 uppercase tracking-wider px-3 py-1">""");
+        navHtml.append(group.title());
+        navHtml.append("""
+                </div>
+                <ul class="mt-1 space-y-1">""");
+        navHtml.append(tocHtml);
+        navHtml.append("""
+                </ul>
+            </li>
+            <li class="border-t border-gray-200 pt-3 mt-3">
+                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-1">Panduan Lain</div>
+                <ul class="mt-1 space-y-1">""");
+        for (SectionGroup other : allGroups) {
+            if ("beranda".equals(other.id()) || other.id().equals(group.id())) continue;
+            navHtml.append(String.format("""
+                    <li>
+                        <a href="%s.html" class="flex items-center text-sm text-gray-500 hover:text-primary-600 px-3 py-1.5 rounded-lg transition-colors">
+                            <span class="truncate">%s</span>
+                        </a>
+                    </li>
+                """, other.id(), other.title()));
+        }
+        navHtml.append("</ul></li>");
+
+        String bodyContent = String.format("""
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-screen-xl mx-auto px-4 py-8">
+                <aside class="lg:col-span-3">
+                    <nav class="sticky top-8">
+                        <ul class="space-y-1">
+                            %s
+                        </ul>
+                    </nav>
+                </aside>
+                <main class="lg:col-span-9">
+                    %s
+                </main>
+            </div>
+            """, navHtml, sectionsHtml);
+
+        return wrapInHtmlPage(group.title() + " — Balaka", bodyContent, group.title());
+    }
+
+    /**
+     * Wrap body content in a complete HTML page with Tailwind CSS.
+     */
+    private String wrapInHtmlPage(String title, String bodyContent, String headerTitle) {
+        String headerHtml = headerTitle != null ? String.format("""
+            <header class="bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg">
+                <div class="max-w-screen-xl mx-auto px-4 py-4 flex items-center justify-between">
+                    <a href="index.html" class="flex items-center space-x-3">
+                        <span class="text-xl font-bold">Balaka</span>
+                    </a>
+                    <span class="text-sm text-primary-200">%s</span>
+                </div>
+            </header>
+            """, headerTitle) : """
+            <header class="bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg">
+                <div class="max-w-screen-xl mx-auto px-4 py-4">
+                    <span class="text-xl font-bold">Balaka</span>
+                </div>
+            </header>
+            """;
+
+        return String.format("""
+            <!DOCTYPE html>
+            <html lang="id">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>%s</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                <script>
+                    tailwind.config = {
+                        theme: {
+                            extend: {
+                                colors: {
+                                    primary: {
+                                        50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+                                        400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                                        800: '#2E2D8E', 900: '#1e1b4b'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                </script>
+                <style>
+                    .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #1f2937; }
+                    .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
+                    .prose p { margin-bottom: 1rem; line-height: 1.7; color: #4b5563; }
+                    .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+                    .prose li { margin-bottom: 0.25rem; color: #4b5563; }
+                    .prose table { width: 100%%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
+                    .prose th { background: #f3f4f6; padding: 0.75rem; text-align: left; border: 1px solid #e5e7eb; font-weight: 600; }
+                    .prose td { padding: 0.75rem; border: 1px solid #e5e7eb; }
+                    .prose code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+                    .prose pre { background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+                    .prose pre code { background: transparent; padding: 0; color: inherit; }
+                    .prose a { color: #4f46e5; text-decoration: underline; }
+                    .prose strong { font-weight: 600; color: #1f2937; }
+                    .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; color: #6b7280; font-style: italic; }
+                    .prose img { max-width: 100%%; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin: 1rem 0; }
+                </style>
+            </head>
+            <body class="bg-gray-50 min-h-screen">
+                %s
+                %s
+            </body>
+            </html>
+            """, title, headerHtml, bodyContent);
     }
 
     /**
