@@ -353,12 +353,12 @@ public class FiscalYearClosingService {
         return String.format("FC-%d-%04d", year, sequence.getLastNumber());
     }
 
+    private static final String JOURNAL_PREFIX = "FC-";
+
     private String generateJournalNumber(LocalDate date) {
         // Format: FC-YYYY-XXXX (Fiscal Closing year-sequence)
-        // Uses a simple format that doesn't conflict with findMaxSequenceByPrefix
-        String prefix = "FC-" + date.getYear() + "-";
-        // Count existing closing entries for this year to determine next sequence
-        long existing = journalEntryRepository.countByReferenceNumberLike("CLOSING-" + date.getYear() + "%");
+        String prefix = JOURNAL_PREFIX + date.getYear() + "-";
+        long existing = journalEntryRepository.countByReferenceNumberLike(CLOSING_REF_PREFIX + date.getYear() + "%");
         int nextSeq = (int) existing + 1;
         return prefix + String.format("%04d", nextSeq);
     }

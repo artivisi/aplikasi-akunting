@@ -290,9 +290,11 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
         Boolean wasActive = user.getActive();
         userService.toggleActive(id);
+        String fromStatus = Boolean.TRUE.equals(wasActive) ? "active" : "inactive";
+        String toStatus = Boolean.TRUE.equals(wasActive) ? "inactive" : "active";
         securityAuditService.log(AuditEventType.USER_STATUS_CHANGED,
                 "User " + user.getUsername() + AUDIT_ID_SUFFIX + id + ") status changed from " +
-                        (Boolean.TRUE.equals(wasActive) ? "active" : "inactive") + " to " + (Boolean.TRUE.equals(wasActive) ? "inactive" : "active"));
+                        fromStatus + " to " + toStatus);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Status pengguna berhasil diubah");
         return REDIRECT_USERS_PREFIX + id;
     }

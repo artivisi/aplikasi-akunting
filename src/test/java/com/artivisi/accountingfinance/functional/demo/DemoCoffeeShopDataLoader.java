@@ -47,9 +47,9 @@ class DemoCoffeeShopDataLoader extends DemoDataLoaderBase {
         );
     }
 
-    @Test @Order(1) void importSeed() throws Exception { importSeedData(); }
-    @Test @Order(2) void importMaster() throws Exception { importMasterData(); }
-    @Test @Order(3) void createUsers() { createDemoUsers(); }
+    @Test @Order(1) void importSeed() throws Exception { var seedResult = importSeedData(); org.assertj.core.api.Assertions.assertThat(seedResult.totalRecords()).isGreaterThan(0); }
+    @Test @Order(2) void importMaster() throws Exception { var masterResult = importMasterData(); org.assertj.core.api.Assertions.assertThat(masterResult.totalRecords()).isGreaterThan(0); }
+    @Test @Order(3) void createUsers() { createDemoUsers(); org.assertj.core.api.Assertions.assertThat(userRepository.findByUsername("admin")).isPresent(); }
     @Test @Order(4) void executeTransactions() {
         executeDemoTransactions("demo-data/coffee-shop/demo-transactions.csv");
     }

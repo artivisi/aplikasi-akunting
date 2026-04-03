@@ -229,6 +229,9 @@ class JournalEntryUiTest extends PlaywrightTestBase {
 
         // Screenshot 3: Posted result
         takeManualScreenshot("journal-entry/result-posted");
+
+        // Verify the journal was posted (page should show posted status)
+        assertThat(page.url()).as("Should redirect after posting").doesNotContain("journal-entry/new");
     }
 
     /**

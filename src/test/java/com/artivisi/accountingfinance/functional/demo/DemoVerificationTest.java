@@ -73,10 +73,13 @@ class DemoVerificationTest extends DemoDataLoaderBase {
 
     @Test @Order(1) @DisplayName("0. Load demo data")
     void loadData() throws Exception {
-        importSeedData();
-        importMasterData();
+        var seedResult = importSeedData();
+        assertThat(seedResult.totalRecords()).isGreaterThan(0);
+        var masterResult = importMasterData();
+        assertThat(masterResult.totalRecords()).isGreaterThan(0);
         createDemoUsers();
         executeDemoTransactions(demoTransactionsCsvPath());
+        assertThat(transactionRepository.count()).as("Should have transactions after loading").isGreaterThan(0);
     }
 
     @Test @Order(2) @DisplayName("1. Capture UI screenshots and verify expected balances")

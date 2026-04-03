@@ -41,19 +41,19 @@ class DemoOnlineSellerDataLoader extends DemoDataLoaderBase {
     @Test @Order(1)
     @DisplayName("1. Import seed data")
     void importSeed() throws Exception {
-        importSeedData();
+        var seedResult = importSeedData(); org.assertj.core.api.Assertions.assertThat(seedResult.totalRecords()).isGreaterThan(0);
     }
 
     @Test @Order(2)
     @DisplayName("2. Import master data")
     void importMaster() throws Exception {
-        importMasterData();
+        var masterResult = importMasterData(); org.assertj.core.api.Assertions.assertThat(masterResult.totalRecords()).isGreaterThan(0);
     }
 
     @Test @Order(3)
     @DisplayName("3. Create demo users")
     void createUsers() {
-        createDemoUsers();
+        createDemoUsers(); org.assertj.core.api.Assertions.assertThat(userRepository.findByUsername("admin")).isPresent();
     }
 
     @Test @Order(4)
